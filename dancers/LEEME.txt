@@ -50,3 +50,7 @@ en vez del temblor rapido de antes. Ver tools/hair_tuning.
 - El pelo ya no pasa por delante del torso: plano trasero (en el hueso del pecho) que las coletas no cruzan.
 - Animacion con interpolacion Catmull-Rom en vez de lineal: la velocidad es continua y el pelo ya no recibe
   un tiron a cada fotograma de la animacion (30 fps). Mas suave y mas cercano al MMD de referencia.
+
+1.2.5
+- Pelo mas lento y flotante (como con poca gravedad): amortiguacion 11 -> 26, rigidez 8 -> 5, gravedad 8 -> 9.
+  Solo se ralentiza la respuesta; no sube ni se abre mas. En simulacion el temblor de alta frecuencia baja a casi la mitad.
