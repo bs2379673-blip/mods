@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.tunombre.efactions.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "LocalPlayerPatchMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

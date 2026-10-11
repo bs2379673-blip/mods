@@ -1,0 +1,33 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="efactions"
+version="1.1.0"
+displayName="EF Actions (animaciones de Epic Fight para Survivors Arsenal y Cuffed)"
+description="Reproduce animaciones de Epic Fight en tercera persona al curarse (inyeccion, venda, botiquin, spray), lanzar granadas, lootear muebles de sa_decor y estar esposado con Cuffed."
+
+[[dependencies.efactions]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.efactions]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.efactions]]
+modId="epicfight"
+mandatory=true
+versionRange="[20.14,)"
+ordering="AFTER"
+side="BOTH"
+
+[[mixins]]
+config="efactions.mixins.json"

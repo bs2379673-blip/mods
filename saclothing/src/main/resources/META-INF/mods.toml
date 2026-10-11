@@ -1,0 +1,38 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="saclothing"
+version="1.0.0"
+displayTest="IGNORE_ALL_VERSION"
+displayName="SA Clothing x Epic Fight (ropa y armaduras que siguen el esqueleto)"
+description="Dibuja la ropa, armaduras y chalecos de Survivors Arsenal con mallas de Epic Fight que se deforman con el cuerpo (torso, codos, rodillas). Funciona en el slot de armadura y en Curios. Solo cliente."
+
+[[dependencies.saclothing]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.saclothing]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.saclothing]]
+modId="epicfight"
+mandatory=true
+versionRange="[20.14,)"
+ordering="AFTER"
+side="CLIENT"
+
+[[dependencies.saclothing]]
+modId="curios"
+mandatory=true
+versionRange="[5.0,)"
+ordering="AFTER"
+side="CLIENT"
