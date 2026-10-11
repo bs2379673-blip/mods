@@ -54,3 +54,6 @@ en vez del temblor rapido de antes. Ver tools/hair_tuning.
 1.2.5
 - Pelo mas lento y flotante (como con poca gravedad): amortiguacion 11 -> 26, rigidez 8 -> 5, gravedad 8 -> 9.
   Solo se ralentiza la respuesta; no sube ni se abre mas. En simulacion el temblor de alta frecuencia baja a casi la mitad.
+
+1.2.6
+- Pelo un poco mas rapido que 1.2.5 (sigue flotante): amortiguacion 26 -> 17, rigidez 5 -> 6.

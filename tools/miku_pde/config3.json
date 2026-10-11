@@ -87,8 +87,8 @@
   {
    "match": "髪.\\.[LR]",
    "group": "hair",
-   "stiffness": 5,
-   "damping": 26,
+   "stiffness": 6,
+   "damping": 17,
    "gravity": 9,
    "max_angle": 25,
    "max_total": 80,
