@@ -48,16 +48,16 @@ final class DancerFx {
                 double ph = (u * 2.2 + j / 3.0) % 1.0;
                 float rad = (float) ((2.3 * (1 - ph) + 0.25) * s);
                 ps.pushPose(); ps.translate(0, 0.03 * s, 0); ps.mulPose(Axis.XP.rotationDegrees(-90));
-                quad(ps, buf, RING, rad, rad, 0, 0.5f, 1f, 0.95f, (float) (ph * 0.85 * (0.4 + 0.6 * u)));
+                quad(ps, buf, RING, rad, rad, 0, 0, (float) (ph * 0.85 * (0.4 + 0.6 * u)));
                 ps.popPose();
             }
             // la estrella late y crece
             float pulse = (float) (1 + 0.15 * Math.sin(t * 1.4));
             float r = (float) ((0.12 + 0.75 * u * u) * s) * pulse;
             ps.pushPose(); ps.translate(0, cy, 0); ps.mulPose(disp.cameraOrientation());
-            quad(ps, buf, FLARE, r * 1.6f, r * 1.6f, 0, 0, 0.8f, 1f, (float) Math.min(1, 0.45 + 0.7 * u));
+            quad(ps, buf, FLARE, r * 1.6f, r * 1.6f, 0, 0, (float) Math.min(1, 0.45 + 0.7 * u));
             ps.mulPose(Axis.ZP.rotationDegrees((float) (t * 6)));
-            quad(ps, buf, FLARE, r, r, 0, 0, 1f, 1f, (float) Math.min(1, 0.4 + 0.6 * u));
+            quad(ps, buf, FLARE, r, r, 0, 0, (float) Math.min(1, 0.4 + 0.6 * u));
             ps.popPose();
             return;
         }
@@ -67,32 +67,32 @@ final class DancerFx {
         // destello central
         ps.pushPose(); ps.translate(0, cy, 0); ps.mulPose(disp.cameraOrientation());
         float big = (float) ((2.2 + 3.0 * p) * s);
-        quad(ps, buf, FLARE, big, big, 0, 0, 0.9f, 1f, qa);
+        quad(ps, buf, FLARE, big, big, 0, 0, qa);
         ps.mulPose(Axis.ZP.rotationDegrees((float) (20 + f * 5)));
-        quad(ps, buf, FLARE, big * 0.7f, big * 0.7f, 0, 0, 1f, 1f, (float) q);
+        quad(ps, buf, FLARE, big * 0.7f, big * 0.7f, 0, 0, (float) q);
         // rayos que salen hacia afuera
         float rayAlpha = (float) (q * q * 0.9);
         for (int i = 0; i < 12; i++) {
             ps.pushPose();
             ps.mulPose(Axis.ZP.rotationDegrees(i * 30f + (i % 2 == 0 ? 8f : -5f)));
             float len = (float) ((1.2 + 3.2 * Math.sqrt(p)) * s * (0.7 + 0.3 * ((i * 7) % 5) / 4.0));
-            quad(ps, buf, BEAM, 0.09f * s * (float) (1 + p), len, 0, len, 0.8f, 1f, rayAlpha);   // desplazado para que nazca en el centro
+            quad(ps, buf, BEAM, 0.09f * s * (float) (1 + p), len, 0, len, rayAlpha);   // desplazado para que nazca en el centro
             ps.popPose();
         }
         // onda de choque de cara a la camara
         float sw = (float) (Math.sqrt(p) * 3.4 * s);
-        quad(ps, buf, RING, sw, sw, 0, 0, 0.85f, 1f, (float) q);
+        quad(ps, buf, RING, sw, sw, 0, 0, (float) q);
         ps.popPose();
         // onda de choque en el suelo
         float gw = (float) (Math.pow(p, 0.6) * 4.2 * s);
         ps.pushPose(); ps.translate(0, 0.03 * s, 0); ps.mulPose(Axis.XP.rotationDegrees(-90));
-        quad(ps, buf, RING, gw, gw, 0, 0, 0.9f, 1f, (float) q);
-        quad(ps, buf, RING, gw * 0.55f, gw * 0.55f, 0, 0, 0.8f, 1f, (float) (q * 0.7));
+        quad(ps, buf, RING, gw, gw, 0, 0, (float) q);
+        quad(ps, buf, RING, gw * 0.55f, gw * 0.55f, 0, 0, (float) (q * 0.7));
         ps.popPose();
         // pilar de luz
         ps.pushPose(); ps.translate(0, 0, 0); ps.mulPose(Axis.YP.rotationDegrees(-camYaw + 180f));
         float pw = (float) ((0.55 + 0.5 * p) * s), ph2 = 3.2f * s;
-        quad(ps, buf, BEAM, pw, ph2, 0, ph2, 0.85f, 1f, (float) Math.pow(q, 1.2));
+        quad(ps, buf, BEAM, pw, ph2, 0, ph2, (float) Math.pow(q, 1.2));
         ps.popPose();
     }
 
@@ -100,11 +100,11 @@ final class DancerFx {
      * Dibuja un rectangulo aditivo en el plano XY local: medio ancho hw, medio alto hh, centrado en (ox, oy).
      */
     private static void quad(PoseStack ps, MultiBufferSource buf, ResourceLocation tex, float hw, float hh, float ox, float oy,
-                             float tr, float tg, float tb, float alpha) {
+                             float alpha) {
         if (alpha <= 0.003f) return;
         VertexConsumer vc = buf.getBuffer(RenderType.eyes(tex));
         Matrix4f pm = ps.last().pose(); Matrix3f nm = ps.last().normal();
-        int r = (int) (255 * Math.min(1, tr + 0.5)), g = (int) (255 * Math.min(1, tg + 0.5)), b = (int) (255 * Math.min(1, tb + 0.5));
+        int r = 255, g = 255, b = 255;
         int al = (int) (255 * Math.min(1f, alpha));
         float[][] c = {{-hw, -hh, 0, 1}, {hw, -hh, 1, 1}, {hw, hh, 1, 0}, {-hw, hh, 0, 0}};
         for (float[] k : c)
