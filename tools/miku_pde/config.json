@@ -1,0 +1,392 @@
+{
+ "name": "mikupd",
+ "fbx": "miku_pde.fbx",
+ "height": 1.6,
+ "mesh_to_skeleton": 100.0,
+ "fallback_bone": "Root",
+ "textures": [
+  "h.png",
+  "l.png",
+  "u.png",
+  "f.png"
+ ],
+ "material_texture": {
+  "0": 2,
+  "1": 1,
+  "2": 0,
+  "3": 0,
+  "4": 3,
+  "5": 3,
+  "6": 3,
+  "7": 3,
+  "8": 3
+ },
+ "map": [
+  [
+   "全ての親",
+   "Root"
+  ],
+  [
+   "センター",
+   "Root"
+  ],
+  [
+   "下半身",
+   "Root"
+  ],
+  [
+   "上半身",
+   "Torso"
+  ],
+  [
+   "上半身2",
+   "Chest"
+  ],
+  [
+   "首",
+   "Head"
+  ],
+  [
+   "頭",
+   "Head"
+  ],
+  [
+   "目\\..",
+   "Head"
+  ],
+  [
+   "肩\\..",
+   "Chest"
+  ],
+  [
+   "腕\\.L",
+   "Arm_L"
+  ],
+  [
+   "ひじ\\.L",
+   "Hand_L"
+  ],
+  [
+   "手首\\.L",
+   "Tool_L"
+  ],
+  [
+   "(人指|中指|薬指|小指|親指)[0-9]\\.L",
+   "Tool_L"
+  ],
+  [
+   "腕\\.R",
+   "Arm_R"
+  ],
+  [
+   "ひじ\\.R",
+   "Hand_R"
+  ],
+  [
+   "手首\\.R",
+   "Tool_R"
+  ],
+  [
+   "(人指|中指|薬指|小指|親指)[0-9]\\.R",
+   "Tool_R"
+  ],
+  [
+   "足\\.L",
+   "Thigh_L"
+  ],
+  [
+   "ひざ\\.L",
+   "Leg_L"
+  ],
+  [
+   "足首\\.L",
+   "Leg_L"
+  ],
+  [
+   "つま先\\.L",
+   "Leg_L"
+  ],
+  [
+   "足\\.R",
+   "Thigh_R"
+  ],
+  [
+   "ひざ\\.R",
+   "Leg_R"
+  ],
+  [
+   "足首\\.R",
+   "Leg_R"
+  ],
+  [
+   "つま先\\.R",
+   "Leg_R"
+  ],
+  [
+   "髪(.)\\.L",
+   "hairL\\1"
+  ],
+  [
+   "髪(.)\\.R",
+   "hairR\\1"
+  ],
+  [
+   "tie(.)",
+   "tie\\1"
+  ],
+  [
+   "スカート前\\.L",
+   "skirt_fl"
+  ],
+  [
+   "スカート前\\.R",
+   "skirt_fr"
+  ],
+  [
+   "スカート",
+   "skirt_b"
+  ],
+  [
+   "スカート後\\.L",
+   "skirt_bl"
+  ],
+  [
+   "スカート後\\.R",
+   "skirt_br"
+  ]
+ ],
+ "pivots": {
+  "Root": [
+   "足.L",
+   "足.R"
+  ],
+  "Thigh_L": "足.L",
+  "Thigh_R": "足.R",
+  "Leg_L": "ひざ.L",
+  "Leg_R": "ひざ.R",
+  "Torso": "上半身",
+  "Chest": "上半身2",
+  "Head": "首",
+  "Arm_L": "腕.L",
+  "Hand_L": "ひじ.L",
+  "Tool_L": "手首.L",
+  "Arm_R": "腕.R",
+  "Hand_R": "ひじ.R",
+  "Tool_R": "手首.R"
+ },
+ "rest_fix": {
+  "L": {
+   "shoulder": "腕.L",
+   "wrist": "手首.L",
+   "bones": [
+    "Arm_L",
+    "Hand_L",
+    "Tool_L"
+   ],
+   "move_joints": [
+    "Hand_L",
+    "Tool_L"
+   ]
+  },
+  "R": {
+   "shoulder": "腕.R",
+   "wrist": "手首.R",
+   "bones": [
+    "Arm_R",
+    "Hand_R",
+    "Tool_R"
+   ],
+   "move_joints": [
+    "Hand_R",
+    "Tool_R"
+   ]
+  }
+ },
+ "springs": {
+  "hairL1": {
+   "bone": "髪１.L",
+   "parent": "Head",
+   "stiffness": 90,
+   "damping": 3.5,
+   "gravity": 0.0,
+   "max_angle": 55
+  },
+  "hairL2": {
+   "bone": "髪２.L",
+   "parent": "hairL1",
+   "stiffness": 90,
+   "damping": 3.5,
+   "gravity": 0.0,
+   "max_angle": 55
+  },
+  "hairL3": {
+   "bone": "髪３.L",
+   "parent": "hairL2",
+   "stiffness": 90,
+   "damping": 3.5,
+   "gravity": 0.0,
+   "max_angle": 55
+  },
+  "hairL4": {
+   "bone": "髪４.L",
+   "parent": "hairL3",
+   "stiffness": 90,
+   "damping": 3.5,
+   "gravity": 0.0,
+   "max_angle": 55
+  },
+  "hairL5": {
+   "bone": "髪５.L",
+   "parent": "hairL4",
+   "stiffness": 90,
+   "damping": 3.5,
+   "gravity": 0.0,
+   "max_angle": 55
+  },
+  "hairL6": {
+   "bone": "髪６.L",
+   "parent": "hairL5",
+   "stiffness": 90,
+   "damping": 3.5,
+   "gravity": 0.0,
+   "max_angle": 55
+  },
+  "hairR1": {
+   "bone": "髪１.R",
+   "parent": "Head",
+   "stiffness": 90,
+   "damping": 3.5,
+   "gravity": 0.0,
+   "max_angle": 55
+  },
+  "hairR2": {
+   "bone": "髪２.R",
+   "parent": "hairR1",
+   "stiffness": 90,
+   "damping": 3.5,
+   "gravity": 0.0,
+   "max_angle": 55
+  },
+  "hairR3": {
+   "bone": "髪３.R",
+   "parent": "hairR2",
+   "stiffness": 90,
+   "damping": 3.5,
+   "gravity": 0.0,
+   "max_angle": 55
+  },
+  "hairR4": {
+   "bone": "髪４.R",
+   "parent": "hairR3",
+   "stiffness": 90,
+   "damping": 3.5,
+   "gravity": 0.0,
+   "max_angle": 55
+  },
+  "hairR5": {
+   "bone": "髪５.R",
+   "parent": "hairR4",
+   "stiffness": 90,
+   "damping": 3.5,
+   "gravity": 0.0,
+   "max_angle": 55
+  },
+  "hairR6": {
+   "bone": "髪６.R",
+   "parent": "hairR5",
+   "stiffness": 90,
+   "damping": 3.5,
+   "gravity": 0.0,
+   "max_angle": 55
+  },
+  "tie1": {
+   "bone": "tie1",
+   "parent": "Chest",
+   "stiffness": 110,
+   "damping": 4,
+   "max_angle": 50
+  },
+  "tie2": {
+   "bone": "tie2",
+   "parent": "tie1",
+   "stiffness": 110,
+   "damping": 4,
+   "max_angle": 50
+  },
+  "tie3": {
+   "bone": "tie3",
+   "parent": "tie2",
+   "stiffness": 110,
+   "damping": 4,
+   "max_angle": 50
+  },
+  "tie4": {
+   "bone": "tie4",
+   "parent": "tie3",
+   "stiffness": 110,
+   "damping": 4,
+   "max_angle": 50
+  },
+  "tie5": {
+   "bone": "tie5",
+   "parent": "tie4",
+   "stiffness": 110,
+   "damping": 4,
+   "max_angle": 50
+  },
+  "tie6": {
+   "bone": "tie6",
+   "parent": "tie5",
+   "stiffness": 110,
+   "damping": 4,
+   "max_angle": 50
+  },
+  "tie7": {
+   "bone": "tie7",
+   "parent": "tie6",
+   "stiffness": 110,
+   "damping": 4,
+   "max_angle": 50
+  },
+  "skirt_fl": {
+   "bone": "ｽｶｰﾄ前.L",
+   "parent": "Root",
+   "stiffness": 160,
+   "damping": 5,
+   "max_angle": 40,
+   "end_len": 0.2
+  },
+  "skirt_fr": {
+   "bone": "ｽｶｰﾄ前.R",
+   "parent": "Root",
+   "stiffness": 160,
+   "damping": 5,
+   "max_angle": 40,
+   "end_len": 0.2
+  },
+  "skirt_b": {
+   "bone": "スカート",
+   "parent": "Root",
+   "stiffness": 160,
+   "damping": 5,
+   "max_angle": 40,
+   "end_len": 0.2
+  },
+  "skirt_bl": {
+   "bone": "ｽｶｰﾄ後.L",
+   "parent": "Root",
+   "stiffness": 160,
+   "damping": 5,
+   "max_angle": 40,
+   "end_len": 0.2
+  },
+  "skirt_br": {
+   "bone": "ｽｶｰﾄ後.R",
+   "parent": "Root",
+   "stiffness": 160,
+   "damping": 5,
+   "max_angle": 40,
+   "end_len": 0.2
+  }
+ }
+}

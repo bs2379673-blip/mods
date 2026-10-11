@@ -18,7 +18,7 @@ import org.joml.Matrix4f;
 public class DancerRenderer extends EntityRenderer<DancerEntity> {
     private static final ResourceLocation FALLBACK = new ResourceLocation("minecraft", "textures/entity/steve.png");
 
-    private static final class Holder { Rig.Model model; Rig.SpringState st; long last; }
+    private static final class Holder { Rig.Model model; Rig.SpringState st; long last; float[] pos, nrm; }
 
     public DancerRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
@@ -82,6 +82,25 @@ public class DancerRenderer extends EntityRenderer<DancerEntity> {
                     // espacio de Epic Fight (X derecha, Y frente, Z arriba) -> Minecraft (X izquierda, Y arriba, Z frente)
                     vc.vertex(pm, (float) -px, (float) pz, (float) py).color(255, 255, 255, 255).uv(v[i + 3], v[i + 4])
                             .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(nm, (float) -nx, (float) nz, (float) ny).endVertex();
+                }
+            }
+        }
+        if (m.skin != null) {
+            Rig.Skin k = m.skin;
+            int n = k.count();
+            if (h.pos == null || h.pos.length != n * 3) { h.pos = new float[n * 3]; h.nrm = new float[n * 3]; }
+            Rig.skin(k, R, T, h.pos, h.nrm);
+            float[] pp = h.pos, nn = h.nrm;
+            for (int g = 0; g < k.groupTex.length; g++) {
+                VertexConsumer vc = buf.getBuffer(RenderType.entityCutoutNoCull(tex[k.groupTex[g]]));
+                int end = (k.groupStart[g] + k.groupCount[g]) * 3;
+                for (int ti = k.groupStart[g] * 3; ti < end; ti += 3) {
+                    for (int c = 0; c < 4; c++) {
+                        int vi = k.tris[ti + (c < 3 ? c : 2)];
+                        // Epic Fight (X derecha, Y frente, Z arriba) -> Minecraft (X izquierda, Y arriba, Z frente)
+                        vc.vertex(pm, -pp[vi * 3], pp[vi * 3 + 2], pp[vi * 3 + 1]).color(255, 255, 255, 255).uv(k.v[vi * 8 + 3], k.v[vi * 8 + 4])
+                                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(nm, -nn[vi * 3], nn[vi * 3 + 2], nn[vi * 3 + 1]).endVertex();
+                    }
                 }
             }
         }

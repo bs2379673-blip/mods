@@ -195,6 +195,12 @@ public final class Rig {
     }
 
     // ------------------------------------------------------------------ modelo
+    /** Malla con pesos: 8 floats por vertice (x y z u v nx ny nz), 4 huesos y 4 pesos por vertice, triangulos por grupo de textura. */
+    public static final class Skin {
+        public float[] v; public int[] bi; public float[] bw; public int[] tris; public int[] groupTex, groupStart, groupCount;
+        public int count() { return v.length / 8; }
+    }
+
     public static final class Model {
         public String name;
         public String[] textures;
@@ -207,6 +213,7 @@ public final class Rig {
         public double[] springPivot, springTip, springLen, springParams;   // params: rigidez, amortiguacion, gravedad, angulo max (rad)
         public double hipHeight;
         public Part[] parts;
+        public Skin skin;   // malla con pesos (formato 2), puede ser null
         /** Para el cliente: cache de ResourceLocation de las texturas. */
         public Object userData;
         public int boneCount() { return jointNames.length + springNames.length; }
@@ -288,6 +295,20 @@ public final class Rig {
                 }
             }
             m.parts = parts.toArray(new Part[0]);
+            if (o.has("skin")) {
+                JsonObject so = o.getAsJsonObject("skin");
+                Skin k = new Skin();
+                JsonArray names = so.getAsJsonArray("bones"); int[] map = new int[names.size()];
+                for (int i = 0; i < map.length; i++) { Integer bi = boneIdx.get(names.get(i).getAsString()); map[i] = bi == null ? 0 : bi; }
+                JsonArray va = so.getAsJsonArray("v"); k.v = new float[va.size()]; for (int i = 0; i < k.v.length; i++) k.v[i] = va.get(i).getAsFloat();
+                JsonArray ba = so.getAsJsonArray("bi"); k.bi = new int[ba.size()]; for (int i = 0; i < k.bi.length; i++) k.bi[i] = map[ba.get(i).getAsInt()];
+                JsonArray wa = so.getAsJsonArray("bw"); k.bw = new float[wa.size()]; for (int i = 0; i < k.bw.length; i++) k.bw[i] = wa.get(i).getAsFloat();
+                JsonArray ta = so.getAsJsonArray("tris"); k.tris = new int[ta.size()]; for (int i = 0; i < k.tris.length; i++) k.tris[i] = ta.get(i).getAsInt();
+                JsonArray ga = so.getAsJsonArray("groups"); int g = ga.size();
+                k.groupTex = new int[g]; k.groupStart = new int[g]; k.groupCount = new int[g];
+                for (int i = 0; i < g; i++) { JsonObject go = ga.get(i).getAsJsonObject(); k.groupTex[i] = go.get("tex").getAsInt(); k.groupStart[i] = go.get("start").getAsInt(); k.groupCount[i] = go.get("count").getAsInt(); }
+                m.skin = k;
+            }
             return m;
         }
     }
@@ -387,6 +408,29 @@ public final class Rig {
             outT[b * 3] = Q[0] - tmp[0]; outT[b * 3 + 1] = Q[1] - tmp[1]; outT[b * 3 + 2] = Q[2] - tmp[2];
         }
         if (st != null) st.acc -= ((int) (st.acc / STEP)) * STEP;
+    }
+
+    /** Deforma la malla con pesos: outPos (3 por vertice) y outNrm (3 por vertice), en espacio de Epic Fight. */
+    public static void skin(Skin k, double[] R, double[] T, float[] outPos, float[] outNrm) {
+        int n = k.count();
+        for (int i = 0; i < n; i++) {
+            double x = k.v[i * 8], y = k.v[i * 8 + 1], z = k.v[i * 8 + 2], nx = k.v[i * 8 + 5], ny = k.v[i * 8 + 6], nz = k.v[i * 8 + 7];
+            double px = 0, py = 0, pz = 0, qx = 0, qy = 0, qz = 0;
+            for (int j = 0; j < 4; j++) {
+                double w = k.bw[i * 4 + j];
+                if (w <= 0) continue;
+                int b = k.bi[i * 4 + j], r = b * 9, t = b * 3;
+                px += w * (R[r] * x + R[r + 1] * y + R[r + 2] * z + T[t]);
+                py += w * (R[r + 3] * x + R[r + 4] * y + R[r + 5] * z + T[t + 1]);
+                pz += w * (R[r + 6] * x + R[r + 7] * y + R[r + 8] * z + T[t + 2]);
+                qx += w * (R[r] * nx + R[r + 1] * ny + R[r + 2] * nz);
+                qy += w * (R[r + 3] * nx + R[r + 4] * ny + R[r + 5] * nz);
+                qz += w * (R[r + 6] * nx + R[r + 7] * ny + R[r + 8] * nz);
+            }
+            outPos[i * 3] = (float) px; outPos[i * 3 + 1] = (float) py; outPos[i * 3 + 2] = (float) pz;
+            double l = Math.sqrt(qx * qx + qy * qy + qz * qz); if (l < 1e-9) l = 1;
+            outNrm[i * 3] = (float) (qx / l); outNrm[i * 3 + 1] = (float) (qy / l); outNrm[i * 3 + 2] = (float) (qz / l);
+        }
     }
 
     private static double dist2(double[] a, int ao, double[] b) {

@@ -16,3 +16,9 @@ PELO: las coletas tienen simulacion de resorte (inercia y gravedad). Se ajusta e
 
 AÑADIR MODELOS: ver tools/gltf2dancer.py (Blockbench -> glTF -> modelo). El resultado (json + png) va en
 assets/dancers/dancer_models/<nombre>.json y assets/dancers/textures/dancers/. Tambien funciona desde un resourcepack.
+
+--- 1.1.0 ---
+Modelo nuevo: "mikupd" (Miku PDE con malla suave, pelo/coletas/corbata/falda con resorte).
+  /dancer spawn mikupd
+Formato 2 (malla con pesos): se genera con tools/fbx2dancer.py desde un FBX riggeado + un config.json
+(ver tools/miku_pde/config.json como ejemplo de mapeo de huesos).
