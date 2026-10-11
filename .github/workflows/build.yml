@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mod: [efactions, saclothing, dancers]
+        mod: [efactions, saclothing, dancers, tacui]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -25,7 +25,11 @@ jobs:
         working-directory: ${{ matrix.mod }}
         run: |
           chmod +x gradlew
-          ./gradlew clean build --no-daemon --stacktrace
+          set -o pipefail
+          ./gradlew clean build --no-daemon --stacktrace 2>&1 | tee build.log || {
+            grep -E "error:|\.java:[0-9]+: " build.log | head -40 | while IFS= read -r l; do echo "::error::${l}"; done
+            exit 1
+          }
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.mod }}

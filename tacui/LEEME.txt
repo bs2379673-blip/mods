@@ -1,0 +1,12 @@
+Tactical UI 0.1.0 (solo cliente)
+
+HUD tactico: barras de armadura / hambre / sed (Thirst Was Taken) / aire, vida, hotbar, municion de TACZ
+(cargador y reserva, modo de disparo), resistencia de Epic Fight y cordura (Sanity) a la derecha, brujula.
+Inventario tactico: modelo del jugador al centro, anillo de equipo (armadura, mano secundaria y casillas de
+Survivors Arsenal), crafting, panel de equipo, hotbar, SORT y DROP. Modo edicion (engranaje arriba a la izquierda):
+arrastra los paneles; R reinicia; ESC guarda. Temas: RED (por defecto), BLUE, GREEN, ORANGE, BLACKOUT.
+
+Comandos: /tacui theme <nombre> | /tacui reset | /tacui inventory on|off | /tacui hud on|off
+Los ajustes se guardan en config/tacui_layout.json.
+
+Pendiente: casillas de Curios y armadura cosmetica dentro de esta pantalla, contenedores con estilo propio.

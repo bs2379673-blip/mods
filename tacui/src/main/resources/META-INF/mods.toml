@@ -1,0 +1,23 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="Tactical UI (HUD e inventario tacticos)"
+description='''HUD y pantalla de inventario tacticos con temas y paneles editables. Solo cliente: se integra con TACZ, Epic Fight, Thirst Was Taken, Sanity y Survivors Arsenal si estan instalados.'''
+
+[[dependencies.${mod_id}]]
+modId="forge"
+mandatory=true
+versionRange="${forge_version_range}"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.${mod_id}]]
+modId="minecraft"
+mandatory=true
+versionRange="${minecraft_version_range}"
+ordering="NONE"
+side="CLIENT"
