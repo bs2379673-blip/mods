@@ -58,6 +58,12 @@ public class ServerHooks {
         boolean rReload = false, rLoaded = false, rCharge = false;
         long rOvEnd = -1;
         int walkie = 0;              // 0 nada, 1 mano derecha, 2 mano izquierda
+        long walkieAt = 0;           // ultimo tick en que se (re)impuso la animacion del walkie
+        int walkieBurst = 0;         // reimposiciones rapidas pendientes tras encender
+        boolean everProne = false;   // ya estuvo a tierra alguna vez (para la red de seguridad)
+        long proneStopAt = -1;       // tick de la proxima orden de parar el arrastre tras levantarse
+        int proneStopLeft = 0;
+        long rHoldAt = 0;            // ultimo tick en que se (re)impuso la postura del arma a distancia
         int flash = 0;               // 0 nada, 1 brazo derecho, 2 brazo izquierdo
         String cuffPlaying = null;   // "front" | "back" | null
     }
@@ -319,6 +325,13 @@ public class ServerHooks {
         }
     }
 
+    private static void stopAllProne(ServerPlayerPatch pp) {
+        stop(pp, EfActions.PRONE_RIFLE_IDLE);
+        stop(pp, EfActions.PRONE_RIFLE_MOVE);
+        stop(pp, EfActions.PRONE_PISTOL_IDLE);
+        stop(pp, EfActions.PRONE_PISTOL_MOVE);
+    }
+
     private static AnimationManager.AnimationAccessor<StaticAnimation> proneAcc(int v) {
         switch (v) {
             case 1: return EfActions.PRONE_RIFLE_IDLE;
@@ -518,6 +531,17 @@ public class ServerHooks {
             st.walkie = wk;
             if (wk == 1) play(pp, EfActions.WALKIE_R);
             else if (wk == 2) play(pp, EfActions.WALKIE_L);
+            st.walkieAt = now;
+            st.walkieBurst = wk != 0 ? 3 : 0;
+        } else if (wk != 0) {
+            // Al encender el walkie (clic derecho) Epic Fight puede reiniciar las animaciones de brazo justo despues:
+            // se vuelve a imponer unos instantes despues y luego de vez en cuando (la pose es casi estatica, no se nota).
+            long gap = st.walkieBurst > 0 ? 4 : 40;
+            if (now - st.walkieAt >= gap) {
+                if (st.walkieBurst > 0) st.walkieBurst--;
+                st.walkieAt = now;
+                play(pp, wk == 1 ? EfActions.WALKIE_R : EfActions.WALKIE_L);
+            }
         }
 
         // --- 2f) cuerpo a tierra de TACZ: Epic Fight lo toma por nado; ponemos nuestra animacion de arrastre
@@ -546,8 +570,12 @@ public class ServerHooks {
             }
         }
         if (pv != st.prone) {
-            if (pv == 0) stop(pp, proneAcc(st.prone));
-            else {
+            if (pv == 0) {
+                stopAllProne(pp);
+                st.proneStopAt = now + 3;      // el stop de Epic Fight solo vale si la animacion actual ES la de arrastre:
+                st.proneStopLeft = 3;          // se repite unos ticks por si algo (disparo, cambio de item) la habia pisado
+            } else {
+                st.everProne = true;
                 if (st.prone == 0) {
                     if (st.cuffPlaying != null) stop(pp, "front".equals(st.cuffPlaying) ? EfActions.CUFFED_FRONT : EfActions.CUFFED_BACK);
                     st.cuffPlaying = null;
@@ -555,6 +583,15 @@ public class ServerHooks {
                 play(pp, proneAcc(pv));
             }
             st.prone = pv;
+        }
+        if (st.prone == 0 && st.everProne) {
+            if (st.proneStopLeft > 0 && now >= st.proneStopAt) {
+                st.proneStopLeft--;
+                st.proneStopAt = now + 5;
+                stopAllProne(pp);
+            } else if (now % 20 == 0 && !crawling(sp)) {
+                stopAllProne(pp);              // red de seguridad: de pie y sin arrastre nunca debe quedar la animacion
+            }
         }
 
         // --- 3) esposado (Cuffed): pose en bucle mientras no haya otra accion
@@ -618,12 +655,17 @@ public class ServerHooks {
                 stop(pp, EfActions.XBOW_SHOOT); stop(pp, EfActions.XBOW_RELOAD);
             }
             st.rk = kind;
+            st.rHoldAt = now;
             st.rMag = -1; st.rReload = false; st.rLoaded = false; st.rCharge = false; st.rOvEnd = -1;
             st.nail = kind != null;
             if (kind != null) play(pp, holdFor(kind));
         }
         if (kind == null) return;
         CompoundTag tag = mh.getTag();
+        if (st.rOvEnd < 0 && !st.rReload && !st.rCharge && now - st.rHoldAt >= 60) {   // postura de arma: se reimpone cada 3 s (por si algo la piso)
+            st.rHoldAt = now;
+            play(pp, holdFor(kind));
+        }
         if (st.rOvEnd >= 0 && now >= st.rOvEnd) {          // termino un disparo: vuelve la postura de sostener
             st.rOvEnd = -1;
             play(pp, holdFor(kind));
