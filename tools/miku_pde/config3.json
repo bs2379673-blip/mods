@@ -308,5 +308,23 @@
    "body": "/tmp/claude-0/vmd/looping_the_rooms.vmd",
    "face": "/tmp/claude-0/vmd/looping_the_rooms_face.vmd"
   }
+ ],
+ "planes": [
+  {
+   "bone": "上半身2",
+   "p": [
+    0,
+    -0.015,
+    1.1945
+   ],
+   "n": [
+    0,
+    -1,
+    0
+   ],
+   "groups": [
+    "hair"
+   ]
+  }
  ]
 }

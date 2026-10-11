@@ -182,6 +182,7 @@ def build_model(cfg, base, out):
         if isinstance(cdef['a'], list): pa = np.array(cdef['a'], float); pb = np.array(cdef['b'], float)   # coordenadas finales (metros, espacio EF)
         else: pa = tf(ef(bonepos[N(cdef['a'])])); pb = tf(ef(bonepos[N(cdef['b'])]))
         colliders.append({'bone': bidx[N(cdef['bone'])], 'a': [round(float(x), 5) for x in pa], 'b': [round(float(x), 5) for x in pb], 'r': cdef['r'], 'groups': cdef['groups']})
+    planes = [{'bone': bidx[N(pd['bone'])], 'p': [float(x) for x in pd['p']], 'n': [float(x) for x in pd['n']], 'groups': pd['groups']} for pd in cfg.get('planes', [])]
     # ---- morphs (blend shapes)
     objs = {n.props[0]: n for n in ob.children if n.props and isinstance(n.props[0], int)}
     ch = {n.props[0]: n for n in ob.all('Deformer') if n.props[2] == 'BlendShapeChannel'}
@@ -200,7 +201,7 @@ def build_model(cfg, base, out):
             if oi: morphs[mname] = {'i': oi, 'd': od}
     model = {'format': 3, 'name': cfg['name'], 'textures': tex_names, 'unit': 0.08 * cfg['height'] / 1.58,
              'bones': [{'n': n, 'p': (bidx[parent_of[n]] if parent_of[n] else -1), 'pv': [round(float(x), 5) for x in piv[i]]} for i, n in enumerate(names)],
-             'springs': springs, 'colliders': colliders, 'morphs': morphs,
+             'springs': springs, 'colliders': colliders, 'planes': planes, 'morphs': morphs,
              'skin': {'bones': names, 'v': [round(float(x), 5) for c, p, uv, n in ov for x in (p[0], p[1], p[2], uv[0], uv[1], n[0], n[1], n[2])],
                       'bi': [x for ids in bi for x in ids], 'bw': [round(float(x), 4) for ws in bw for x in ws], 'tris': flat, 'groups': groups}}
     json.dump(model, open(os.path.join(out, cfg['name'] + '.json'), 'w'), separators=(',', ':'))

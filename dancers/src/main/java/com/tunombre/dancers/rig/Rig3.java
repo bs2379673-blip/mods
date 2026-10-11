@@ -40,6 +40,7 @@ public final class Rig3 {
         // colisionadores (capsulas ligadas a un hueso no resorte)
         public int[] cBone, cMask;
         public double[] cA, cB, cR;
+        public int[] pBone, pMask; public double[] pP, pN;   // planos: el nodo debe quedar del lado al que apunta pN
         // morphs de cara
         public String[] morphNames;
         public int[][] morphIdx;
@@ -98,6 +99,20 @@ public final class Rig3 {
                 int mask = 0;
                 for (JsonElement ge : cj.getAsJsonArray("groups")) { Integer gi = groups.get(ge.getAsString()); if (gi != null) mask |= 1 << gi; }
                 m.cMask[c] = mask;
+            }
+            // planos (p.ej. el pelo siempre detras del torso)
+            JsonArray pl = o.has("planes") ? o.getAsJsonArray("planes") : new JsonArray();
+            int PN = pl.size();
+            m.pBone = new int[PN]; m.pMask = new int[PN]; m.pP = new double[PN * 3]; m.pN = new double[PN * 3];
+            for (int c = 0; c < PN; c++) {
+                JsonObject pj = pl.get(c).getAsJsonObject();
+                m.pBone[c] = pj.get("bone").getAsInt();
+                double nl = 0;
+                for (int k = 0; k < 3; k++) { m.pP[c * 3 + k] = pj.getAsJsonArray("p").get(k).getAsDouble(); double nv = pj.getAsJsonArray("n").get(k).getAsDouble(); m.pN[c * 3 + k] = nv; nl += nv * nv; }
+                nl = Math.sqrt(nl); for (int k = 0; k < 3; k++) m.pN[c * 3 + k] /= nl;
+                int mask = 0;
+                for (JsonElement ge : pj.getAsJsonArray("groups")) { Integer gi = groups.get(ge.getAsString()); if (gi != null) mask |= 1 << gi; }
+                m.pMask[c] = mask;
             }
             // malla
             JsonObject so = o.getAsJsonObject("skin");
@@ -197,12 +212,20 @@ public final class Rig3 {
 
     private static final double I3 = 1.0 / 32767.0;
 
-    /** nlerp entre dos fotogramas guardados en int16 (el cuaternion se guardo con w >= 0). */
-    private static void sampleVar(short[] q, int f0, int f1, double a, double[] out) {
-        double ax = q[f0 * 4] * I3, ay = q[f0 * 4 + 1] * I3, az = q[f0 * 4 + 2] * I3, aw = q[f0 * 4 + 3] * I3;
-        double bx = q[f1 * 4] * I3, by = q[f1 * 4 + 1] * I3, bz = q[f1 * 4 + 2] * I3, bw = q[f1 * 4 + 3] * I3;
-        if (ax * bx + ay * by + az * bz + aw * bw < 0) { bx = -bx; by = -by; bz = -bz; bw = -bw; }
-        out[0] = ax + (bx - ax) * a; out[1] = ay + (by - ay) * a; out[2] = az + (bz - az) * a; out[3] = aw + (bw - aw) * a;
+    private static double cr(double p0, double p1, double p2, double p3, double t) {
+        return 0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (3 * p1 - p0 - 3 * p2 + p3) * t * t * t);
+    }
+
+    /** Catmull-Rom entre fotogramas guardados en int16 (velocidad continua: el pelo no recibe tirones a cada fotograma). */
+    private static void sampleVar(short[] q, int fm, int f0, int f1, int f2, double a, double[] out) {
+        double[] r = new double[16];
+        int[] fs = {fm, f0, f1, f2};
+        for (int j = 0; j < 4; j++) {
+            double x = q[fs[j] * 4] * I3, y = q[fs[j] * 4 + 1] * I3, z = q[fs[j] * 4 + 2] * I3, w = q[fs[j] * 4 + 3] * I3;
+            if (j > 0 && x * r[(j - 1) * 4] + y * r[(j - 1) * 4 + 1] + z * r[(j - 1) * 4 + 2] + w * r[(j - 1) * 4 + 3] < 0) { x = -x; y = -y; z = -z; w = -w; }
+            r[j * 4] = x; r[j * 4 + 1] = y; r[j * 4 + 2] = z; r[j * 4 + 3] = w;
+        }
+        for (int k = 0; k < 4; k++) out[k] = cr(r[k], r[4 + k], r[8 + k], r[12 + k], a);
     }
 
     /** Pesos de los morphs (en el orden de model.morphNames) para un instante. */
@@ -231,12 +254,13 @@ public final class Rig3 {
         int nb = m.boneCount();
         double[] P = new double[nb * 3]; double[] L = new double[9], tmp = new double[3], q = new double[4];
         double[] rt = new double[3];
-        int f0 = 0, f1 = 0; double fa = 0;
+        int f0 = 0, f1 = 0, fm = 0, f2 = 0; double fa = 0;
         if (a != null) {
             a.bind(m);
             double f = Math.max(0, time * a.fps);
             f0 = (int) Math.min(f, a.n - 1); f1 = Math.min(f0 + 1, a.n - 1); fa = f - f0; if (f0 == a.n - 1) fa = 0;
-            for (int k = 0; k < 3; k++) rt[k] = a.root[f0 * 3 + k] + (a.root[f1 * 3 + k] - a.root[f0 * 3 + k]) * fa;
+            fm = Math.max(f0 - 1, 0); f2 = Math.min(f1 + 1, a.n - 1);
+            for (int k = 0; k < 3; k++) rt[k] = cr(a.root[fm * 3 + k], a.root[f0 * 3 + k], a.root[f1 * 3 + k], a.root[f2 * 3 + k], fa);
             rt[0] *= travel; rt[1] *= travel;
         }
         for (int i = 0; i < nb; i++) {
@@ -244,7 +268,7 @@ public final class Rig3 {
             L[0] = 1; L[1] = 0; L[2] = 0; L[3] = 0; L[4] = 1; L[5] = 0; L[6] = 0; L[7] = 0; L[8] = 1;
             if (a != null && !m.isSpring[i]) {
                 int v = a.boneToVar[i], c = a.boneToConst[i];
-                if (v >= 0) { sampleVar(a.varQ[v], f0, f1, fa, q); quatMat(q[0], q[1], q[2], q[3], L, 0); }
+                if (v >= 0) { sampleVar(a.varQ[v], fm, f0, f1, f2, fa, q); quatMat(q[0], q[1], q[2], q[3], L, 0); }
                 else if (c >= 0) quatMat(a.constQ[c * 4], a.constQ[c * 4 + 1], a.constQ[c * 4 + 2], a.constQ[c * 4 + 3], L, 0);
             }
             double px = m.pivot[i * 3], py = m.pivot[i * 3 + 1], pz = m.pivot[i * 3 + 2];
@@ -275,6 +299,13 @@ public final class Rig3 {
             int b = m.cBone[c];
             Rig.apply(outR, b * 9, m.cA[c * 3], m.cA[c * 3 + 1], m.cA[c * 3 + 2], tmp); for (int k = 0; k < 3; k++) ca[c * 3 + k] = tmp[k] + outT[b * 3 + k];
             Rig.apply(outR, b * 9, m.cB[c * 3], m.cB[c * 3 + 1], m.cB[c * 3 + 2], tmp); for (int k = 0; k < 3; k++) cb[c * 3 + k] = tmp[k] + outT[b * 3 + k];
+        }
+        int PC = m.pBone.length;
+        double[] pp = new double[PC * 3], pn = new double[PC * 3];
+        for (int c = 0; c < PC; c++) {
+            int b = m.pBone[c];
+            Rig.apply(outR, b * 9, m.pP[c * 3], m.pP[c * 3 + 1], m.pP[c * 3 + 2], tmp); for (int k = 0; k < 3; k++) pp[c * 3 + k] = tmp[k] + outT[b * 3 + k];
+            Rig.apply(outR, b * 9, m.pN[c * 3], m.pN[c * 3 + 1], m.pN[c * 3 + 2], tmp); for (int k = 0; k < 3; k++) pn[c * 3 + k] = tmp[k];
         }
         double[] Q = new double[3], d0 = new double[3], da = new double[3], X0 = new double[3], dir = new double[3];
         for (int s = 0; s < S; s++) {
@@ -328,6 +359,16 @@ public final class Rig3 {
                                 ex = cx + dx / dl * r; ey = cy + dy / dl * r; ez = cz + dz / dl * r;
                                 n3[0] = ex - Q[0]; n3[1] = ey - Q[1]; n3[2] = ez - Q[2]; normalize(n3, n3); hit = true;
                                 anyHit = true; hnx = dx / dl; hny = dy / dl; hnz = dz / dl;
+                            }
+                        }
+                        for (int c = 0; c < PC; c++) {
+                            if ((m.pMask[c] & gm) == 0) continue;
+                            double ex = Q[0] + n3[0] * L1, ey = Q[1] + n3[1] * L1, ez = Q[2] + n3[2] * L1;
+                            double dd = (ex - pp[c * 3]) * pn[c * 3] + (ey - pp[c * 3 + 1]) * pn[c * 3 + 1] + (ez - pp[c * 3 + 2]) * pn[c * 3 + 2] - m.sRad[s] * 0;
+                            if (dd < 0) {
+                                ex -= dd * pn[c * 3]; ey -= dd * pn[c * 3 + 1]; ez -= dd * pn[c * 3 + 2];
+                                n3[0] = ex - Q[0]; n3[1] = ey - Q[1]; n3[2] = ez - Q[2]; normalize(n3, n3); hit = true;
+                                anyHit = true; hnx = pn[c * 3]; hny = pn[c * 3 + 1]; hnz = pn[c * 3 + 2];
                             }
                         }
                         if (!hit) break;

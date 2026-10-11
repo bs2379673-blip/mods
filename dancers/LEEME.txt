@@ -45,3 +45,8 @@ en vez del temblor rapido de antes. Ver tools/hair_tuning.
 - El pelo ya no atraviesa la espalda, hombros, brazos ni piernas: colliders de cuerpo para el pelo
   (cintura, pecho, caderas, muslos, piernas, brazos, antebrazos) y radio propio por mechon.
   Choque inelastico para que no rebote ni tiemble. Sin tocar las animaciones .dnc.
+
+1.2.4
+- El pelo ya no pasa por delante del torso: plano trasero (en el hueso del pecho) que las coletas no cruzan.
+- Animacion con interpolacion Catmull-Rom en vez de lineal: la velocidad es continua y el pelo ya no recibe
+  un tiron a cada fotograma de la animacion (30 fps). Mas suave y mas cercano al MMD de referencia.
