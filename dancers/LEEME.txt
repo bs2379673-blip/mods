@@ -66,3 +66,8 @@ en vez del temblor rapido de antes. Ver tools/hair_tuning.
   destello, y de la estrella nace la figura con un pequeno rebote). /dancer appear <obj> repite la entrada.
 - /dancer vanish <obj>: la figura se contrae en una estrella, estalla en particulas y la entidad desaparece.
 - Solo particulas y sonidos de vanilla (no depende de AAA Particles). Duracion: 3 s entrada, 2.5 s salida.
+
+1.3.1
+- Efectos de luz propios en la entrada y la salida (ademas de las particulas): estrella que late y crece, anillos de suelo
+  que se cierran, destello con espigas, 12 rayos, onda de choque (de frente y en el suelo) y pilar de luz.
+  Texturas aditivas en assets/dancers/textures/fx (flare, ring, beam); sin dependencias.

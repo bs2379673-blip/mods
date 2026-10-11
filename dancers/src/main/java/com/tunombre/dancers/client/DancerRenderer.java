@@ -32,6 +32,7 @@ public class DancerRenderer extends EntityRenderer<DancerEntity> {
 
     @Override
     public void render(DancerEntity e, float yaw, float pt, PoseStack ps, MultiBufferSource buf, int light) {
+        DancerFx.render(e, pt, ps, buf, this.entityRenderDispatcher);
         float k = e.fxScale(pt);
         if (k <= 0.001f) return;
         ps.pushPose();
