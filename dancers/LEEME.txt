@@ -40,3 +40,8 @@ Herramienta: tools/mmd2dancer.py <config3.json> <salida>  (ver tools/miku_pde/co
 --- 1.2.2 ---
 Pelo afinado contra un video de referencia: pelo pesado, lento y suave (rigidez baja, amortiguacion alta, gravedad real)
 en vez del temblor rapido de antes. Ver tools/hair_tuning.
+
+1.2.3
+- El pelo ya no atraviesa la espalda, hombros, brazos ni piernas: colliders de cuerpo para el pelo
+  (cintura, pecho, caderas, muslos, piernas, brazos, antebrazos) y radio propio por mechon.
+  Choque inelastico para que no rebote ni tiemble. Sin tocar las animaciones .dnc.

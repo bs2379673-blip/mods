@@ -35,7 +35,7 @@ public final class Rig3 {
         public Rig.Skin skin;
         // resortes (en orden padres primero)
         public int[] sBone, sAnchor, sGroup;
-        public double[] sTip, sLen, sPar;     // sPar: rigidez, amortiguacion, gravedad, angulo por eslabon (rad), angulo total (rad)
+        public double[] sTip, sLen, sPar, sRad;     // sPar: rigidez, amortiguacion, gravedad, angulo por eslabon (rad), angulo total (rad)
         public boolean[] isSpring;
         // colisionadores (capsulas ligadas a un hueso no resorte)
         public int[] cBone, cMask;
@@ -66,7 +66,7 @@ public final class Rig3 {
             // resortes
             JsonArray sp = o.has("springs") ? o.getAsJsonArray("springs") : new JsonArray();
             int S = sp.size();
-            m.sBone = new int[S]; m.sAnchor = new int[S]; m.sGroup = new int[S]; m.sTip = new double[S * 3]; m.sLen = new double[S]; m.sPar = new double[S * 5];
+            m.sBone = new int[S]; m.sAnchor = new int[S]; m.sGroup = new int[S]; m.sTip = new double[S * 3]; m.sLen = new double[S]; m.sPar = new double[S * 5]; m.sRad = new double[S];
             Map<String, Integer> groups = new HashMap<>();
             for (int s = 0; s < S; s++) {
                 JsonObject so = sp.get(s).getAsJsonObject();
@@ -80,6 +80,7 @@ public final class Rig3 {
                     double d = m.sTip[s * 3 + k] - m.pivot[b * 3 + k]; len2 += d * d;
                 }
                 m.sLen[s] = Math.max(Math.sqrt(len2), 1e-4);
+                m.sRad[s] = so.has("radius") ? so.get("radius").getAsDouble() : 0;
                 m.sPar[s * 5] = so.has("stiffness") ? so.get("stiffness").getAsDouble() : 90;
                 m.sPar[s * 5 + 1] = so.has("damping") ? so.get("damping").getAsDouble() : 4;
                 m.sPar[s * 5 + 2] = so.has("gravity") ? so.get("gravity").getAsDouble() : 2;
@@ -308,23 +309,39 @@ public final class Rig3 {
                     normalize(n3, d0);
                     clampCone(n3, d0, cosA);
                     clampCone(n3, da, cosT);
-                    // colision con capsulas
-                    for (int c = 0; c < C; c++) {
-                        if ((m.cMask[c] & gm) == 0) continue;
-                        double ex = Q[0] + n3[0] * L1, ey = Q[1] + n3[1] * L1, ez = Q[2] + n3[2] * L1;
-                        double abx = cb[c * 3] - ca[c * 3], aby = cb[c * 3 + 1] - ca[c * 3 + 1], abz = cb[c * 3 + 2] - ca[c * 3 + 2];
-                        double ab2 = abx * abx + aby * aby + abz * abz;
-                        double t = ab2 < 1e-12 ? 0 : ((ex - ca[c * 3]) * abx + (ey - ca[c * 3 + 1]) * aby + (ez - ca[c * 3 + 2]) * abz) / ab2;
-                        t = Math.max(0, Math.min(1, t));
-                        double cx = ca[c * 3] + abx * t, cy = ca[c * 3 + 1] + aby * t, cz = ca[c * 3 + 2] + abz * t;
-                        double dx = ex - cx, dy = ey - cy, dz = ez - cz, dl = Math.sqrt(dx * dx + dy * dy + dz * dz), r = m.cR[c];
-                        if (dl < r && dl > 1e-9) {
-                            ex = cx + dx / dl * r; ey = cy + dy / dl * r; ez = cz + dz / dl * r;
-                            n3[0] = ex - Q[0]; n3[1] = ey - Q[1]; n3[2] = ez - Q[2]; normalize(n3, n3);
+                    // colision con capsulas (la punta del eslabon + el semiancho del mechon); varias pasadas porque
+                    // volver a la longitud de la varilla puede devolver la punta dentro del cuerpo
+                    double bx = Q[0] + n3[0] * L1, by = Q[1] + n3[1] * L1, bz = Q[2] + n3[2] * L1;   // punta antes de colisionar
+                    boolean anyHit = false; double hnx = 0, hny = 0, hnz = 0;
+                    for (int pass = 0; pass < 3; pass++) {
+                        boolean hit = false;
+                        for (int c = 0; c < C; c++) {
+                            if ((m.cMask[c] & gm) == 0) continue;
+                            double ex = Q[0] + n3[0] * L1, ey = Q[1] + n3[1] * L1, ez = Q[2] + n3[2] * L1;
+                            double abx = cb[c * 3] - ca[c * 3], aby = cb[c * 3 + 1] - ca[c * 3 + 1], abz = cb[c * 3 + 2] - ca[c * 3 + 2];
+                            double ab2 = abx * abx + aby * aby + abz * abz;
+                            double t = ab2 < 1e-12 ? 0 : ((ex - ca[c * 3]) * abx + (ey - ca[c * 3 + 1]) * aby + (ez - ca[c * 3 + 2]) * abz) / ab2;
+                            t = Math.max(0, Math.min(1, t));
+                            double cx = ca[c * 3] + abx * t, cy = ca[c * 3 + 1] + aby * t, cz = ca[c * 3 + 2] + abz * t;
+                            double dx = ex - cx, dy = ey - cy, dz = ez - cz, dl = Math.sqrt(dx * dx + dy * dy + dz * dz), r = m.cR[c] + m.sRad[s];
+                            if (dl < r && dl > 1e-9) {
+                                ex = cx + dx / dl * r; ey = cy + dy / dl * r; ez = cz + dz / dl * r;
+                                n3[0] = ex - Q[0]; n3[1] = ey - Q[1]; n3[2] = ez - Q[2]; normalize(n3, n3); hit = true;
+                                anyHit = true; hnx = dx / dl; hny = dy / dl; hnz = dz / dl;
+                            }
                         }
+                        if (!hit) break;
                     }
-                    st.xp[o] = st.x[o]; st.xp[o + 1] = st.x[o + 1]; st.xp[o + 2] = st.x[o + 2];
-                    st.x[o] = Q[0] + n3[0] * L1; st.x[o + 1] = Q[1] + n3[1] * L1; st.x[o + 2] = Q[2] + n3[2] * L1;
+                    double ax = Q[0] + n3[0] * L1, ay = Q[1] + n3[1] * L1, az = Q[2] + n3[2] * L1;
+                    double pxo = st.x[o], pyo = st.x[o + 1], pzo = st.x[o + 2];
+                    if (anyHit) {
+                        // colision inelastica: la correccion de posicion no se convierte en velocidad y se anula la parte que entra al cuerpo
+                        pxo += ax - bx; pyo += ay - by; pzo += az - bz;
+                        double vx2 = ax - pxo, vy2 = ay - pyo, vz2 = az - pzo, vn = vx2 * hnx + vy2 * hny + vz2 * hnz;
+                        if (vn < 0) { pxo += vn * hnx; pyo += vn * hny; pzo += vn * hnz; }
+                    }
+                    st.xp[o] = pxo; st.xp[o + 1] = pyo; st.xp[o + 2] = pzo;
+                    st.x[o] = ax; st.x[o + 1] = ay; st.x[o + 2] = az;
                 }
                 double dx = st.x[o] - Q[0], dy = st.x[o + 1] - Q[1], dz = st.x[o + 2] - Q[2], dl = Math.sqrt(dx * dx + dy * dy + dz * dz);
                 if (dl > 1e-9) { dir[0] = dx / dl; dir[1] = dy / dl; dir[2] = dz / dl; }

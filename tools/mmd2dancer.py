@@ -176,10 +176,11 @@ def build_model(cfg, base, out):
         anchor = parent_of[n]
         while anchor in sp_names: anchor = parent_of[anchor]
         springs.append({'bone': bidx[n], 'anchor': bidx[anchor], 'tip': [round(float(x), 5) for x in tip], 'stiffness': a.get('stiffness', 90), 'damping': a.get('damping', 4),
-                        'gravity': a.get('gravity', 2), 'max_angle': a.get('max_angle', 25), 'max_total': a.get('max_total', 70), 'group': a.get('group', 'hair')})
+                        'gravity': a.get('gravity', 2), 'max_angle': a.get('max_angle', 25), 'max_total': a.get('max_total', 70), 'group': a.get('group', 'hair'), 'radius': a.get('radius', 0.0)})
     colliders = []
     for cdef in cfg.get('colliders', []):
-        pa = tf(ef(bonepos[N(cdef['a'])])); pb = tf(ef(bonepos[N(cdef['b'])]))
+        if isinstance(cdef['a'], list): pa = np.array(cdef['a'], float); pb = np.array(cdef['b'], float)   # coordenadas finales (metros, espacio EF)
+        else: pa = tf(ef(bonepos[N(cdef['a'])])); pb = tf(ef(bonepos[N(cdef['b'])]))
         colliders.append({'bone': bidx[N(cdef['bone'])], 'a': [round(float(x), 5) for x in pa], 'b': [round(float(x), 5) for x in pb], 'r': cdef['r'], 'groups': cdef['groups']})
     # ---- morphs (blend shapes)
     objs = {n.props[0]: n for n in ob.children if n.props and isinstance(n.props[0], int)}
