@@ -9,6 +9,7 @@ import net.minecraftforge.network.NetworkConstants;
 @Mod(TacUI.ID)
 public class TacUI {
     public static final String ID = "tacui";
+    public static final org.slf4j.Logger LOGGER = com.mojang.logging.LogUtils.getLogger();
 
     public TacUI() {
         ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class,

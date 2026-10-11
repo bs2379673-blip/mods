@@ -2,14 +2,17 @@ package com.tunombre.tacui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import org.lwjgl.glfw.GLFW;
@@ -17,6 +20,7 @@ import org.lwjgl.glfw.GLFW;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,9 +28,11 @@ import java.util.Map;
  * Inventario tactico. Usa el mismo menu del jugador (InventoryMenu), asi que las casillas que anaden otros mods
  * (mochilas, ropa de Survivors Arsenal...) siguen funcionando: solo se recolocan en pantalla mientras esta abierta.
  */
-public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
+public class TacInventoryScreen extends AbstractContainerScreen<AbstractContainerMenu> {
+    public enum Mode { INVENTORY, CREATIVE, CURIOS }
+
     private static Field FX, FY;
-    private static final String CRAFT = "craft", EQUIP = "equip", HOTBAR = "hotbar", EXTRA = "extra";
+    private static final String CRAFT = "craft", EQUIP = "equip", HOTBAR = "hotbar", EXTRA = "extra", ITEMS = "items", CURIOS = "curios";
 
     private final Player player;
     private final Map<Slot, int[]> original = new HashMap<>();
@@ -36,11 +42,33 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
 
     // rectangulos de los paneles (x, y, w, h) y botones, recalculados en cada fotograma
     private final Map<String, int[]> rects = new HashMap<>();
-    private int[] btnSort, btnDrop, btnEdit, btnTheme;
+    private int[] btnSort, btnDrop, btnEdit, btnTheme, btnMode;
+    private final Mode mode;
 
-    public TacInventoryScreen(Player p) {
-        super(p.inventoryMenu, p.getInventory(), Component.translatable("container.crafting"));
+    // ---- modo creativo
+    private EditBox search;
+    private String query = "";
+    private final List<CreativeModeTab> cats = new ArrayList<>();
+    private List<ItemStack> allItems = new ArrayList<>();
+    private List<ItemStack> shown = new ArrayList<>();
+    private final Map<ItemStack, String> keyCache = new IdentityHashMap<>();
+    private int cat = -1, scroll, gridRows = 6;
+    private int gridX, gridY;
+    private ItemStack held = ItemStack.EMPTY;
+    private long clearArmed;
+    private int[] btnPrev, btnNext, btnDel, btnClear;
+
+    // ---- Curios
+    private final List<Object[]> curioLabels = new ArrayList<>();   // {x, y, texto}
+    private int[] btnCosm, btnPgPrev, btnPgNext;
+    private int pgX, pgY;
+
+    public TacInventoryScreen(Player p) { this(p, p.inventoryMenu, Mode.INVENTORY); }
+
+    public TacInventoryScreen(Player p, AbstractContainerMenu menu, Mode mode) {
+        super(menu, p.getInventory(), Component.translatable("container.crafting"));
         this.player = p;
+        this.mode = mode;
     }
 
     private static void ensureFields() {
@@ -61,9 +89,13 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
         this.leftPos = 0;
         this.topPos = 0;
         ensureFields();
-        original.clear();
-        for (Slot s : menu.slots) original.put(s, new int[]{s.x, s.y});
+        recordOriginals();
+        if (mode == Mode.CREATIVE) initCreative();
         layout();
+    }
+
+    private void recordOriginals() {
+        for (Slot s : menu.slots) original.putIfAbsent(s, new int[]{s.x, s.y});
     }
 
     @Override
@@ -74,15 +106,21 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
     }
 
     private boolean visibleOriginally(Slot s) {
+        if (mode == Mode.CURIOS) return s.isActive();
         int[] o = original.get(s);
         return o != null && o[0] >= -50 && o[0] <= 400 && o[1] >= -50 && o[1] <= 400;
     }
+
+    private void offscreen(Slot s) { place(s, -200, -200); }
 
     /** Calcula los paneles y coloca todas las casillas del menu. */
     private void layout() {
         Layout lay = Layout.get();
         int w = this.width, h = this.height;
         rects.clear();
+        curioLabels.clear();
+        recordOriginals();
+        btnCosm = btnPgPrev = btnPgNext = null;
 
         // ---- panel de equipo (inventario principal, 27 casillas en columnas)
         int rows = Math.max(4, Math.min(9, (h - 110) / 20));
@@ -99,13 +137,18 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
             place(s, ep[0] + (ew - ((cols - 1) * 20 + 16)) / 2 + (k % cols) * 20, ep[1] + 13 + 6 + 24 + (k / cols) * 20);
         }
 
-        // ---- crafting
+        // ---- crafting (no hace falta en creativo)
         int cw = 104, ch = 70;
-        int[] cp = clamp(lay.px(CRAFT, 18, h / 3, w, h), cw, ch, w, h);
-        rects.put(CRAFT, new int[]{cp[0], cp[1], cw, ch});
-        place(menu.slots.get(1), cp[0] + 12, cp[1] + 22); place(menu.slots.get(2), cp[0] + 32, cp[1] + 22);
-        place(menu.slots.get(3), cp[0] + 12, cp[1] + 42); place(menu.slots.get(4), cp[0] + 32, cp[1] + 42);
-        place(menu.slots.get(0), cp[0] + 76, cp[1] + 32);
+        if (mode == Mode.CREATIVE) {
+            for (int i = 0; i <= 4; i++) offscreen(menu.slots.get(i));
+        } else {
+            int defY = mode == Mode.CURIOS ? h - ch - 14 : h / 3;
+            int[] cp = clamp(lay.px(CRAFT, 18, defY, w, h), cw, ch, w, h);
+            rects.put(CRAFT, new int[]{cp[0], cp[1], cw, ch});
+            place(menu.slots.get(1), cp[0] + 12, cp[1] + 22); place(menu.slots.get(2), cp[0] + 32, cp[1] + 22);
+            place(menu.slots.get(3), cp[0] + 12, cp[1] + 42); place(menu.slots.get(4), cp[0] + 32, cp[1] + 42);
+            place(menu.slots.get(0), cp[0] + 76, cp[1] + 32);
+        }
 
         // ---- hotbar
         int hw = 9 * 20 + 8, hh = 28;
@@ -114,11 +157,12 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
         for (int i = 0; i < 9; i++) place(menu.slots.get(36 + i), hp[0] + 5 + i * 20, hp[1] + 6);
 
         // ---- anillo de equipo alrededor del modelo: armadura, mano secundaria y casillas de otros mods
-        List<Slot> left = new ArrayList<>(), right = new ArrayList<>(), extra = new ArrayList<>();
+        List<Slot> left = new ArrayList<>(), right = new ArrayList<>(), extra = new ArrayList<>(), curios = new ArrayList<>();
         for (int i = 5; i <= 8; i++) left.add(menu.slots.get(i));
         if (menu.slots.size() > 45) right.add(menu.slots.get(45));
         for (int i = 46; i < menu.slots.size(); i++) {
             Slot s = menu.slots.get(i);
+            if (mode == Mode.CURIOS) { if (s.isActive()) curios.add(s); else offscreen(s); continue; }
             if (!visibleOriginally(s)) continue;
             if (right.size() < 6) right.add(s); else extra.add(s);
         }
@@ -140,9 +184,236 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
             rects.put(EXTRA, new int[]{xp[0], xp[1], pw, ph});
             for (int i = 0; i < extra.size(); i++) place(extra.get(i), xp[0] + 7 + (i % xc) * 20, xp[1] + 13 + 8 + (i / xc) * 20);
         }
+        if (mode == Mode.CURIOS) layoutCurios(curios, lay, w, h);
+        if (mode == Mode.CREATIVE) layoutCreative(lay, w, h);
+
         // ---- botones superiores
         btnEdit = new int[]{14, 24, 30, 11};
         btnTheme = new int[]{48, 24, 44, 11};
+        btnMode = (mode == Mode.CURIOS || CuriosCompat.loaded()) ? new int[]{96, 24, 52, 11} : null;
+    }
+
+    private void layoutCurios(List<Slot> curios, Layout lay, int w, int h) {
+        int cols = 5, pw = cols * 20 + 12;
+        // grupos consecutivos del mismo tipo de ranura
+        List<String> ids = new ArrayList<>();
+        List<List<Slot>> groups = new ArrayList<>();
+        for (Slot s : curios) {
+            String id = CuriosCompat.identifier(s);
+            if (id == null) id = "other";
+            if (ids.isEmpty() || !ids.get(ids.size() - 1).equals(id)) { ids.add(id); groups.add(new ArrayList<>()); }
+            groups.get(groups.size() - 1).add(s);
+        }
+        boolean footer = CuriosCompat.totalPages(menu) > 1 || CuriosCompat.hasCosmetics(menu);
+        int ph = 13 + 4;
+        for (List<Slot> g : groups) ph += 9 + ((g.size() + cols - 1) / cols) * 20 + 3;
+        if (groups.isEmpty()) ph += 14;
+        ph += 4 + (footer ? 15 : 0);
+        int[] cp = clamp(lay.px(CURIOS, 18, 40, w, h), pw, ph, w, h);
+        rects.put(CURIOS, new int[]{cp[0], cp[1], pw, ph});
+        int y = cp[1] + 17;
+        for (int gi = 0; gi < groups.size(); gi++) {
+            String name = ids.get(gi).toUpperCase().replace('_', ' ');
+            if (name.length() > 22) name = name.substring(0, 22);
+            curioLabels.add(new Object[]{cp[0] + 7, y, name});
+            y += 9;
+            List<Slot> g = groups.get(gi);
+            for (int i = 0; i < g.size(); i++) place(g.get(i), cp[0] + 7 + (i % cols) * 20, y + (i / cols) * 20 + 1);
+            y += ((g.size() + cols - 1) / cols) * 20 + 3;
+        }
+        if (footer) {
+            int fy = cp[1] + ph - 15;
+            if (CuriosCompat.hasCosmetics(menu)) btnCosm = new int[]{cp[0] + 6, fy, 52, 11};
+            if (CuriosCompat.totalPages(menu) > 1) {
+                btnPgPrev = new int[]{cp[0] + pw - 54, fy, 12, 11};
+                btnPgNext = new int[]{cp[0] + pw - 18, fy, 12, 11};
+                pgX = cp[0] + pw - 30; pgY = fy + 3;
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------ creativo
+
+    private void initCreative() {
+        Minecraft mc = Minecraft.getInstance();
+        try {
+            if (mc.player != null)
+                CreativeModeTabs.tryRebuildTabContents(mc.player.connection.enabledFeatures(),
+                        mc.player.canUseGameMasterBlocks() && mc.options.operatorItemsTab().get(), mc.player.level().registryAccess());
+        } catch (Throwable t) { TacUI.LOGGER.warn("Creativo: no se pudo reconstruir las pestanas: {}", t.toString()); }
+        cats.clear();
+        try {
+            for (CreativeModeTab tab : CreativeModeTabs.tabs())
+                if (tab.getType() == CreativeModeTab.Type.CATEGORY && !tab.getDisplayItems().isEmpty()) cats.add(tab);
+            allItems = new ArrayList<>(CreativeModeTabs.searchTab().getSearchTabDisplayItems());
+        } catch (Throwable t) { TacUI.LOGGER.warn("Creativo: no se pudo leer la lista de objetos: {}", t.toString()); }
+        if (cat >= cats.size()) cat = -1;
+        search = new EditBox(this.font, 0, 0, 100, 10, Component.literal("buscar"));
+        search.setBordered(false);
+        search.setMaxLength(40);
+        search.setHint(Component.literal("BUSCAR..."));
+        search.setValue(query);
+        search.setResponder(v -> { query = v; scroll = 0; refilter(); });
+        addRenderableWidget(search);
+        refilter();
+    }
+
+    private String keyOf(ItemStack s) {
+        return keyCache.computeIfAbsent(s, k -> (k.getHoverName().getString() + " " + BuiltInRegistries.ITEM.getKey(k.getItem())).toLowerCase());
+    }
+
+    private void refilter() {
+        List<ItemStack> src = cat < 0 || cat >= cats.size() ? allItems : new ArrayList<>(cats.get(cat).getDisplayItems());
+        String q = query.trim().toLowerCase();
+        if (q.isEmpty()) { shown = src; }
+        else {
+            List<ItemStack> out = new ArrayList<>();
+            for (ItemStack s : src) if (keyOf(s).contains(q)) out.add(s);
+            shown = out;
+        }
+        scroll = Math.max(0, Math.min(scroll, maxScroll()));
+    }
+
+    private int maxScroll() { return Math.max(0, (shown.size() + 8) / 9 - gridRows); }
+
+    private String catName() {
+        if (cat < 0 || cat >= cats.size()) return "ALL";
+        String n = cats.get(cat).getDisplayName().getString().toUpperCase();
+        return n.length() > 20 ? n.substring(0, 20) : n;
+    }
+
+    private void layoutCreative(Layout lay, int w, int h) {
+        gridRows = Math.max(3, Math.min(9, (h - 130) / 20));
+        int pw = 9 * 20 + 12, ph = 13 + 4 + 14 + 2 + 13 + 4 + gridRows * 20 + 4 + 14 + 4;
+        int[] ip = clamp(lay.px(ITEMS, 18, 38, w, h), pw, ph, w, h);
+        rects.put(ITEMS, new int[]{ip[0], ip[1], pw, ph});
+        if (search != null) {
+            search.setX(ip[0] + 10); search.setY(ip[1] + 13 + 4 + 2); search.setWidth(pw - 20);
+        }
+        int ty = ip[1] + 13 + 4 + 14 + 2;
+        btnPrev = new int[]{ip[0] + 6, ty, 14, 11};
+        btnNext = new int[]{ip[0] + pw - 20, ty, 14, 11};
+        gridX = ip[0] + 6; gridY = ty + 13 + 4;
+        int fy = gridY + gridRows * 20 + 4;
+        btnDel = new int[]{ip[0] + 6, fy, 70, 12};
+        btnClear = new int[]{ip[0] + pw - 76, fy, 70, 12};
+        scroll = Math.max(0, Math.min(scroll, maxScroll()));
+    }
+
+    private int cellAt(double mx, double my) {
+        if (mode != Mode.CREATIVE || rects.get(ITEMS) == null) return -1;
+        double rx = mx - gridX, ry = my - gridY;
+        if (rx < 0 || ry < 0 || rx >= 180 || ry >= gridRows * 20) return -1;
+        int idx = (scroll + (int) (ry / 20)) * 9 + (int) (rx / 20);
+        return idx < shown.size() ? idx : -1;
+    }
+
+    private void drawCreative(GuiGraphics g, Theme t, int mx, int my) {
+        int[] r = rects.get(ITEMS);
+        if (r == null) return;
+        // buscador
+        g.fill(r[0] + 6, r[1] + 17, r[0] + r[2] - 6, r[1] + 31, 0xAA000000);
+        Draw.frame(g, r[0] + 6, r[1] + 17, r[2] - 12, 14, search != null && search.isFocused() ? t.accent : Theme.alpha(t.dim, 230));
+        // categoria
+        button(g, t, btnPrev, "<", false);
+        button(g, t, btnNext, ">", false);
+        Draw.textCenter(g, font, catName() + "  " + shown.size(), r[0] + r[2] / 2, btnPrev[1] + 3, t.text, 0.75f);
+        // rejilla
+        int hov = cellAt(mx, my);
+        for (int row = 0; row < gridRows; row++) {
+            for (int col = 0; col < 9; col++) {
+                int idx = (scroll + row) * 9 + col;
+                int x = gridX + col * 20 + 2, y = gridY + row * 20 + 2;
+                Draw.slot(g, t, x, y, idx == hov, false);
+                if (idx < shown.size()) g.renderItem(shown.get(idx), x, y);
+            }
+        }
+        // barra de desplazamiento
+        int sx = r[0] + r[2] - 6, sh = gridRows * 20;
+        g.fill(sx, gridY, sx + 3, gridY + sh, 0x88000000);
+        int ms = maxScroll();
+        int th = ms == 0 ? sh : Math.max(10, sh * gridRows / (gridRows + ms));
+        int ty = ms == 0 ? gridY : gridY + (sh - th) * scroll / ms;
+        g.fill(sx, ty, sx + 3, ty + th, t.accent);
+        // pie
+        boolean armed = System.currentTimeMillis() - clearArmed < 3000;
+        button(g, t, btnDel, "DELETE", !held.isEmpty());
+        button(g, t, btnClear, armed ? "SEGURO?" : "CLEAR INV", armed);
+    }
+
+    private void creativeTooltip(GuiGraphics g, int mx, int my) {
+        if (mode != Mode.CREATIVE) return;
+        int c = cellAt(mx, my);
+        if (c >= 0 && held.isEmpty() && menu.getCarried().isEmpty()) g.renderTooltip(font, shown.get(c), mx, my);
+        if (!held.isEmpty()) {
+            g.pose().pushPose();
+            g.pose().translate(0, 0, 400);
+            g.renderItem(held, mx - 8, my - 8);
+            g.renderItemDecorations(font, held, mx - 8, my - 8);
+            g.pose().popPose();
+        }
+    }
+
+    private Slot slotAt(double mx, double my) {
+        for (Slot s : menu.slots) {
+            if (!s.isActive()) continue;
+            if (mx >= s.x - 1 && mx < s.x + 17 && my >= s.y - 1 && my < s.y + 17) return s;
+        }
+        return null;
+    }
+
+    /** Clic en modo creativo. Devuelve true si lo ha gestionado. */
+    private boolean creativeClick(double mx, double my, int button) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.gameMode == null) return false;
+        boolean inSearch = rects.get(ITEMS) != null && mx >= search.getX() - 4 && mx < search.getX() + search.getWidth() + 4 && my >= search.getY() - 3 && my < search.getY() + 12;
+        if (search != null && !inSearch && getFocused() == search) setFocused(null);
+        if (inSearch) { setFocused(search); search.mouseClicked(mx, my, button); return true; }
+        if (button == 0) {
+            if (in(btnPrev, mx, my)) { cat = cat <= -1 ? cats.size() - 1 : cat - 1; scroll = 0; refilter(); return true; }
+            if (in(btnNext, mx, my)) { cat = cat >= cats.size() - 1 ? -1 : cat + 1; scroll = 0; refilter(); return true; }
+            if (in(btnDel, mx, my)) { held = ItemStack.EMPTY; return true; }
+            if (in(btnClear, mx, my)) {
+                if (System.currentTimeMillis() - clearArmed < 3000) {
+                    for (int i = 1; i <= 45 && i < menu.slots.size(); i++) {
+                        Slot s = menu.slots.get(i);
+                        if (s.hasItem()) { mc.gameMode.handleCreativeModeItemAdd(ItemStack.EMPTY, i); s.set(ItemStack.EMPTY); }
+                    }
+                    clearArmed = 0;
+                } else clearArmed = System.currentTimeMillis();
+                return true;
+            }
+        }
+        int c = cellAt(mx, my);
+        if (c >= 0) {
+            if (!menu.getCarried().isEmpty()) return true;
+            ItemStack st = shown.get(c).copy();
+            int max = st.getMaxStackSize();
+            int n = (hasShiftDown() || button == 1) ? max : 1;
+            if (!held.isEmpty() && ItemStack.isSameItemSameTags(held, st)) held.setCount(Math.min(max, held.getCount() + n));
+            else { st.setCount(n); held = st; }
+            return true;
+        }
+        if (!held.isEmpty()) {
+            Slot s = slotAt(mx, my);
+            if (s != null) {
+                if (s.index >= 1 && s.index <= 45) {
+                    ItemStack prev = s.getItem().copy();
+                    ItemStack put = held.copy();
+                    if (button == 1) put.setCount(1);
+                    mc.gameMode.handleCreativeModeItemAdd(put, s.index);
+                    s.set(put.copy());
+                    if (button == 1 && held.getCount() > 1) held.shrink(1); else held = prev;
+                }
+                return true;
+            }
+            for (int[] r : rects.values()) if (in(r, mx, my)) return true;
+            if (in(btnEdit, mx, my) || in(btnTheme, mx, my) || in(btnMode, mx, my)) return true;
+            mc.gameMode.handleCreativeModeItemDrop(held);
+            held = ItemStack.EMPTY;
+            return true;
+        }
+        return false;
     }
 
     private static int[] clamp(int[] p, int pw, int ph, int sw, int sh) {
@@ -179,8 +450,8 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
         InventoryScreen.renderEntityInInventoryFollowsMouse(g, mcx, mcy + scale, scale, (float) (mcx - mx), (float) (mcy - scale - my), player);
 
         // paneles
-        String[] titles = {"CRAFTING", "EQUIPMENT", "", "STORAGE"};
-        String[] keys = {CRAFT, EQUIP, HOTBAR, EXTRA};
+        String[] titles = {"CRAFTING", "EQUIPMENT", "", "STORAGE", "CREATIVE ITEMS", "CURIOS"};
+        String[] keys = {CRAFT, EQUIP, HOTBAR, EXTRA, ITEMS, CURIOS};
         for (int i = 0; i < keys.length; i++) {
             int[] r = rects.get(keys[i]);
             if (r == null) continue;
@@ -195,15 +466,27 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
             button(g, t, btnSort, "SORT", false);
             button(g, t, btnDrop, "DROP", !menu.getCarried().isEmpty());
         }
+        if (mode == Mode.CREATIVE) drawCreative(g, t, mx, my);
+        if (mode == Mode.CURIOS) {
+            for (Object[] l : curioLabels) Draw.text(g, font, (String) l[2], (Integer) l[0], (Integer) l[1], Theme.alpha(t.text, 150), 0.6f);
+            if (btnCosm != null) button(g, t, btnCosm, "COSMETIC", CuriosCompat.viewingCosmetics(menu));
+            if (btnPgPrev != null) {
+                button(g, t, btnPgPrev, "<", false);
+                button(g, t, btnPgNext, ">", false);
+                Draw.textCenter(g, font, (CuriosCompat.currentPage(menu) + 1) + "/" + CuriosCompat.totalPages(menu), pgX + 0, pgY, t.text, 0.7f);
+            }
+        }
         button(g, t, btnEdit, "EDIT", edit);
         button(g, t, btnTheme, Layout.get().theme, false);
+        if (btnMode != null) button(g, t, btnMode, mode == Mode.CURIOS ? "INVENTORY" : "CURIOS", mode == Mode.CURIOS);
 
         // marcos de todas las casillas visibles
         for (Slot s : menu.slots) {
             if (!s.isActive()) continue;
-            if (!visibleOriginally(s) && s.index >= 46) continue;
+            if (mode != Mode.CURIOS && !visibleOriginally(s) && s.index >= 46) continue;
+            if (s.x < 0) continue;
             boolean hov = mx >= s.x - 1 && mx < s.x + 17 && my >= s.y - 1 && my < s.y + 17;
-            Draw.slot(g, t, s.x, s.y, hov, false);
+            Draw.slot(g, t, s.x, s.y, hov, mode == Mode.CURIOS && CuriosCompat.cosmetic(s));
         }
         if (edit) {
             Draw.textCenter(g, font, "EDIT MODE  |  ARRASTRA LOS PANELES  |  R REINICIAR  |  ESC GUARDAR", w / 2, 6, t.accent, 0.8f);
@@ -212,7 +495,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
 
     private boolean isRing(Slot s) {
         int i = s.index;
-        return (i >= 5 && i <= 8) || (i >= 45 && visibleOriginally(s) && !inExtra(s));
+        return (i >= 5 && i <= 8) || i == 45 || (mode != Mode.CURIOS && i > 45 && visibleOriginally(s) && !inExtra(s));
     }
 
     private boolean inExtra(Slot s) {
@@ -231,6 +514,12 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
     @Override
     protected void renderLabels(GuiGraphics g, int mx, int my) { /* sin etiquetas de vainilla */ }
 
+    @Override
+    public void render(GuiGraphics g, int mx, int my, float pt) {
+        super.render(g, mx, my, pt);
+        creativeTooltip(g, mx, my);
+    }
+
     // ------------------------------------------------------------------ entrada
 
     @Override
@@ -238,18 +527,41 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
         if (button == 0) {
             if (in(btnEdit, mx, my)) { edit = !edit; if (!edit) Layout.get().save(); return true; }
             if (in(btnTheme, mx, my)) { Layout lay = Layout.get(); lay.theme = lay.theme().next().name(); lay.save(); return true; }
+            if (in(btnMode, mx, my) && !edit) {
+                if (mode == Mode.CURIOS) CuriosCompat.openVanilla(); else CuriosCompat.openCurios();
+                return true;
+            }
             if (edit) {
-                for (String k : new String[]{EQUIP, CRAFT, HOTBAR, EXTRA}) {
+                for (String k : new String[]{EQUIP, CRAFT, HOTBAR, EXTRA, ITEMS, CURIOS}) {
                     int[] r = rects.get(k);
                     if (in(r, mx, my)) { dragging = k; dragDX = (int) mx - r[0]; dragDY = (int) my - r[1]; return true; }
                 }
                 return true;
             }
+            if (mode == Mode.CURIOS) {
+                if (in(btnCosm, mx, my)) { CuriosCompat.toggleCosmetics(menu); return true; }
+                if (in(btnPgPrev, mx, my)) { CuriosCompat.page(menu, false); return true; }
+                if (in(btnPgNext, mx, my)) { CuriosCompat.page(menu, true); return true; }
+            }
             if (in(btnSort, mx, my)) { sort(); return true; }
             if (in(btnDrop, mx, my)) { drop(); return true; }
         }
         if (edit) return true;
+        if (mode == Mode.CREATIVE && creativeClick(mx, my, button)) return true;
         return super.mouseClicked(mx, my, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mx, double my, double delta) {
+        if (mode == Mode.CREATIVE && in(rects.get(ITEMS), mx, my)) {
+            scroll = Math.max(0, Math.min(maxScroll(), scroll - (int) Math.signum(delta)));
+            return true;
+        }
+        if (mode == Mode.CURIOS && CuriosCompat.totalPages(menu) > 1 && in(rects.get(CURIOS), mx, my)) {
+            CuriosCompat.page(menu, delta < 0);
+            return true;
+        }
+        return super.mouseScrolled(mx, my, delta);
     }
 
     @Override
@@ -273,6 +585,11 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
             if (key == GLFW.GLFW_KEY_ESCAPE) { edit = false; Layout.get().save(); return true; }
             if (key == GLFW.GLFW_KEY_R) { Layout.get().pos.clear(); Layout.get().save(); return true; }
             return true;
+        }
+        if (search != null && search.isFocused()) {
+            if (key == GLFW.GLFW_KEY_ESCAPE) { setFocused(null); return true; }
+            search.keyPressed(key, scan, mods);
+            return true;   // escribir no debe cerrar la pantalla (tecla E) ni cambiar la hotbar
         }
         return super.keyPressed(key, scan, mods);
     }

@@ -1,4 +1,4 @@
-Tactical UI 0.1.0 (solo cliente)
+Tactical UI 0.2.0 (solo cliente)
 
 HUD tactico: barras de armadura / hambre / sed (Thirst Was Taken) / aire, vida, hotbar, municion de TACZ
 (cargador y reserva, modo de disparo), resistencia de Epic Fight y cordura (Sanity) a la derecha, brujula.
@@ -9,4 +9,12 @@ arrastra los paneles; R reinicia; ESC guarda. Temas: RED (por defecto), BLUE, GR
 Comandos: /tacui theme <nombre> | /tacui reset | /tacui inventory on|off | /tacui hud on|off
 Los ajustes se guardan en config/tacui_layout.json.
 
-Pendiente: casillas de Curios y armadura cosmetica dentro de esta pantalla, contenedores con estilo propio.
+Novedades 0.2.0:
+- Modo creativo: el inventario creativo se sustituye por el tactico con un panel CREATIVE ITEMS (buscador, categorias < >,
+  rueda para desplazar). Clic = 1 objeto, Shift o clic derecho = pila completa; clic en una casilla lo coloca; clic fuera lo tira;
+  DELETE vacia el cursor; CLEAR INV (pide confirmar) vacia el inventario.
+- Curios: boton CURIOS / INVENTORY arriba para pasar de una pantalla a otra; las ranuras de Curios se agrupan por tipo
+  (RING, NECKLACE...) con paginas y boton COSMETIC si existen. Tambien se abre con la tecla de Curios.
+- Contenedores (cofres, barriles, shulkers, tolvas, dispensadores y mochilas) con el estilo tactico: /tacui containers on|off
+
+Pendiente: armadura cosmetica (Cosmetic Armor Reworked) dentro de esta pantalla.

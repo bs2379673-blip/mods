@@ -17,6 +17,7 @@ public final class Layout {
     public String theme = "RED";
     public boolean inventory = true;
     public boolean hud = true;
+    public boolean containers = true;
     public Map<String, double[]> pos = new HashMap<>();
 
     public static Layout get() {
