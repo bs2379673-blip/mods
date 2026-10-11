@@ -81,29 +81,18 @@
  },
  "morph_alias": {
   "ウィンク": "ウインク左",
-  "ウィンク右": "ウインク右",
-  "ウィンク２": "ウインク_PD"
+  "ウィンク右": "ウインク右"
  },
  "springs": [
   {
    "match": "髪.\\.[LR]",
    "group": "hair",
-   "stiffness": 45,
-   "damping": 12,
-   "gravity": 7,
-   "max_angle": 12,
-   "max_total": 100,
+   "stiffness": 240,
+   "damping": 13,
+   "gravity": 2.5,
+   "max_angle": 4.5,
+   "max_total": 15,
    "end_len": 0.12
-  },
-  {
-   "match": "tie[1-6]",
-   "group": "tie",
-   "stiffness": 150,
-   "damping": 8,
-   "gravity": 2,
-   "max_angle": 10,
-   "max_total": 25,
-   "end_len": 0.06
   },
   {
    "match": "スカート(前|後)?(\\.[LR])?",
@@ -191,12 +180,12 @@
   {
    "name": "magical_cure_love_shot",
    "body": "/mnt/user-data/uploads/M_GICALüÖCURE__LOVE_SHOT_.vmd",
-   "face": "/tmp/claude-0/vmd/magical_face.vmd"
+   "face": "/tmp/claude-0/vmd/magical_cure_love_shot_face.vmd"
   },
   {
    "name": "minna_miku_miku",
    "body": "/mnt/user-data/uploads/Minna_Miku_Miku_ni_Shiteageru.vmd",
-   "face": "/tmp/claude-0/vmd/minna_face.vmd"
+   "face": "/tmp/claude-0/vmd/minna_miku_miku_face.vmd"
   },
   {
    "name": "anamanaguchi_miku",
@@ -205,13 +194,13 @@
   },
   {
    "name": "konton_boogie",
-   "body": "/tmp/claude-0/vmd/konton_body.vmd",
-   "face": "/tmp/claude-0/vmd/konton_face.vmd"
+   "body": "/tmp/claude-0/vmd/konton_boogie.vmd",
+   "face": "/tmp/claude-0/vmd/konton_boogie_face.vmd"
   },
   {
    "name": "looping_the_rooms",
-   "body": "/tmp/claude-0/vmd/looping_body.vmd",
-   "face": "/tmp/claude-0/vmd/looping_face.vmd"
+   "body": "/tmp/claude-0/vmd/looping_the_rooms.vmd",
+   "face": "/tmp/claude-0/vmd/looping_the_rooms_face.vmd"
   }
  ]
 }
