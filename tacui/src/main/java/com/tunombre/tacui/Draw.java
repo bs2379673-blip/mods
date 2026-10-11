@@ -42,6 +42,7 @@ public final class Draw {
     public static int panel(GuiGraphics g, Font f, Theme t, int x, int y, int w, int h, String title, boolean highlight) {
         g.fill(x, y, x + w, y + h, t.panel);
         frame(g, x, y, w, h, highlight ? t.accent : Theme.alpha(t.accent, 120));
+        if (title.isEmpty()) return 0;   // panel sin barra de titulo
         int th = 13;
         g.fill(x + 1, y + 1, x + w - 1, y + th, Theme.alpha(t.dim, 200));
         g.fill(x + 1, y + th, x + w - 1, y + th + 1, Theme.alpha(t.accent, 160));

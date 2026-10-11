@@ -87,7 +87,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
         // ---- panel de equipo (inventario principal, 27 casillas en columnas)
         int rows = Math.max(4, Math.min(9, (h - 110) / 20));
         int cols = (27 + rows - 1) / rows;
-        int ew = cols * 20 + 12, eh = 13 + 6 + 24 + rows * 20 + 6 + 16 + 6;
+        int ew = Math.max(cols * 20 + 12, 98), eh = 13 + 6 + 24 + rows * 20 + 6 + 16 + 6;
         int[] ep = lay.px(EQUIP, w - ew - 14, Math.max(6, (h - eh) / 2 - 10), w, h);
         ep = clamp(ep, ew, eh, w, h);
         rects.put(EQUIP, new int[]{ep[0], ep[1], ew, eh});
@@ -96,7 +96,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
         for (int i = 9; i < 36; i++) {
             Slot s = menu.slots.get(i);
             int k = i - 9;
-            place(s, ep[0] + 7 + (k % cols) * 20, ep[1] + 13 + 6 + 24 + (k / cols) * 20);
+            place(s, ep[0] + (ew - ((cols - 1) * 20 + 16)) / 2 + (k % cols) * 20, ep[1] + 13 + 6 + 24 + (k / cols) * 20);
         }
 
         // ---- crafting
@@ -114,23 +114,23 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
         for (int i = 0; i < 9; i++) place(menu.slots.get(36 + i), hp[0] + 5 + i * 20, hp[1] + 6);
 
         // ---- anillo de equipo alrededor del modelo: armadura, mano secundaria y casillas de otros mods
-        List<Slot> ring = new ArrayList<>(), extra = new ArrayList<>();
-        for (int i = 5; i <= 8; i++) ring.add(menu.slots.get(i));
-        if (menu.slots.size() > 45) ring.add(menu.slots.get(45));
+        List<Slot> left = new ArrayList<>(), right = new ArrayList<>(), extra = new ArrayList<>();
+        for (int i = 5; i <= 8; i++) left.add(menu.slots.get(i));
+        if (menu.slots.size() > 45) right.add(menu.slots.get(45));
         for (int i = 46; i < menu.slots.size(); i++) {
             Slot s = menu.slots.get(i);
             if (!visibleOriginally(s)) continue;
-            if (ring.size() < 10) ring.add(s); else extra.add(s);
+            if (right.size() < 6) right.add(s); else extra.add(s);
         }
         int mx = w / 2, my = (int) (h * 0.46);
         int rx = Math.max(60, Math.min(w / 5, 170)), ry = Math.max(50, (int) (h * 0.27));
-        int nl = (ring.size() + 1) / 2, nr = ring.size() / 2;
-        for (int i = 0; i < ring.size(); i++) {
-            boolean left = i % 2 == 0;
-            int idx = i / 2, cnt = left ? nl : nr;
-            double a = left ? Math.toRadians(120 + (cnt <= 1 ? 60 : 120.0 * idx / (cnt - 1)))
-                            : Math.toRadians(-60 + (cnt <= 1 ? 60 : 120.0 * idx / (cnt - 1)));
-            place(ring.get(i), (int) (mx + Math.cos(a) * rx) - 8, (int) (my + Math.sin(a) * ry) - 8);
+        for (int i = 0; i < left.size(); i++) {
+            double a = Math.toRadians(left.size() <= 1 ? 180 : 235 - 110.0 * i / (left.size() - 1));
+            place(left.get(i), (int) (mx + Math.cos(a) * rx) - 8, (int) (my + Math.sin(a) * ry) - 8);
+        }
+        for (int i = 0; i < right.size(); i++) {
+            double a = Math.toRadians(right.size() <= 1 ? 0 : -55 + 110.0 * i / (right.size() - 1));
+            place(right.get(i), (int) (mx + Math.cos(a) * rx) - 8, (int) (my + Math.sin(a) * ry) - 8);
         }
         // ---- panel de almacenamiento extra
         if (!extra.isEmpty()) {
@@ -179,7 +179,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
         InventoryScreen.renderEntityInInventoryFollowsMouse(g, mcx, mcy + scale, scale, (float) (mcx - mx), (float) (mcy - scale - my), player);
 
         // paneles
-        String[] titles = {"CRAFTING", "EQUIPMENT", "HOTBAR", "STORAGE"};
+        String[] titles = {"CRAFTING", "EQUIPMENT", "", "STORAGE"};
         String[] keys = {CRAFT, EQUIP, HOTBAR, EXTRA};
         for (int i = 0; i < keys.length; i++) {
             int[] r = rects.get(keys[i]);
@@ -191,7 +191,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<InventoryMenu> {
         int[] e = rects.get(EQUIP);
         if (e != null) {
             // casilla de decoracion superior y botones
-            Draw.text(g, font, "SLOTS " + 27, e[0] + 7, e[1] + 19, Theme.alpha(t.text, 130), 0.6f);
+            Draw.text(g, font, "SLOTS 27", e[0] + 7, e[1] + 19, Theme.alpha(t.text, 130), 0.6f);
             button(g, t, btnSort, "SORT", false);
             button(g, t, btnDrop, "DROP", !menu.getCarried().isEmpty());
         }
