@@ -60,3 +60,9 @@ en vez del temblor rapido de antes. Ver tools/hair_tuning.
 
 1.2.7
 - Velocidad del pelo como en 1.2.5 pero menos flotante/pesado: rigidez 5, amortiguacion 22, gravedad 12 (cae y se asienta mas natural).
+
+1.3.0
+- Entrada y salida estilo concierto: /dancer spawn ya hace la entrada sola (particulas convergen en una estrella,
+  destello, y de la estrella nace la figura con un pequeno rebote). /dancer appear <obj> repite la entrada.
+- /dancer vanish <obj>: la figura se contrae en una estrella, estalla en particulas y la entidad desaparece.
+- Solo particulas y sonidos de vanilla (no depende de AAA Particles). Duracion: 3 s entrada, 2.5 s salida.

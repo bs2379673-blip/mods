@@ -26,6 +26,8 @@ import java.util.List;
 /**
  * /dancer spawn <modelo> [<pos>] [<escala>]
  * /dancer play <objetivos> <animacion> [<bucle>]     (animacion = ns:ruta, p. ej. mikuevent:biped/miku/static)
+ * /dancer appear <objetivos>      (repite la entrada: particulas -> estrella -> figura)
+ * /dancer vanish <objetivos>      (la figura se contrae en una estrella, estalla en particulas y desaparece)
  * /dancer stop <objetivos>
  * /dancer scale <objetivos> <escala>
  * /dancer model <objetivos> <modelo>
@@ -55,6 +57,10 @@ public class DancerCommand {
                                 .then(Commands.argument("animation", ResourceLocationArgument.id()).suggests(ANIMS)
                                         .executes(c -> play(c, false))
                                         .then(Commands.argument("loop", BoolArgumentType.bool()).executes(c -> play(c, BoolArgumentType.getBool(c, "loop")))))))
+                .then(Commands.literal("appear")
+                        .then(Commands.argument("targets", EntityArgument.entities()).executes(c -> { List<DancerEntity> l = targets(c); for (DancerEntity de : l) de.appear(); return l.size(); })))
+                .then(Commands.literal("vanish")
+                        .then(Commands.argument("targets", EntityArgument.entities()).executes(c -> { List<DancerEntity> l = targets(c); for (DancerEntity de : l) de.vanish(); return l.size(); })))
                 .then(Commands.literal("stop")
                         .then(Commands.argument("targets", EntityArgument.entities()).executes(DancerCommand::stop)))
                 .then(Commands.literal("scale")
@@ -83,6 +89,7 @@ public class DancerCommand {
         de.setYBodyRot(yaw); de.setYHeadRot(yaw);
         de.setModelName(StringArgumentType.getString(c, "model"));
         de.setDancerScale(scale);
+        de.appear();
         level.addFreshEntity(de);
         c.getSource().sendSuccess(() -> Component.literal("Bailarina creada (" + de.getModelName() + ", escala " + scale + ")"), true);
         return 1;

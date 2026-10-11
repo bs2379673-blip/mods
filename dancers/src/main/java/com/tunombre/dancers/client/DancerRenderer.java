@@ -32,6 +32,18 @@ public class DancerRenderer extends EntityRenderer<DancerEntity> {
 
     @Override
     public void render(DancerEntity e, float yaw, float pt, PoseStack ps, MultiBufferSource buf, int light) {
+        float k = e.fxScale(pt);
+        if (k <= 0.001f) return;
+        ps.pushPose();
+        if (k < 0.999f) {   // entrada/salida: la figura crece o se contrae alrededor de un punto a la altura del pecho
+            float c = 0.95f * e.getDancerScale();
+            ps.translate(0, c, 0); ps.scale(k, k, k); ps.translate(0, -c, 0);
+        }
+        render0(e, yaw, pt, ps, buf, light);
+        ps.popPose();
+    }
+
+    private void render0(DancerEntity e, float yaw, float pt, PoseStack ps, MultiBufferSource buf, int light) {
         float scale = e.getDancerScale();
         this.shadowRadius = 0.4f * scale;
         super.render(e, yaw, pt, ps, buf, light);
