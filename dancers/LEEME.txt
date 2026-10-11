@@ -57,3 +57,6 @@ en vez del temblor rapido de antes. Ver tools/hair_tuning.
 
 1.2.6
 - Pelo un poco mas rapido que 1.2.5 (sigue flotante): amortiguacion 26 -> 17, rigidez 5 -> 6.
+
+1.2.7
+- Velocidad del pelo como en 1.2.5 pero menos flotante/pesado: rigidez 5, amortiguacion 22, gravedad 12 (cae y se asienta mas natural).
