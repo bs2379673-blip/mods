@@ -1,0 +1,18 @@
+DANCERS 1.0.0 - bailarinas con animaciones de Epic Fight (Forge 1.20.1). Servidor y clientes.
+No necesita Epic Fight. Para los bailes usa los recursos de animacion en formato Epic Fight (p. ej. el mod mikuevent).
+
+COMANDOS (nivel 2)
+  /dancer spawn miku [escala]            crea una bailarina donde estas, mirando como tu
+  /dancer spawn miku <x y z> [escala]
+  /dancer play @e[type=dancers:dancer] mikuevent:biped/miku/static [true]    (true = en bucle)
+  /dancer stop @e[type=dancers:dancer]
+  /dancer scale <objetivos> <escala>     tamaño (1 = ~1,9 bloques; 10 = gigante)
+  /dancer model <objetivos> <modelo>
+  /dancer travel <objetivos> <0..1>      cuanto del recorrido original del baile hace (0 = se queda en su sitio, por defecto)
+Todas las que reciben la orden juntas quedan sincronizadas. Lanza el sonido a la vez con /playsound.
+
+PELO: las coletas tienen simulacion de resorte (inercia y gravedad). Se ajusta en el JSON del modelo
+(stiffness, damping, gravity, max_angle de cada "spring").
+
+AÑADIR MODELOS: ver tools/gltf2dancer.py (Blockbench -> glTF -> modelo). El resultado (json + png) va en
+assets/dancers/dancer_models/<nombre>.json y assets/dancers/textures/dancers/. Tambien funciona desde un resourcepack.
