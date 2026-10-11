@@ -1,0 +1,196 @@
+{
+ "name": "mikupd",
+ "fbx": "miku_pde.fbx",
+ "height": 1.6,
+ "mesh_to_skeleton": 100.0,
+ "fallback_bone": "センター",
+ "root_bone": "センター",
+ "textures": [
+  "h.png",
+  "l.png",
+  "u.png",
+  "f.png"
+ ],
+ "material_texture": {
+  "0": 2,
+  "1": 1,
+  "2": 0,
+  "3": 0,
+  "4": 3,
+  "5": 3,
+  "6": 3,
+  "7": 3,
+  "8": 3
+ },
+ "bone_map": {
+  "センター": "センター",
+  "下半身": "下半身",
+  "上半身": "上半身",
+  "上半身2": "上半身2",
+  "首": "首",
+  "頭": "頭",
+  "左肩": "肩.L",
+  "左腕": "腕.L",
+  "左ひじ": "ひじ.L",
+  "左手首": "手首.L",
+  "左足": "足.L",
+  "左ひざ": "ひざ.L",
+  "左足首": "足首.L",
+  "左親指０": "親指0.L",
+  "左親指１": "親指1.L",
+  "左親指２": "親指2.L",
+  "左人指１": "人指1.L",
+  "左人指２": "人指2.L",
+  "左人指３": "人指3.L",
+  "左中指１": "中指1.L",
+  "左中指２": "中指2.L",
+  "左中指３": "中指3.L",
+  "左薬指１": "薬指1.L",
+  "左薬指２": "薬指2.L",
+  "左薬指３": "薬指3.L",
+  "左小指１": "小指1.L",
+  "左小指２": "小指2.L",
+  "左小指３": "小指3.L",
+  "右肩": "肩.R",
+  "右腕": "腕.R",
+  "右ひじ": "ひじ.R",
+  "右手首": "手首.R",
+  "右足": "足.R",
+  "右ひざ": "ひざ.R",
+  "右足首": "足首.R",
+  "右親指０": "親指0.R",
+  "右親指１": "親指1.R",
+  "右親指２": "親指2.R",
+  "右人指１": "人指1.R",
+  "右人指２": "人指2.R",
+  "右人指３": "人指3.R",
+  "右中指１": "中指1.R",
+  "右中指２": "中指2.R",
+  "右中指３": "中指3.R",
+  "右薬指１": "薬指1.R",
+  "右薬指２": "薬指2.R",
+  "右薬指３": "薬指3.R",
+  "右小指１": "小指1.R",
+  "右小指２": "小指2.R",
+  "右小指３": "小指3.R"
+ },
+ "merge": {
+  "上半身": [
+   "上半身1"
+  ]
+ },
+ "morph_alias": {
+  "ウィンク": "ウインク",
+  "ウィンク右": "ウインク右",
+  "ウィンク左": "ウインク左",
+  "ウィンク２": "ウインク_PD"
+ },
+ "springs": [
+  {
+   "match": "髪.\\.[LR]",
+   "group": "hair",
+   "stiffness": 40,
+   "damping": 5,
+   "gravity": 9.8,
+   "max_angle": 20,
+   "max_total": 100,
+   "end_len": 0.12
+  },
+  {
+   "match": "tie[1-6]",
+   "group": "tie",
+   "stiffness": 60,
+   "damping": 6,
+   "gravity": 9.8,
+   "max_angle": 18,
+   "max_total": 80,
+   "end_len": 0.06
+  },
+  {
+   "match": "スカート(前|後)?(\\.[LR])?",
+   "group": "skirt",
+   "stiffness": 140,
+   "damping": 6,
+   "gravity": 6,
+   "max_angle": 35,
+   "max_total": 35,
+   "tip_dir": "down",
+   "end_len": 0.16
+  }
+ ],
+ "colliders": [
+  {
+   "bone": "足.L",
+   "a": "足.L",
+   "b": "ひざ.L",
+   "r": 0.065,
+   "groups": [
+    "skirt"
+   ]
+  },
+  {
+   "bone": "ひざ.L",
+   "a": "ひざ.L",
+   "b": "足首.L",
+   "r": 0.05,
+   "groups": [
+    "skirt"
+   ]
+  },
+  {
+   "bone": "足.R",
+   "a": "足.R",
+   "b": "ひざ.R",
+   "r": 0.065,
+   "groups": [
+    "skirt"
+   ]
+  },
+  {
+   "bone": "ひざ.R",
+   "a": "ひざ.R",
+   "b": "足首.R",
+   "r": 0.05,
+   "groups": [
+    "skirt"
+   ]
+  },
+  {
+   "bone": "上半身",
+   "a": "上半身",
+   "b": "首",
+   "r": 0.085,
+   "groups": [
+    "hair"
+   ]
+  }
+ ],
+ "ground": {
+  "heel_back": 0.03,
+  "ik_threshold": 0.6,
+  "smooth": 5
+ },
+ "vmds": [
+  {
+   "name": "static",
+   "body": "/mnt/user-data/uploads/Static.vmd"
+  },
+  {
+   "name": "melt",
+   "body": "/mnt/user-data/uploads/Melt.vmd"
+  },
+  {
+   "name": "magical_cure_love_shot",
+   "body": "/mnt/user-data/uploads/M_GICALüÖCURE__LOVE_SHOT_.vmd"
+  },
+  {
+   "name": "minna_miku_miku",
+   "body": "/mnt/user-data/uploads/Minna_Miku_Miku_ni_Shiteageru.vmd"
+  },
+  {
+   "name": "anamanaguchi_miku",
+   "body": "/mnt/user-data/uploads/Anamanaguchi_Miku.vmd",
+   "face": "/tmp/claude-0/vmd/anamanaguchi_face.vmd"
+  }
+ ]
+}

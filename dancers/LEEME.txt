@@ -22,3 +22,12 @@ Modelo nuevo: "mikupd" (Miku PDE con malla suave, pelo/coletas/corbata/falda con
   /dancer spawn mikupd
 Formato 2 (malla con pesos): se genera con tools/fbx2dancer.py desde un FBX riggeado + un config.json
 (ver tools/miku_pde/config.json como ejemplo de mapeo de huesos).
+
+--- 1.2.0 ---
+Modelos formato 3 (huesos MMD reales) con animaciones bakeadas directo desde los VMD originales (sin pasar por Epic Fight).
+  - "mikupd": Miku PDE con los 5 bailes de VMD (static, melt, magical_cure_love_shot, minna_miku_miku, anamanaguchi_miku),
+    cara animada (parpadeo, boca, cejas...) y resortes en coletas, corbata y falda con colisiones.
+  - "mikupd_ef": la version anterior (animaciones EF retargeteadas), sirve para konton_boogie y looping_the_rooms mientras no haya VMD.
+Las animaciones de un modelo formato 3 se buscan en assets/dancers/dancer_anims/<modelo>/<nombre>.dnc
+(el nombre es lo ultimo del id: mikuevent:biped/miku/melt -> melt).
+Herramienta: tools/mmd2dancer.py <config3.json> <salida>  (ver tools/miku_pde/config3.json)

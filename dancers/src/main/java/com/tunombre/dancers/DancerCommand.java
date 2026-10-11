@@ -36,7 +36,7 @@ public class DancerCommand {
             "mikuevent:biped/miku/magical_cure_love_shot", "mikuevent:biped/miku/anamanaguchi_miku", "mikuevent:biped/miku/minna_miku_miku",
             "mikuevent:biped/miku/looping_the_rooms"};
     private static final SuggestionProvider<CommandSourceStack> ANIMS = (c, b) -> SharedSuggestionProvider.suggest(KNOWN, b);
-    private static final SuggestionProvider<CommandSourceStack> MODELS = (c, b) -> SharedSuggestionProvider.suggest(new String[]{"miku", "mikupd"}, b);
+    private static final SuggestionProvider<CommandSourceStack> MODELS = (c, b) -> SharedSuggestionProvider.suggest(new String[]{"miku", "mikupd", "mikupd_ef"}, b);
 
     public static void onRegisterCommands(RegisterCommandsEvent e) {
         CommandDispatcher<CommandSourceStack> d = e.getDispatcher();

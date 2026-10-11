@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.tunombre.dancers.DancerEntity;
 import com.tunombre.dancers.rig.Rig;
+import com.tunombre.dancers.rig.Rig3;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -19,6 +20,7 @@ public class DancerRenderer extends EntityRenderer<DancerEntity> {
     private static final ResourceLocation FALLBACK = new ResourceLocation("minecraft", "textures/entity/steve.png");
 
     private static final class Holder { Rig.Model model; Rig.SpringState st; long last; float[] pos, nrm; }
+    private static final class Holder3 { Rig3.Model3 model; Rig3.SpringState3 st; long last; float[] pos, nrm, delta, mw; double[] R, T; }
 
     public DancerRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
@@ -33,6 +35,8 @@ public class DancerRenderer extends EntityRenderer<DancerEntity> {
         float scale = e.getDancerScale();
         this.shadowRadius = 0.4f * scale;
         super.render(e, yaw, pt, ps, buf, light);
+        Rig3.Model3 m3 = DancerAssets.model3(e.getModelName());
+        if (m3 != null) { render3(e, m3, pt, ps, buf, light, scale); return; }
         Rig.Skeleton sk = DancerAssets.skeleton();
         Rig.Model m = DancerAssets.model(e.getModelName());
         if (sk == null || m == null) return;
@@ -86,24 +90,59 @@ public class DancerRenderer extends EntityRenderer<DancerEntity> {
             }
         }
         if (m.skin != null) {
-            Rig.Skin k = m.skin;
-            int n = k.count();
+            int n = m.skin.count();
             if (h.pos == null || h.pos.length != n * 3) { h.pos = new float[n * 3]; h.nrm = new float[n * 3]; }
-            Rig.skin(k, R, T, h.pos, h.nrm);
-            float[] pp = h.pos, nn = h.nrm;
-            for (int g = 0; g < k.groupTex.length; g++) {
-                VertexConsumer vc = buf.getBuffer(RenderType.entityCutoutNoCull(tex[k.groupTex[g]]));
-                int end = (k.groupStart[g] + k.groupCount[g]) * 3;
-                for (int ti = k.groupStart[g] * 3; ti < end; ti += 3) {
-                    for (int c = 0; c < 4; c++) {
-                        int vi = k.tris[ti + (c < 3 ? c : 2)];
-                        // Epic Fight (X derecha, Y frente, Z arriba) -> Minecraft (X izquierda, Y arriba, Z frente)
-                        vc.vertex(pm, -pp[vi * 3], pp[vi * 3 + 2], pp[vi * 3 + 1]).color(255, 255, 255, 255).uv(k.v[vi * 8 + 3], k.v[vi * 8 + 4])
-                                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(nm, -nn[vi * 3], nn[vi * 3 + 2], nn[vi * 3 + 1]).endVertex();
-                    }
+            Rig.skin(m.skin, R, T, h.pos, h.nrm);
+            emitSkin(m.skin, h.pos, h.nrm, tex, pm, nm, buf, light);
+        }
+        ps.popPose();
+    }
+
+    private static void emitSkin(Rig.Skin k, float[] pp, float[] nn, ResourceLocation[] tex, Matrix4f pm, Matrix3f nm, MultiBufferSource buf, int light) {
+        for (int g = 0; g < k.groupTex.length; g++) {
+            VertexConsumer vc = buf.getBuffer(RenderType.entityCutoutNoCull(tex[k.groupTex[g]]));
+            int end = (k.groupStart[g] + k.groupCount[g]) * 3;
+            for (int ti = k.groupStart[g] * 3; ti < end; ti += 3) {
+                for (int c = 0; c < 4; c++) {
+                    int vi = k.tris[ti + (c < 3 ? c : 2)];
+                    // Epic Fight (X derecha, Y frente, Z arriba) -> Minecraft (X izquierda, Y arriba, Z frente)
+                    vc.vertex(pm, -pp[vi * 3], pp[vi * 3 + 2], pp[vi * 3 + 1]).color(255, 255, 255, 255).uv(k.v[vi * 8 + 3], k.v[vi * 8 + 4])
+                            .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(nm, -nn[vi * 3], nn[vi * 3 + 2], nn[vi * 3 + 1]).endVertex();
                 }
             }
         }
+    }
+
+    private void render3(DancerEntity e, Rig3.Model3 m, float pt, PoseStack ps, MultiBufferSource buf, int light, float scale) {
+        Rig3.Anim3 anim = null; double time = 0;
+        String id = e.getAnim();
+        if (!id.isEmpty()) {
+            anim = DancerAssets.anim3(e.getModelName(), id);
+            if (anim != null) {
+                time = ((e.level().getGameTime() - e.getStart()) + pt) / 20.0;
+                if (time < 0) time = 0;
+                if (e.isLooping() && anim.duration > 0) time %= anim.duration;
+                else if (time > anim.duration) anim = null;
+            }
+        }
+        Holder3 h = e.clientSprings instanceof Holder3 hh ? hh : null;
+        long now = System.nanoTime();
+        int nb = m.boneCount(), n = m.skin.count();
+        if (h == null || h.model != m) {
+            h = new Holder3(); h.model = m; h.st = new Rig3.SpringState3(m); h.last = now; e.clientSprings = h;
+            h.R = new double[nb * 9]; h.T = new double[nb * 3]; h.pos = new float[n * 3]; h.nrm = new float[n * 3]; h.delta = new float[n * 3]; h.mw = new float[m.morphNames.length];
+        }
+        double dt = Math.min(0.1, (now - h.last) / 1e9); h.last = now;
+        Rig3.pose(m, anim, time, e.getTravel(), h.st, dt, h.R, h.T);
+        Rig3.morphWeights(m, anim, time, h.mw);
+        boolean morph = Rig3.buildDelta(m, h.mw, h.delta);
+        Rig3.skin(m.skin, h.R, h.T, morph ? h.delta : null, h.pos, h.nrm);
+
+        ps.pushPose();
+        ps.mulPose(Axis.YP.rotationDegrees(-Mth.rotLerp(pt, e.yBodyRotO, e.yBodyRot)));
+        ps.scale(scale, scale, scale);
+        PoseStack.Pose pose = ps.last();
+        emitSkin(m.skin, h.pos, h.nrm, (ResourceLocation[]) m.userData, pose.pose(), pose.normal(), buf, light);
         ps.popPose();
     }
 }
