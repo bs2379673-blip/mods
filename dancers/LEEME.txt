@@ -36,3 +36,7 @@ Herramienta: tools/mmd2dancer.py <config3.json> <salida>  (ver tools/miku_pde/co
 - Guiño izquierdo corregido (usaba un morph parcial; ahora el ojo izquierdo cierra igual que el derecho).
 - Ya estan los 7 bailes con VMD (konton_boogie y looping_the_rooms incluidos) y la cara de todos. "mikupd_ef" se elimino.
 - Pelo mas pesado (mas amortiguacion, velocidad maxima limitada), corbata casi rigida con colision contra el pecho.
+
+--- 1.2.2 ---
+Pelo afinado contra un video de referencia: pelo pesado, lento y suave (rigidez baja, amortiguacion alta, gravedad real)
+en vez del temblor rapido de antes. Ver tools/hair_tuning.

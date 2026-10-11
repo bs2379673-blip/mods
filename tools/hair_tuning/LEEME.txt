@@ -1,0 +1,6 @@
+Afinado del pelo contra un video de referencia (render MMD con fisica real):
+ video_features.py <video.mp4>  -> feat.npy (punta del pelo vs cabeza por fotograma)
+ T6.java                        -> misma metrica sobre la simulacion de dancers (vista frontal)
+ search.py                      -> busqueda de parametros (rigidez, amortiguacion, gravedad, angulos) contra las metricas del video
+Metricas objetivo del video: desvio lateral std 0.148 del largo del pelo, p95 0.30, energia <0.5Hz 39%, >3Hz 19%, autocorrelacion 0.63 a 0.1s.
+Resultado: rigidez 8, amortiguacion 11, gravedad 8, 25 grados por eslabon, 80 grados total.
