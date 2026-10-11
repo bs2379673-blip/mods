@@ -299,7 +299,7 @@ public final class Rig3 {
                 int gm = 1 << m.sGroup[s];
                 for (int it = 0; it < steps; it++) {
                     double vx = (st.x[o] - st.xp[o]) * damp, vy = (st.x[o + 1] - st.xp[o + 1]) * damp, vz = (st.x[o + 2] - st.xp[o + 2]) * damp;
-                    double vl = Math.sqrt(vx * vx + vy * vy + vz * vz), vmax = 0.4 * L1;
+                    double vl = Math.sqrt(vx * vx + vy * vy + vz * vz), vmax = 0.15 * L1;
                     if (vl > vmax) { double sc = vmax / vl; vx *= sc; vy *= sc; vz *= sc; }
                     double nx = st.x[o] + vx + kk * (X0[0] - st.x[o]) * STEP * STEP;
                     double ny = st.x[o + 1] + vy + kk * (X0[1] - st.x[o + 1]) * STEP * STEP;

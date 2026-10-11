@@ -31,3 +31,8 @@ Modelos formato 3 (huesos MMD reales) con animaciones bakeadas directo desde los
 Las animaciones de un modelo formato 3 se buscan en assets/dancers/dancer_anims/<modelo>/<nombre>.dnc
 (el nombre es lo ultimo del id: mikuevent:biped/miku/melt -> melt).
 Herramienta: tools/mmd2dancer.py <config3.json> <salida>  (ver tools/miku_pde/config3.json)
+
+--- 1.2.1 ---
+- Guiño izquierdo corregido (usaba un morph parcial; ahora el ojo izquierdo cierra igual que el derecho).
+- Ya estan los 7 bailes con VMD (konton_boogie y looping_the_rooms incluidos) y la cara de todos. "mikupd_ef" se elimino.
+- Pelo mas pesado (mas amortiguacion, velocidad maxima limitada), corbata casi rigida con colision contra el pecho.

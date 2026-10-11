@@ -80,30 +80,29 @@
   ]
  },
  "morph_alias": {
-  "ウィンク": "ウインク",
+  "ウィンク": "ウインク左",
   "ウィンク右": "ウインク右",
-  "ウィンク左": "ウインク左",
   "ウィンク２": "ウインク_PD"
  },
  "springs": [
   {
    "match": "髪.\\.[LR]",
    "group": "hair",
-   "stiffness": 40,
-   "damping": 5,
-   "gravity": 9.8,
-   "max_angle": 20,
+   "stiffness": 45,
+   "damping": 12,
+   "gravity": 7,
+   "max_angle": 12,
    "max_total": 100,
    "end_len": 0.12
   },
   {
    "match": "tie[1-6]",
    "group": "tie",
-   "stiffness": 60,
-   "damping": 6,
-   "gravity": 9.8,
-   "max_angle": 18,
-   "max_total": 80,
+   "stiffness": 150,
+   "damping": 8,
+   "gravity": 2,
+   "max_angle": 10,
+   "max_total": 25,
    "end_len": 0.06
   },
   {
@@ -163,6 +162,15 @@
    "groups": [
     "hair"
    ]
+  },
+  {
+   "bone": "上半身",
+   "a": "上半身",
+   "b": "首",
+   "r": 0.04,
+   "groups": [
+    "tie"
+   ]
   }
  ],
  "ground": {
@@ -177,20 +185,33 @@
   },
   {
    "name": "melt",
-   "body": "/mnt/user-data/uploads/Melt.vmd"
+   "body": "/mnt/user-data/uploads/Melt.vmd",
+   "face": "/tmp/claude-0/vmd/melt_face.vmd"
   },
   {
    "name": "magical_cure_love_shot",
-   "body": "/mnt/user-data/uploads/M_GICALüÖCURE__LOVE_SHOT_.vmd"
+   "body": "/mnt/user-data/uploads/M_GICALüÖCURE__LOVE_SHOT_.vmd",
+   "face": "/tmp/claude-0/vmd/magical_face.vmd"
   },
   {
    "name": "minna_miku_miku",
-   "body": "/mnt/user-data/uploads/Minna_Miku_Miku_ni_Shiteageru.vmd"
+   "body": "/mnt/user-data/uploads/Minna_Miku_Miku_ni_Shiteageru.vmd",
+   "face": "/tmp/claude-0/vmd/minna_face.vmd"
   },
   {
    "name": "anamanaguchi_miku",
    "body": "/mnt/user-data/uploads/Anamanaguchi_Miku.vmd",
    "face": "/tmp/claude-0/vmd/anamanaguchi_face.vmd"
+  },
+  {
+   "name": "konton_boogie",
+   "body": "/tmp/claude-0/vmd/konton_body.vmd",
+   "face": "/tmp/claude-0/vmd/konton_face.vmd"
+  },
+  {
+   "name": "looping_the_rooms",
+   "body": "/tmp/claude-0/vmd/looping_body.vmd",
+   "face": "/tmp/claude-0/vmd/looping_face.vmd"
   }
  ]
 }
