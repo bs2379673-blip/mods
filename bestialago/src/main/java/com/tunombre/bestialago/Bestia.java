@@ -259,6 +259,7 @@ public class Bestia extends PathfinderMob {
         if (++strugglesThisTick > 3) return;
         grip = Math.min(100F, grip + BestiaLago.cfgPress);
         presses++;
+        if (grip >= 99.5F) endGrab(p, true);   // se suelta en el acto, sin esperar al tick
     }
 
     // ------------------------------------------------------------------ IA (servidor) ----

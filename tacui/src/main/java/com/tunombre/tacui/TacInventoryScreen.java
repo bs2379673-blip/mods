@@ -479,6 +479,20 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         return null;
     }
 
+    /** borra el item que llevas en el cursor (sacado de un slot del inventario): lo deja en un hueco libre y vacia ese hueco */
+    private void deleteCarried(Minecraft mc) {
+        if (mc.player == null || mc.gameMode == null) return;
+        for (int i = 44; i >= 9 && i < menu.slots.size(); i--) {
+            Slot s = menu.slots.get(i);
+            if (s.hasItem()) continue;
+            mc.gameMode.handleInventoryMouseClick(menu.containerId, i, 0, net.minecraft.world.inventory.ClickType.PICKUP, mc.player);
+            mc.gameMode.handleCreativeModeItemAdd(ItemStack.EMPTY, i);
+            s.set(ItemStack.EMPTY);
+            menu.setCarried(ItemStack.EMPTY);
+            return;
+        }
+    }
+
     /** Clic en modo creativo. Devuelve true si lo ha gestionado. */
     private boolean creativeClick(double mx, double my, int button) {
         Minecraft mc = Minecraft.getInstance();
@@ -500,6 +514,12 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
                 } else clearArmed = System.currentTimeMillis();
                 return true;
             }
+        }
+        // soltar un item sobre la lista del creativo = borrarlo (como en vainilla)
+        if (in(rects.get(ITEMS), mx, my) && (!held.isEmpty() || !menu.getCarried().isEmpty())) {
+            if (!held.isEmpty()) { held = ItemStack.EMPTY; return true; }
+            deleteCarried(mc);
+            return true;
         }
         int c = cellAt(mx, my);
         if (c >= 0) {

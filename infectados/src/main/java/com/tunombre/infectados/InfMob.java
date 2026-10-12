@@ -34,6 +34,8 @@ public abstract class InfMob extends Monster {
     protected Move move;
     protected int moveTick;
     protected LivingEntity moveTarget;
+    /** impulso hacia el objetivo justo antes del impacto (0 = sin envion) */
+    protected double lunge;
     protected int attackCd;
 
     // ---- agarre ----
@@ -72,6 +74,7 @@ public abstract class InfMob extends Monster {
     protected void startMove(Move m, LivingEntity target) {
         move = m;
         moveTick = 0;
+        lunge = 0;
         moveTarget = target;
         getNavigation().stop();
         play(m.anim());
@@ -111,6 +114,14 @@ public abstract class InfMob extends Monster {
             float want = (float) Math.toDegrees(Mth.atan2(moveTarget.getZ() - getZ(), moveTarget.getX() - getX())) - 90F;
             setYRot(Mth.approachDegrees(getYRot(), want, 12F));
             yBodyRot = getYRot();
+        }
+        if (lunge > 0 && moveTarget != null && moveTick == Math.max(1, move.hit() - 5)) {
+            Vec3 d = moveTarget.position().subtract(position()).multiply(1, 0, 1);
+            if (d.lengthSqr() > 1e-4) {
+                d = d.normalize();
+                setDeltaMovement(d.x * lunge, 0.08, d.z * lunge);
+                hurtMarked = true;
+            }
         }
         if (moveTick == move.hit()) onMoveHit(move);
         if (move != null && moveTick >= move.length()) move = null;
@@ -153,6 +164,7 @@ public abstract class InfMob extends Monster {
     public void struggle(ServerPlayer p) {
         if (!hasPassenger(p)) return;
         grip = Math.min(100F, grip + Infectados.cfgPress(qteKind));
+        if (grip >= 99.5F && grabTicks > 0) endGrab(p, true);
     }
 
     /** llamado cada tick mientras agarra; devuelve true si sigue */

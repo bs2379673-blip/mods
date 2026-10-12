@@ -77,10 +77,10 @@ public class BestiaLago {
 
     // ---- configuracion (config/bestialago-common.toml) ----
     private static final ForgeConfigSpec.Builder B = new ForgeConfigSpec.Builder();
-    private static final ForgeConfigSpec.DoubleValue PRESS = B.comment("Cuanto suma cada pulsacion del quick time event (0-100)").defineInRange("qte_pulsacion", 6.0, 0.5, 50.0);
-    private static final ForgeConfigSpec.DoubleValue DECAY = B.comment("Cuanto baja la barra por tick (20 ticks = 1 s). Mas alto = mas dificil").defineInRange("qte_caida_por_tick", 1.1, 0.05, 10.0);
+    private static final ForgeConfigSpec.DoubleValue PRESS = B.comment("Cuanto suma cada pulsacion del quick time event (0-100)").defineInRange("qte_pulsacion_v2", 8.0, 0.5, 50.0);
+    private static final ForgeConfigSpec.DoubleValue DECAY = B.comment("Cuanto baja la barra por tick (20 ticks = 1 s). Mas alto = mas dificil").defineInRange("qte_caida_por_tick_v2", 0.7, 0.05, 10.0);
     private static final ForgeConfigSpec SPEC = B.build();
-    public static float cfgPress = 6F, cfgDecay = 1.1F;
+    public static float cfgPress = 8F, cfgDecay = 0.7F;
 
     private static RegistryObject<SoundEvent> sound(String name, float range) {
         return SOUNDS.register(name, () -> SoundEvent.createFixedRangeEvent(new ResourceLocation(MODID, name), range));

@@ -23,6 +23,7 @@ public final class InfNet {
         CH.registerMessage(0, Struggle.class, (m, b) -> { }, b -> new Struggle(), Struggle::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CH.registerMessage(1, Qte.class, Qte::write, Qte::read, Qte::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CH.registerMessage(2, Prompt.class, Prompt::write, Prompt::read, Prompt::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CH.registerMessage(4, Drag.class, (m, b) -> b.writeBoolean(m.on()), b -> new Drag(b.readBoolean()), Drag::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CH.registerMessage(3, Dodge.class, (m, b) -> b.writeByte(m.key()), b -> new Dodge(b.readByte()), Dodge::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
 
@@ -78,6 +79,17 @@ public final class InfNet {
                     if (g.tryDodge(p, key)) break;
                 }
             });
+            ctx.get().setPacketHandled(true);
+        }
+    }
+
+    /** arrastrado por el Smoker: el cliente se pone tumbado (camara baja) */
+    public record Drag(boolean on) {
+        void handle(Supplier<NetworkEvent.Context> ctx) {
+            ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+                net.minecraft.client.player.LocalPlayer lp = net.minecraft.client.Minecraft.getInstance().player;
+                if (lp != null) lp.setForcedPose(on ? net.minecraft.world.entity.Pose.SWIMMING : null);
+            }));
             ctx.get().setPacketHandled(true);
         }
     }

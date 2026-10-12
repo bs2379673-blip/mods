@@ -8,7 +8,7 @@ import yesman.epicfight.gameasset.Armatures;
 /** Todas las animaciones (ids infectados:biped/<grupo>/<nombre>). */
 public final class Anims {
     public static AnimationManager.AnimationAccessor<StaticAnimation> G_IDLE, G_POINT, G_CHOP, G_SWIPE, G_GRAB, G_PLAGA, G_THRUST, P_DECAP, G_IMPALE, P_IMPALED,
-            P_GRABBED, P_CHAINSAW,
+            P_GRABBED, P_CHAINSAW, P_DRAGGED,
             M_IDLE, M_SWING, M_OVERHEAD, M_GRAB, M_TAUNT,
             S_IDLE, S_SHOOT, S_PULL,
             B_IDLE, B_VOMIT,
@@ -33,6 +33,7 @@ public final class Anims {
         P_IMPALED = once(b, "player/impaled");
         P_GRABBED = loop(b, "player/grabbed");
         P_CHAINSAW = loop(b, "player/chainsaw");
+        P_DRAGGED = loop(b, "player/dragged");
         M_IDLE = loop(b, "motosierra/idle");
         M_WALK = move(b, "motosierra/walk");
         M_RUN = move(b, "motosierra/run");

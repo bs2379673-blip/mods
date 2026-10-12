@@ -141,8 +141,37 @@ public class Smoker extends InfMob {
         }
     }
 
+    private Player dragged;
+
+    /** el jugador queda tirado en el piso (pose de gateo, camara baja) con la animacion de arrastre; puede seguir disparando */
+    private void setDragged(Player p) {
+        if (dragged == p) return;
+        if (dragged != null) {
+            dragged.setForcedPose(null);
+            if (dragged instanceof net.minecraft.server.level.ServerPlayer sp) {
+                InfNet.CH.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp), new InfNet.Drag(false));
+                var pp = yesman.epicfight.world.capabilities.EpicFightCapabilities.getEntityPatch(sp, yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch.class);
+                if (pp != null) pp.stopPlaying(Anims.P_DRAGGED);
+            }
+        }
+        dragged = p;
+        if (p != null) {
+            p.setForcedPose(net.minecraft.world.entity.Pose.SWIMMING);
+            if (p instanceof net.minecraft.server.level.ServerPlayer sp)
+                InfNet.CH.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp), new InfNet.Drag(true));
+        }
+    }
+
     private void tickTongue(LivingEntity v) {
         getNavigation().stop();
+        if (v instanceof Player pl && v.isAlive()) {
+            setDragged(pl);
+            // la animacion se repone cada vuelta del bucle (Epic Fight la pisa al cambiar de pose)
+            if (tickCount % 20 == 0 && pl instanceof net.minecraft.server.level.ServerPlayer sp) {
+                var pp = yesman.epicfight.world.capabilities.EpicFightCapabilities.getEntityPatch(sp, yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch.class);
+                if (pp != null) pp.playAnimationSynchronized(Anims.P_DRAGGED, 0.1F);
+            }
+        }
         getLookControl().setLookAt(v, 60, 60);
         double d = distanceTo(v);
         if (!v.isAlive() || d > 28 || (v instanceof Player p && (p.isCreative() || p.isSpectator()))) { release(); return; }
@@ -165,6 +194,7 @@ public class Smoker extends InfMob {
     }
 
     private void release() {
+        setDragged(null);
         if (tongueTarget() >= 0) {
             entityData.set(TONGUE, -1);
             stop(Anims.S_PULL);
@@ -197,6 +227,12 @@ public class Smoker extends InfMob {
             }
         }
         super.die(src);
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        if (!level().isClientSide) setDragged(null);
+        super.remove(reason);
     }
 
     @Override protected SoundEvent getAmbientSound() { return null; }

@@ -1,5 +1,7 @@
 package com.tunombre.infectados.mob;
 
+import net.minecraft.util.Mth;
+
 import com.tunombre.infectados.*;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -65,7 +67,7 @@ public class Ganado extends InfMob {
     public static AttributeSupplier.Builder createAttributes() {
         return Monster.createMonsterAttributes()
                 .add(Attributes.MAX_HEALTH, 30.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.25D)
+                .add(Attributes.MOVEMENT_SPEED, 0.3D)
                 .add(Attributes.ATTACK_DAMAGE, 5.0D)
                 .add(Attributes.FOLLOW_RANGE, 40.0D)
                 .add(Attributes.ARMOR, 2.0D);
@@ -99,7 +101,7 @@ public class Ganado extends InfMob {
     @Override
     protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
-        goalSelector.addGoal(2, new ChaseGoal(this, 0.85, 1.15));
+        goalSelector.addGoal(2, new ChaseGoal(this, 1.0, 1.45));
         goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 0.6));
         goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 10F));
         goalSelector.addGoal(8, new RandomLookAroundGoal(this));
@@ -120,7 +122,7 @@ public class Ganado extends InfMob {
     private static final Move CHOP = new Move(null, 16, 30, 2.7, 7F, 80F);
 
     @Override
-    protected double attackRange() { return headless() ? 3.0 : variant() == 1 ? 3.8 : 2.4; }
+    protected double attackRange() { return headless() ? 3.0 : variant() == 1 ? 3.8 : 4.0; }
 
     @Override
     protected void chooseAttack(LivingEntity t, double d) {
@@ -137,16 +139,18 @@ public class Ganado extends InfMob {
             startThrust(sp);
             return;
         }
-        if (d > 2.8) return;
+        if (d > 4.3) return;
         if (!armed()) {
-            startMove(new Move(Anims.G_SWIPE, 13, 27, 2.2, 4F, 90F), t);
+            startMove(new Move(Anims.G_SWIPE, 8, 16, 2.4, 4F, 100F), t);
         } else if (random.nextBoolean()) {
-            startMove(new Move(Anims.G_CHOP, 16, 30, 2.8, 7F, 70F), t);
+            startMove(new Move(Anims.G_CHOP, 9, 17, 2.9, 7F, 80F), t);
         } else {
-            startMove(new Move(Anims.G_SWIPE, 13, 27, 2.7, 6F, 120F), t);
+            startMove(new Move(Anims.G_SWIPE, 8, 16, 2.9, 6F, 130F), t);
         }
+        // envion: salta hacia el objetivo justo antes del golpe (mas lejos = mas impulso)
+        lunge = Mth.clamp((d - 1.4) * 0.42, 0.18, 0.95);
         if (random.nextInt(4) == 0) Voice.pick(random, Voice.MUERETE, Voice.PICADILLO, Voice.TE_VOY_A_MATAR, Voice.CERDO).say(this, false);
-        attackCd = 20 + random.nextInt(20);
+        attackCd = 12 + random.nextInt(14);
     }
 
     @Override
