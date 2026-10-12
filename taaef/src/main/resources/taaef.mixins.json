@@ -1,0 +1,18 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.tunombre.taaef.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "KickServerMixin"
+  ],
+  "client": [
+    "KickClientMixin",
+    "GunRunClientMixin",
+    "ProneClientMixin",
+    "DoorHandClientMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

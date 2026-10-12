@@ -4,7 +4,7 @@ license="All Rights Reserved"
 
 [[mods]]
 modId="taaef"
-version="1.0.0"
+version="1.1.0"
 displayName="TAA Epic Fight"
 description='''Hace compatible Tacz Animation Additions con Epic Fight y Epic Arsenal: la patada a la puerta, el arma en alto (high ready), el arma pegada a la pared, correr con el arma, revisar la municion y el cuerpo a tierra se ven en tercera persona con animaciones de Epic Fight.'''
 

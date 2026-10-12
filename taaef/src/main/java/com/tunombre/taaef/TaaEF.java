@@ -24,6 +24,7 @@ public class TaaEF {
     public TaaEF() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         bus.addListener((AnimationManager.AnimationRegistryEvent e) -> e.newBuilder(MODID, Anims::build));
+        Net.init();
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.addListener(ClientDriver::onTick));
     }
 }

@@ -16,7 +16,7 @@ final class Taa {
 
     private static final String P = "com.locknar.taczammocheck.";
     private static boolean tried, present;
-    private static Method kick, ammo, prone, hrEntity, hrLocal, run, gunInfo, kind, wallInfo, wallActive, wallLocal;
+    private static Method kick, kickRaise, ammo, prone, hrEntity, hrLocal, run, gunInfo, kind, wallInfo, wallActive, wallLocal;
 
     static boolean present() {
         if (!tried) {
@@ -24,6 +24,7 @@ final class Taa {
             present = ModList.get().isLoaded("locknar_doorkick");
             if (present) {
                 kick = find(P + "tactical.client.KickAnimationClient", "isThirdPersonKickActive", int.class);
+                kickRaise = find(P + "tactical.client.TaczKickRaiseClient", "isKickRaiseActiveForEntity", int.class);
                 ammo = find(P + "client.AmmoCheckThirdPersonClient", "active", AbstractClientPlayer.class);
                 prone = find(P + "prone.ProneClient", "active", AbstractClientPlayer.class);
                 hrEntity = find(P + "tactical.client.TaczHighReadyClient", "isHighReadyActiveForEntity", int.class);
@@ -65,6 +66,8 @@ final class Taa {
     }
 
     static boolean kick(AbstractClientPlayer p) { return bool(kick, null, p.getId()); }
+
+    static boolean kickRaise(AbstractClientPlayer p) { return bool(kickRaise, null, p.getId()); }
 
     static boolean ammoCheck(AbstractClientPlayer p) { return bool(ammo, null, p); }
 
