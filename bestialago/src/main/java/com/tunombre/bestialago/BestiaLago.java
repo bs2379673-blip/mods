@@ -71,6 +71,8 @@ public class BestiaLago {
     public static final ResourceKey<DamageType> SWALLOWED = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MODID, "swallowed"));
 
     public static AnimationManager.AnimationAccessor<StaticAnimation> JAW_HOLD;
+    /** (cliente) el servidor nos tiene agarrados: no dejar que el cliente se baje solo */
+    public static volatile boolean clientHeld;
 
     // ---- configuracion (config/bestialago-common.toml) ----
     private static final ForgeConfigSpec.Builder B = new ForgeConfigSpec.Builder();
@@ -120,7 +122,11 @@ public class BestiaLago {
 
     /** nadie sale de la boca por su cuenta (shift) mientras la bestia lo tiene */
     private static void onMount(EntityMountEvent e) {
-        if (e.isDismounting() && e.getEntityBeingMounted() instanceof Bestia b && !b.mayDismount(e.getEntityMounting())) e.setCanceled(true);
+        if (!e.isDismounting() || !(e.getEntityBeingMounted() instanceof Bestia b)) return;
+        if (e.getLevel().isClientSide) {
+            // en el cliente el flag de la bestia no existe: solo se bloquea mientras el servidor diga que el QTE esta activo
+            if (clientHeld && b.isAlive() && !b.isRemoved() && e.getEntityMounting().isAlive()) e.setCanceled(true);
+        } else if (!b.mayDismount(e.getEntityMounting())) e.setCanceled(true);
     }
 
     private static void onCommands(RegisterCommandsEvent e) {

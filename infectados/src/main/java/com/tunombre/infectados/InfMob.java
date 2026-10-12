@@ -170,11 +170,11 @@ public abstract class InfMob extends Monster {
     protected abstract void failGrab(Player p);
 
     protected void endGrab(Player p, boolean escaped) {
+        if (p instanceof ServerPlayer sp) InfNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new InfNet.Qte(escaped ? 100 : 0, false, qteKind));   // antes de bajarlo
         releasing = true;
         p.stopRiding();
         releasing = false;
         if (p instanceof ServerPlayer sp) {
-            InfNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new InfNet.Qte(escaped ? 100 : 0, false, qteKind));
             ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(sp, ServerPlayerPatch.class);
             if (pp != null) {
                 pp.stopPlaying(Anims.P_GRABBED);

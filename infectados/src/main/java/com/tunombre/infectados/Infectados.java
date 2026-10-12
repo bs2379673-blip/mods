@@ -117,6 +117,9 @@ public class Infectados {
         ITEMS.register(name + "_spawn_egg", () -> new ForgeSpawnEggItem(type, a, b, new Item.Properties()));
     }
 
+    /** (cliente) el servidor nos tiene agarrados con QTE: el cliente no debe bajarse solo */
+    public static volatile boolean clientHeld;
+
     public Infectados() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         Voice.register();
@@ -199,7 +202,10 @@ public class Infectados {
     }
 
     private static void onMount(EntityMountEvent e) {
-        if (e.isDismounting() && e.getEntityBeingMounted() instanceof InfMob m && !m.mayDismount(e.getEntityMounting())) e.setCanceled(true);
+        if (!e.isDismounting() || !(e.getEntityBeingMounted() instanceof InfMob m)) return;
+        if (e.getLevel().isClientSide) {
+            if (clientHeld && m.isAlive() && !m.isRemoved() && e.getEntityMounting().isAlive()) e.setCanceled(true);
+        } else if (!m.mayDismount(e.getEntityMounting())) e.setCanceled(true);
     }
 
     private static int zoneTimer;

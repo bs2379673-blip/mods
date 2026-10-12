@@ -114,7 +114,6 @@ public class Motosierra extends InfMob {
         play(Anims.M_TAUNT);
         Voice.MS_CORTE.say(this, true);
         if (p instanceof ServerPlayer sp) {
-            InfNet.CH.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp), new InfNet.Qte(0, false, 1));
             yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch pp = yesman.epicfight.world.capabilities.EpicFightCapabilities.getEntityPatch(sp, yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch.class);
             if (pp != null) {
                 pp.stopPlaying(Anims.P_CHAINSAW);
@@ -136,6 +135,7 @@ public class Motosierra extends InfMob {
         }
         if (decap == 12) p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.BLINDNESS, 60));
         if (decap >= 42) {
+            if (p instanceof ServerPlayer sp2) InfNet.CH.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp2), new InfNet.Qte(0, false, 1));
             releasing = true;
             p.hurt(new DamageSource(level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(Infectados.DECAPITATED), this), Float.MAX_VALUE);
             releasing = false;

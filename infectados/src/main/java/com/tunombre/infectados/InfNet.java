@@ -47,7 +47,7 @@ public final class InfNet {
         static Qte read(FriendlyByteBuf b) { return new Qte(b.readByte(), b.readBoolean(), b.readByte()); }
 
         void handle(Supplier<NetworkEvent.Context> ctx) {
-            ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.infectados.client.QteHud.update(grip, active, kind)));
+            ctx.get().enqueueWork(() -> { Infectados.clientHeld = active; DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.infectados.client.QteHud.update(grip, active, kind)); });
             ctx.get().setPacketHandled(true);
         }
     }

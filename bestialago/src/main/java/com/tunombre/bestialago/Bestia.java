@@ -494,6 +494,10 @@ public class Bestia extends PathfinderMob {
         entityData.set(GRIP, (byte) Mth.clamp(Math.round(grip), 0, 100));
         setJaw(0.58F + 0.10F * grip / 100F);
         if (stateTicks % 30 == 0) playLoud(BestiaLago.GROWL.get(), 1.2F);
+        if (t instanceof ServerPlayer sp && stateTicks % 12 == 2 && BestiaLago.JAW_HOLD != null) {
+            ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(sp, ServerPlayerPatch.class);
+            if (pp != null) pp.playAnimationSynchronized(BestiaLago.JAW_HOLD, 0.05F);
+        }
         if (t instanceof ServerPlayer sp) {
             t.setAirSupply(t.getMaxAirSupply());
             BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Qte(Math.round(grip), true));
@@ -524,11 +528,14 @@ public class Bestia extends PathfinderMob {
     }
 
     private void endGrab(Player t, boolean escaped) {
+        if (t instanceof ServerPlayer sp) {
+            // primero se avisa al cliente (los paquetes llegan en orden) y recien despues se lo baja
+            BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Qte(100, false));
+        }
         releasing = true;
         if (t != null) {
             t.stopRiding();
             if (t instanceof ServerPlayer sp) {
-                BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Qte(100, false));
                 ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(sp, ServerPlayerPatch.class);
                 if (pp != null && BestiaLago.JAW_HOLD != null) pp.stopPlaying(BestiaLago.JAW_HOLD);
             }

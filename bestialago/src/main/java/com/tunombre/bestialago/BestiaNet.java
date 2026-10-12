@@ -44,7 +44,7 @@ public final class BestiaNet {
         static Qte read(FriendlyByteBuf b) { return new Qte(b.readByte(), b.readBoolean()); }
 
         void handle(Supplier<NetworkEvent.Context> ctx) {
-            ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.bestialago.client.QteHud.update(grip, active)));
+            ctx.get().enqueueWork(() -> { BestiaLago.clientHeld = active; DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.bestialago.client.QteHud.update(grip, active)); });
             ctx.get().setPacketHandled(true);
         }
     }
