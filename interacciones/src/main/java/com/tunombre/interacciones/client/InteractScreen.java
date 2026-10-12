@@ -8,13 +8,13 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 
-/** menu de interaccion con el jugador que miras */
+/** menu de interaccion con el jugador (o NPC) que miras */
 public class InteractScreen extends Screen {
-    private final Player target;
+    private final LivingEntity target;
 
-    public InteractScreen(Player target) {
+    public InteractScreen(LivingEntity target) {
         super(Component.literal("Interactuar"));
         this.target = target;
     }
@@ -40,7 +40,7 @@ public class InteractScreen extends Screen {
     @Override
     public void render(GuiGraphics g, int mx, int my, float pt) {
         g.fill(width / 2 - 80, height / 2 - 74, width / 2 + 80, height / 2 + 72, 0xB0101014);
-        g.drawCenteredString(font, target.getGameProfile().getName(), width / 2, height / 2 - 68, 0xFF58C8FF);
+        g.drawCenteredString(font, target.getDisplayName().getString(), width / 2, height / 2 - 68, 0xFF58C8FF);
         super.render(g, mx, my, pt);
     }
 

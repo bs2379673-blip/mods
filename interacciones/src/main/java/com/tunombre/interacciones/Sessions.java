@@ -31,10 +31,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.entity.LivingEntity;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.*;
 
@@ -48,9 +49,12 @@ public final class Sessions {
         final UUID attacker, victim;
         final Vec3 posA, posV;
         final float yaw;
+        final boolean npcVictim;
         int tick;
 
-        Exec(UUID a, UUID v, Vec3 pa, Vec3 pv, float yaw) { attacker = a; victim = v; posA = pa; posV = pv; this.yaw = yaw; }
+        Exec(UUID a, UUID v, Vec3 pa, Vec3 pv, float yaw, boolean npcVictim) {
+            attacker = a; victim = v; posA = pa; posV = pv; this.yaw = yaw; this.npcVictim = npcVictim;
+        }
     }
 
     private static final Map<UUID, Req> PENDING = new HashMap<>();
@@ -65,15 +69,17 @@ public final class Sessions {
     // ------------------------------------------------------------------ util ----
     private static void msg(Player p, String s) { p.displayClientMessage(Component.literal(s), true); }
 
-    private static void play(ServerPlayer p, AnimationManager.AnimationAccessor<StaticAnimation> a) {
-        ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(p, ServerPlayerPatch.class);
+    /** funciona con cualquier entidad viva con parche de Epic Fight (jugador o un mob/NPC ya compatible) */
+    private static void play(LivingEntity p, AnimationManager.AnimationAccessor<StaticAnimation> a) {
+        LivingEntityPatch<?> pp = EpicFightCapabilities.getEntityPatch(p, LivingEntityPatch.class);
         if (pp != null && a != null) pp.playAnimationSynchronized(a, 0.1F);
     }
 
-    private static void stop(ServerPlayer p, AnimationManager.AnimationAccessor<StaticAnimation> a) {
-        ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(p, ServerPlayerPatch.class);
+    private static void stop(LivingEntity p, AnimationManager.AnimationAccessor<StaticAnimation> a) {
+        LivingEntityPatch<?> pp = EpicFightCapabilities.getEntityPatch(p, LivingEntityPatch.class);
         if (pp != null && a != null) pp.stopPlaying(a);
     }
+
 
     private static void later(int ticks, Runnable r) { LATER.add(new Object[]{now + ticks, r}); }
 
@@ -91,8 +97,8 @@ public final class Sessions {
         return n.contains("knife") || n.contains("cuchillo") || n.contains("dagger") || n.contains("machete") || n.contains("katana") || n.contains("blade");
     }
 
-    /** el atacante esta detras de la victima (fuera de su campo de vision) */
-    public static boolean behind(Player attacker, Player victim) {
+    /** el atacante esta detras de la victima (fuera de su campo de vision); la victima puede ser otro jugador o un NPC */
+    public static boolean behind(Player attacker, LivingEntity victim) {
         Vec3 look = Vec3.directionFromRotation(0, victim.getYHeadRot());
         Vec3 to = attacker.position().subtract(victim.position()).multiply(1, 0, 1);
         if (to.lengthSqr() < 1e-4) return false;
@@ -106,16 +112,41 @@ public final class Sessions {
     // ------------------------------------------------------------------ solicitudes ----
     static void request(ServerPlayer p, int action, int targetId) {
         if (action == Act.DROP) { stopCarry(p, true); return; }
+        if (!p.isAlive()) return;
         Entity e = p.level().getEntity(targetId);
-        if (!(e instanceof ServerPlayer t) || t == p || !t.isAlive() || t.isSpectator() || !p.isAlive()) return;
-        double d = p.distanceTo(t);
-        if (d > 4.5) { msg(p, "Estas demasiado lejos"); return; }
-        if (busy(p) || busy(t)) { msg(p, "Ahora no se puede"); return; }
-        if (action == Act.EXECUTE) { execute(p, t); return; }
-        if (action < 0 || action > Act.TRADE) return;
-        PENDING.put(t.getUUID(), new Req(p.getUUID(), action, now + REQUEST_TICKS));
-        Net.CH.send(PacketDistributor.PLAYER.with(() -> t), new Net.Prompt(p.getGameProfile().getName(), action, REQUEST_TICKS, true));
-        msg(p, "Solicitud enviada a " + t.getGameProfile().getName());
+        if (e == null) return;
+        if (e instanceof ServerPlayer t) {
+            if (t == p || !t.isAlive() || t.isSpectator()) return;
+            double d = p.distanceTo(t);
+            if (d > 4.5) { msg(p, "Estas demasiado lejos"); return; }
+            if (busy(p) || busy(t)) { msg(p, "Ahora no se puede"); return; }
+            if (action == Act.EXECUTE) { execute(p, t); return; }
+            if (action < 0 || action > Act.TRADE) return;
+            PENDING.put(t.getUUID(), new Req(p.getUUID(), action, now + REQUEST_TICKS));
+            Net.CH.send(PacketDistributor.PLAYER.with(() -> t), new Net.Prompt(p.getGameProfile().getName(), action, REQUEST_TICKS, true));
+            msg(p, "Solicitud enviada a " + t.getGameProfile().getName());
+            return;
+        }
+        requestNpc(p, action, e);
+    }
+
+    /** interaccion directa contra un NPC de Easy NPC: solo para probar en solitario, sin otro jugador. No hay pedido
+     * ni aceptar/rechazar (el NPC no puede responder), se ejecuta al toque. Solo creativo o admin, para que un
+     * jugador comun no pueda usarlo para saltarse el PvP ni romper los NPCs del mundo. */
+    private static void requestNpc(ServerPlayer p, int action, Entity e) {
+        if (!(e instanceof LivingEntity npc) || npc == p || !npc.isAlive()) return;
+        boolean admin = p.isCreative() || p.hasPermissions(2);
+        boolean isNpc = Interacciones.EASY_NPC_LOADED && EasyNpcSupport.isEasyNpc(npc);
+        if (!isNpc) { if (admin) msg(p, "Eso no es un NPC de Easy NPC"); return; }
+        if (!admin) { msg(p, "Necesitas estar en creativo o ser admin para probar esto con NPCs"); return; }
+        if (p.distanceTo(npc) > 4.5) { msg(p, "Estas demasiado lejos"); return; }
+        if (busy(p)) { msg(p, "Ahora no se puede"); return; }
+        switch (action) {
+            case Act.EXECUTE -> executeNpc(p, npc);
+            case Act.HIGH_FIVE -> greet(p, npc, Anims.HIGH_FIVE, 10);
+            case Act.FIST_BUMP -> greet(p, npc, Anims.FIST_BUMP, 9);
+            default -> msg(p, "Eso no se puede probar con un NPC");
+        }
     }
 
     static void answer(ServerPlayer t, boolean accept) {
@@ -136,8 +167,16 @@ public final class Sessions {
     }
 
     // ------------------------------------------------------------------ saludos ----
-    /** los pone de frente a 1 bloque y los dos hacen la animacion; en el contacto, sonido y chispas */
-    private static void greet(ServerPlayer a, ServerPlayer b, AnimationManager.AnimationAccessor<StaticAnimation> anim, int contact) {
+    /** reposiciona una entidad: a un jugador real hay que movelo via su conexion (si no, el cliente lo corrige de
+     * vuelta); a un NPC (sin conexion) se lo mueve directo. */
+    private static void face(LivingEntity e, double x, double y, double z, float yaw, float pitch) {
+        if (e instanceof ServerPlayer sp) sp.connection.teleport(x, y, z, yaw, pitch);
+        else { e.moveTo(x, y, z, yaw, pitch); e.setYHeadRot(yaw); }
+    }
+
+    /** los pone de frente a 1 bloque y los dos hacen la animacion; en el contacto, sonido y chispas. 'b' puede ser
+     * otro jugador o, para probar en solitario, un NPC de Easy NPC. */
+    private static void greet(ServerPlayer a, LivingEntity b, AnimationManager.AnimationAccessor<StaticAnimation> anim, int contact) {
         Vec3 dir = b.position().subtract(a.position()).multiply(1, 0, 1);
         if (dir.lengthSqr() < 1e-3) dir = Vec3.directionFromRotation(0, a.getYRot());
         dir = dir.normalize();
@@ -146,7 +185,7 @@ public final class Sessions {
         if (Math.abs(a.getY() - b.getY()) > 0.8 || !b.level().noCollision(b, b.getBoundingBox().move(nb.subtract(b.position())))) nb = b.position();
         float ya = yawTo(a.position(), nb), yb = ya + 180F;
         a.connection.teleport(a.getX(), a.getY(), a.getZ(), ya, a.getXRot());
-        b.connection.teleport(nb.x, nb.y, nb.z, yb, b.getXRot());
+        face(b, nb.x, nb.y, nb.z, yb, b.getXRot());
         play(a, anim);
         play(b, anim);
         final Vec3 mid = a.position().add(nb).scale(0.5).add(0, anim == Anims.HIGH_FIVE ? 1.85 : 1.25, 0);
@@ -219,16 +258,24 @@ public final class Sessions {
 
     // ------------------------------------------------------------------ ejecucion sigilosa ----
     private static void execute(ServerPlayer a, ServerPlayer v) {
+        if (!a.server.isPvpAllowed() || !a.canHarmPlayer(v)) { msg(a, "El PvP esta desactivado"); return; }
+        startExecute(a, v, false);
+    }
+
+    /** la misma animacion, pero contra un NPC de Easy NPC (ya se valido permiso/distancia en requestNpc): no lo mata,
+     * solo se usa para ver como queda la animacion sin tener que buscar a otro jugador. */
+    private static void executeNpc(ServerPlayer a, LivingEntity v) { startExecute(a, v, true); }
+
+    private static void startExecute(ServerPlayer a, LivingEntity v, boolean npcVictim) {
         if (!isBlade(a.getMainHandItem())) { msg(a, "Necesitas un cuchillo, espada o hacha en la mano"); return; }
         if (!a.isShiftKeyDown()) { msg(a, "Tienes que ir agachado"); return; }
         if (!behind(a, v)) { msg(a, "Tienes que estar a su espalda"); return; }
         if (a.distanceTo(v) > 2.2) { msg(a, "Acercate mas"); return; }
-        if (!a.server.isPvpAllowed() || !a.canHarmPlayer(v)) { msg(a, "El PvP esta desactivado"); return; }
         float yaw = v.getYRot();
         Vec3 f = Vec3.directionFromRotation(0, yaw);
         Vec3 pv = v.position();
         Vec3 pa = pv.subtract(f.scale(0.45));
-        EXECS.add(new Exec(a.getUUID(), v.getUUID(), pa, pv, yaw));
+        EXECS.add(new Exec(a.getUUID(), v.getUUID(), pa, pv, yaw, npcVictim));
         play(a, Anims.EXEC_ATTACKER);
         play(v, Anims.EXEC_VICTIM);
         a.level().playSound(null, a.getX(), a.getY(), a.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK, SoundSource.PLAYERS, 0.7F, 0.7F);
@@ -237,13 +284,15 @@ public final class Sessions {
     private static void tickExecs(net.minecraft.server.MinecraftServer s) {
         for (Iterator<Exec> it = EXECS.iterator(); it.hasNext(); ) {
             Exec e = it.next();
-            ServerPlayer a = s.getPlayerList().getPlayer(e.attacker), v = s.getPlayerList().getPlayer(e.victim);
+            ServerPlayer a = s.getPlayerList().getPlayer(e.attacker);
+            Entity vEnt = a != null && a.level() instanceof ServerLevel lv ? lv.getEntity(e.victim) : null;
+            LivingEntity v = vEnt instanceof LivingEntity le ? le : null;
             e.tick++;
             if (a == null || v == null || !a.isAlive() || e.tick > 36) { it.remove(); continue; }
             // los dos quietos en su sitio durante la animacion
             if (e.tick % 2 == 0 || e.tick < 3) {
                 a.connection.teleport(e.posA.x, e.posA.y, e.posA.z, e.yaw, a.getXRot());
-                if (v.isAlive()) v.connection.teleport(e.posV.x, e.posV.y, e.posV.z, e.yaw, v.getXRot());
+                if (v.isAlive()) face(v, e.posV.x, e.posV.y, e.posV.z, e.yaw, v.getXRot());
             }
             if (e.tick == 18 && v.isAlive() && v.level() instanceof ServerLevel lv) {
                 lv.playSound(null, v.getX(), v.getY(), v.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1F, 0.8F);
@@ -254,7 +303,8 @@ public final class Sessions {
                 Vec3 neck = v.position().add(0, 1.0, 0);
                 lv.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.REDSTONE_BLOCK.defaultBlockState()), neck.x, neck.y, neck.z, 8, 0.1, 0.2, 0.1, 0.1);
             }
-            if (e.tick == 30 && v.isAlive()) v.hurt(a.damageSources().playerAttack(a), Float.MAX_VALUE);
+            // al NPC de prueba no lo matamos: es solo para ver la animacion sin gastar un NPC cada vez
+            if (e.tick == 30 && v.isAlive() && !e.npcVictim) v.hurt(a.damageSources().playerAttack(a), Float.MAX_VALUE);
         }
     }
 

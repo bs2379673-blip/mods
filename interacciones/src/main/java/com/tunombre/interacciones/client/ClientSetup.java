@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -35,10 +36,12 @@ public final class ClientSetup {
         MinecraftForge.EVENT_BUS.addListener(ClientSetup::onTick);
     }
 
-    /** jugador al que se esta mirando (hasta 4 bloques) */
-    static Player looked(Minecraft mc) {
+    /** a quien se esta mirando (hasta 4.5 bloques): un jugador cercano (apuntando bien o no), o directo al
+     * crosshair cualquier otra entidad viva -asi se puede abrir el menu sobre un NPC (p.ej. de Easy NPC) para
+     * probar las interacciones sin otro jugador real; el servidor es quien decide si esa entidad vale. */
+    static LivingEntity looked(Minecraft mc) {
         HitResult hr = mc.hitResult;
-        if (hr instanceof EntityHitResult eh && eh.getEntity() instanceof Player p && p != mc.player && mc.player.distanceTo(p) < 4.5) return p;
+        if (hr instanceof EntityHitResult eh && eh.getEntity() instanceof LivingEntity le && le != mc.player && mc.player.distanceTo(le) < 4.5) return le;
         Vec3 eye = mc.player.getEyePosition(), look = mc.player.getViewVector(1F);
         Player best = null;
         double bd = 4.5;
@@ -68,8 +71,8 @@ public final class ClientSetup {
                 Net.CH.sendToServer(new Net.Request(Act.DROP, -1));
                 continue;
             }
-            Player t = looked(mc);
-            if (t == null) mc.player.displayClientMessage(Component.literal("Mira a un jugador que este cerca"), true);
+            LivingEntity t = looked(mc);
+            if (t == null) mc.player.displayClientMessage(Component.literal("Mira a un jugador (o NPC) que este cerca"), true);
             else mc.setScreen(new InteractScreen(t));
         }
         while (ACCEPT.consumeClick()) if (PromptHud.active()) { Net.CH.sendToServer(new Net.Answer(true)); PromptHud.clear(); }

@@ -28,3 +28,11 @@ mandatory=true
 versionRange="[20.14,)"
 ordering="AFTER"
 side="BOTH"
+
+# Opcional: si esta instalado, los admins/creativo pueden probar las interacciones con sus NPCs.
+[[dependencies.interacciones]]
+modId="easy_npc"
+mandatory=false
+versionRange=""
+ordering="AFTER"
+side="BOTH"

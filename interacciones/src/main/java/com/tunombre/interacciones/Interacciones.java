@@ -7,6 +7,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -19,6 +20,8 @@ import yesman.epicfight.api.animation.AnimationManager;
 public class Interacciones {
     public static final String MODID = "interacciones";
     public static final Logger LOG = LogUtils.getLogger();
+    /** si esta instalado, se puede probar saludos/ejecucion con NPCs (ver EasyNpcSupport, nunca tocamos sus clases si esto es false) */
+    public static final boolean EASY_NPC_LOADED = ModList.get().isLoaded("easy_npc");
     private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MODID);
     public static final RegistryObject<MenuType<TradeMenu>> TRADE = MENUS.register("trade", () -> IForgeMenuType.create(TradeMenu::new));
 
