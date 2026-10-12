@@ -1,0 +1,37 @@
+INFECTADOS 1.0.0 (Forge 1.20.1, Epic Fight 20.14) - SERVIDOR y CLIENTES
+=======================================================================
+Modelos 3D propios (mallas sobre el esqueleto de Epic Fight) con texturas estilo skin, animaciones propias.
+
+RESIDENT EVIL 4 - LAS PLAGAS (solo aparecen en las zonas que crees)
+- Aldeanos (4 variantes): horca, hoz, hacha, y el que va sin arma, que te AGARRA.
+  Gritan: ¡Ahi esta! / ¡Un forastero! al verte, avisan a los demas (¡Cogedlo! ¡Agarradlo!), ¡Matalo!, ¡Te voy a hacer
+  picadillo!, ¡Detras de ti, imbecil! (si les das la espalda de cerca), ¡Se esta escapando!, ¡Lo tengo!, etc.
+- Agarre: quick time event, spamear la tecla de SALTAR. Si fallas te muerde y te tira. Los demas te pegan mientras.
+- Disparos a la cabeza (balas/flechas a la altura de la cabeza): al 2o tiro o si muere de un tiro en la cabeza, la cabeza
+  revienta. 40% de las veces sale la PLAGA guillotina: tajo de 360 grados, ~3.4 bloques de radio, 13 de dano.
+- Dr. Salvador (motosierra): jefe, 300 vida, barra de jefe, motor sonando en bucle, barridos y golpes de arriba abajo.
+  Su agarre: quick time event mas dificil; si fallas TE DECAPITA.
+
+LEFT 4 DEAD
+- Smoker (aparece solo, de noche): te atrapa con la lengua desde hasta 22 bloques y te arrastra. Sin QTE: dispárale
+  (8 de dano) o pégale para que suelte. Al morir deja humo (ciega un momento).
+- Boomer (aparece solo, de noche): vomito -> ceguera, mareo y TODOS los monstruos de 24 bloques van a por ti 10 s.
+  Al morir revienta (sangre + bilis).
+- Witch (SOLO a mano: /summon infectados:witch): llora sentada. Se enfada si te acercas, corres cerca, la alumbras
+  (antorcha/linterna mirandola), disparas o explotas algo cerca, o la tocas. Se nota: deja de llorar y gruñe.
+  Agachado y sin luz la puedes rodear. Si se enfada grita y va a por quien la molesto (18 de dano por zarpazo);
+  cuando acaba (o en 45 s) se va corriendo y desaparece. Pelo con fisica de muelle.
+
+ZONAS (admin, op 2) - aldeanos y motosierra solo aparecen aqui:
+  /infectados zona crear <nombre> <radio> [max]   centro = donde estas parado (max por defecto 10)
+  /infectados zona lista | borrar <nombre> | max <nombre> <n>
+  /infectados zona motosierra <nombre> true|false   (que pueda aparecer el de la motosierra, raro)
+  /infectados zona activa <nombre> true|false
+  Aparecen mientras haya jugadores a menos de radio+48, a mas de 16 bloques de cualquiera, hasta el maximo.
+
+DESAPARICION: aldeanos, Smoker y Boomer desaparecen lejos de los jugadores como cualquier monstruo (no se acumulan).
+La motosierra y la Witch no (la Witch se va sola despues de atacar). La Bestia del Lago no se toca.
+
+VOCES PROPIAS: infectados_voces_plantilla.zip (resource pack). Lista de archivos y frases en su LEEME.
+Hasta que pongas las tuyas suenan sonidos de Minecraft. Con subtitulos activados se lee la frase.
+Config: config/infectados-common.toml (dificultad de los QTE, probabilidad de plaga, ritmo de las zonas).
