@@ -70,7 +70,7 @@ public final class ClientSetup {
     private static void onPatched(PatchedRenderersEvent.Add e) {
         EntityRendererProvider.Context ctx = e.getContext();
         add(e, ctx, Infectados.GANADO.get(), GANADO[0], x -> x instanceof Ganado g ? GANADO[g.variant() - 1] : GANADO[0], 1F, 1F, 1F, true, false);
-        add(e, ctx, Infectados.MOTOSIERRA.get(), MOTOSIERRA, x -> MOTOSIERRA, 1.18F, 1.18F, 1.18F, false, false);
+        add(e, ctx, Infectados.MOTOSIERRA.get(), MOTOSIERRA, x -> MOTOSIERRA, 1.32F, 1.32F, 1.32F, false, false);
         add(e, ctx, Infectados.SMOKER.get(), SMOKER, x -> SMOKER, 1F, 1.06F, 1F, false, false);
         add(e, ctx, Infectados.BOOMER.get(), BOOMER, x -> BOOMER, 1.12F, 1.05F, 1.12F, false, false);
         add(e, ctx, Infectados.WITCH.get(), WITCH, x -> WITCH, 0.96F, 0.96F, 0.96F, false, true);

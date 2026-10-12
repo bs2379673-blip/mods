@@ -69,7 +69,7 @@ public class Infectados {
     public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, MODID);
 
     public static final RegistryObject<EntityType<Ganado>> GANADO = mob("ganado", Ganado::new, 0.6F, 1.95F);
-    public static final RegistryObject<EntityType<Motosierra>> MOTOSIERRA = mob("motosierra", Motosierra::new, 0.9F, 2.4F);
+    public static final RegistryObject<EntityType<Motosierra>> MOTOSIERRA = mob("motosierra", Motosierra::new, 1.0F, 2.75F);
     public static final RegistryObject<EntityType<Smoker>> SMOKER = mob("smoker", Smoker::new, 0.6F, 2.05F);
     public static final RegistryObject<EntityType<Boomer>> BOOMER = mob("boomer", Boomer::new, 1.0F, 2.1F);
     public static final RegistryObject<EntityType<Witch>> WITCH = mob("witch", Witch::new, 0.6F, 1.85F);

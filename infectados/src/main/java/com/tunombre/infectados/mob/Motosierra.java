@@ -102,7 +102,7 @@ public class Motosierra extends InfMob {
     }
 
     @Override
-    protected double grabDistance() { return 0.95; }
+    protected double grabDistance() { return 1.06; }
 
     private int decap = -1;
 
