@@ -20,7 +20,7 @@ public final class HudOverlay {
         Layout lay = Layout.get();
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer p = mc.player;
-        if (!lay.hud || p == null || p.isSpectator() || mc.options.hideGui) return;
+        if (!lay.hud || p == null || p.isSpectator() || mc.options.hideGui || mc.screen instanceof TacInventoryScreen) return;
         Theme t = lay.theme();
         Font f = mc.font;
         Inventory inv = p.getInventory();

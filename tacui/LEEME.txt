@@ -21,6 +21,8 @@ Novedades 0.2.1:
 - Clic en una zona vacia con un objeto en el cursor lo tira al suelo.
 - Mochila y ropa con bolsillos de Survivors Arsenal: paneles BACKPACK y CLOTHING con sus casillas activas.
 - Curios: las primeras casillas, en orden y con su nombre (RING, NECKLACE...), en el arco derecho; el resto en el panel CURIOS.
+- Con la pantalla tactica abierta se oculta el HUD de abajo; los botones EDIT/THEME/CURIOS/RECIPES pasan al centro arriba
+  (no chocan con los iconos que otros mods ponen en la esquina) y se deja hueco abajo para el buscador de EMI.
 - Boton RECIPES (si esta EMI): recetas del objeto en el cursor / ultimo bajo el cursor; Shift = usos.
 
 Pendiente: armadura cosmetica (Cosmetic Armor Reworked) dentro de esta pantalla.

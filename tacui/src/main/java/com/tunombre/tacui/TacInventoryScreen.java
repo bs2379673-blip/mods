@@ -148,7 +148,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         if (mode == Mode.CREATIVE) {
             for (int i = 0; i <= 4; i++) offscreen(menu.slots.get(i));
         } else {
-            int defY = h - ch - 14;
+            int defY = h - ch - 14 - (EmiCompat.loaded() ? 26 : 0);
             int[] cp = clamp(lay.px(CRAFT, 18, defY, w, h), cw, ch, w, h);
             rects.put(CRAFT, new int[]{cp[0], cp[1], cw, ch});
             place(menu.slots.get(1), cp[0] + 12, cp[1] + 22); place(menu.slots.get(2), cp[0] + 32, cp[1] + 22);
@@ -158,7 +158,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
 
         // ---- hotbar
         int hw = 9 * 20 + 8, hh = 28;
-        int[] hp = clamp(lay.px(HOTBAR, (w - hw) / 2, h - hh - 14, w, h), hw, hh, w, h);
+        int[] hp = clamp(lay.px(HOTBAR, (w - hw) / 2, h - hh - 14 - (EmiCompat.loaded() ? 26 : 0), w, h), hw, hh, w, h);
         rects.put(HOTBAR, new int[]{hp[0], hp[1], hw, hh});
         for (int i = 0; i < 9; i++) place(menu.slots.get(36 + i), hp[0] + 5 + i * 20, hp[1] + 6);
 
@@ -206,16 +206,16 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         }
         int sy = 38, bpBottom = 38;
         if (!bpSlots.isEmpty()) {
-            int cols = 6, rowsB = (bpSlots.size() + cols - 1) / cols;
-            int pw = cols * 20 + 12, ph = 13 + 6 + rowsB * 20 + 6;
+            int bcols = 6, rowsB = (bpSlots.size() + bcols - 1) / bcols;
+            int pw = bcols * 20 + 12, ph = 13 + 6 + rowsB * 20 + 6;
             int[] bp = clamp(lay.px(BACKPACK, 18, sy, w, h), pw, ph, w, h);
             rects.put(BACKPACK, new int[]{bp[0], bp[1], pw, ph});
-            for (int i = 0; i < bpSlots.size(); i++) place(bpSlots.get(i), bp[0] + 7 + (i % cols) * 20, bp[1] + 19 + (i / cols) * 20);
+            for (int i = 0; i < bpSlots.size(); i++) place(bpSlots.get(i), bp[0] + 7 + (i % bcols) * 20, bp[1] + 19 + (i / bcols) * 20);
             bpBottom = bp[1] + ph;
         }
         if (!clothes.isEmpty()) {
-            int cols = 6, pw = cols * 20 + 12, ph = 17;
-            for (List<Slot> g : clothes.values()) ph += 9 + ((g.size() + cols - 1) / cols) * 20 + 3;
+            int ccols = 6, pw = ccols * 20 + 12, ph = 17;
+            for (List<Slot> g : clothes.values()) ph += 9 + ((g.size() + ccols - 1) / ccols) * 20 + 3;
             ph += 4;
             int[] cp2 = clamp(lay.px(CLOTHES, 18, bpBottom + 6, w, h), pw, ph, w, h);
             rects.put(CLOTHES, new int[]{cp2[0], cp2[1], pw, ph});
@@ -224,18 +224,21 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
                 saLabels.add(new Object[]{cp2[0] + 7, y, en.getKey()});
                 y += 9;
                 List<Slot> g = en.getValue();
-                for (int i = 0; i < g.size(); i++) place(g.get(i), cp2[0] + 7 + (i % cols) * 20, y + (i / cols) * 20 + 1);
-                y += ((g.size() + cols - 1) / cols) * 20 + 3;
+                for (int i = 0; i < g.size(); i++) place(g.get(i), cp2[0] + 7 + (i % ccols) * 20, y + (i / ccols) * 20 + 1);
+                y += ((g.size() + ccols - 1) / ccols) * 20 + 3;
             }
         }
         if (mode == Mode.CURIOS) layoutCurios(curios, lay, w, h);
         if (mode == Mode.CREATIVE) layoutCreative(lay, w, h);
 
         // ---- botones superiores
-        btnEdit = new int[]{14, 24, 30, 11};
-        btnTheme = new int[]{48, 24, 44, 11};
-        btnMode = (mode == Mode.CURIOS || CuriosCompat.loaded()) ? new int[]{96, 24, 52, 11} : null;
-        btnEmi = EmiCompat.loaded() ? new int[]{152, 24, 40, 11} : null;
+        boolean hasMode = mode == Mode.CURIOS || CuriosCompat.loaded(), hasEmi = EmiCompat.loaded();
+        int total = 30 + 4 + 44 + (hasMode ? 4 + 52 : 0) + (hasEmi ? 4 + 52 : 0);
+        int bx = (w - total) / 2, by = 22;
+        btnEdit = new int[]{bx, by, 30, 11}; bx += 34;
+        btnTheme = new int[]{bx, by, 44, 11}; bx += 48;
+        btnMode = hasMode ? new int[]{bx, by, 52, 11} : null; if (hasMode) bx += 56;
+        btnEmi = hasEmi ? new int[]{bx, by, 52, 11} : null;
     }
 
     private void layoutCurios(List<Slot> curios, Layout lay, int w, int h) {
@@ -482,8 +485,8 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         Draw.scanlines(g, w, h);
         Draw.corners(g, 10, 10, w - 20, h - 20, 18, Theme.alpha(t.accent, 200));
         boolean blink = (System.currentTimeMillis() / 600) % 2 == 0;
-        g.fill(14, 14, 18, 18, blink ? t.accent : Theme.alpha(t.accent, 70));
-        Draw.text(g, this.font, "LIVE //TAC_STATUS_ACTIVE", 22, 13, Theme.alpha(t.text, 220), 0.8f);
+        g.fill(w / 2 - 62, 9, w / 2 - 58, 13, blink ? t.accent : Theme.alpha(t.accent, 70));
+        Draw.text(g, this.font, "LIVE //TAC_STATUS_ACTIVE", w / 2 - 54, 8, Theme.alpha(t.text, 220), 0.8f);
 
         // modelo del jugador y anillo de equipo
         int mcx = w / 2, mcy = (int) (h * 0.46);
@@ -520,7 +523,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         if (btnEmi != null) {
             button(g, t, btnEmi, "RECIPES", false);
             if (System.currentTimeMillis() - emiHint < 2500)
-                Draw.text(g, font, "PASA EL CURSOR POR UN OBJETO Y PULSA RECIPES (SHIFT = USOS)", 14, 38, t.accent, 0.7f);
+                Draw.text(g, font, "PASA EL CURSOR POR UN OBJETO Y PULSA RECIPES (SHIFT = USOS)", w / 2 - 110, 36, t.accent, 0.7f);
         }
         if (mode == Mode.CREATIVE) drawCreative(g, t, mx, my);
         if (mode == Mode.CURIOS) {
@@ -545,7 +548,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             Draw.slot(g, t, s.x, s.y, hov, mode == Mode.CURIOS && CuriosCompat.cosmetic(s));
         }
         if (edit) {
-            Draw.textCenter(g, font, "EDIT MODE  |  ARRASTRA LOS PANELES  |  R REINICIAR  |  ESC GUARDAR", w / 2, 6, t.accent, 0.8f);
+            Draw.textCenter(g, font, "EDIT MODE  |  ARRASTRA LOS PANELES  |  R REINICIAR  |  ESC GUARDAR", w / 2, 46, t.accent, 0.8f);
         }
     }
 
