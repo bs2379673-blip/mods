@@ -58,6 +58,8 @@ public final class ClientEvents {
         public static void onOverlay(RenderGuiOverlayEvent.Pre e) {
             if (!Layout.get().hud) return;
             var id = e.getOverlay().id();
+            // el HUD de arma/balas de TACZ se pisa con el nuestro: se oculta (se puede volver a activar con /tacui taczhud on)
+            if (Layout.get().hideTaczHud && id.getNamespace().equals("tacz") && id.getPath().contains("gun_hud")) { e.setCanceled(true); return; }
             if (id.equals(VanillaGuiOverlay.HOTBAR.id()) || id.equals(VanillaGuiOverlay.PLAYER_HEALTH.id())
                     || id.equals(VanillaGuiOverlay.ARMOR_LEVEL.id()) || id.equals(VanillaGuiOverlay.FOOD_LEVEL.id())
                     || id.equals(VanillaGuiOverlay.AIR_LEVEL.id()) || id.equals(VanillaGuiOverlay.EXPERIENCE_BAR.id())
@@ -70,8 +72,11 @@ public final class ClientEvents {
         public static void onCommands(RegisterClientCommandsEvent e) {
             e.getDispatcher().register(Commands.literal("tacui")
                     .then(Commands.literal("theme").then(Commands.argument("name", StringArgumentType.word())
-                            .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(new String[]{"red", "blue", "green", "orange", "blackout"}, b))
+                            .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(new String[]{"red", "blue", "green", "orange", "blackout", "pink", "purple"}, b))
                             .executes(c -> { Layout l = Layout.get(); l.theme = Theme.of(StringArgumentType.getString(c, "name")).name(); l.save(); return 1; })))
+                    .then(Commands.literal("taczhud").then(Commands.argument("on", StringArgumentType.word())
+                            .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(new String[]{"on", "off"}, b))
+                            .executes(c -> { Layout l = Layout.get(); l.hideTaczHud = StringArgumentType.getString(c, "on").equalsIgnoreCase("off"); l.save(); msg("HUD de TACZ: " + (l.hideTaczHud ? "oculto" : "visible")); return 1; })))
                     .then(Commands.literal("reset").executes(c -> { Layout l = Layout.get(); l.pos.clear(); l.save(); msg("Layout reiniciado"); return 1; }))
                     .then(Commands.literal("inventory").then(Commands.argument("on", StringArgumentType.word())
                             .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(new String[]{"on", "off"}, b))

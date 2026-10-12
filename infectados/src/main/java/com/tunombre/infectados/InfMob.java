@@ -41,6 +41,7 @@ public abstract class InfMob extends Monster {
     protected int grabTicks;
     protected boolean releasing;
     protected int qteKind;
+    private AnimationManager.AnimationAccessor<StaticAnimation> grabPlayerAnim;
 
     protected InfMob(EntityType<? extends Monster> type, Level level) {
         super(type, level);
@@ -141,6 +142,7 @@ public abstract class InfMob extends Monster {
         grabTicks = 0;
         releasing = false;
         qteKind = kind;
+        grabPlayerAnim = playerAnim;
         getNavigation().stop();
         play(myAnim);
         ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(sp, ServerPlayerPatch.class);
@@ -158,6 +160,11 @@ public abstract class InfMob extends Monster {
         Entity e = getFirstPassenger();
         if (!(e instanceof Player p)) return false;
         grabTicks++;
+        // Epic Fight pisa la animacion del jugador cuando pasa a 'montado' (pose sentada): se vuelve a poner cuando ya esta montado
+        if ((grabTicks == 2 || grabTicks == 5) && grabPlayerAnim != null && p instanceof ServerPlayer sp0) {
+            ServerPlayerPatch pp0 = EpicFightCapabilities.getEntityPatch(sp0, ServerPlayerPatch.class);
+            if (pp0 != null) pp0.playAnimationSynchronized(grabPlayerAnim, 0.05F);
+        }
         if (grip >= 99.5F) { endGrab(p, true); return false; }   // gano (se mira antes de restar la caida)
         grip -= Infectados.cfgDecay(qteKind);
         getNavigation().stop();

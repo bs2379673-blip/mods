@@ -17,6 +17,8 @@ public final class Layout {
     public String theme = "RED";
     public boolean inventory = true;
     public boolean hud = true;
+    /** ocultar el HUD de arma/balas de TACZ (el nuestro ya lo muestra) */
+    public boolean hideTaczHud = true;
     public boolean containers = true;
     public String start = "CURIOS";   // pantalla con la que se abre la tecla del inventario: CURIOS, COSMETIC o INVENTORY
     public Map<String, double[]> pos = new HashMap<>();

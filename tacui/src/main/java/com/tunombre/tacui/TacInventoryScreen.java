@@ -853,6 +853,25 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             search.keyPressed(key, scan, mods);
             return true;   // escribir no debe cerrar la pantalla (tecla E) ni cambiar la hotbar
         }
+        if (creative && held.isEmpty() && menu.getCarried().isEmpty()) {
+            // creativo: raton encima de un item de la lista + tecla 1-9 = ese item (stack completo) a esa casilla de la hotbar
+            Minecraft mc = Minecraft.getInstance();
+            double mx = mc.mouseHandler.xpos() * width / mc.getWindow().getScreenWidth();
+            double my = mc.mouseHandler.ypos() * height / mc.getWindow().getScreenHeight();
+            int c = cellAt(mx, my);
+            if (c >= 0 && mc.gameMode != null) {
+                for (int i = 0; i < 9; i++) {
+                    if (mc.options.keyHotbarSlots[i].isActiveAndMatches(com.mojang.blaze3d.platform.InputConstants.getKey(key, scan))) {
+                        ItemStack st = shown.get(c).copy();
+                        st.setCount(st.getMaxStackSize());
+                        int slot = 36 + i;
+                        mc.gameMode.handleCreativeModeItemAdd(st, slot);
+                        if (slot < menu.slots.size()) menu.slots.get(slot).set(st.copy());
+                        return true;
+                    }
+                }
+            }
+        }
         return super.keyPressed(key, scan, mods);
     }
 
