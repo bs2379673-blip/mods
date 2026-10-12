@@ -1,0 +1,44 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="taaef"
+version="1.0.0"
+displayName="TAA Epic Fight"
+description='''Hace compatible Tacz Animation Additions con Epic Fight y Epic Arsenal: la patada a la puerta, el arma en alto (high ready), el arma pegada a la pared, correr con el arma, revisar la municion y el cuerpo a tierra se ven en tercera persona con animaciones de Epic Fight.'''
+
+[[dependencies.taaef]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.taaef]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.taaef]]
+modId="epicfight"
+mandatory=true
+versionRange="[20.14,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.taaef]]
+modId="locknar_doorkick"
+mandatory=false
+versionRange="[0,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.taaef]]
+modId="epicarsenal"
+mandatory=false
+versionRange="[0,)"
+ordering="AFTER"
+side="BOTH"
