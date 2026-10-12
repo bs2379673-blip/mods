@@ -573,7 +573,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         Draw.textCenter(g, font, "OPERATOR // " + player.getName().getString().toUpperCase(), mcx, fy0 - 9, Theme.alpha(t.text, 210), 0.7f);
         boolean hovModel = in(modelRect, mx, my) && slotAt(mx, my) == null;
         if (hovModel || rotating)
-            Draw.textCenter(g, font, "ARRASTRA: GIRAR  ·  RUEDA: ZOOM  ·  DOBLE CLIC: CENTRAR", mcx, fy0 + fh - 8, Theme.alpha(t.text, 140), 0.5f);
+            Draw.textCenter(g, font, "ARRASTRA: GIRAR  ·  RUEDA: ZOOM  ·  DOBLE CLIC: CENTRAR", mcx, fy0 + fh + 30, Theme.alpha(t.text, 140), 0.5f);
         if (btnReset != null) {
             boolean hr = in(btnReset, mx, my);
             g.fill(btnReset[0], btnReset[1], btnReset[0] + 9, btnReset[1] + 9, hr ? Theme.alpha(t.accent, 120) : 0x99000000);
