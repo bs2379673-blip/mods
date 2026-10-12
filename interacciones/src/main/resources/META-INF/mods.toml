@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="interacciones"
+version="1.0.0"
+displayName="Interacciones"
+description='''Interacciones entre jugadores con animaciones de Epic Fight: cargar a otro al hombro, chocar los cinco, choque de puno, tradeo cara a cara y ejecucion sigilosa por la espalda.'''
+
+[[dependencies.interacciones]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.interacciones]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.interacciones]]
+modId="epicfight"
+mandatory=true
+versionRange="[20.14,)"
+ordering="AFTER"
+side="BOTH"

@@ -1,0 +1,7 @@
+{
+  "key.categories.interacciones": "Interacciones",
+  "key.interacciones.interact": "Interactuar con jugador / soltar",
+  "key.interacciones.accept": "Aceptar interaccion",
+  "key.interacciones.decline": "Rechazar interaccion",
+  "container.interacciones.trade": "Tradeo"
+}
