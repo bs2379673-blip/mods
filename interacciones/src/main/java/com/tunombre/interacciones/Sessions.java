@@ -50,17 +50,21 @@ public final class Sessions {
         final Vec3 posA, posV;
         final float yaw;
         final boolean npcVictim;
+        final int kind;          // 0 ejecucion, 1 llave de sueno, 2 arresto
         int tick;
 
-        Exec(UUID a, UUID v, Vec3 pa, Vec3 pv, float yaw, boolean npcVictim) {
-            attacker = a; victim = v; posA = pa; posV = pv; this.yaw = yaw; this.npcVictim = npcVictim;
+        Exec(UUID a, UUID v, Vec3 pa, Vec3 pv, float yaw, boolean npcVictim, int kind) {
+            attacker = a; victim = v; posA = pa; posV = pv; this.yaw = yaw; this.npcVictim = npcVictim; this.kind = kind;
         }
+
+        int length() { return kind == 1 ? 60 : kind == 2 ? 44 : 36; }
     }
 
     private static final Map<UUID, Req> PENDING = new HashMap<>();
     private static final Map<UUID, UUID> CARRY = new HashMap<>();        // quien carga -> a quien
     private static final Map<UUID, Integer> CARRY_SLOT = new HashMap<>();
-    private static final Set<UUID> PIGGY = new HashSet<>();                // los que cargan 'a caballito' (no al hombro)
+    private static final Map<UUID, Integer> CARRY_MODE = new HashMap<>();  // 0 al hombro, 1 a caballito, 2 en brazos
+    private static final Map<UUID, Long> LAST_SNEAK = new HashMap<>();      // ultimo tick en que cada jugador iba agachado
     private static final List<Exec> EXECS = new ArrayList<>();
     private static final List<Object[]> LATER = new ArrayList<>();         // {tick, Runnable}
     private static final UUID SLOW = UUID.fromString("6f1c3b52-6d0b-4a8e-9f0a-2a7b5c2d9e11");
@@ -121,8 +125,9 @@ public final class Sessions {
             double d = p.distanceTo(t);
             if (d > 4.5) { msg(p, "Estas demasiado lejos"); return; }
             if (busy(p) || busy(t)) { msg(p, "Ahora no se puede"); return; }
-            if (action == Act.EXECUTE) { execute(p, t); return; }
+            if (Act.instant(action)) { instant(p, t, action, false); return; }
             if (action < 0 || action >= Act.COUNT || action == Act.DROP) return;
+            if (!precheck(p, action)) return;
             PENDING.put(t.getUUID(), new Req(p.getUUID(), action, now + REQUEST_TICKS));
             Net.CH.send(PacketDistributor.PLAYER.with(() -> t), new Net.Prompt(p.getGameProfile().getName(), action, REQUEST_TICKS, true));
             msg(p, "Solicitud enviada a " + t.getGameProfile().getName());
@@ -142,8 +147,9 @@ public final class Sessions {
         if (!admin) { msg(p, "Necesitas estar en creativo o ser admin para probar esto con NPCs"); return; }
         if (p.distanceTo(npc) > 4.5) { msg(p, "Estas demasiado lejos"); return; }
         if (busy(p)) { msg(p, "Ahora no se puede"); return; }
-        if (action == Act.EXECUTE) { executeNpc(p, npc); return; }
         if (action < 0 || action >= Act.COUNT || action == Act.DROP || Act.playerOnly(action)) { msg(p, "Eso no se puede probar con un NPC"); return; }
+        if (Act.instant(action)) { instant(p, npc, action, true); return; }
+        if (!precheck(p, action)) return;
         pairAct(p, npc, action);
     }
 
@@ -156,8 +162,9 @@ public final class Sessions {
         if (!accept) { msg(p, t.getGameProfile().getName() + " rechazo"); return; }
         if (busy(p) || busy(t)) { msg(t, "Ahora no se puede"); return; }
         switch (r.action) {
-            case Act.CARRY -> startCarry(p, t, false);
-            case Act.PIGGYBACK -> startCarry(p, t, true);
+            case Act.CARRY -> startCarry(p, t, 0);
+            case Act.PIGGYBACK -> startCarry(p, t, 1);
+            case Act.BRIDAL -> startCarry(p, t, 2);
             case Act.TRADE -> TradeMenu.Session.open(p, t);
             default -> pairAct(p, t, r.action);
         }
@@ -249,8 +256,68 @@ public final class Sessions {
                 particles(a, ParticleTypes.CRIT, face, 6, 0.05, 0.2);
             });
             case Act.FRISK -> pair(a, b, Anims.FRISK, Anims.FRISKED, 0.75, 56, () -> friskReport(a, b));
+            case Act.BANDAGE -> pair(a, b, Anims.BANDAGE_GIVE, Anims.BANDAGE_TAKE, 0.75, 52, () -> {
+                ItemStack med = a.getMainHandItem();
+                if (!isMedical(med)) { msg(a, "Ya no tienes la venda en la mano"); return; }
+                if (!a.isCreative()) med.shrink(1);
+                b.heal(6F);
+                b.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.REGENERATION, 80, 0));
+                sfx(a, b.position().add(0, 1.2, 0), SoundEvents.ARMOR_EQUIP_LEATHER, 0.8F, 1.2F);
+                particles(a, ParticleTypes.HAPPY_VILLAGER, b.position().add(0, 1.3, 0), 8, 0.3, 0.02);
+            });
+            case Act.GIVE -> pair(a, b, Anims.GIVE_OFFER, Anims.GIVE_TAKE, 0.85, 15, () -> giveItem(a, b));
+            case Act.TOAST -> pair(a, b, Anims.TOAST, Anims.TOAST, 0.9, 12, () -> {
+                sfx(a, between(a, b, 1.75), SoundEvents.AMETHYST_BLOCK_CHIME, 1F, 1.7F);
+                later(18, () -> { sfx(a, a.position().add(0, 1.6, 0), SoundEvents.GENERIC_DRINK, 0.6F, 1F); sfx(b, b.position().add(0, 1.6, 0), SoundEvents.GENERIC_DRINK, 0.6F, 1.1F); });
+            });
+            case Act.RPS -> pair(a, b, Anims.RPS, Anims.RPS, 0.9, 30, () -> rpsResult(a, b));
+            case Act.SECRET -> pair(a, b, Anims.SECRET_HANDSHAKE, Anims.SECRET_HANDSHAKE, 0.85, 6, () -> {
+                sfx(a, between(a, b, 1.1), SoundEvents.PLAYER_ATTACK_WEAK, 0.6F, 1.5F);
+                later(21, () -> sfx(a, between(a, b, 1.2), SoundEvents.PLAYER_ATTACK_WEAK, 0.7F, 1.0F));
+                later(28, () -> { sfx(a, between(a, b, 1.6), SoundEvents.FIREWORK_ROCKET_BLAST, 0.5F, 1.6F); particles(a, ParticleTypes.FIREWORK, between(a, b, 1.7), 12, 0.2, 0.08); });
+            });
+            case Act.SLOW_DANCE -> pair(a, b, Anims.SLOW_DANCE_LEAD, Anims.SLOW_DANCE_FOLLOW, 0.45, 1, () -> {
+                for (int i = 0; i < 6; i++) later(i * 20, () -> particles(a, ParticleTypes.NOTE, between(a, b, 2.3), 1, 0.3, 1));
+                later(110, () -> particles(a, ParticleTypes.HEART, between(a, b, 2.1), 4, 0.25, 0.02));
+            });
+            case Act.BOOST -> pair(a, b, Anims.BOOST_GIVE, Anims.BOOST_TAKE, 0.6, 14, () -> {
+                Vec3 d = b.position().subtract(a.position()).multiply(1, 0, 1);
+                d = d.lengthSqr() < 1e-4 ? Vec3.ZERO : d.normalize().scale(-0.12);
+                b.setDeltaMovement(d.x, 1.0, d.z);
+                b.hasImpulse = true;
+                b.fallDistance = 0;
+                if (b instanceof ServerPlayer sp) sp.hurtMarked = true;
+                sfx(a, a.position().add(0, 0.8, 0), SoundEvents.PLAYER_ATTACK_KNOCKBACK, 0.7F, 1.2F);
+            });
             default -> { }
         }
+    }
+
+    /** dar lo que se tiene en la mano: pasa entero al otro (si no le cabe, se le cae al lado) */
+    private static void giveItem(ServerPlayer a, LivingEntity b) {
+        ItemStack st = a.getMainHandItem();
+        if (st.isEmpty()) { msg(a, "Ya no tienes nada en la mano"); return; }
+        ItemStack give = st.copy();
+        a.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        String what = give.getHoverName().getString() + (give.getCount() > 1 ? " x" + give.getCount() : "");
+        if (b instanceof Player bp) { if (!bp.getInventory().add(give)) bp.drop(give, false); }
+        else b.spawnAtLocation(give);
+        msg(a, "Le diste " + what + " a " + b.getDisplayName().getString());
+        if (b instanceof ServerPlayer bp) bp.displayClientMessage(Component.literal(a.getGameProfile().getName() + " te dio " + what), true);
+        sfx(a, between(a, b, 1.1), SoundEvents.ITEM_PICKUP, 0.6F, 1.2F);
+    }
+
+    private static final String[] RPS_NAME = {"Piedra", "Papel", "Tijera"};
+
+    /** piedra, papel o tijera: cada uno saca algo al azar y se anuncia a los dos */
+    private static void rpsResult(ServerPlayer a, LivingEntity b) {
+        int x = a.getRandom().nextInt(3), y = a.getRandom().nextInt(3);
+        String na = a.getGameProfile().getName(), nb = b.getDisplayName().getString();
+        String res = x == y ? "¡Empate!" : ((x - y + 3) % 3 == 1 ? "¡Gana " + na + "!" : "¡Gana " + nb + "!");
+        Component c = Component.literal(na + ": " + RPS_NAME[x] + "  vs  " + nb + ": " + RPS_NAME[y] + "   " + res);
+        a.sendSystemMessage(c);
+        if (b instanceof ServerPlayer bp) bp.sendSystemMessage(c);
+        sfx(a, between(a, b, 1.2), SoundEvents.NOTE_BLOCK_PLING.value(), 0.7F, x == y ? 1F : 1.5F);
     }
 
     /** al terminar de cachear: lo que el otro lleva a mano (cinturon / hotbar y mano izquierda) */
@@ -270,20 +337,30 @@ public final class Sessions {
     }
 
     // ------------------------------------------------------------------ cargar ----
-    private static void startCarry(ServerPlayer a, ServerPlayer b, boolean piggy) {
+    private static AnimationManager.AnimationAccessor<StaticAnimation> carrierAnim(int mode) {
+        return mode == 1 ? Anims.PIGGY_CARRY : mode == 2 ? Anims.BRIDAL_CARRY : Anims.CARRY_HOLD;
+    }
+
+    private static AnimationManager.AnimationAccessor<StaticAnimation> riderAnim(int mode) {
+        return mode == 1 ? Anims.PIGGY_RIDE : mode == 2 ? Anims.BRIDAL_CARRIED : Anims.CARRIED;
+    }
+
+    private static void startCarry(ServerPlayer a, ServerPlayer b, int mode) {
         if (a.isPassenger() || b.isPassenger() || a.isVehicle() || b.isVehicle()) { msg(a, "Ahora no se puede"); return; }
         if (!b.startRiding(a, true)) return;
         CARRY.put(a.getUUID(), b.getUUID());
         CARRY_SLOT.put(a.getUUID(), a.getInventory().selected);
         AttributeInstance sp = a.getAttribute(Attributes.MOVEMENT_SPEED);
         if (sp != null && sp.getModifier(SLOW) == null)
-            sp.addTransientModifier(new AttributeModifier(SLOW, "cargando a alguien", piggy ? -0.15 : -0.25, AttributeModifier.Operation.MULTIPLY_TOTAL));
+            sp.addTransientModifier(new AttributeModifier(SLOW, "cargando a alguien", mode == 1 ? -0.15 : -0.25, AttributeModifier.Operation.MULTIPLY_TOTAL));
         emptyHands(a);
-        if (piggy) PIGGY.add(a.getUUID()); else PIGGY.remove(a.getUUID());
-        play(a, piggy ? Anims.PIGGY_CARRY : Anims.CARRY_HOLD);
-        play(b, piggy ? Anims.PIGGY_RIDE : Anims.CARRIED);
-        msg(a, (piggy ? "Llevas a caballito a " : "Cargando a ") + b.getGameProfile().getName() + " (vuelve a pulsar la tecla de interaccion para soltarlo)");
-        msg(b, (piggy ? "Vas a caballito" : "Te cargan al hombro") + " (agachate para bajarte)");
+        CARRY_MODE.put(a.getUUID(), mode);
+        play(a, carrierAnim(mode));
+        play(b, riderAnim(mode));
+        String[] verb = {"Cargando a ", "Llevas a caballito a ", "Llevas en brazos a "};
+        String[] them = {"Te cargan al hombro", "Vas a caballito", "Te llevan en brazos"};
+        msg(a, verb[mode] + b.getGameProfile().getName() + " (vuelve a pulsar la tecla de interaccion para soltarlo)");
+        msg(b, them[mode] + " (agachate para bajarte)");
     }
 
     /** mientras carga, las manos van ocupadas: se pasa a una casilla vacia de la barra (si hay) */
@@ -303,11 +380,12 @@ public final class Sessions {
         if (bid == null) return;
         AttributeInstance sp = a.getAttribute(Attributes.MOVEMENT_SPEED);
         if (sp != null) sp.removeModifier(SLOW);
-        boolean piggy = PIGGY.remove(a.getUUID());
-        stop(a, piggy ? Anims.PIGGY_CARRY : Anims.CARRY_HOLD);
+        Integer modeObj = CARRY_MODE.remove(a.getUUID());
+        int mode = modeObj == null ? 0 : modeObj;
+        stop(a, carrierAnim(mode));
         ServerPlayer b = a.server.getPlayerList().getPlayer(bid);
         if (b != null) {
-            stop(b, piggy ? Anims.PIGGY_RIDE : Anims.CARRIED);
+            stop(b, riderAnim(mode));
             if (b.getVehicle() == a) b.stopRiding();
             if (drop) {
                 Vec3 f = Vec3.directionFromRotation(0, a.getYRot());
@@ -343,14 +421,14 @@ public final class Sessions {
 
     private static void startExecute(ServerPlayer a, LivingEntity v, boolean npcVictim) {
         if (!isBlade(a.getMainHandItem())) { msg(a, "Necesitas un cuchillo, espada o hacha en la mano"); return; }
-        if (!a.isShiftKeyDown()) { msg(a, "Tienes que ir agachado"); return; }
+        if (!sneaking(a)) { msg(a, "Tienes que ir agachado"); return; }
         if (!behind(a, v)) { msg(a, "Tienes que estar a su espalda"); return; }
         if (a.distanceTo(v) > 2.2) { msg(a, "Acercate mas"); return; }
         float yaw = v.getYRot();
         Vec3 f = Vec3.directionFromRotation(0, yaw);
         Vec3 pv = v.position();
         Vec3 pa = pv.subtract(f.scale(0.45));
-        EXECS.add(new Exec(a.getUUID(), v.getUUID(), pa, pv, yaw, npcVictim));
+        EXECS.add(new Exec(a.getUUID(), v.getUUID(), pa, pv, yaw, npcVictim, 0));
         play(a, Anims.EXEC_ATTACKER);
         play(v, Anims.EXEC_VICTIM);
         a.level().playSound(null, a.getX(), a.getY(), a.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK, SoundSource.PLAYERS, 0.7F, 0.7F);
@@ -363,12 +441,13 @@ public final class Sessions {
             Entity vEnt = a != null && a.level() instanceof ServerLevel lv ? lv.getEntity(e.victim) : null;
             LivingEntity v = vEnt instanceof LivingEntity le ? le : null;
             e.tick++;
-            if (a == null || v == null || !a.isAlive() || e.tick > 36) { it.remove(); continue; }
+            if (a == null || v == null || !a.isAlive() || e.tick > e.length()) { it.remove(); continue; }
             // los dos quietos en su sitio durante la animacion
             if (e.tick % 2 == 0 || e.tick < 3) {
                 a.connection.teleport(e.posA.x, e.posA.y, e.posA.z, e.yaw, a.getXRot());
                 if (v.isAlive()) face(v, e.posV.x, e.posV.y, e.posV.z, e.yaw, v.getXRot());
             }
+            if (e.kind != 0) { tickHold(e, a, v); continue; }
             if (e.tick == 18 && v.isAlive() && v.level() instanceof ServerLevel lv) {
                 lv.playSound(null, v.getX(), v.getY(), v.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1F, 0.8F);
                 Vec3 neck = v.position().add(0, 1.45, 0);
@@ -381,6 +460,94 @@ public final class Sessions {
             // al NPC de prueba no lo matamos: es solo para ver la animacion sin gastar un NPC cada vez
             if (e.tick == 30 && v.isAlive() && !e.npcVictim) v.hurt(a.damageSources().playerAttack(a), Float.MAX_VALUE);
         }
+    }
+
+    /** agachado ahora, o hace menos de 4 s: al abrir el menu (G) el personaje se levanta y si no nunca valdria */
+    private static boolean sneaking(ServerPlayer a) {
+        return a.isShiftKeyDown() || now - LAST_SNEAK.getOrDefault(a.getUUID(), -1000L) < 80;
+    }
+
+    // ------------------------------------------------------------------ por la espalda, sin pedido ----
+    private static void instant(ServerPlayer a, LivingEntity v, int action, boolean npc) {
+        boolean pvpOk = npc || !(v instanceof ServerPlayer vp) || (a.server.isPvpAllowed() && a.canHarmPlayer(vp));
+        switch (action) {
+            case Act.EXECUTE -> {
+                if (!pvpOk) { msg(a, "El PvP esta desactivado"); return; }
+                startExecute(a, v, npc);
+            }
+            case Act.CHOKE -> {
+                if (!pvpOk) { msg(a, "El PvP esta desactivado"); return; }
+                if (!a.getMainHandItem().isEmpty()) { msg(a, "Necesitas las manos libres"); return; }
+                startHold(a, v, npc, 1, 0.4, Anims.CHOKE_ATTACKER, Anims.CHOKE_VICTIM);
+            }
+            case Act.ARREST -> {
+                if (!(v instanceof ServerPlayer)) { msg(a, "Solo se puede esposar a un jugador"); return; }
+                if (!CuffedSupport.loaded()) { msg(a, "Hace falta el mod Cuffed"); return; }
+                if (!CuffedSupport.isRestraint(a.getMainHandItem())) { msg(a, "Necesitas unas esposas (Cuffed) en la mano"); return; }
+                startHold(a, v, npc, 2, 0.45, Anims.ARREST_OFFICER, Anims.ARREST_SUSPECT);
+            }
+            case Act.SCARE -> {
+                if (!behind(a, v)) { msg(a, "Tienes que estar a su espalda"); return; }
+                if (a.distanceTo(v) > 3.0) { msg(a, "Acercate mas"); return; }
+                play(a, Anims.SCARE_ATTACKER);
+                later(6, () -> {
+                    play(v, Anims.SCARED);
+                    sfx(a, v.position().add(0, 1.6, 0), SoundEvents.ENDERMAN_SCREAM, 0.7F, 1.4F);
+                    if (v instanceof ServerPlayer vp) vp.displayClientMessage(Component.literal("¡BU!"), true);
+                });
+            }
+            default -> { }
+        }
+    }
+
+    /** llave de sueno / arresto: los dos quietos durante la animacion, como la ejecucion */
+    private static void startHold(ServerPlayer a, LivingEntity v, boolean npc, int kind, double dist,
+                                  AnimationManager.AnimationAccessor<StaticAnimation> animA, AnimationManager.AnimationAccessor<StaticAnimation> animV) {
+        if (!behind(a, v)) { msg(a, "Tienes que estar a su espalda"); return; }
+        if (a.distanceTo(v) > 2.2) { msg(a, "Acercate mas"); return; }
+        float yaw = v.getYRot();
+        Vec3 f = Vec3.directionFromRotation(0, yaw);
+        Vec3 pv = v.position();
+        EXECS.add(new Exec(a.getUUID(), v.getUUID(), pv.subtract(f.scale(dist)), pv, yaw, npc, kind));
+        play(a, animA);
+        play(v, animV);
+        sfx(a, a.position(), SoundEvents.ARMOR_EQUIP_LEATHER, 0.8F, 0.8F);
+    }
+
+    private static void tickHold(Exec e, ServerPlayer a, LivingEntity v) {
+        if (e.kind == 1) {   // llave de sueno: forcejeo y al final cae dormido un rato
+            if (e.tick % 8 == 0 && e.tick < 40) sfx(v, v.position().add(0, 1.4, 0), SoundEvents.PLAYER_HURT, 0.3F, 0.6F);
+            if (e.tick == 50 && v.isAlive()) {
+                v.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.BLINDNESS, 120, 0));
+                v.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 120, 4));
+                v.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.WEAKNESS, 160, 1));
+                v.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.CONFUSION, 140, 0));
+                if (v instanceof ServerPlayer vp) vp.displayClientMessage(Component.literal("Te quedas sin aire... todo se vuelve negro"), true);
+            }
+        } else if (e.kind == 2 && e.tick == 30 && v instanceof ServerPlayer vp) {   // arresto: clic de las esposas
+            String err = CuffedSupport.cuff(vp, a, a.getMainHandItem());
+            if (err != null) msg(a, err);
+            else {
+                sfx(a, vp.position().add(0, 1.0, 0), SoundEvents.CHAIN_PLACE, 1F, 1.3F);
+                msg(a, "Has esposado a " + vp.getGameProfile().getName());
+                vp.displayClientMessage(Component.literal("Te han esposado"), true);
+            }
+        }
+    }
+
+    /** lo que hace falta ANTES de mandar la solicitud (asi no se pide algo que luego no se puede hacer) */
+    private static boolean precheck(ServerPlayer p, int action) {
+        if (action == Act.BANDAGE && !isMedical(p.getMainHandItem())) { msg(p, "Necesitas una venda o un botiquin en la mano"); return false; }
+        if (action == Act.GIVE && p.getMainHandItem().isEmpty()) { msg(p, "No tienes nada en la mano para dar"); return false; }
+        return true;
+    }
+
+    static boolean isMedical(ItemStack s) {
+        if (s.isEmpty()) return false;
+        var id = ForgeRegistries.ITEMS.getKey(s.getItem());
+        String n = id == null ? "" : id.getPath();
+        return n.contains("bandage") || n.contains("medkit") || n.contains("med_kit") || n.contains("first_aid") || n.contains("firstaid")
+                || n.contains("gauze") || n.contains("medic") || n.contains("syringe") || n.contains("splint") || n.contains("venda");
     }
 
     // ------------------------------------------------------------------ eventos ----
@@ -397,6 +564,7 @@ public final class Sessions {
         }
         for (Runnable r : due) r.run();
         tickExecs(s);
+        for (ServerPlayer sp : s.getPlayerList().getPlayers()) if (sp.isShiftKeyDown()) LAST_SNEAK.put(sp.getUUID(), now);
         PENDING.entrySet().removeIf(en -> {
             if (en.getValue().expire >= now) return false;
             ServerPlayer t = s.getPlayerList().getPlayer(en.getKey());
@@ -430,7 +598,7 @@ public final class Sessions {
 
     @SubscribeEvent
     public static void onLogout(PlayerEvent.PlayerLoggedOutEvent e) {
-        if (e.getEntity() instanceof ServerPlayer p) { stopCarry(p, false); carriedBy(p); PENDING.remove(p.getUUID()); }
+        if (e.getEntity() instanceof ServerPlayer p) { stopCarry(p, false); carriedBy(p); PENDING.remove(p.getUUID()); LAST_SNEAK.remove(p.getUUID()); }
     }
 
     @SubscribeEvent

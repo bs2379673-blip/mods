@@ -73,7 +73,7 @@ public final class ClientSetup {
             }
             LivingEntity t = looked(mc);
             if (t == null) mc.player.displayClientMessage(Component.literal("Mira a un jugador (o NPC) que este cerca"), true);
-            else mc.setScreen(new InteractScreen(t));
+            else mc.setScreen(new InteractScreen(t, mc.player.isShiftKeyDown()));
         }
         while (ACCEPT.consumeClick()) if (PromptHud.active()) { Net.CH.sendToServer(new Net.Answer(true)); PromptHud.clear(); }
         while (DECLINE.consumeClick()) if (PromptHud.active()) { Net.CH.sendToServer(new Net.Answer(false)); PromptHud.clear(); }

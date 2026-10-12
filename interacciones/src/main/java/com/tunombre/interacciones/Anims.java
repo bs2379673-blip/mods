@@ -14,7 +14,9 @@ import yesman.epicfight.gameasset.Armatures;
  */
 public final class Anims {
     public static AnimationManager.AnimationAccessor<StaticAnimation> CARRY_HOLD, CARRIED, HIGH_FIVE, FIST_BUMP, TRADE_TALK, EXEC_ATTACKER, EXEC_VICTIM,
-            HUG, HANDSHAKE, BOW, SALUTE, CHEST_BUMP, PAT_GIVE, PAT_TAKE, DANCE, SHOVE, SHOVED, SLAP, SLAPPED, FRISK, FRISKED, PIGGY_CARRY, PIGGY_RIDE;
+            HUG, HANDSHAKE, BOW, SALUTE, CHEST_BUMP, PAT_GIVE, PAT_TAKE, DANCE, SHOVE, SHOVED, SLAP, SLAPPED, FRISK, FRISKED, PIGGY_CARRY, PIGGY_RIDE,
+            ARREST_OFFICER, ARREST_SUSPECT, CHOKE_ATTACKER, CHOKE_VICTIM, SCARE_ATTACKER, SCARED, BANDAGE_GIVE, BANDAGE_TAKE, GIVE_OFFER, GIVE_TAKE,
+            TOAST, RPS, SECRET_HANDSHAKE, SLOW_DANCE_LEAD, SLOW_DANCE_FOLLOW, BOOST_GIVE, BOOST_TAKE, BRIDAL_CARRY, BRIDAL_CARRIED;
 
     private Anims() { }
 
@@ -44,6 +46,26 @@ public final class Anims {
         FRISK = anim(b, "frisk", false, false);
         FRISKED = anim(b, "frisked", false, false);
         PIGGY_RIDE = anim(b, "piggy_ride", true, false);
+        // tanda 3
+        ARREST_OFFICER = anim(b, "arrest_officer", false, false);
+        ARREST_SUSPECT = anim(b, "arrest_suspect", false, false);
+        CHOKE_ATTACKER = anim(b, "choke_attacker", false, false);
+        CHOKE_VICTIM = anim(b, "choke_victim", false, false);
+        SCARE_ATTACKER = anim(b, "scare_attacker", false, false);
+        SCARED = anim(b, "scared", false, false);
+        BANDAGE_GIVE = anim(b, "bandage_give", false, false);
+        BANDAGE_TAKE = anim(b, "bandage_take", false, true);
+        GIVE_OFFER = anim(b, "give_offer", false, true);
+        GIVE_TAKE = anim(b, "give_take", false, true);
+        TOAST = anim(b, "toast", false, true);
+        RPS = anim(b, "rps", false, true);
+        SECRET_HANDSHAKE = anim(b, "secret_handshake", false, false);
+        SLOW_DANCE_LEAD = anim(b, "slow_dance_lead", false, false);
+        SLOW_DANCE_FOLLOW = anim(b, "slow_dance_follow", false, false);
+        BOOST_GIVE = anim(b, "boost_give", false, false);
+        BOOST_TAKE = anim(b, "boost_take", false, false);
+        BRIDAL_CARRY = anim(b, "bridal_carry", true, true);
+        BRIDAL_CARRIED = anim(b, "bridal_carried", true, false);
     }
 
     private static AnimationManager.AnimationAccessor<StaticAnimation> anim(AnimationManager.AnimationBuilder b, String n, boolean loop, boolean upperOnly) {

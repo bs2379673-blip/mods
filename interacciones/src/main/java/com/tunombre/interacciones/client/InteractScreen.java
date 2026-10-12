@@ -14,9 +14,13 @@ import net.minecraft.world.entity.LivingEntity;
 public class InteractScreen extends Screen {
     private final LivingEntity target;
 
-    public InteractScreen(LivingEntity target) {
+    /** si ibas agachado al pulsar G (al abrirse el menu el personaje se levanta, asi que se mira antes) */
+    private final boolean crouched;
+
+    public InteractScreen(LivingEntity target, boolean crouched) {
         super(Component.literal("Interactuar"));
         this.target = target;
+        this.crouched = crouched;
     }
 
     private int boxTop, boxBottom;
@@ -27,10 +31,17 @@ public class InteractScreen extends Screen {
         boolean player = target instanceof net.minecraft.world.entity.player.Player;
         java.util.List<Integer> acts = new java.util.ArrayList<>();
         for (int a : Act.MENU) if (player || !Act.playerOnly(a)) acts.add(a);
-        boolean canExec = mc.player != null && mc.player.isShiftKeyDown() && Sessions.isBlade(mc.player.getMainHandItem()) && Sessions.behind(mc.player, target);
+        // por la espalda: no se piden, se hacen (en rojo)
+        java.util.List<Integer> sneaky = new java.util.ArrayList<>();
+        if (mc.player != null && Sessions.behind(mc.player, target)) {
+            if (crouched && Sessions.isBlade(mc.player.getMainHandItem())) sneaky.add(Act.EXECUTE);
+            if (player && isCuffs(mc.player.getMainHandItem())) sneaky.add(Act.ARREST);
+            if (mc.player.getMainHandItem().isEmpty()) sneaky.add(Act.CHOKE);
+            sneaky.add(Act.SCARE);
+        }
         // dos columnas
-        int bw = 112, bh = 18, gap = 3, rows = (acts.size() + 1) / 2 + (canExec ? 1 : 0);
-        int total = rows * (bh + gap) - gap;
+        int bw = 112, bh = height < 300 ? 13 : 16, gap = height < 300 ? 1 : 2, rows = (acts.size() + 1) / 2 + (sneaky.size() + 1) / 2;
+        int total = rows * (bh + gap) - gap + (sneaky.isEmpty() ? 0 : 6);
         int cx = width / 2, y0 = height / 2 - total / 2 + 6;
         boxTop = y0 - 18;
         boxBottom = y0 + total + 6;
@@ -39,9 +50,21 @@ public class InteractScreen extends Screen {
             int x = i % 2 == 0 ? cx - bw - 2 : cx + 2, y = y0 + (i / 2) * (bh + gap);
             addRenderableWidget(Button.builder(Component.literal(Act.NAME[a]), b -> send(a)).bounds(x, y, bw, bh).build());
         }
-        if (canExec)
-            addRenderableWidget(Button.builder(Component.literal("§c" + Act.NAME[Act.EXECUTE]), b -> send(Act.EXECUTE))
-                    .bounds(cx - bw - 2, y0 + ((acts.size() + 1) / 2) * (bh + gap), bw * 2 + 4, bh).build());
+        int sy = y0 + ((acts.size() + 1) / 2) * (bh + gap) + 6;
+        for (int i = 0; i < sneaky.size(); i++) {
+            int a = sneaky.get(i);
+            int x = i % 2 == 0 ? cx - bw - 2 : cx + 2, y = sy + (i / 2) * (bh + gap);
+            addRenderableWidget(Button.builder(Component.literal("\u00a7c" + Act.NAME[a]), b -> send(a)).bounds(x, y, bw, bh).build());
+        }
+    }
+
+    /** esposas, grilletes o cinta de Cuffed (el servidor lo vuelve a comprobar con su API) */
+    private static boolean isCuffs(net.minecraft.world.item.ItemStack s) {
+        if (s.isEmpty()) return false;
+        var id = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(s.getItem());
+        if (id == null || !id.getNamespace().equals("cuffed")) return false;
+        String n = id.getPath();
+        return n.contains("cuff") || n.contains("shackle") || n.contains("tape");
     }
 
     private void send(int a) {
