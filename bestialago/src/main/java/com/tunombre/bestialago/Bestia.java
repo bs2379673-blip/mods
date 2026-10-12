@@ -179,7 +179,7 @@ public class Bestia extends PathfinderMob {
     @Override public boolean causeFallDamage(float a, float b, DamageSource s) { return false; }
     @Override public boolean isPickable() { return true; }
     @Override public boolean shouldRiderSit() { return false; }
-    @Override protected int getAmbientSoundInterval() { return 200; }
+    @Override public int getAmbientSoundInterval() { return 200; }
     @Override protected SoundEvent getAmbientSound() { return BestiaLago.GROWL.get(); }
     @Override protected float getSoundVolume() { return 4.0F; }
 
