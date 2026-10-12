@@ -1,0 +1,367 @@
+{
+ "voz.ganado.ahi_esta": {
+  "subtitle": "infectados.subtitle.voz.ganado.ahi_esta",
+  "sounds": [
+   {
+    "name": "minecraft:entity.vindicator.celebrate",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.alli_esta": {
+  "subtitle": "infectados.subtitle.voz.ganado.alli_esta",
+  "sounds": [
+   {
+    "name": "minecraft:entity.pillager.celebrate",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.un_forastero": {
+  "subtitle": "infectados.subtitle.voz.ganado.un_forastero",
+  "sounds": [
+   {
+    "name": "minecraft:entity.vindicator.ambient",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.cogedlo": {
+  "subtitle": "infectados.subtitle.voz.ganado.cogedlo",
+  "sounds": [
+   {
+    "name": "minecraft:entity.pillager.celebrate",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.agarradlo": {
+  "subtitle": "infectados.subtitle.voz.ganado.agarradlo",
+  "sounds": [
+   {
+    "name": "minecraft:entity.vindicator.celebrate",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.matalo": {
+  "subtitle": "infectados.subtitle.voz.ganado.matalo",
+  "sounds": [
+   {
+    "name": "minecraft:entity.vindicator.celebrate",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.picadillo": {
+  "subtitle": "infectados.subtitle.voz.ganado.picadillo",
+  "sounds": [
+   {
+    "name": "minecraft:entity.vindicator.celebrate",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.detras_de_ti": {
+  "subtitle": "infectados.subtitle.voz.ganado.detras_de_ti",
+  "sounds": [
+   {
+    "name": "minecraft:entity.vindicator.ambient",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.muerete": {
+  "subtitle": "infectados.subtitle.voz.ganado.muerete",
+  "sounds": [
+   {
+    "name": "minecraft:entity.vindicator.ambient",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.se_escapa": {
+  "subtitle": "infectados.subtitle.voz.ganado.se_escapa",
+  "sounds": [
+   {
+    "name": "minecraft:entity.vindicator.celebrate",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.lo_tengo": {
+  "subtitle": "infectados.subtitle.voz.ganado.lo_tengo",
+  "sounds": [
+   {
+    "name": "minecraft:entity.vindicator.ambient",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.morir_es_vivir": {
+  "subtitle": "infectados.subtitle.voz.ganado.morir_es_vivir",
+  "sounds": [
+   {
+    "name": "minecraft:entity.pillager.celebrate",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.te_voy_a_matar": {
+  "subtitle": "infectados.subtitle.voz.ganado.te_voy_a_matar",
+  "sounds": [
+   {
+    "name": "minecraft:entity.vindicator.ambient",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.cerdo": {
+  "subtitle": "infectados.subtitle.voz.ganado.cerdo",
+  "sounds": [
+   {
+    "name": "minecraft:entity.pillager.celebrate",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.ganado.murmullo": {
+  "subtitle": "infectados.subtitle.voz.ganado.murmullo",
+  "sounds": [
+   {
+    "name": "minecraft:entity.pillager.ambient",
+    "type": "event",
+    "pitch": 0.8
+   }
+  ]
+ },
+ "voz.ganado.dolor": {
+  "subtitle": "infectados.subtitle.voz.ganado.dolor",
+  "sounds": [
+   {
+    "name": "minecraft:entity.pillager.hurt",
+    "type": "event",
+    "pitch": 0.85
+   }
+  ]
+ },
+ "voz.ganado.muerte": {
+  "subtitle": "infectados.subtitle.voz.ganado.muerte",
+  "sounds": [
+   {
+    "name": "minecraft:entity.pillager.death",
+    "type": "event",
+    "pitch": 0.85
+   }
+  ]
+ },
+ "voz.ganado.cabeza": {
+  "subtitle": "infectados.subtitle.voz.ganado.cabeza",
+  "sounds": [
+   {
+    "name": "minecraft:entity.slime.squish",
+    "type": "event",
+    "pitch": 0.5
+   }
+  ]
+ },
+ "voz.ganado.plaga": {
+  "subtitle": "infectados.subtitle.voz.ganado.plaga",
+  "sounds": [
+   {
+    "name": "minecraft:entity.ravager.roar",
+    "type": "event",
+    "pitch": 1.6
+   }
+  ]
+ },
+ "voz.ganado.plaga_tajo": {
+  "subtitle": "infectados.subtitle.voz.ganado.plaga_tajo",
+  "sounds": [
+   {
+    "name": "minecraft:entity.player.attack.sweep",
+    "type": "event",
+    "pitch": 0.6
+   }
+  ]
+ },
+ "voz.motosierra.rugido": {
+  "subtitle": "infectados.subtitle.voz.motosierra.rugido",
+  "sounds": [
+   {
+    "name": "minecraft:entity.ravager.roar",
+    "type": "event",
+    "pitch": 0.8
+   }
+  ]
+ },
+ "voz.motosierra.risa": {
+  "subtitle": "infectados.subtitle.voz.motosierra.risa",
+  "sounds": [
+   {
+    "name": "minecraft:entity.witch.celebrate",
+    "type": "event",
+    "pitch": 0.6
+   }
+  ]
+ },
+ "voz.motosierra.motor": {
+  "subtitle": "infectados.subtitle.voz.motosierra.motor",
+  "sounds": [
+   {
+    "name": "infectados:motosierra_acelera",
+    "pitch": 0.85
+   }
+  ]
+ },
+ "voz.motosierra.acelera": {
+  "subtitle": "infectados.subtitle.voz.motosierra.acelera",
+  "sounds": [
+   {
+    "name": "infectados:motosierra_acelera"
+   }
+  ]
+ },
+ "voz.motosierra.corte": {
+  "subtitle": "infectados.subtitle.voz.motosierra.corte",
+  "sounds": [
+   {
+    "name": "minecraft:entity.slime.squish",
+    "type": "event",
+    "pitch": 0.5
+   }
+  ]
+ },
+ "voz.motosierra.dolor": {
+  "subtitle": "infectados.subtitle.voz.motosierra.dolor",
+  "sounds": [
+   {
+    "name": "minecraft:entity.ravager.hurt",
+    "type": "event",
+    "pitch": 1.0
+   }
+  ]
+ },
+ "voz.motosierra.muerte": {
+  "subtitle": "infectados.subtitle.voz.motosierra.muerte",
+  "sounds": [
+   {
+    "name": "minecraft:entity.ravager.death",
+    "type": "event",
+    "pitch": 0.9
+   }
+  ]
+ },
+ "voz.smoker.tos": {
+  "subtitle": "infectados.subtitle.voz.smoker.tos",
+  "sounds": [
+   {
+    "name": "minecraft:entity.zombie.ambient",
+    "type": "event",
+    "pitch": 1.5
+   }
+  ]
+ },
+ "voz.smoker.lengua": {
+  "subtitle": "infectados.subtitle.voz.smoker.lengua",
+  "sounds": [
+   {
+    "name": "minecraft:entity.fishing_bobber.throw",
+    "type": "event",
+    "pitch": 0.6
+   }
+  ]
+ },
+ "voz.smoker.muerte": {
+  "subtitle": "infectados.subtitle.voz.smoker.muerte",
+  "sounds": [
+   {
+    "name": "minecraft:entity.zombie.death",
+    "type": "event",
+    "pitch": 1.3
+   }
+  ]
+ },
+ "voz.boomer.gorgoteo": {
+  "subtitle": "infectados.subtitle.voz.boomer.gorgoteo",
+  "sounds": [
+   {
+    "name": "minecraft:entity.zombie.ambient",
+    "type": "event",
+    "pitch": 0.5
+   }
+  ]
+ },
+ "voz.boomer.vomito": {
+  "subtitle": "infectados.subtitle.voz.boomer.vomito",
+  "sounds": [
+   {
+    "name": "minecraft:entity.slime.squish",
+    "type": "event",
+    "pitch": 0.4
+   }
+  ]
+ },
+ "voz.boomer.explosion": {
+  "subtitle": "infectados.subtitle.voz.boomer.explosion",
+  "sounds": [
+   {
+    "name": "minecraft:entity.generic.explode",
+    "type": "event",
+    "pitch": 0.8
+   }
+  ]
+ },
+ "voz.witch.llanto": {
+  "subtitle": "infectados.subtitle.voz.witch.llanto",
+  "sounds": [
+   {
+    "name": "minecraft:entity.ghast.ambient",
+    "type": "event",
+    "pitch": 1.6
+   }
+  ]
+ },
+ "voz.witch.grunido": {
+  "subtitle": "infectados.subtitle.voz.witch.grunido",
+  "sounds": [
+   {
+    "name": "minecraft:entity.zombie.ambient",
+    "type": "event",
+    "pitch": 1.7
+   }
+  ]
+ },
+ "voz.witch.grito": {
+  "subtitle": "infectados.subtitle.voz.witch.grito",
+  "sounds": [
+   {
+    "name": "minecraft:entity.ghast.scream",
+    "type": "event",
+    "pitch": 1.2
+   }
+  ]
+ },
+ "motosierra.loop": {
+  "sounds": [
+   {
+    "name": "infectados:motosierra_loop",
+    "stream": false
+   }
+  ]
+ }
+}
