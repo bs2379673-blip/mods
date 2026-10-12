@@ -53,7 +53,20 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
     }
     private final List<Ghost> ghosts = new ArrayList<>();
     private final List<int[]> ringPts = new ArrayList<>();
-    private final List<int[]> skinBtns = new ArrayList<>();      // {x, y, k}
+    /** Mini boton en la esquina de una casilla (ocultar armadura cosmetica / no dibujar un curio), como en los mods originales. */
+    private static final class Mini {
+        final int x, y; final boolean on; final String tip; final Runnable act;
+        Mini(int x, int y, boolean on, String tip, Runnable act) { this.x = x; this.y = y; this.on = on; this.tip = tip; this.act = act; }
+        boolean in(double mx, double my) { return mx >= x && mx < x + 7 && my >= y && my < y + 7; }
+    }
+    private final List<Mini> minis = new ArrayList<>();
+
+    // ---- modelo giratorio
+    private float rotYaw, rotPitch, zoom = 1f;
+    private boolean rotating;
+    private long lastModelClick;
+    private int[] modelRect, btnReset;
+    private final long openedAt = System.currentTimeMillis();
     private final List<Object[]> tabBtns = new ArrayList<>();    // {texto, int[] rect, Mode}
 
     private int workW() {
@@ -143,7 +156,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         Layout lay = Layout.get();
         int w = this.width, h = this.height;
         rects.clear();
-        curioLabels.clear(); ringLabels.clear(); saLabels.clear(); ringPts.clear(); ghosts.clear(); skinBtns.clear(); tabBtns.clear();
+        curioLabels.clear(); ringLabels.clear(); saLabels.clear(); ringPts.clear(); ghosts.clear(); minis.clear(); tabBtns.clear();
         int ww = workW();
         recordOriginals();
         btnCosm = btnPgPrev = btnPgNext = null;
@@ -220,13 +233,20 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             double a = Math.toRadians(right.size() <= 1 ? 0 : -55 + 110.0 * i / (right.size() - 1));
             put(right.get(i), (int) (mx + Math.cos(a) * rx) - 8, (int) (my + Math.sin(a) * ry) - 8);
         }
+        String[] armorNames = {"HEAD", "CHEST", "LEGS", "FEET"};
+        for (int i = 0; i < left.size() && i < 4; i++) ringLabels.add(new Object[]{left.get(i), armorNames[i]});
+        if (!right.isEmpty() && right.get(0) instanceof Slot s45 && s45.index == 45) ringLabels.add(new Object[]{s45, "OFFHAND"});
+        modelRect = new int[]{mx - 52, my - (int) (h * 0.23), 104, (int) (h * 0.46)};
+        btnReset = new int[]{mx + 52 - 9, my + (int) (h * 0.23) - 9, 9, 9};
         for (Object o : left) ringPts.add(new int[]{xOf(o) + 8, yOf(o) + 8});
         for (Object o : right) ringPts.add(new int[]{xOf(o) + 8, yOf(o) + 8});
         // armadura cosmetica: una casilla al lado de cada pieza de armadura, con su boton de ocultar
         for (int k = 0; k < cosItems.size() && k < left.size(); k++) {
             int cx = xOf(left.get(k)) - 24, cy = yOf(left.get(k));
             put(cosItems.get(k), cx, cy);
-            skinBtns.add(new int[]{cx - 10, cy + 4, k});
+            final int kk = k;
+            minis.add(new Mini(cx + 11, cy - 2, CosCompat.skin(player, kk), "OCULTAR / MOSTRAR ESTA PIEZA",
+                    () -> CosCompat.toggleSkin(player, kk)));
         }
         for (int k = 0; k < cosItems.size(); k++) if (k >= left.size() && cosItems.get(k) instanceof Slot s) offscreen(s);
         // ---- panel de almacenamiento extra
@@ -262,6 +282,14 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             }
         }
         layoutCurios(curios, lay, w, h);
+        // boton de "no dibujar en el personaje" de cada curio (el mismo que trae Curios)
+        if (mode == Mode.CURIOS)
+            for (Slot s : menu.slots) {
+                if (s.index < 46 || s.x < 0 || !s.isActive() || !CuriosCompat.canToggleRender(s)) continue;
+                final Slot fs = s;
+                minis.add(new Mini(s.x + 11, s.y - 2, !CuriosCompat.renderStatus(s), "OCULTAR / MOSTRAR EN EL PERSONAJE",
+                        () -> CuriosCompat.toggleRender(fs)));
+            }
         if (creative) layoutCreative(lay, w, h);
 
         // ---- botones superiores: EDIT, THEME y pestañas de menu (Curios / Cosmetic / Inventory)
@@ -533,8 +561,26 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         int mcx = ww / 2, mcy = (int) (h * 0.46);
         Draw.corners(g, mcx - 52, mcy - (int) (h * 0.23), 104, (int) (h * 0.46), 8, Theme.alpha(t.accent, 160));
         for (int[] p : ringPts) Draw.dotted(g, p[0], p[1], mcx, mcy, Theme.alpha(t.accent, 90), 5);
-        int scale = Math.max(30, h / 6);
-        InventoryScreen.renderEntityInInventoryFollowsMouse(g, mcx, mcy + scale, scale, (float) (mcx - mx), (float) (mcy - scale - my), player);
+        int scale = (int) (Math.max(30, h / 6) * zoom);
+        g.enableScissor(mcx - 52, mcy - (int) (h * 0.23), mcx + 52, mcy + (int) (h * 0.23));
+        renderModel(g, mcx, mcy + Math.max(30, h / 6), scale);
+        g.disableScissor();
+        // barrido de escaneo sobre el modelo
+        int fh = (int) (h * 0.46), fy0 = mcy - (int) (h * 0.23);
+        int sweep = fy0 + (int) ((System.currentTimeMillis() % 2600) / 2600.0 * fh);
+        g.fill(mcx - 50, sweep, mcx + 50, sweep + 1, Theme.alpha(t.accent, 70));
+        g.fill(mcx - 50, sweep - 3, mcx + 50, sweep, Theme.alpha(t.accent, 18));
+        Draw.textCenter(g, font, "OPERATOR // " + player.getName().getString().toUpperCase(), mcx, fy0 - 9, Theme.alpha(t.text, 210), 0.7f);
+        boolean hovModel = in(modelRect, mx, my) && slotAt(mx, my) == null;
+        if (hovModel || rotating)
+            Draw.textCenter(g, font, "ARRASTRA: GIRAR  ·  RUEDA: ZOOM  ·  DOBLE CLIC: CENTRAR", mcx, fy0 + fh - 8, Theme.alpha(t.text, 140), 0.5f);
+        if (btnReset != null) {
+            boolean hr = in(btnReset, mx, my);
+            g.fill(btnReset[0], btnReset[1], btnReset[0] + 9, btnReset[1] + 9, hr ? Theme.alpha(t.accent, 120) : 0x99000000);
+            Draw.frame(g, btnReset[0], btnReset[1], 9, 9, hr ? t.accent : Theme.alpha(t.dim, 230));
+            Draw.textCenter(g, font, "R", btnReset[0] + 5, btnReset[1] + 2, t.text, 0.6f);
+        }
+        drawVitals(g, t, mcx, fy0 + fh + 3, mx, my);
 
         // paneles
         String[] titles = {"CRAFTING", "EQUIPMENT", "", "STORAGE", "CREATIVE ITEMS", "CURIOS", "BACKPACK", "CLOTHING"};
@@ -542,7 +588,8 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         for (int i = 0; i < keys.length; i++) {
             int[] r = rects.get(keys[i]);
             if (r == null) continue;
-            Draw.panel(g, font, t, r[0], r[1], r[2], r[3], titles[i], edit || keys[i].equals(dragging));
+            String ti = titles[i].isEmpty() ? "" : String.format("%02d // %s", i + 1, titles[i]);
+            Draw.panel(g, font, t, r[0], r[1], r[2], r[3], ti, edit || keys[i].equals(dragging));
         }
         int[] c = rects.get(CRAFT);
         if (c != null) Draw.textCenter(g, font, "→", c[0] + 62, c[1] + 36, t.accent, 1.2f);
@@ -567,14 +614,6 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         button(g, t, btnEdit, "EDIT", edit);
         button(g, t, btnTheme, Layout.get().theme, false);
         for (Object[] tb : tabBtns) button(g, t, (int[]) tb[1], (String) tb[0], tb[2] == mode);
-        // botones de ocultar armadura (los del propio mod Cosmetic Armor)
-        for (int[] sb : skinBtns) {
-            boolean on = CosCompat.skin(player, sb[2]);
-            boolean hov = mx >= sb[0] && mx < sb[0] + 9 && my >= sb[1] && my < sb[1] + 9;
-            g.fill(sb[0], sb[1], sb[0] + 9, sb[1] + 9, on ? Theme.alpha(t.accent, 140) : 0xAA000000);
-            Draw.frame(g, sb[0], sb[1], 9, 9, hov || on ? t.accent : Theme.alpha(t.dim, 230));
-            Draw.textCenter(g, font, "H", sb[0] + 5, sb[1] + 2, hov || on ? t.text : Theme.alpha(t.text, 170), 0.7f);
-        }
         // casillas de solo lectura de otros menus
         for (Ghost gh : ghosts) {
             boolean hov = mx >= gh.x - 1 && mx < gh.x + 17 && my >= gh.y - 1 && my < gh.y + 17;
@@ -613,13 +652,73 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         for (int[] r : rects.values()) if (in(r, mx, my)) return false;
         for (int[] b : new int[][]{btnEdit, btnTheme, btnSort, btnDrop, btnCosm, btnPgPrev, btnPgNext}) if (in(b, mx, my)) return false;
         for (Object[] tb : tabBtns) if (in((int[]) tb[1], mx, my)) return false;
-        for (int[] sb : skinBtns) if (mx >= sb[0] && mx < sb[0] + 9 && my >= sb[1] && my < sb[1] + 9) return false;
+        for (Mini m : minis) if (m.in(mx, my)) return false;
+        if (in(btnReset, mx, my)) return false;
         for (Ghost gh : ghosts) if (mx >= gh.x - 1 && mx < gh.x + 17 && my >= gh.y - 1 && my < gh.y + 17) return false;
         return slotAt(mx, my) == null;
     }
 
     @Override
-    protected void renderLabels(GuiGraphics g, int mx, int my) { /* sin etiquetas de vainilla */ }
+    protected void renderLabels(GuiGraphics g, int mx, int my) {
+        // por encima de los objetos: franja de rareza y mini botones de las esquinas
+        Theme t = Layout.get().theme();
+        g.pose().pushPose();
+        g.pose().translate(0, 0, 300);
+        for (Slot s : menu.slots) {
+            if (!s.isActive() || s.x < 0 || !s.hasItem()) continue;
+            Integer c = s.getItem().getRarity().color.getColor();
+            if (c != null && s.getItem().getRarity() != net.minecraft.world.item.Rarity.COMMON)
+                g.fill(s.x, s.y + 16, s.x + 16, s.y + 17, 0xFF000000 | c);
+        }
+        for (Mini m : minis) {
+            boolean hov = m.in(mx, my);
+            g.fill(m.x, m.y, m.x + 7, m.y + 7, m.on ? t.accent : 0xDD000000);
+            Draw.frame(g, m.x, m.y, 7, 7, hov ? t.text : m.on ? t.accent : Theme.alpha(t.dim, 255));
+            if (!m.on) g.fill(m.x + 3, m.y + 3, m.x + 4, m.y + 4, Theme.alpha(t.accent, 200));
+        }
+        g.pose().popPose();
+    }
+
+    /** Dibuja al jugador con la rotacion / zoom elegidos (arrastrando sobre el modelo). */
+    private void renderModel(GuiGraphics g, int x, int y, int scale) {
+        org.joml.Quaternionf pose = new org.joml.Quaternionf().rotateZ((float) Math.PI);
+        org.joml.Quaternionf cam = new org.joml.Quaternionf().rotateX(rotPitch * ((float) Math.PI / 180f));
+        pose.mul(cam);
+        float yb = player.yBodyRot, yr = player.getYRot(), xr = player.getXRot(), yho = player.yHeadRotO, yh = player.yHeadRot;
+        player.yBodyRot = 180f + rotYaw;
+        player.setYRot(180f + rotYaw);
+        player.setXRot(0f);
+        player.yHeadRot = player.getYRot();
+        player.yHeadRotO = player.getYRot();
+        try {
+            InventoryScreen.renderEntityInInventory(g, x, y, scale, pose, cam, player);
+        } finally {
+            player.yBodyRot = yb; player.setYRot(yr); player.setXRot(xr); player.yHeadRotO = yho; player.yHeadRot = yh;
+        }
+    }
+
+    /** Vida, armadura, dureza y nivel bajo el modelo, y los efectos activos con su tiempo. */
+    private void drawVitals(GuiGraphics g, Theme t, int cx, int y, int mx, int my) {
+        int hp = (int) Math.ceil(player.getHealth()), max = (int) Math.ceil(player.getMaxHealth());
+        int tough = (int) player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR_TOUGHNESS);
+        String s = "HP " + hp + "/" + max + "   ARM " + player.getArmorValue() + "   TGH " + tough + "   LV " + player.experienceLevel;
+        Draw.textCenter(g, font, s, cx, y, Theme.alpha(t.text, 200), 0.7f);
+        int bw = 100;
+        Draw.bar(g, cx - bw / 2, y + 7, bw, 2, max <= 0 ? 0 : Math.min(1f, player.getHealth() / player.getMaxHealth()), t.accent, 0x66000000);
+        var effects = new ArrayList<>(player.getActiveEffects());
+        if (effects.isEmpty()) return;
+        int n = Math.min(10, effects.size()), ex = cx - (n * 15 - 3) / 2, ey = y + 12;
+        var tex = Minecraft.getInstance().getMobEffectTextures();
+        for (int i = 0; i < n; i++) {
+            var inst = effects.get(i);
+            int x = ex + i * 15;
+            g.fill(x - 1, ey - 1, x + 13, ey + 13, 0xAA000000);
+            Draw.frame(g, x - 1, ey - 1, 14, 14, inst.getEffect().isBeneficial() ? Theme.alpha(t.accent, 160) : 0xFFAA3030);
+            g.blit(x, ey, 0, 12, 12, tex.get(inst.getEffect()));
+            if (mx >= x - 1 && mx < x + 13 && my >= ey - 1 && my < ey + 13) hoverEffect = inst;
+        }
+    }
+    private net.minecraft.world.effect.MobEffectInstance hoverEffect;
 
     @Override
     public void render(GuiGraphics g, int mx, int my, float pt) {
@@ -630,10 +729,26 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
                 else g.renderTooltip(font, Component.literal(gh.label.toUpperCase().replace('_', ' ') + "  (CLIC: ABRIR)"), mx, my);
             }
         }
-        for (int[] sb : skinBtns)
-            if (mx >= sb[0] && mx < sb[0] + 9 && my >= sb[1] && my < sb[1] + 9)
-                g.renderTooltip(font, Component.literal("OCULTAR ESTA PIEZA DE ARMADURA"), mx, my);
+        for (Mini m : minis) if (m.in(mx, my)) g.renderTooltip(font, Component.literal(m.tip), mx, my);
+        if (hoverEffect != null) {
+            g.renderComponentTooltip(font, List.of(hoverEffect.getEffect().getDisplayName(),
+                    net.minecraft.world.effect.MobEffectUtil.formatDuration(hoverEffect, 1.0f)), mx, my);
+            hoverEffect = null;
+        }
         creativeTooltip(g, mx, my);
+        // entrada: fundido y linea de escaneo durante 350 ms
+        float k = Math.min(1f, (System.currentTimeMillis() - openedAt) / 350f);
+        if (k < 1f) {
+            Theme t = Layout.get().theme();
+            float e = 1f - (1f - k) * (1f - k);
+            g.pose().pushPose();
+            g.pose().translate(0, 0, 500);
+            g.fill(0, 0, width, height, Theme.alpha(0x000000, (int) ((1f - e) * 230)));
+            int ly = (int) (e * height);
+            g.fill(0, ly, width, ly + 1, t.accent);
+            g.fill(0, ly - 6, width, ly, Theme.alpha(t.accent, 40));
+            g.pose().popPose();
+        }
     }
 
     // ------------------------------------------------------------------ entrada
@@ -645,8 +760,8 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             if (in(btnTheme, mx, my)) { Layout lay = Layout.get(); lay.theme = lay.theme().next().name(); lay.save(); return true; }
             if (!edit) {
                 for (Object[] tb : tabBtns) if (in((int[]) tb[1], mx, my)) { switchTo((Mode) tb[2]); return true; }
-                for (int[] sb : skinBtns)
-                    if (mx >= sb[0] && mx < sb[0] + 9 && my >= sb[1] && my < sb[1] + 9) { CosCompat.toggleSkin(player, sb[2]); return true; }
+                for (Mini m : minis) if (m.in(mx, my)) { m.act.run(); return true; }
+                if (in(btnReset, mx, my)) { rotYaw = 0; rotPitch = 0; zoom = 1f; return true; }
                 for (Ghost gh : ghosts)
                     if (mx >= gh.x - 1 && mx < gh.x + 17 && my >= gh.y - 1 && my < gh.y + 17) { switchTo(gh.tab); return true; }
             }
@@ -664,12 +779,25 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             if (in(btnDrop, mx, my)) { drop(); return true; }
         }
         if (edit) return true;
+        // girar el modelo: arrastrar sobre el (sin nada en el cursor)
+        if ((button == 0 || button == 1) && in(modelRect, mx, my) && slotAt(mx, my) == null
+                && menu.getCarried().isEmpty() && held.isEmpty()) {
+            long now = System.currentTimeMillis();
+            if (button == 0 && now - lastModelClick < 300) { rotYaw = 0; rotPitch = 0; zoom = 1f; }
+            lastModelClick = now;
+            rotating = true;
+            return true;
+        }
         if (creative && creativeClick(mx, my, button)) return true;
         return super.mouseClicked(mx, my, button);
     }
 
     @Override
     public boolean mouseScrolled(double mx, double my, double delta) {
+        if (in(modelRect, mx, my)) {
+            zoom = Math.max(0.6f, Math.min(1.9f, zoom + (float) delta * 0.1f));
+            return true;
+        }
         if (creative && in(rects.get(ITEMS), mx, my)) {
             scroll = Math.max(0, Math.min(maxScroll(), scroll - (int) Math.signum(delta)));
             return true;
@@ -687,12 +815,18 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             Layout.get().setPx(dragging, (int) mx - dragDX, (int) my - dragDY, width, height);
             return true;
         }
+        if (rotating) {
+            rotYaw = (rotYaw + (float) dx * 1.6f) % 360f;
+            rotPitch = Math.max(-35f, Math.min(35f, rotPitch - (float) dy * 0.9f));
+            return true;
+        }
         return super.mouseDragged(mx, my, button, dx, dy);
     }
 
     @Override
     public boolean mouseReleased(double mx, double my, int button) {
         if (dragging != null) { dragging = null; Layout.get().save(); return true; }
+        if (rotating) { rotating = false; return true; }
         return super.mouseReleased(mx, my, button);
     }
 

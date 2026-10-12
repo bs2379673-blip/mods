@@ -1,4 +1,4 @@
-Tactical UI 0.3.0 (solo cliente)
+Tactical UI 0.4.0 (solo cliente)
 
 HUD tactico: barras de armadura / hambre / sed (Thirst Was Taken) / aire, vida, hotbar, municion de TACZ
 (cargador y reserva, modo de disparo), resistencia de Epic Fight y cordura (Sanity) a la derecha, brujula.
@@ -17,6 +17,15 @@ Novedades 0.2.0:
   (RING, NECKLACE...) con paginas y boton COSMETIC si existen. Tambien se abre con la tecla de Curios.
 - Contenedores (cofres, barriles, shulkers, tolvas, dispensadores y mochilas) con el estilo tactico: /tacui containers on|off
 
+Novedades 0.4.0:
+- Modelo del jugador giratorio: arrastra sobre el (clic izquierdo o derecho) para girarlo e inclinarlo, rueda = zoom,
+  doble clic o el boton R de la esquina = centrar. Nombre del operador encima y barrido de escaneo.
+- Bajo el modelo: vida, armadura, dureza, nivel y los efectos activos (pasa el raton para ver nombre y tiempo).
+- Mini cuadradito en la esquina de las casillas, como en los mods originales: en la armadura cosmetica oculta/muestra
+  la pieza; en Curios oculta/muestra el curio en el personaje. Relleno de color = oculto.
+- Interfaz: paneles numerados con marcas en las esquinas, brillo al pasar por una casilla, franja de color segun la
+  rareza del objeto, nombres HEAD/CHEST/LEGS/FEET/OFFHAND en el anillo, entrada con fundido y linea de escaneo.
+
 Novedades 0.3.0 (integracion de menus):
 - Un solo inventario para todo. Al pulsar la tecla del inventario se abre el menu de Curios (cambialo con
   /tacui start curios|cosmetic|inventory). Arriba hay pestanas CURIOS / COSMETIC / INVENTORY: cada una abre su menu
@@ -29,4 +38,3 @@ Novedades 0.3.0 (integracion de menus):
 - Mochila y ropa de Survivors Arsenal: estan en la pestana INVENTORY (paneles BACKPACK y CLOTHING).
 - Clic en zona vacia con un objeto en el cursor lo tira. Con la pantalla abierta se oculta el HUD de abajo.
 
-Pendiente: armadura cosmetica (Cosmetic Armor Reworked) dentro de esta pantalla.

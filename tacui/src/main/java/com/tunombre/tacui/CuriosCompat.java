@@ -116,5 +116,14 @@ public final class CuriosCompat {
 
     /** Identificador del tipo de ranura (ring, necklace...) o null si no es una ranura de Curios. */
     public static String identifier(Slot s) { return call(s, "getIdentifier") instanceof String id ? id : null; }
+    public static boolean canToggleRender(Slot s) { return call(s, "canToggleRender") instanceof Boolean b && b; }
+    public static boolean renderStatus(Slot s) { return !(call(s, "getRenderStatus") instanceof Boolean b) || b; }
+
+    /** Igual que el boton de Curios: alterna si ese curio se dibuja en el personaje. */
+    public static void toggleRender(Slot s) {
+        String id = identifier(s);
+        if (id != null) send("CPacketToggleRender", new Class<?>[]{String.class, int.class}, id, s.getSlotIndex());
+    }
+
     public static boolean cosmetic(Slot s) { return call(s, "isCosmetic") instanceof Boolean b && b; }
 }

@@ -42,6 +42,9 @@ public final class Draw {
     public static int panel(GuiGraphics g, Font f, Theme t, int x, int y, int w, int h, String title, boolean highlight) {
         g.fill(x, y, x + w, y + h, t.panel);
         frame(g, x, y, w, h, highlight ? t.accent : Theme.alpha(t.accent, 120));
+        // marcas en las esquinas y muesca diagonal abajo a la derecha
+        corners(g, x - 2, y - 2, w + 4, h + 4, 5, Theme.alpha(t.accent, highlight ? 255 : 170));
+        for (int i = 0; i < 6; i++) g.fill(x + w - 7 + i, y + h - 2 - i, x + w - 6 + i, y + h - 1 - i, Theme.alpha(t.accent, 150));
         if (title.isEmpty()) return 0;   // panel sin barra de titulo
         int th = 13;
         g.fill(x + 1, y + 1, x + w - 1, y + th, Theme.alpha(t.dim, 200));
@@ -53,6 +56,7 @@ public final class Draw {
 
     /** Marco de casilla (18x18 de contenido: se dibuja alrededor del item de 16x16). */
     public static void slot(GuiGraphics g, Theme t, int x, int y, boolean hover, boolean selected) {
+        if (hover) frame(g, x - 2, y - 2, 20, 20, Theme.alpha(t.accent, 70));
         g.fill(x - 1, y - 1, x + 17, y + 17, 0xCC050303);
         frame(g, x - 1, y - 1, 18, 18, selected ? t.accent : hover ? Theme.alpha(t.accent, 220) : Theme.alpha(t.dim, 230));
         if (selected) g.fill(x, y, x + 16, y + 16, Theme.alpha(t.accent, 50));
