@@ -75,6 +75,8 @@ public class EfZombies {
         bus.addListener(EfZombies::onAttributes);
         bus.addListener(EfZombies::onAttributesModify);
         bus.addListener(EfZombies::onPatches);
+        bus.addListener((net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent e) -> e.enqueueWork(() ->
+                yesman.epicfight.gameasset.Armatures.registerEntityTypeArmature(TREPADOR.get(), yesman.epicfight.gameasset.Armatures.BIPED)));
         bus.addListener(EfZombies::onSpawnPlacement);
         bus.addListener(EfZombies::onCreativeTab);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {

@@ -129,6 +129,11 @@ public class Infectados {
         bus.addListener(Infectados::onAttributes);
         bus.addListener(Infectados::onAttributesModify);
         bus.addListener(Infectados::onPatches);
+        bus.addListener((net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent e) -> e.enqueueWork(() -> {
+            // Epic Fight necesita saber que armadura usa cada tipo de mob; sin esto se cae al crearlos
+            for (var t : java.util.List.of(GANADO.get(), MOTOSIERRA.get(), SMOKER.get(), BOOMER.get(), WITCH.get()))
+                yesman.epicfight.gameasset.Armatures.registerEntityTypeArmature(t, yesman.epicfight.gameasset.Armatures.BIPED);
+        }));
         bus.addListener(Infectados::onSpawnPlacement);
         bus.addListener(Infectados::onCreativeTab);
         MinecraftForge.EVENT_BUS.addListener(Infectados::onMount);
