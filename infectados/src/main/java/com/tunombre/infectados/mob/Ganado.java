@@ -46,6 +46,7 @@ public class Ganado extends InfMob {
     private static final EntityDataAccessor<Byte> VARIANT = SynchedEntityData.defineId(Ganado.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Boolean> HEADLESS = SynchedEntityData.defineId(Ganado.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> PLAGA_ATTACK = SynchedEntityData.defineId(Ganado.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> IMPALE_START = SynchedEntityData.defineId(Ganado.class, EntityDataSerializers.INT);
 
     private static final Map<LivingMotion, AnimationManager.AnimationAccessor<? extends StaticAnimation>> MOTIONS = Map.of(
             LivingMotions.IDLE, Anims.G_IDLE, LivingMotions.WALK, Anims.G_WALK, LivingMotions.CHASE, Anims.G_RUN, LivingMotions.SNEAK, Anims.G_HEADLESS);
@@ -76,6 +77,7 @@ public class Ganado extends InfMob {
         entityData.define(VARIANT, (byte) 1);
         entityData.define(HEADLESS, false);
         entityData.define(PLAGA_ATTACK, -1000);
+        entityData.define(IMPALE_START, -1000);
     }
 
     public int variant() { return entityData.get(VARIANT); }
@@ -215,13 +217,11 @@ public class Ganado extends InfMob {
             if (dd > m.reach() + e.getBbWidth() / 2) continue;
             double ang = Math.toDegrees(Math.acos(Math.max(-1, Math.min(1, (to.x * f.x + to.z * f.z) / Math.max(dd, 1e-4)))));
             if (ang > m.arc() / 2) continue;
-            // EMPALADO: mucho dano y sale despedido unos bloques
-            e.hurt(damageSources().mobAttack(this), Infectados.cfgImpale());
-            e.setDeltaMovement(f.x * 1.75, 0.6, f.z * 1.75);
+            if (e == dodgePlayer && e instanceof Player pl && startImpale(pl)) continue;
+            // otros que estaban delante: pinchazo y empujon
+            e.hurt(damageSources().mobAttack(this), Infectados.cfgImpale() * 0.5F);
+            e.setDeltaMovement(f.x * 1.2, 0.4, f.z * 1.2);
             e.hurtMarked = true;
-            if (level() instanceof ServerLevel lv) {
-                lv.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.REDSTONE_BLOCK.defaultBlockState()), e.getX(), e.getY() + 1.1, e.getZ(), 50, 0.2, 0.3, 0.2, 0.3);
-            }
         }
         if (dodgeState == 1) closePrompt();
         dodgeState = 0;
@@ -234,6 +234,90 @@ public class Ganado extends InfMob {
             dodgeState = 0;
             dodgePlayer = null;
         }
+    }
+
+
+    // ------------------------------------------------------------------ EMPALADO: clavado, levantado y arrojado ----
+    /** punta de la horca respecto al aldeano (adelante, altura) en el tick k del empalamiento: igual que la animacion */
+    private static final float[][] TIP = {{0, 1.7F, 0.95F}, {6, 1.6F, 1.1F}, {18, 0.45F, 2.75F}, {26, 0.35F, 2.85F}, {30, -0.6F, 2.6F}};
+    public static final int THROW_TICK = 26;
+
+    public static float[] impaleTip(float k) {
+        if (k <= TIP[0][0]) return new float[]{TIP[0][1], TIP[0][2]};
+        for (int i = 0; i < TIP.length - 1; i++) {
+            float[] a = TIP[i], b = TIP[i + 1];
+            if (k <= b[0]) {
+                float x = (k - a[0]) / (b[0] - a[0]);
+                x = x * x * (3 - 2 * x);
+                return new float[]{a[1] + (b[1] - a[1]) * x, a[2] + (b[2] - a[2]) * x};
+            }
+        }
+        float[] l = TIP[TIP.length - 1];
+        return new float[]{l[1], l[2]};
+    }
+
+    public int impaleTick() {
+        int s = entityData.get(IMPALE_START);
+        return s < -500 ? -1 : tickCount - s;
+    }
+
+    private boolean startImpale(Player p) {
+        move = null;
+        if (!p.startRiding(this, true)) return false;
+        entityData.set(IMPALE_START, tickCount);
+        closePrompt();
+        dodgeState = 0;
+        p.hurt(damageSources().mobAttack(this), Infectados.cfgImpale());
+        play(Anims.G_IMPALE);
+        if (p instanceof ServerPlayer sp) {
+            yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch pp = yesman.epicfight.world.capabilities.EpicFightCapabilities.getEntityPatch(sp, yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch.class);
+            if (pp != null) pp.playAnimationSynchronized(Anims.P_IMPALED, 0.05F);
+        }
+        Voice.pick(random, Voice.MUERETE, Voice.PICADILLO, Voice.CERDO).say(this, true);
+        if (level() instanceof ServerLevel lv) {
+            lv.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.REDSTONE_BLOCK.defaultBlockState()), p.getX(), p.getY() + 1.0, p.getZ(), 60, 0.2, 0.3, 0.2, 0.3);
+        }
+        attackCd = 60;
+        return true;
+    }
+
+    private void tickImpale() {
+        int k = impaleTick();
+        Entity e = getFirstPassenger();
+        getNavigation().stop();
+        if (!(e instanceof Player p)) {
+            entityData.set(IMPALE_START, -1000);
+            return;
+        }
+        if (level() instanceof ServerLevel lv && k % 3 == 0) {
+            lv.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.REDSTONE_BLOCK.defaultBlockState()), p.getX(), p.getY() + 0.9, p.getZ(), 6, 0.1, 0.1, 0.1, 0.05);
+        }
+        if (k >= THROW_TICK) {
+            // lo arroja por encima de su cabeza hacia atras
+            releasing = true;
+            p.stopRiding();
+            releasing = false;
+            Vec3 f = Vec3.directionFromRotation(0, getYRot());
+            p.setDeltaMovement(-f.x * 1.35, 0.6, -f.z * 1.35);
+            p.hurtMarked = true;
+            p.fallDistance = 0;
+            Grabs.mark(p);
+            entityData.set(IMPALE_START, -1000);
+        }
+    }
+
+    @Override
+    protected void positionRider(Entity passenger, Entity.MoveFunction cb) {
+        int k = impaleTick();
+        if (k < 0 || !hasPassenger(passenger)) {
+            super.positionRider(passenger, cb);
+            return;
+        }
+        float[] tip = impaleTip(Math.min(k, THROW_TICK));
+        Vec3 f = Vec3.directionFromRotation(0, getYRot());
+        double fw = tip[0] + 0.12, up = tip[1] - 0.95;
+        cb.accept(passenger, getX() + f.x * fw, getY() + up, getZ() + f.z * fw);
+        passenger.setYBodyRot(getYRot() + 180F);
     }
 
     // ------------------------------------------------------------------ plaga ----
@@ -361,7 +445,8 @@ public class Ganado extends InfMob {
     public void aiStep() {
         super.aiStep();
         if (level().isClientSide) return;
-        if (isGrabbing()) tickGrab();
+        if (impaleTick() >= 0) tickImpale();
+        else if (isGrabbing()) tickGrab();
         tickPlaga();
         tickDodge();
         voices();

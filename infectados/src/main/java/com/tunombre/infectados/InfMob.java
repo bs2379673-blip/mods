@@ -112,7 +112,7 @@ public abstract class InfMob extends Monster {
             yBodyRot = getYRot();
         }
         if (moveTick == move.hit()) onMoveHit(move);
-        if (moveTick >= move.length()) move = null;
+        if (move != null && moveTick >= move.length()) move = null;
     }
 
     @Override
