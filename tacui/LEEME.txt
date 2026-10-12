@@ -1,4 +1,4 @@
-Tactical UI 0.2.0 (solo cliente)
+Tactical UI 0.2.1 (solo cliente)
 
 HUD tactico: barras de armadura / hambre / sed (Thirst Was Taken) / aire, vida, hotbar, municion de TACZ
 (cargador y reserva, modo de disparo), resistencia de Epic Fight y cordura (Sanity) a la derecha, brujula.
@@ -16,5 +16,11 @@ Novedades 0.2.0:
 - Curios: boton CURIOS / INVENTORY arriba para pasar de una pantalla a otra; las ranuras de Curios se agrupan por tipo
   (RING, NECKLACE...) con paginas y boton COSMETIC si existen. Tambien se abre con la tecla de Curios.
 - Contenedores (cofres, barriles, shulkers, tolvas, dispensadores y mochilas) con el estilo tactico: /tacui containers on|off
+
+Novedades 0.2.1:
+- Clic en una zona vacia con un objeto en el cursor lo tira al suelo.
+- Mochila y ropa con bolsillos de Survivors Arsenal: paneles BACKPACK y CLOTHING con sus casillas activas.
+- Curios: las primeras casillas, en orden y con su nombre (RING, NECKLACE...), en el arco derecho; el resto en el panel CURIOS.
+- Boton RECIPES (si esta EMI): recetas del objeto en el cursor / ultimo bajo el cursor; Shift = usos.
 
 Pendiente: armadura cosmetica (Cosmetic Armor Reworked) dentro de esta pantalla.

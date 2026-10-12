@@ -32,7 +32,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
     public enum Mode { INVENTORY, CREATIVE, CURIOS }
 
     private static Field FX, FY;
-    private static final String CRAFT = "craft", EQUIP = "equip", HOTBAR = "hotbar", EXTRA = "extra", ITEMS = "items", CURIOS = "curios";
+    private static final String CRAFT = "craft", EQUIP = "equip", HOTBAR = "hotbar", EXTRA = "extra", ITEMS = "items", CURIOS = "curios", BACKPACK = "backpack", CLOTHES = "clothes";
 
     private final Player player;
     private final Map<Slot, int[]> original = new HashMap<>();
@@ -61,6 +61,12 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
     // ---- Curios
     private final List<Object[]> curioLabels = new ArrayList<>();   // {x, y, texto}
     private int[] btnCosm, btnPgPrev, btnPgNext;
+    private final java.util.Set<Slot> ringSet = new java.util.HashSet<>();
+    private final List<Object[]> ringLabels = new ArrayList<>();   // {x, y, texto} (centrado)
+    private final List<Object[]> saLabels = new ArrayList<>();     // etiquetas del panel de ropa
+    private int[] btnEmi;
+    private ItemStack lastHover = ItemStack.EMPTY;
+    private long emiHint;
     private int pgX, pgY;
 
     public TacInventoryScreen(Player p) { this(p, p.inventoryMenu, Mode.INVENTORY); }
@@ -118,7 +124,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         Layout lay = Layout.get();
         int w = this.width, h = this.height;
         rects.clear();
-        curioLabels.clear();
+        curioLabels.clear(); ringLabels.clear(); saLabels.clear(); ringSet.clear();
         recordOriginals();
         btnCosm = btnPgPrev = btnPgNext = null;
 
@@ -142,7 +148,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         if (mode == Mode.CREATIVE) {
             for (int i = 0; i <= 4; i++) offscreen(menu.slots.get(i));
         } else {
-            int defY = mode == Mode.CURIOS ? h - ch - 14 : h / 3;
+            int defY = h - ch - 14;
             int[] cp = clamp(lay.px(CRAFT, 18, defY, w, h), cw, ch, w, h);
             rects.put(CRAFT, new int[]{cp[0], cp[1], cw, ch});
             place(menu.slots.get(1), cp[0] + 12, cp[1] + 22); place(menu.slots.get(2), cp[0] + 32, cp[1] + 22);
@@ -157,17 +163,31 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         for (int i = 0; i < 9; i++) place(menu.slots.get(36 + i), hp[0] + 5 + i * 20, hp[1] + 6);
 
         // ---- anillo de equipo alrededor del modelo: armadura, mano secundaria y casillas de otros mods
-        List<Slot> left = new ArrayList<>(), right = new ArrayList<>(), extra = new ArrayList<>(), curios = new ArrayList<>();
+        List<Slot> left = new ArrayList<>(), right = new ArrayList<>(), extra = new ArrayList<>(), curios = new ArrayList<>(), bpSlots = new ArrayList<>();
+        java.util.Map<String, List<Slot>> clothes = new java.util.LinkedHashMap<>();
         for (int i = 5; i <= 8; i++) left.add(menu.slots.get(i));
         if (menu.slots.size() > 45) right.add(menu.slots.get(45));
         for (int i = 46; i < menu.slots.size(); i++) {
             Slot s = menu.slots.get(i);
+            if (SaCompat.isBackpack(s)) { if (s.isActive()) bpSlots.add(s); else offscreen(s); continue; }
+            String area = SaCompat.clothingArea(s);
+            if (area != null) { if (s.isActive()) clothes.computeIfAbsent(area, k -> new ArrayList<>()).add(s); else offscreen(s); continue; }
             if (mode == Mode.CURIOS) { if (s.isActive()) curios.add(s); else offscreen(s); continue; }
-            if (!visibleOriginally(s)) continue;
+            if (!s.isActive() || !visibleOriginally(s)) continue;
             if (right.size() < 6) right.add(s); else extra.add(s);
         }
         int mx = w / 2, my = (int) (h * 0.46);
         int rx = Math.max(60, Math.min(w / 5, 170)), ry = Math.max(50, (int) (h * 0.27));
+        if (mode == Mode.CURIOS) {   // las primeras casillas de Curios, en orden, en el arco derecho; el resto, en su panel
+            int cap = ry >= 70 ? 8 : 6;
+            while (right.size() < cap && !curios.isEmpty()) {
+                Slot s = curios.remove(0);
+                right.add(s);
+                String id = CuriosCompat.identifier(s);
+                ringLabels.add(new Object[]{s, id == null ? "" : id.toUpperCase().replace('_', ' ')});
+            }
+        }
+        ringSet.addAll(left); ringSet.addAll(right);
         for (int i = 0; i < left.size(); i++) {
             double a = Math.toRadians(left.size() <= 1 ? 180 : 235 - 110.0 * i / (left.size() - 1));
             place(left.get(i), (int) (mx + Math.cos(a) * rx) - 8, (int) (my + Math.sin(a) * ry) - 8);
@@ -184,6 +204,30 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             rects.put(EXTRA, new int[]{xp[0], xp[1], pw, ph});
             for (int i = 0; i < extra.size(); i++) place(extra.get(i), xp[0] + 7 + (i % xc) * 20, xp[1] + 13 + 8 + (i / xc) * 20);
         }
+        int sy = 38, bpBottom = 38;
+        if (!bpSlots.isEmpty()) {
+            int cols = 6, rowsB = (bpSlots.size() + cols - 1) / cols;
+            int pw = cols * 20 + 12, ph = 13 + 6 + rowsB * 20 + 6;
+            int[] bp = clamp(lay.px(BACKPACK, 18, sy, w, h), pw, ph, w, h);
+            rects.put(BACKPACK, new int[]{bp[0], bp[1], pw, ph});
+            for (int i = 0; i < bpSlots.size(); i++) place(bpSlots.get(i), bp[0] + 7 + (i % cols) * 20, bp[1] + 19 + (i / cols) * 20);
+            bpBottom = bp[1] + ph;
+        }
+        if (!clothes.isEmpty()) {
+            int cols = 6, pw = cols * 20 + 12, ph = 17;
+            for (List<Slot> g : clothes.values()) ph += 9 + ((g.size() + cols - 1) / cols) * 20 + 3;
+            ph += 4;
+            int[] cp2 = clamp(lay.px(CLOTHES, 18, bpBottom + 6, w, h), pw, ph, w, h);
+            rects.put(CLOTHES, new int[]{cp2[0], cp2[1], pw, ph});
+            int y = cp2[1] + 17;
+            for (java.util.Map.Entry<String, List<Slot>> en : clothes.entrySet()) {
+                saLabels.add(new Object[]{cp2[0] + 7, y, en.getKey()});
+                y += 9;
+                List<Slot> g = en.getValue();
+                for (int i = 0; i < g.size(); i++) place(g.get(i), cp2[0] + 7 + (i % cols) * 20, y + (i / cols) * 20 + 1);
+                y += ((g.size() + cols - 1) / cols) * 20 + 3;
+            }
+        }
         if (mode == Mode.CURIOS) layoutCurios(curios, lay, w, h);
         if (mode == Mode.CREATIVE) layoutCreative(lay, w, h);
 
@@ -191,6 +235,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         btnEdit = new int[]{14, 24, 30, 11};
         btnTheme = new int[]{48, 24, 44, 11};
         btnMode = (mode == Mode.CURIOS || CuriosCompat.loaded()) ? new int[]{96, 24, 52, 11} : null;
+        btnEmi = EmiCompat.loaded() ? new int[]{152, 24, 40, 11} : null;
     }
 
     private void layoutCurios(List<Slot> curios, Layout lay, int w, int h) {
@@ -205,6 +250,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             groups.get(groups.size() - 1).add(s);
         }
         boolean footer = CuriosCompat.totalPages(menu) > 1 || CuriosCompat.hasCosmetics(menu);
+        if (curios.isEmpty() && !footer) return;
         int ph = 13 + 4;
         for (List<Slot> g : groups) ph += 9 + ((g.size() + cols - 1) / cols) * 20 + 3;
         if (groups.isEmpty()) ph += 14;
@@ -450,8 +496,8 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         InventoryScreen.renderEntityInInventoryFollowsMouse(g, mcx, mcy + scale, scale, (float) (mcx - mx), (float) (mcy - scale - my), player);
 
         // paneles
-        String[] titles = {"CRAFTING", "EQUIPMENT", "", "STORAGE", "CREATIVE ITEMS", "CURIOS"};
-        String[] keys = {CRAFT, EQUIP, HOTBAR, EXTRA, ITEMS, CURIOS};
+        String[] titles = {"CRAFTING", "EQUIPMENT", "", "STORAGE", "CREATIVE ITEMS", "CURIOS", "BACKPACK", "CLOTHING"};
+        String[] keys = {CRAFT, EQUIP, HOTBAR, EXTRA, ITEMS, CURIOS, BACKPACK, CLOTHES};
         for (int i = 0; i < keys.length; i++) {
             int[] r = rects.get(keys[i]);
             if (r == null) continue;
@@ -465,6 +511,16 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             Draw.text(g, font, "SLOTS 27", e[0] + 7, e[1] + 19, Theme.alpha(t.text, 130), 0.6f);
             button(g, t, btnSort, "SORT", false);
             button(g, t, btnDrop, "DROP", !menu.getCarried().isEmpty());
+        }
+        for (Object[] l : saLabels) Draw.text(g, font, (String) l[2], (Integer) l[0], (Integer) l[1], Theme.alpha(t.text, 150), 0.6f);
+        for (Object[] l : ringLabels) {
+            Slot s = (Slot) l[0];
+            Draw.textCenter(g, font, (String) l[1], s.x + 8, s.y + 19, Theme.alpha(t.text, 130), 0.5f);
+        }
+        if (btnEmi != null) {
+            button(g, t, btnEmi, "RECIPES", false);
+            if (System.currentTimeMillis() - emiHint < 2500)
+                Draw.text(g, font, "PASA EL CURSOR POR UN OBJETO Y PULSA RECIPES (SHIFT = USOS)", 14, 38, t.accent, 0.7f);
         }
         if (mode == Mode.CREATIVE) drawCreative(g, t, mx, my);
         if (mode == Mode.CURIOS) {
@@ -483,7 +539,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         // marcos de todas las casillas visibles
         for (Slot s : menu.slots) {
             if (!s.isActive()) continue;
-            if (mode != Mode.CURIOS && !visibleOriginally(s) && s.index >= 46) continue;
+            if (mode != Mode.CURIOS && s.index >= 46 && !visibleOriginally(s) && SaCompat.clothingArea(s) == null && !SaCompat.isBackpack(s)) continue;
             if (s.x < 0) continue;
             boolean hov = mx >= s.x - 1 && mx < s.x + 17 && my >= s.y - 1 && my < s.y + 17;
             Draw.slot(g, t, s.x, s.y, hov, mode == Mode.CURIOS && CuriosCompat.cosmetic(s));
@@ -494,8 +550,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
     }
 
     private boolean isRing(Slot s) {
-        int i = s.index;
-        return (i >= 5 && i <= 8) || i == 45 || (mode != Mode.CURIOS && i > 45 && visibleOriginally(s) && !inExtra(s));
+        return ringSet.contains(s);
     }
 
     private boolean inExtra(Slot s) {
@@ -511,12 +566,23 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         Draw.textCenter(g, font, label, r[0] + r[2] / 2, r[1] + (r[3] - 6) / 2 + 1, hov || active ? t.text : Theme.alpha(t.text, 170), 0.7f);
     }
 
+    /** Clic en zona vacia = fuera de la ventana: con un objeto en el cursor, lo tira (como en vainilla). */
+    @Override
+    protected boolean hasClickedOutside(double mx, double my, int left, int top, int button) {
+        for (int[] r : rects.values()) if (in(r, mx, my)) return false;
+        for (int[] b : new int[][]{btnEdit, btnTheme, btnMode, btnEmi, btnSort, btnDrop, btnCosm, btnPgPrev, btnPgNext}) if (in(b, mx, my)) return false;
+        return slotAt(mx, my) == null;
+    }
+
     @Override
     protected void renderLabels(GuiGraphics g, int mx, int my) { /* sin etiquetas de vainilla */ }
 
     @Override
     public void render(GuiGraphics g, int mx, int my, float pt) {
         super.render(g, mx, my, pt);
+        Slot hs = getSlotUnderMouse();
+        if (hs != null && hs.hasItem()) lastHover = hs.getItem().copy();
+        else { int c = cellAt(mx, my); if (c >= 0) lastHover = shown.get(c).copy(); }
         creativeTooltip(g, mx, my);
     }
 
@@ -527,12 +593,17 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         if (button == 0) {
             if (in(btnEdit, mx, my)) { edit = !edit; if (!edit) Layout.get().save(); return true; }
             if (in(btnTheme, mx, my)) { Layout lay = Layout.get(); lay.theme = lay.theme().next().name(); lay.save(); return true; }
+            if (in(btnEmi, mx, my) && !edit) {
+                ItemStack st = !menu.getCarried().isEmpty() ? menu.getCarried() : !held.isEmpty() ? held : lastHover;
+                if (st.isEmpty()) emiHint = System.currentTimeMillis(); else EmiCompat.show(st.copy(), hasShiftDown());
+                return true;
+            }
             if (in(btnMode, mx, my) && !edit) {
                 if (mode == Mode.CURIOS) CuriosCompat.openVanilla(); else CuriosCompat.openCurios();
                 return true;
             }
             if (edit) {
-                for (String k : new String[]{EQUIP, CRAFT, HOTBAR, EXTRA, ITEMS, CURIOS}) {
+                for (String k : new String[]{EQUIP, CRAFT, HOTBAR, EXTRA, ITEMS, CURIOS, BACKPACK, CLOTHES}) {
                     int[] r = rects.get(k);
                     if (in(r, mx, my)) { dragging = k; dragDX = (int) mx - r[0]; dragDY = (int) my - r[1]; return true; }
                 }
