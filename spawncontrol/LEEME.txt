@@ -1,0 +1,31 @@
+SPAWNCONTROL 1.0.0  (Forge 1.20.1, solo en el servidor es obligatorio; el cliente solo necesita el mod para la pantalla /spawns gui)
+
+Controla el spawn natural de cualquier mob (vanilla o de otros mods) EN VIVO, sin reiniciar. Solo operadores (nivel 2).
+Los cambios se guardan solos en config/spawncontrol/rules.json (tambien puedes editarlo a mano y usar /spawns recargar).
+
+MOB: minecraft:zombie | infectados:boomer | <modid>:todos (todos los mobs de ese mod) | todos:todos (todos).
+Prioridad: regla del mob > regla del mod > regla global. Sin regla = spawnea como siempre.
+
+/spawns gui                                 pantalla de administracion
+/spawns mobs [modid]                        lista los mods con mobs / los mobs de un mod
+/spawns lista | info <mob>                  reglas
+/spawns activar <mob> [silencio]            activa; si tiene aviso, lo lanza a todos
+/spawns desactivar <mob>                    apaga su spawn natural
+/spawns reset <mob>                         borra la regla
+/spawns dia <mob> <N> | dia <mob> no        se desactiva y se LIBERA SOLO el dia N del mundo, con su aviso
+/spawns zona aqui <mob> <nombre> <radio> [permitir|prohibir]
+/spawns zona punto <mob> <nombre> <x y z> <radio> [permitir|prohibir]
+/spawns zona solo <mob> true|false          true = SOLO spawnea dentro de sus zonas permitidas
+/spawns zona borrar <mob> <nombre> | zona ver <mob>
+/spawns max <mob> <n>                       maximo de ejemplares vivos (0 = sin limite)
+/spawns prob <mob> <0-100>                  % de spawns que se dejan pasar
+/spawns tipos <mob> <natural|chunk|estructura|spawner|patrulla|evento|refuerzo|jinete> true|false
+/spawns aviso <mob> imagen <archivo> [segundos] [center|full|corner]   (imagen de config/tacui/images)
+/spawns aviso <mob> sonido <id> | texto <texto> | borrar | probar
+/spawns recargar
+
+Por defecto una regla controla los spawns NATURAL y de generacion de chunks. Huevos, /summon, etc. nunca se tocan salvo que
+anadas ese tipo (no hay tipo para huevos/comandos a proposito).
+Aviso: usa /tacshow de tacui si esta instalado; si no, muestra un titulo en pantalla.
+Limite: solo se pueden frenar spawns que pasen por el sistema de spawn de Minecraft/Forge; un mod que meta su mob con
+addFreshEntity a pelo se salta cualquier control.

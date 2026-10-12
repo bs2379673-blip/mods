@@ -1,0 +1,23 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="spawncontrol"
+version="1.0.0"
+displayName="SpawnControl"
+description='''Controla en tiempo real, sin reiniciar, el spawn natural de cualquier mob (vanilla o de otros mods): activar/desactivar, zonas con centro y radio, liberar por dia con aviso (tacui), limites y probabilidad.'''
+
+[[dependencies.spawncontrol]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.spawncontrol]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
