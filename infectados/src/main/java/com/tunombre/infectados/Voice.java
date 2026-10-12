@@ -95,7 +95,7 @@ public enum Voice {
         }
         q.addLast(new long[]{now, p.asLong()});
         float vol = group.equals("witch") && this == WI_GRITO ? 4F : 1.6F;
-        lv.playSound(null, e.getX(), e.getY(), e.getZ(), sound(), SoundSource.HOSTILE, vol, 0.95F + e.getRandom().nextFloat() * 0.1F);
+        lv.playSound(null, e.getX(), e.getY(), e.getZ(), sound(), SoundSource.HOSTILE, vol, 0.95F + lv.random.nextFloat() * 0.1F);
         return true;
     }
 
