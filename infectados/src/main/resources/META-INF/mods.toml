@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="infectados"
+version="1.0.0"
+displayName="Infectados"
+description='''Plagas de Resident Evil 4 (aldeanos con sus frases, plaga guillotina, el de la motosierra) y Smoker, Boomer y Witch de Left 4 Dead, con animaciones de Epic Fight, agarres con quick time event y modelos 3D propios.'''
+
+[[dependencies.infectados]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.infectados]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.infectados]]
+modId="epicfight"
+mandatory=true
+versionRange="[20.14,)"
+ordering="AFTER"
+side="BOTH"
