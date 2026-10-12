@@ -96,7 +96,7 @@ public final class HudOverlay {
         Draw.textRight(g, f, Math.round(hp) + "/" + Math.round(max), cx + cw - 3, hy + 1, 0xFFFFFFFF, 0.65f);
         // postura
         String stance = p.isSprinting() ? "SPRINT" : p.isCrouching() ? "AGACHADO" : p.isSwimming() ? "NADANDO" : p.isFallFlying() ? "PLANEO" : "";
-        if (!stance.isEmpty()) Draw.textRight(g, f, stance, cx + cw, hy - (abs > 0 ? 12 : 10), Theme.alpha(t.accent, 220), 0.55f);
+        if (!stance.isEmpty()) Draw.textCenter(g, f, stance, w / 2, 29, Theme.alpha(t.accent, 220), 0.6f);
 
         // ---- barras de estado (armadura, hambre, sed, aire)
         String[] names = new String[4]; float[] vals = new float[4]; int[] cols = new int[4]; int n = 0;
