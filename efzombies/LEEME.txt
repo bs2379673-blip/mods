@@ -1,0 +1,15 @@
+EF Zombies - mod aparte (Forge 1.20.1, Epic Fight 20.14)
+=========================================================
+Cambia el idle, caminar y perseguir de los zombis (Zombie y Husk con parche de Epic Fight) por variantes propias.
+- 7 formas de caminar (zw1-7), 7 de perseguir (zc1-7), 6 de reposo (zi1-6): cojos, tambaleo borracho, muy encorvados, frenéticos, carrera simiesca, convulsiones...
+- Pasos mucho más largos y piernas más abiertas; columna floja (lumbar y pecho con fases distintas), más encorvados, cabeza colgando y sacudidas.
+- ~18% de los zombis (sin objeto en la mano) van A CUATRO PATAS: zwq (caminar), zcq (perseguir), ziq (reposo).
+- Cada zombi elige variante por su UUID (caminar/perseguir/reposo por separado): cada uno anda distinto y todos los clientes ven lo mismo.
+- Con un objeto en la mano principal usa la version rigida ("h"): brazo derecho sosteniendo, menos balanceo e inclinacion.
+- Cada 4 ticks se comprueba y se reimponen las animaciones si Epic Fight las repone (por ejemplo al cambiar de objeto).
+- No incluye ataques ni reaccion al golpe. No toca Drowned, Zombie Villager ni Zombified Piglin.
+
+Compilar (igual que efactions): copiar el MDK forge-1.20.1-47.4.10, reemplazar src/ por el de este zip,
+en gradle.properties poner mod_id=efzombies y mod_group_id=com.tunombre.efzombies, y en libs/ solo el jar de Epic Fight.
+Luego: gradlew clean build  -> build\libs\
+Instalar en los CLIENTES (no es necesario en el servidor). Es independiente de efactions.
