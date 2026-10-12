@@ -1,4 +1,4 @@
-Tactical UI 0.6.0 (solo cliente)
+Tactical UI 0.6.1 (cliente + servidor para /tacshow)
 
 HUD tactico: barras de armadura / hambre / sed (Thirst Was Taken) / aire, vida, hotbar, municion de TACZ
 (cargador y reserva, modo de disparo), resistencia de Epic Fight y cordura (Sanity) a la derecha, brujula.

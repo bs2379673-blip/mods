@@ -57,7 +57,7 @@ public final class HudOverlay {
     // ------------------------------------------------------------------ vitales (abajo a la izquierda)
 
     private static void vitals(GuiGraphics g, Font f, Theme t, LocalPlayer p, int w, int h, long now, float hp, float max, boolean low, float pulse) {
-        int x0 = 14, base = h - 12;
+        int x0 = 14, base = h - 12 - (w < 600 ? 32 : 0);   // en pantallas estrechas se sube sobre la hotbar
         Draw.fadeRect(g, x0 - 8, base - 50, 200, 56, 130, 1);
         g.fill(x0 - 6, base - 46, x0 - 5, base + 2, Theme.alpha(t.accent, 200));
         g.fill(x0 - 8, base - 46, x0 - 5, base - 44, t.accent);
@@ -173,7 +173,7 @@ public final class HudOverlay {
     private static void weapon(GuiGraphics g, Font f, Theme t, LocalPlayer p, int w, int h, long now) {
         ItemStack held = p.getMainHandItem();
         if (held.isEmpty()) return;
-        int rx = w - 14, base = h - 12;
+        int rx = w - 14, base = h - 12 - (w < 600 ? 32 : 0);
         Draw.fadeRect(g, rx - 190, base - 50, 198, 56, 130, -1);
         g.fill(rx + 5, base - 46, rx + 6, base + 2, Theme.alpha(t.accent, 200));
         g.fill(rx + 5, base - 46, rx + 8, base - 44, t.accent);
