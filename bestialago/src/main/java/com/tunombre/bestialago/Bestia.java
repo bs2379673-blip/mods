@@ -278,6 +278,7 @@ public class Bestia extends PathfinderMob {
         if (cooldown > 0) cooldown--;
         if (roarCd > 0) roarCd--;
 
+        purgeStale();
         // el pasajero murio por otra causa (o ya no existe): soltarlo y limpiar, para no quedar con un agarre fantasma
         Entity pas = getFirstPassenger();
         if (pas instanceof Player pp && (!pp.isAlive() || pp.isRemoved()) && getState() != SWALLOW) forceRelease(pp);
@@ -475,6 +476,7 @@ public class Bestia extends PathfinderMob {
     }
 
     private void startGrab(Player t) {
+        if (t.isPassenger() && !(t.getVehicle() instanceof Boat)) { setState(RETREAT); return; }
         if (!t.startRiding(this, true)) { setState(RETREAT); return; }
         grip = 55F;
         presses = 0;
@@ -497,6 +499,7 @@ public class Bestia extends PathfinderMob {
             Vec3 f = Vec3.directionFromRotation(0, getYRot() + (random.nextFloat() - 0.5F) * 120F);
             goal = underwater(position().add(f.scale(8)), 0.9);
         }
+        if (grip >= 99.5F) { endGrab(t, true); return; }   // gano el QTE (se mira antes de restar la caida)
         grip -= BestiaLago.cfgDecay;
         entityData.set(GRIP, (byte) Mth.clamp(Math.round(grip), 0, 100));
         setJaw(0.58F + 0.10F * grip / 100F);
@@ -509,12 +512,16 @@ public class Bestia extends PathfinderMob {
             t.setAirSupply(t.getMaxAirSupply());
             BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Qte(Math.round(grip), true));
         }
-        if (grip >= 100F) endGrab(t, true);
-        else if (grip <= 0F) {
+        if (grip <= 0F) {
             BestiaLago.LOG.info("[Bestia] el jugador no completo el QTE (pulsaciones recibidas={})", presses);
             setState(SWALLOW);
             setJaw(0F);
         }
+    }
+
+    /** quita de la lista de pasajeros a quien ya no va montado aqui (o ya no existe): evita agarres fantasma */
+    private void purgeStale() {
+        for (Entity e : List.copyOf(getPassengers())) if (e.isRemoved() || e.getVehicle() != this) removePassenger(e);
     }
 
     /** suelta al jugador y deja a la bestia en un estado limpio (muerte del jugador, desconexion...) */

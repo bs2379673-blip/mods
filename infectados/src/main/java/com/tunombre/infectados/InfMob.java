@@ -158,11 +158,11 @@ public abstract class InfMob extends Monster {
         Entity e = getFirstPassenger();
         if (!(e instanceof Player p)) return false;
         grabTicks++;
+        if (grip >= 99.5F) { endGrab(p, true); return false; }   // gano (se mira antes de restar la caida)
         grip -= Infectados.cfgDecay(qteKind);
         getNavigation().stop();
         getLookControl().setLookAt(p, 30, 30);
         if (p instanceof ServerPlayer sp) InfNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new InfNet.Qte(Math.round(grip), true, qteKind));
-        if (grip >= 100F) { endGrab(p, true); return false; }
         if (grip <= 0F) { failGrab(p); return false; }
         return true;
     }
@@ -239,6 +239,7 @@ public abstract class InfMob extends Monster {
     public void aiStep() {
         super.aiStep();
         if (!level().isClientSide) {
+            for (Entity e : java.util.List.copyOf(getPassengers())) if (e.isRemoved() || e.getVehicle() != this) removePassenger(e);
             Entity pas = getFirstPassenger();
             if (pas instanceof Player pp && (!pp.isAlive() || pp.isRemoved())) forceRelease(pp);
             if (attackCd > 0) attackCd--;

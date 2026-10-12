@@ -269,6 +269,7 @@ public class Ganado extends InfMob {
     }
 
     private boolean startImpale(Player p) {
+        if (p.isPassenger() || !p.isAlive()) return false;   // ya lo tiene otro: solo pinchazo normal
         move = null;
         if (!p.startRiding(this, true)) return false;
         entityData.set(IMPALE_START, tickCount);
