@@ -48,7 +48,7 @@ public class SpawnControl {
 
     static void onFinalize(MobSpawnEvent.FinalizeSpawn e) {
         Mob m = e.getEntity();
-        if (!(e.getLevel().getLevel() instanceof ServerLevel lv)) return;
+        ServerLevel lv = e.getLevel().getLevel();
         if (!Rules.allowed(m.getType(), e.getSpawnType().name(), lv.dimension().location().toString(), m.position())) {
             e.setSpawnCancelled(true);
             DENIED.add(m);
