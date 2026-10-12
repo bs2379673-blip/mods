@@ -1,15 +1,20 @@
-EF Zombies - mod aparte (Forge 1.20.1, Epic Fight 20.14)
-=========================================================
-Cambia el idle, caminar y perseguir de los zombis (Zombie y Husk con parche de Epic Fight) por variantes propias.
-- 7 formas de caminar (zw1-7), 7 de perseguir (zc1-7), 6 de reposo (zi1-6): cojos, tambaleo borracho, muy encorvados, frenéticos, carrera simiesca, convulsiones...
-- Pasos mucho más largos y piernas más abiertas; columna floja (lumbar y pecho con fases distintas), más encorvados, cabeza colgando y sacudidas.
-- ~18% de los zombis (sin objeto en la mano) van A CUATRO PATAS: zwq (caminar), zcq (perseguir), ziq (reposo).
-- Cada zombi elige variante por su UUID (caminar/perseguir/reposo por separado): cada uno anda distinto y todos los clientes ven lo mismo.
-- Con un objeto en la mano principal usa la version rigida ("h"): brazo derecho sosteniendo, menos balanceo e inclinacion.
-- Cada 4 ticks se comprueba y se reimponen las animaciones si Epic Fight las repone (por ejemplo al cambiar de objeto).
-- No incluye ataques ni reaccion al golpe. No toca Drowned, Zombie Villager ni Zombified Piglin.
+EF Zombies 2.0.0 (Forge 1.20.1, Epic Fight 20.14)
+=================================================
+IMPORTANTE: desde la 2.0 va en el SERVIDOR y en los CLIENTES (agrega un mob nuevo).
 
-Compilar (igual que efactions): copiar el MDK forge-1.20.1-47.4.10, reemplazar src/ por el de este zip,
-en gradle.properties poner mod_id=efzombies y mod_group_id=com.tunombre.efzombies, y en libs/ solo el jar de Epic Fight.
-Luego: gradlew clean build  -> build\libs\
-Instalar en los CLIENTES (no es necesario en el servidor). Es independiente de efactions.
+ZOMBIS (todos los Zombie y Husk con parche de Epic Fight)
+- 7 formas de andar, 7 de perseguir y 6 de reposo, elegidas por el UUID de cada zombi (todos los clientes ven lo mismo).
+- v3: columna encorvada de verdad (cadera + espalda), la cabeza compensa y mira al frente; piernas menos agachadas
+  (ya no parecen sentados); brazos colocados desde el hombro: se estiran hacia delante; tics bruscos de cabeza/hombro.
+- ~18% van a cuatro patas (zwq, zcq, ziq). Con objeto en la mano: version rigida ("h").
+
+TREPADOR (efzombies:trepador) - nuevo mob
+- Gatea siempre a cuatro patas, como una lagartija. Textura propia: musculo al aire, cerebro expuesto, sin ojos, boca enorme.
+- Trepa CUALQUIER pared de 2 o mas bloques cuando choca contra ella persiguiendo algo, o cuando quiere emboscar.
+- En la pared el cuerpo queda bloqueado mirando a la pared: no puede girar y quedar "trepando en el aire".
+- Arriba del todo pasa por encima del borde, o si hay techo se mete al techo y gatea boca arriba.
+- Desde la pared o el techo se lanza/cae sobre el jugador cuando lo tiene cerca o debajo (zarpazo al aterrizar).
+- Sin objetivo, a veces sube a una pared o al techo y espera quieto; gira la cabeza para mirarte.
+- Un golpe mientras esta trepado lo tira al suelo. No recibe dano por caida.
+- 28 de vida, 4.5 de dano, algo mas rapido que un zombi. Aparece de noche/oscuridad en el overworld (peso 12, como
+  datapack: data/efzombies/forge/biome_modifier/trepador_spawns.json). Huevo en la pestana de huevos. /summon efzombies:trepador
