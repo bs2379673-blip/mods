@@ -69,6 +69,9 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
     private final long openedAt = System.currentTimeMillis();
     private final List<Object[]> tabBtns = new ArrayList<>();    // {texto, int[] rect, Mode}
 
+    /** escribiendo en el buscador del creativo: entonces las teclas no mueven al jugador */
+    public boolean isTyping() { return search != null && search.isFocused(); }
+
     private int workW() {
         if (!EmiCompat.loaded()) return this.width;
         return this.width - Math.min(9 * 18 + 12, (int) (this.width * 0.38));   // el resto lo usa el indice de EMI
@@ -434,15 +437,15 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         // categoria
         button(g, t, btnPrev, "<", false);
         button(g, t, btnNext, ">", false);
-        Draw.textCenter(g, font, catName() + "  " + shown.size(), r[0] + r[2] / 2, btnPrev[1] + 3, t.text, 0.75f);
-        // rejilla
+        txtC(catName() + "  " + shown.size(), r[0] + r[2] / 2, btnPrev[1] + 3, t.text, 0.75f);
+        // rejilla (los marcos van en el lote; los objetos, despues)
         int hov = cellAt(mx, my);
         for (int row = 0; row < gridRows; row++) {
             for (int col = 0; col < 9; col++) {
                 int idx = (scroll + row) * 9 + col;
                 int x = gridX + col * 20 + 2, y = gridY + row * 20 + 2;
                 Draw.slot(g, t, x, y, idx == hov, false);
-                if (idx < shown.size()) g.renderItem(shown.get(idx), x, y);
+                if (idx < shown.size()) { ItemStack st = shown.get(idx); later.add(gg -> gg.renderItem(st, x, y)); }
             }
         }
         // barra de desplazamiento
@@ -565,99 +568,136 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
     @Override
     protected void renderBg(GuiGraphics g, float pt, int mx, int my) {
         this.mouseX = mx; this.mouseY = my;
-        layout();   // las casillas de otros mods pueden aparecer o desaparecer
+        long now = System.currentTimeMillis();
+        // recolocar todo es caro (lee Curios, la cosmetica, mochilas...): solo si algo cambio, al arrastrar o cada medio segundo
+        long sig = layoutSig();
+        if (dirty || dragging != null || sig != lastSig || now - lastLayout > 500) {
+            layout();
+            lastSig = layoutSig(); lastLayout = now; dirty = false;
+        }
         Theme t = Layout.get().theme();
         int w = this.width, h = this.height, ww = workW();
-
-        g.fill(0, 0, w, h, t.bg);
-        Draw.vignette(g, w, h);
-        Draw.scanlines(g, w, h);
-        Draw.corners(g, 10, 10, w - 20, h - 20, 18, Theme.alpha(t.accent, 200));
-        boolean blink = (System.currentTimeMillis() / 600) % 2 == 0;
-        g.fill(ww / 2 - 62, 9, ww / 2 - 58, 13, blink ? t.accent : Theme.alpha(t.accent, 70));
-        Draw.text(g, this.font, "LIVE //TAC_STATUS_ACTIVE", ww / 2 - 54, 8, Theme.alpha(t.text, 220), 0.8f);
-
-        // modelo del jugador y anillo de equipo
         int mcx = ww / 2, mcy = (int) (h * 0.46);
-        Draw.corners(g, mcx - 52, mcy - (int) (h * 0.23), 104, (int) (h * 0.46), 8, Theme.alpha(t.accent, 160));
-        for (int[] p : ringPts) Draw.dotted(g, p[0], p[1], mcx, mcy, Theme.alpha(t.accent, 90), 5);
+        int fh = (int) (h * 0.46), fy0 = mcy - (int) (h * 0.23);
+        later.clear();
+
+        // ---- 1) todas las formas en un solo lote; el texto, los iconos y los objetos se apuntan en 'later'
+        g.drawManaged(() -> {
+            // fondo translucido: se ve el mundo y se puede caminar con la tableta abierta
+            g.fill(0, 0, w, h, Theme.alpha(t.bg, 0x78));
+            Draw.vignette(g, w, h);
+            Draw.corners(g, 10, 10, w - 20, h - 20, 18, Theme.alpha(t.accent, 200));
+            boolean blink = (now / 600) % 2 == 0;
+            g.fill(ww / 2 - 62, 9, ww / 2 - 58, 13, blink ? t.accent : Theme.alpha(t.accent, 70));
+            txt("LIVE //TAC_STATUS_ACTIVE", ww / 2 - 54, 8, Theme.alpha(t.text, 220), 0.8f);
+
+            // marco del modelo y barrido de escaneo
+            Draw.corners(g, mcx - 52, fy0, 104, fh, 8, Theme.alpha(t.accent, 160));
+            int sweep = fy0 + (int) ((now % 2600) / 2600.0 * fh);
+            g.fill(mcx - 50, sweep, mcx + 50, sweep + 1, Theme.alpha(t.accent, 70));
+            g.fill(mcx - 50, sweep - 3, mcx + 50, sweep, Theme.alpha(t.accent, 18));
+            txtC("OPERATOR // " + player.getName().getString().toUpperCase(), mcx, fy0 + 3, Theme.alpha(t.text, 200), 0.6f);
+            boolean hovModel = in(modelRect, mx, my) && slotAt(mx, my) == null;
+            if (hovModel || rotating)
+                txtC("ARRASTRA: GIRAR  ·  RUEDA: ZOOM  ·  DOBLE CLIC: CENTRAR", mcx, fy0 + fh + 24, Theme.alpha(t.text, 140), 0.5f);
+            if (btnReset != null) {
+                boolean hr = in(btnReset, mx, my);
+                g.fill(btnReset[0], btnReset[1], btnReset[0] + 9, btnReset[1] + 9, hr ? Theme.alpha(t.accent, 120) : 0x99000000);
+                Draw.frame(g, btnReset[0], btnReset[1], 9, 9, hr ? t.accent : Theme.alpha(t.dim, 230));
+                txtC("R", btnReset[0] + 5, btnReset[1] + 2, t.text, 0.6f);
+            }
+            statusStrip(g, t, mcx, 38, now);
+            drawVitals(g, t, mcx, fy0 + fh + 3);
+
+            // paneles
+            String[] titles = {"CRAFTING", "EQUIPMENT", "", "STORAGE", "CREATIVE ITEMS", "CURIOS", "BACKPACK", "CLOTHING"};
+            String[] keys = {CRAFT, EQUIP, HOTBAR, EXTRA, ITEMS, CURIOS, BACKPACK, CLOTHES};
+            for (int i = 0; i < keys.length; i++) {
+                int[] r = rects.get(keys[i]);
+                if (r == null) continue;
+                boolean titled = !titles[i].isEmpty();
+                Draw.panelShape(g, t, r[0], r[1], r[2], r[3], titled, edit || keys[i].equals(dragging));
+                if (titled) {
+                    String ti = String.format("%02d // %s", i + 1, titles[i]);
+                    later.add(gg -> Draw.panelTitle(gg, font, t, r[0], r[1], ti));
+                }
+            }
+            int[] bpr = rects.get(BACKPACK);
+            if (bpr != null) drawBackpackDeco(g, t, bpr);
+            int[] c = rects.get(CRAFT);
+            if (c != null) txtC("→", c[0] + 62, c[1] + 36, t.accent, 1.2f);
+            int[] e = rects.get(EQUIP);
+            if (e != null) {
+                txt("SLOTS 27", e[0] + 7, e[1] + 19, Theme.alpha(t.text, 130), 0.6f);
+                button(g, t, btnSort, "SORT", false);
+                button(g, t, btnDrop, "DROP", !menu.getCarried().isEmpty());
+            }
+            for (Object[] l : saLabels) txt((String) l[2], (Integer) l[0], (Integer) l[1], Theme.alpha(t.text, 150), 0.6f);
+            for (Object[] l : ringLabels) txtC((String) l[1], xOf(l[0]) + 8, yOf(l[0]) + 19, Theme.alpha(t.text, 130), 0.5f);
+            if (creative) drawCreative(g, t, mx, my);
+            for (Object[] l : curioLabels) txt((String) l[2], (Integer) l[0], (Integer) l[1], Theme.alpha(t.text, 150), 0.6f);
+            if (btnCosm != null) button(g, t, btnCosm, "CURIO-COS", CuriosCompat.viewingCosmetics(menu));
+            if (btnPgPrev != null) {
+                button(g, t, btnPgPrev, "<", false);
+                button(g, t, btnPgNext, ">", false);
+                txtC((CuriosCompat.currentPage(menu) + 1) + "/" + CuriosCompat.totalPages(menu), pgX, pgY, t.text, 0.7f);
+            }
+            button(g, t, btnEdit, "EDIT", edit);
+            button(g, t, btnTheme, Layout.get().theme, false);
+            for (Object[] tb : tabBtns) button(g, t, (int[]) tb[1], (String) tb[0], tb[2] == mode);
+            // casillas de solo lectura de otros menus (el objeto, oscurecido, va despues)
+            for (Ghost gh : ghosts) {
+                boolean hov = mx >= gh.x - 1 && mx < gh.x + 17 && my >= gh.y - 1 && my < gh.y + 17;
+                Draw.slot(g, t, gh.x, gh.y, hov, false);
+                if (!gh.stack.isEmpty()) {
+                    final Ghost fg = gh;
+                    later.add(gg -> {
+                        gg.renderItem(fg.stack, fg.x, fg.y);
+                        gg.renderItemDecorations(font, fg.stack, fg.x, fg.y);
+                        gg.pose().pushPose();
+                        gg.pose().translate(0, 0, 250);
+                        gg.fill(fg.x, fg.y, fg.x + 16, fg.y + 16, 0x55000000);
+                        gg.pose().popPose();
+                    });
+                }
+            }
+            // marcos de todas las casillas visibles
+            for (Slot s : menu.slots) {
+                if (!s.isActive()) continue;
+                if (mode == Mode.INVENTORY && s.index >= 46 && !visibleOriginally(s) && SaCompat.clothingArea(s) == null && !SaCompat.isBackpack(s)) continue;
+                if (s.x < 0) continue;
+                boolean hov = mx >= s.x - 1 && mx < s.x + 17 && my >= s.y - 1 && my < s.y + 17;
+                Draw.slot(g, t, s.x, s.y, hov, mode == Mode.CURIOS && CuriosCompat.cosmetic(s));
+            }
+            if (edit) txtC("EDIT MODE  |  ARRASTRA LOS PANELES  |  R REINICIAR  |  ESC GUARDAR", ww / 2, h - 10, t.accent, 0.8f);
+        });
+
+        // ---- 2) el modelo del jugador (tiene su propio recorte)
         int scale = (int) (Math.max(30, h / 6) * zoom);
-        g.enableScissor(mcx - 52, mcy - (int) (h * 0.23), mcx + 52, mcy + (int) (h * 0.23));
+        g.enableScissor(mcx - 52, fy0, mcx + 52, fy0 + fh);
         renderModel(g, mcx, mcy + Math.max(30, h / 6), scale);
         g.disableScissor();
-        // barrido de escaneo sobre el modelo
-        int fh = (int) (h * 0.46), fy0 = mcy - (int) (h * 0.23);
-        int sweep = fy0 + (int) ((System.currentTimeMillis() % 2600) / 2600.0 * fh);
-        g.fill(mcx - 50, sweep, mcx + 50, sweep + 1, Theme.alpha(t.accent, 70));
-        g.fill(mcx - 50, sweep - 3, mcx + 50, sweep, Theme.alpha(t.accent, 18));
-        Draw.textCenter(g, font, "OPERATOR // " + player.getName().getString().toUpperCase(), mcx, fy0 - 9, Theme.alpha(t.text, 210), 0.7f);
-        boolean hovModel = in(modelRect, mx, my) && slotAt(mx, my) == null;
-        if (hovModel || rotating)
-            Draw.textCenter(g, font, "ARRASTRA: GIRAR  ·  RUEDA: ZOOM  ·  DOBLE CLIC: CENTRAR", mcx, fy0 + fh + 30, Theme.alpha(t.text, 140), 0.5f);
-        if (btnReset != null) {
-            boolean hr = in(btnReset, mx, my);
-            g.fill(btnReset[0], btnReset[1], btnReset[0] + 9, btnReset[1] + 9, hr ? Theme.alpha(t.accent, 120) : 0x99000000);
-            Draw.frame(g, btnReset[0], btnReset[1], 9, 9, hr ? t.accent : Theme.alpha(t.dim, 230));
-            Draw.textCenter(g, font, "R", btnReset[0] + 5, btnReset[1] + 2, t.text, 0.6f);
-        }
-        drawVitals(g, t, mcx, fy0 + fh + 3, mx, my);
 
-        // paneles
-        String[] titles = {"CRAFTING", "EQUIPMENT", "", "STORAGE", "CREATIVE ITEMS", "CURIOS", "BACKPACK", "CLOTHING"};
-        String[] keys = {CRAFT, EQUIP, HOTBAR, EXTRA, ITEMS, CURIOS, BACKPACK, CLOTHES};
-        for (int i = 0; i < keys.length; i++) {
-            int[] r = rects.get(keys[i]);
-            if (r == null) continue;
-            String ti = titles[i].isEmpty() ? "" : String.format("%02d // %s", i + 1, titles[i]);
-            Draw.panel(g, font, t, r[0], r[1], r[2], r[3], ti, edit || keys[i].equals(dragging));
-        }
-        int[] bpr = rects.get(BACKPACK);
-        if (bpr != null) drawBackpackDeco(g, t, bpr);
-        int[] c = rects.get(CRAFT);
-        if (c != null) Draw.textCenter(g, font, "→", c[0] + 62, c[1] + 36, t.accent, 1.2f);
-        int[] e = rects.get(EQUIP);
-        if (e != null) {
-            // casilla de decoracion superior y botones
-            Draw.text(g, font, "SLOTS 27", e[0] + 7, e[1] + 19, Theme.alpha(t.text, 130), 0.6f);
-            button(g, t, btnSort, "SORT", false);
-            button(g, t, btnDrop, "DROP", !menu.getCarried().isEmpty());
-        }
-        for (Object[] l : saLabels) Draw.text(g, font, (String) l[2], (Integer) l[0], (Integer) l[1], Theme.alpha(t.text, 150), 0.6f);
-        for (Object[] l : ringLabels)
-            Draw.textCenter(g, font, (String) l[1], xOf(l[0]) + 8, yOf(l[0]) + 19, Theme.alpha(t.text, 130), 0.5f);
-        if (creative) drawCreative(g, t, mx, my);
-        for (Object[] l : curioLabels) Draw.text(g, font, (String) l[2], (Integer) l[0], (Integer) l[1], Theme.alpha(t.text, 150), 0.6f);
-        if (btnCosm != null) button(g, t, btnCosm, "CURIO-COS", CuriosCompat.viewingCosmetics(menu));
-        if (btnPgPrev != null) {
-            button(g, t, btnPgPrev, "<", false);
-            button(g, t, btnPgNext, ">", false);
-            Draw.textCenter(g, font, (CuriosCompat.currentPage(menu) + 1) + "/" + CuriosCompat.totalPages(menu), pgX, pgY, t.text, 0.7f);
-        }
-        button(g, t, btnEdit, "EDIT", edit);
-        button(g, t, btnTheme, Layout.get().theme, false);
-        for (Object[] tb : tabBtns) button(g, t, (int[]) tb[1], (String) tb[0], tb[2] == mode);
-        // casillas de solo lectura de otros menus
-        for (Ghost gh : ghosts) {
-            boolean hov = mx >= gh.x - 1 && mx < gh.x + 17 && my >= gh.y - 1 && my < gh.y + 17;
-            Draw.slot(g, t, gh.x, gh.y, hov, false);
-            if (!gh.stack.isEmpty()) {
-                g.renderItem(gh.stack, gh.x, gh.y);
-                g.renderItemDecorations(font, gh.stack, gh.x, gh.y);
-            }
-            g.fill(gh.x, gh.y, gh.x + 16, gh.y + 16, 0x44000000);
-        }
+        // ---- 3) texto, iconos y objetos
+        for (java.util.function.Consumer<GuiGraphics> r : later) r.accept(g);
+        later.clear();
+    }
 
-        // marcos de todas las casillas visibles
-        for (Slot s : menu.slots) {
-            if (!s.isActive()) continue;
-            if (mode == Mode.INVENTORY && s.index >= 46 && !visibleOriginally(s) && SaCompat.clothingArea(s) == null && !SaCompat.isBackpack(s)) continue;
-            if (s.x < 0) continue;
-            boolean hov = mx >= s.x - 1 && mx < s.x + 17 && my >= s.y - 1 && my < s.y + 17;
-            Draw.slot(g, t, s.x, s.y, hov, mode == Mode.CURIOS && CuriosCompat.cosmetic(s));
-        }
-        if (edit) {
-            Draw.textCenter(g, font, "EDIT MODE  |  ARRASTRA LOS PANELES  |  R REINICIAR  |  ESC GUARDAR", ww / 2, 46, t.accent, 0.8f);
-        }
+    /** Lo que se dibuja despues del lote de formas (texto, iconos de efectos, objetos). */
+    private final List<java.util.function.Consumer<GuiGraphics>> later = new ArrayList<>();
+    private boolean dirty = true;
+    private long lastSig, lastLayout;
+
+    private void txt(String s, int x, int y, int col, float scale) { later.add(gg -> Draw.text(gg, font, s, x, y, col, scale)); }
+
+    private void txtC(String s, int x, int y, int col, float scale) { later.add(gg -> Draw.textCenter(gg, font, s, x, y, col, scale)); }
+
+    /** Huella barata del estado de las casillas: si cambia (una mochila nueva, otra pagina de Curios...) hay que recolocar. */
+    private long layoutSig() {
+        long s = width * 31L + height;
+        s = s * 31 + menu.slots.size();
+        for (Slot sl : menu.slots) s = s * 3 + (sl.isActive() ? 1 : 2);
+        return s;
     }
 
     /** Mochila: tela con trama, costura y cremallera que se abre al entrar. */
@@ -674,7 +714,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         boolean hov = in(r, mouseX, mouseY);
         g.fill(r[0], r[1], r[0] + r[2], r[1] + r[3], active ? Theme.alpha(t.accent, 90) : 0xAA000000);
         Draw.frame(g, r[0], r[1], r[2], r[3], hov || active ? t.accent : Theme.alpha(t.dim, 230));
-        Draw.textCenter(g, font, label, r[0] + r[2] / 2, r[1] + (r[3] - 6) / 2 + 1, hov || active ? t.text : Theme.alpha(t.text, 170), 0.7f);
+        txtC(label, r[0] + r[2] / 2, r[1] + (r[3] - 6) / 2 + 1, hov || active ? t.text : Theme.alpha(t.text, 170), 0.7f);
     }
 
     /** Clic en zona vacia = fuera de la ventana: con un objeto en el cursor, lo tira (como en vainilla). */
@@ -728,27 +768,114 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         }
     }
 
-    /** Vida, armadura, dureza y nivel bajo el modelo, y los efectos activos con su tiempo. */
-    private void drawVitals(GuiGraphics g, Theme t, int cx, int y, int mx, int my) {
+    /** Bajo el modelo: vida, armadura, dureza y nivel, y las barras de hambre, sed, resistencia, cordura y oxigeno. */
+    private void drawVitals(GuiGraphics g, Theme t, int cx, int y) {
         int hp = (int) Math.ceil(player.getHealth()), max = (int) Math.ceil(player.getMaxHealth());
         int tough = (int) player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR_TOUGHNESS);
-        String s = "HP " + hp + "/" + max + "   ARM " + player.getArmorValue() + "   TGH " + tough + "   LV " + player.experienceLevel;
-        Draw.textCenter(g, font, s, cx, y, Theme.alpha(t.text, 200), 0.7f);
-        int bw = 100;
-        Draw.bar(g, cx - bw / 2, y + 7, bw, 2, max <= 0 ? 0 : Math.min(1f, player.getHealth() / player.getMaxHealth()), t.accent, 0x66000000);
-        var effects = new ArrayList<>(player.getActiveEffects());
-        if (effects.isEmpty()) return;
-        int n = Math.min(10, effects.size()), ex = cx - (n * 15 - 3) / 2, ey = y + 12;
-        var tex = Minecraft.getInstance().getMobEffectTextures();
+        txtC("HP " + hp + "/" + max + "   ARM " + player.getArmorValue() + "   TGH " + tough + "   LV " + player.experienceLevel,
+                cx, y, Theme.alpha(t.text, 210), 0.7f);
+        List<Object[]> bars = new ArrayList<>();
+        bars.add(new Object[]{"HP", Math.min(1f, player.getHealth() / Math.max(1f, player.getMaxHealth())), t.accent});
+        bars.add(new Object[]{"HUN", player.getFoodData().getFoodLevel() / 20f, 0xFFE59B3A});
+        float th = Mods.thirst(player);
+        if (th >= 0) bars.add(new Object[]{"H2O", th, 0xFF4FA8E8});
+        float st = Mods.stamina(player);
+        if (st >= 0) bars.add(new Object[]{"STA", st, 0xFFE8C040});
+        float sa = Mods.sanity(player);
+        if (sa >= 0) bars.add(new Object[]{"SAN", sa, 0xFFB58AE0});
+        if (player.getAirSupply() < player.getMaxAirSupply())
+            bars.add(new Object[]{"O2", Math.max(0f, player.getAirSupply() / (float) player.getMaxAirSupply()), 0xFF8FD6F5});
+        int n = bars.size(), bw = 34, gap = 6, x0 = cx - (n * bw + (n - 1) * gap) / 2;
         for (int i = 0; i < n; i++) {
-            var inst = effects.get(i);
-            int x = ex + i * 15;
-            g.fill(x - 1, ey - 1, x + 13, ey + 13, 0xAA000000);
-            Draw.frame(g, x - 1, ey - 1, 14, 14, inst.getEffect().isBeneficial() ? Theme.alpha(t.accent, 160) : 0xFFAA3030);
-            g.blit(x, ey, 0, 12, 12, tex.get(inst.getEffect()));
-            if (mx >= x - 1 && mx < x + 13 && my >= ey - 1 && my < ey + 13) hoverEffect = inst;
+            Object[] b = bars.get(i);
+            float v = (Float) b[1];
+            int bx = x0 + i * (bw + gap), col = v < 0.25f ? 0xFFFF6A6A : (Integer) b[2];
+            txt((String) b[0], bx, y + 8, Theme.alpha(t.text, 150), 0.5f);
+            final String pct = Math.round(v * 100) + "%";
+            later.add(gg -> Draw.textRight(gg, font, pct, bx + bw, y + 8, Theme.alpha(t.text, 220), 0.5f));
+            Draw.bar(g, bx, y + 13, bw, 3, v, col, 0x88000000);
         }
     }
+
+    /** Franja de arriba de la tableta: dia y hora, rumbo, coordenadas, bioma y los efectos activos. */
+    private void statusStrip(GuiGraphics g, Theme t, int cx, int y, long now) {
+        long dayTime = player.level().getDayTime();
+        long day = dayTime / 24000L + 1;
+        int tod = (int) ((dayTime + 6000L) % 24000L);
+        int hh = tod / 1000, mi = (tod % 1000) * 60 / 1000;
+        boolean night = (dayTime % 24000L) >= 13000L && (dayTime % 24000L) < 23000L;
+        float heading = ((player.getYRot() + 180f) % 360f + 360f) % 360f;
+        String[] dir = {"N", "NE", "E", "SE", "S", "SO", "O", "NO"};
+        String card = dir[Math.round(heading / 45f) % 8];
+        net.minecraft.core.BlockPos bp = player.blockPosition();
+        String l1 = "DIA " + day + "  ·  " + String.format("%02d:%02d", hh, mi) + (night ? " NOCHE" : "") + "  ·  " + card + " " + String.format("%03d", Math.round(heading) % 360);
+        String bio = biome();
+        String l2 = "X " + bp.getX() + "   Y " + bp.getY() + "   Z " + bp.getZ() + (bio.isEmpty() ? "" : "   ·   " + bio);
+        int tw = (int) (Math.max(font.width(l1), font.width(l2)) * 0.65f) + 16;
+        g.fill(cx - tw / 2, y - 3, cx + tw / 2, y + 16, 0x88000000);
+        Draw.frame(g, cx - tw / 2, y - 3, tw, 19, Theme.alpha(t.accent, 110));
+        txtC(l1, cx, y, night ? 0xFFFF8A8A : Theme.alpha(t.text, 235), 0.65f);
+        txtC(l2, cx, y + 8, Theme.alpha(t.text, 190), 0.65f);
+
+        // efectos: icono + nombre + tiempo, centrados en una o dos filas
+        List<net.minecraft.world.effect.MobEffectInstance> effects = new ArrayList<>(player.getActiveEffects());
+        if (effects.isEmpty()) return;
+        var tex = Minecraft.getInstance().getMobEffectTextures();
+        int maxW = Math.max(140, workW() - 2 * 170);
+        List<List<Object[]>> rows = new ArrayList<>();
+        List<Object[]> row = new ArrayList<>();
+        int rowW = 0;
+        for (var inst : effects) {
+            if (!inst.showIcon()) continue;
+            String name = inst.getEffect().getDisplayName().getString().toUpperCase();
+            if (inst.getAmplifier() > 0) name += " " + (inst.getAmplifier() + 1);
+            String dur = net.minecraft.world.effect.MobEffectUtil.formatDuration(inst, 1.0f).getString();
+            String label = name + "  " + dur;
+            int cw = 16 + (int) (font.width(label) * 0.5f) + 6;
+            if (rowW + cw > maxW && !row.isEmpty()) {
+                if (rows.size() == 1) break;   // dos filas como mucho
+                rows.add(row); row = new ArrayList<>(); rowW = 0;
+            }
+            row.add(new Object[]{inst, label, cw});
+            rowW += cw + 3;
+        }
+        if (!row.isEmpty()) rows.add(row);
+        int ry = y + 20;
+        for (List<Object[]> r : rows) {
+            int total = -3;
+            for (Object[] o : r) total += (Integer) o[2] + 3;
+            int x = cx - total / 2;
+            for (Object[] o : r) {
+                var inst = (net.minecraft.world.effect.MobEffectInstance) o[0];
+                int cw = (Integer) o[2];
+                boolean good = inst.getEffect().isBeneficial();
+                boolean ending = !inst.isInfiniteDuration() && inst.getDuration() < 200 && (now / 250) % 2 == 0;
+                g.fill(x, ry, x + cw, ry + 14, 0x99000000);
+                Draw.frame(g, x, ry, cw, 14, good ? Theme.alpha(t.accent, 150) : 0xFFC03030);
+                final int ix = x + 1, iy = ry + 1;
+                if (!ending) later.add(gg -> gg.blit(ix, iy, 0, 12, 12, tex.get(inst.getEffect())));
+                txt((String) o[1], x + 16, ry + 5, good ? Theme.alpha(t.text, 220) : 0xFFFF9090, 0.5f);
+                if (mouseX >= x && mouseX < x + cw && mouseY >= ry && mouseY < ry + 14) hoverEffect = inst;
+                x += cw + 3;
+            }
+            ry += 16;
+        }
+    }
+
+    private String biomeName = "";
+    private int biomeAge = 99;
+
+    private String biome() {
+        if (++biomeAge > 30) {
+            biomeAge = 0;
+            try {
+                biomeName = player.level().getBiome(player.blockPosition()).unwrapKey()
+                        .map(k -> k.location().getPath().toUpperCase().replace('_', ' ')).orElse("");
+            } catch (Throwable ignored) { }
+        }
+        return biomeName;
+    }
+
     private net.minecraft.world.effect.MobEffectInstance hoverEffect;
 
     @Override
@@ -791,7 +918,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             if (in(btnTheme, mx, my)) { Layout lay = Layout.get(); lay.theme = lay.theme().next().name(); lay.save(); return true; }
             if (!edit) {
                 for (Object[] tb : tabBtns) if (in((int[]) tb[1], mx, my)) { switchTo((Mode) tb[2]); return true; }
-                for (Mini m : minis) if (m.in(mx, my)) { m.act.run(); return true; }
+                for (Mini m : minis) if (m.in(mx, my)) { m.act.run(); dirty = true; return true; }
                 if (in(btnReset, mx, my)) { rotYaw = 0; rotPitch = 0; zoom = 1f; return true; }
                 for (Ghost gh : ghosts)
                     if (mx >= gh.x - 1 && mx < gh.x + 17 && my >= gh.y - 1 && my < gh.y + 17) { switchTo(gh.tab); return true; }
@@ -803,9 +930,9 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
                 }
                 return true;
             }
-            if (in(btnCosm, mx, my)) { CuriosCompat.toggleCosmetics(menu); return true; }
-            if (in(btnPgPrev, mx, my)) { CuriosCompat.page(menu, false); return true; }
-            if (in(btnPgNext, mx, my)) { CuriosCompat.page(menu, true); return true; }
+            if (in(btnCosm, mx, my)) { CuriosCompat.toggleCosmetics(menu); dirty = true; return true; }
+            if (in(btnPgPrev, mx, my)) { CuriosCompat.page(menu, false); dirty = true; return true; }
+            if (in(btnPgNext, mx, my)) { CuriosCompat.page(menu, true); dirty = true; return true; }
             if (in(btnSort, mx, my)) { sort(); return true; }
             if (in(btnDrop, mx, my)) { drop(); return true; }
         }
@@ -835,6 +962,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         }
         if (mode == Mode.CURIOS && CuriosCompat.totalPages(menu) > 1 && in(rects.get(CURIOS), mx, my)) {
             CuriosCompat.page(menu, delta < 0);
+            dirty = true;
             return true;
         }
         return super.mouseScrolled(mx, my, delta);

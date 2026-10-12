@@ -54,6 +54,22 @@ public final class Draw {
         return th;
     }
 
+    /** Solo la forma del panel (para dibujarla dentro de un lote); el titulo va aparte con panelTitle. */
+    public static void panelShape(GuiGraphics g, Theme t, int x, int y, int w, int h, boolean titled, boolean highlight) {
+        g.fill(x, y, x + w, y + h, t.panel);
+        frame(g, x, y, w, h, highlight ? t.accent : Theme.alpha(t.accent, 120));
+        corners(g, x - 2, y - 2, w + 4, h + 4, 5, Theme.alpha(t.accent, highlight ? 255 : 170));
+        g.fill(x + w - 7, y + h - 2, x + w - 1, y + h - 1, Theme.alpha(t.accent, 150));
+        if (!titled) return;
+        g.fill(x + 1, y + 1, x + w - 1, y + 13, Theme.alpha(t.dim, 200));
+        g.fill(x + 1, y + 13, x + w - 1, y + 14, Theme.alpha(t.accent, 160));
+        g.fill(x + w - 6, y + 4, x + w - 3, y + 7, t.accent);
+    }
+
+    public static void panelTitle(GuiGraphics g, Font f, Theme t, int x, int y, String title) {
+        text(g, f, title, x + 5, y + 3, t.text, 0.8f);
+    }
+
     /** Marco de casilla (18x18 de contenido: se dibuja alrededor del item de 16x16). */
     public static void slot(GuiGraphics g, Theme t, int x, int y, boolean hover, boolean selected) {
         if (hover) frame(g, x - 2, y - 2, 20, 20, Theme.alpha(t.accent, 70));

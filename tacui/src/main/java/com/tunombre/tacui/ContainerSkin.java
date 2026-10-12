@@ -75,7 +75,6 @@ public final class ContainerSkin {
 
         g.fill(0, 0, sw, sh, Theme.alpha(t.bg, 0x98));
         Draw.vignette(g, sw, sh);
-        Draw.scanlines(g, sw, sh);
         Draw.corners(g, 10, 10, sw - 20, sh - 20, 18, Theme.alpha(t.accent, 200));
 
         int th = Draw.panel(g, mc.font, t, L - 3, T - 3, W + 6, H + 6, "", false);
@@ -99,11 +98,14 @@ public final class ContainerSkin {
             float k = Math.min(1f, since / 650f);
             Draw.zipper(g, t, L + 6, T + 14, W - 16, 1f - (1f - k) * (1f - k) * (1f - k));
         }
-        for (Slot sl : s.getMenu().slots) {
-            if (!sl.isActive()) continue;
-            int x = L + sl.x, y = T + sl.y;
-            boolean hov = e.getMouseX() >= x - 1 && e.getMouseX() < x + 17 && e.getMouseY() >= y - 1 && e.getMouseY() < y + 17;
-            Draw.slot(g, t, x, y, hov, false);
-        }
+        // marcos de las casillas: todos en un solo lote (antes eran cientos de llamadas sueltas)
+        g.drawManaged(() -> {
+            for (Slot sl : s.getMenu().slots) {
+                if (!sl.isActive()) continue;
+                int x = L + sl.x, y = T + sl.y;
+                boolean hov = e.getMouseX() >= x - 1 && e.getMouseX() < x + 17 && e.getMouseY() >= y - 1 && e.getMouseY() < y + 17;
+                Draw.slot(g, t, x, y, hov, false);
+            }
+        });
     }
 }

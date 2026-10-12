@@ -1,6 +1,8 @@
 package com.tunombre.tacui;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -14,6 +16,7 @@ import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -48,6 +51,23 @@ public final class ClientEvents {
             }
         }
 
+        /**
+         * Caminar con la tableta abierta: mientras el inventario tactico esta abierto, las teclas de moverse, saltar y
+         * correr se siguen pasando al jugador (agacharse no, porque Mayus se usa para mover objetos de golpe).
+         */
+        @SubscribeEvent
+        public static void onClientTick(TickEvent.ClientTickEvent e) {
+            if (e.phase != TickEvent.Phase.START) return;
+            Minecraft mc = Minecraft.getInstance();
+            if (!(mc.screen instanceof TacInventoryScreen ts) || mc.player == null || ts.isTyping()) return;
+            long win = mc.getWindow().getWindow();
+            for (KeyMapping k : new KeyMapping[]{mc.options.keyUp, mc.options.keyDown, mc.options.keyLeft, mc.options.keyRight, mc.options.keyJump, mc.options.keySprint}) {
+                InputConstants.Key key = k.getKey();
+                if (key.getType() != InputConstants.Type.KEYSYM || key.getValue() < 0) continue;
+                k.setDown(InputConstants.isKeyDown(win, key.getValue()));
+            }
+        }
+
         /** Las imagenes de los admins se ven tambien con cualquier pantalla abierta. */
         @SubscribeEvent
         public static void onScreenPost(ScreenEvent.Render.Post e) {
@@ -60,6 +80,8 @@ public final class ClientEvents {
             var id = e.getOverlay().id();
             // el HUD de arma/balas de TACZ se pisa con el nuestro: se oculta (se puede volver a activar con /tacui taczhud on)
             if (Layout.get().hideTaczHud && id.getNamespace().equals("tacz") && id.getPath().contains("gun_hud")) { e.setCanceled(true); return; }
+            // las gotitas de Thirst Was Taken sobran: la sed (H2O) ya esta en nuestra barra
+            if (id.getNamespace().equals("thirst")) { e.setCanceled(true); return; }
             if (id.equals(VanillaGuiOverlay.HOTBAR.id()) || id.equals(VanillaGuiOverlay.PLAYER_HEALTH.id())
                     || id.equals(VanillaGuiOverlay.ARMOR_LEVEL.id()) || id.equals(VanillaGuiOverlay.FOOD_LEVEL.id())
                     || id.equals(VanillaGuiOverlay.AIR_LEVEL.id()) || id.equals(VanillaGuiOverlay.EXPERIENCE_BAR.id())
