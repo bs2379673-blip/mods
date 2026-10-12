@@ -46,6 +46,7 @@ import java.util.Map;
  */
 public class Ganado extends InfMob {
     private static final EntityDataAccessor<Byte> VARIANT = SynchedEntityData.defineId(Ganado.class, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Byte> OUTFIT = SynchedEntityData.defineId(Ganado.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Boolean> HEADLESS = SynchedEntityData.defineId(Ganado.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> PLAGA_ATTACK = SynchedEntityData.defineId(Ganado.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> IMPALE_START = SynchedEntityData.defineId(Ganado.class, EntityDataSerializers.INT);
@@ -77,12 +78,15 @@ public class Ganado extends InfMob {
     protected void defineSynchedData() {
         super.defineSynchedData();
         entityData.define(VARIANT, (byte) 1);
+        entityData.define(OUTFIT, (byte) 0);
         entityData.define(HEADLESS, false);
         entityData.define(PLAGA_ATTACK, -1000);
         entityData.define(IMPALE_START, -1000);
     }
 
     public int variant() { return entityData.get(VARIANT); }
+    /** atuendo (0-2): mismos modelos con ropa de otros colores para que no sean todos iguales */
+    public int outfit() { return entityData.get(OUTFIT); }
     public void setVariant(int v) { entityData.set(VARIANT, (byte) Math.max(1, Math.min(4, v))); }
     public boolean headless() { return entityData.get(HEADLESS); }
     /** tickCount en el que empezo el tajo de la plaga (para animarla en el cliente) */
@@ -115,6 +119,7 @@ public class Ganado extends InfMob {
         SpawnGroupData r = super.finalizeSpawn(lv, diff, reason, data, tag);
         int v = random.nextInt(10) < 3 ? 4 : 1 + random.nextInt(3);
         setVariant(v);
+        entityData.set(OUTFIT, (byte) random.nextInt(3));
         return r;
     }
 
@@ -481,6 +486,7 @@ public class Ganado extends InfMob {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putByte("Variant", (byte) variant());
+        tag.putByte("Outfit", (byte) outfit());
         tag.putBoolean("Headless", headless());
     }
 
@@ -488,6 +494,7 @@ public class Ganado extends InfMob {
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.contains("Variant")) setVariant(tag.getByte("Variant"));
+        entityData.set(OUTFIT, (byte) Math.max(0, Math.min(2, tag.getByte("Outfit"))));
         entityData.set(HEADLESS, tag.getBoolean("Headless"));
     }
 }

@@ -22,7 +22,7 @@ public class InfVanillaRenderer extends HumanoidMobRenderer<InfMob, HumanoidMode
 
     @Override
     public ResourceLocation getTextureLocation(InfMob e) {
-        if (e instanceof Ganado g) return tex("ganado" + g.variant() + (g.headless() ? "_sincabeza" : ""));
+        if (e instanceof Ganado g) return tex("ganado" + g.variant() + (g.outfit() > 0 ? "_" + g.outfit() : "") + (g.headless() ? "_sincabeza" : ""));
         return tex(name);
     }
 }
