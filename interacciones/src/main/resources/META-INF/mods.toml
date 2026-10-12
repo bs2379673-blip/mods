@@ -4,9 +4,9 @@ license="All Rights Reserved"
 
 [[mods]]
 modId="interacciones"
-version="1.0.0"
+version="1.1.0"
 displayName="Interacciones"
-description='''Interacciones entre jugadores con animaciones de Epic Fight: cargar a otro al hombro, chocar los cinco, choque de puno, tradeo cara a cara y ejecucion sigilosa por la espalda.'''
+description='''Interacciones entre jugadores con animaciones de Epic Fight: chocar los cinco, choque de puno, abrazo, dar la mano, reverencia, saludo militar, choque de pecho, palmada, bailar, empujon, cachetada, cachear, cargar al hombro, a caballito, tradeo cara a cara y ejecucion sigilosa por la espalda.'''
 
 [[dependencies.interacciones]]
 modId="forge"

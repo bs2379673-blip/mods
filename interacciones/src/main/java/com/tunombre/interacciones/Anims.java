@@ -13,7 +13,8 @@ import yesman.epicfight.gameasset.Armatures;
  * Las de saludo/carga solo mueven la mitad de arriba (las piernas siguen caminando); las de cuerpo entero mueven todo.
  */
 public final class Anims {
-    public static AnimationManager.AnimationAccessor<StaticAnimation> CARRY_HOLD, CARRIED, HIGH_FIVE, FIST_BUMP, TRADE_TALK, EXEC_ATTACKER, EXEC_VICTIM;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> CARRY_HOLD, CARRIED, HIGH_FIVE, FIST_BUMP, TRADE_TALK, EXEC_ATTACKER, EXEC_VICTIM,
+            HUG, HANDSHAKE, BOW, SALUTE, CHEST_BUMP, PAT_GIVE, PAT_TAKE, DANCE, SHOVE, SHOVED, SLAP, SLAPPED, FRISK, FRISKED, PIGGY_CARRY, PIGGY_RIDE;
 
     private Anims() { }
 
@@ -25,6 +26,24 @@ public final class Anims {
         TRADE_TALK = anim(b, "trade_talk", true, true);
         EXEC_ATTACKER = anim(b, "exec_attacker", false, false);
         EXEC_VICTIM = anim(b, "exec_victim", false, false);
+        // saludos y gestos: solo la mitad de arriba (las piernas siguen su animacion normal)
+        HUG = anim(b, "hug", false, true);
+        HANDSHAKE = anim(b, "handshake", false, true);
+        SALUTE = anim(b, "salute", false, true);
+        PAT_GIVE = anim(b, "pat_give", false, true);
+        PAT_TAKE = anim(b, "pat_take", false, true);
+        SHOVE = anim(b, "shove", false, true);
+        SLAP = anim(b, "slap", false, true);
+        SLAPPED = anim(b, "slapped", false, true);
+        PIGGY_CARRY = anim(b, "piggy_carry", true, true);
+        // cuerpo entero: se mueven las piernas (salto, baile, paso atras, agacharse...)
+        BOW = anim(b, "bow", false, false);
+        CHEST_BUMP = anim(b, "chest_bump", false, false);
+        DANCE = anim(b, "dance", false, false);
+        SHOVED = anim(b, "shoved", false, false);
+        FRISK = anim(b, "frisk", false, false);
+        FRISKED = anim(b, "frisked", false, false);
+        PIGGY_RIDE = anim(b, "piggy_ride", true, false);
     }
 
     private static AnimationManager.AnimationAccessor<StaticAnimation> anim(AnimationManager.AnimationBuilder b, String n, boolean loop, boolean upperOnly) {

@@ -60,6 +60,7 @@ public final class Sessions {
     private static final Map<UUID, Req> PENDING = new HashMap<>();
     private static final Map<UUID, UUID> CARRY = new HashMap<>();        // quien carga -> a quien
     private static final Map<UUID, Integer> CARRY_SLOT = new HashMap<>();
+    private static final Set<UUID> PIGGY = new HashSet<>();                // los que cargan 'a caballito' (no al hombro)
     private static final List<Exec> EXECS = new ArrayList<>();
     private static final List<Object[]> LATER = new ArrayList<>();         // {tick, Runnable}
     private static final UUID SLOW = UUID.fromString("6f1c3b52-6d0b-4a8e-9f0a-2a7b5c2d9e11");
@@ -121,7 +122,7 @@ public final class Sessions {
             if (d > 4.5) { msg(p, "Estas demasiado lejos"); return; }
             if (busy(p) || busy(t)) { msg(p, "Ahora no se puede"); return; }
             if (action == Act.EXECUTE) { execute(p, t); return; }
-            if (action < 0 || action > Act.TRADE) return;
+            if (action < 0 || action >= Act.COUNT || action == Act.DROP) return;
             PENDING.put(t.getUUID(), new Req(p.getUUID(), action, now + REQUEST_TICKS));
             Net.CH.send(PacketDistributor.PLAYER.with(() -> t), new Net.Prompt(p.getGameProfile().getName(), action, REQUEST_TICKS, true));
             msg(p, "Solicitud enviada a " + t.getGameProfile().getName());
@@ -141,12 +142,9 @@ public final class Sessions {
         if (!admin) { msg(p, "Necesitas estar en creativo o ser admin para probar esto con NPCs"); return; }
         if (p.distanceTo(npc) > 4.5) { msg(p, "Estas demasiado lejos"); return; }
         if (busy(p)) { msg(p, "Ahora no se puede"); return; }
-        switch (action) {
-            case Act.EXECUTE -> executeNpc(p, npc);
-            case Act.HIGH_FIVE -> greet(p, npc, Anims.HIGH_FIVE, 10);
-            case Act.FIST_BUMP -> greet(p, npc, Anims.FIST_BUMP, 9);
-            default -> msg(p, "Eso no se puede probar con un NPC");
-        }
+        if (action == Act.EXECUTE) { executeNpc(p, npc); return; }
+        if (action < 0 || action >= Act.COUNT || action == Act.DROP || Act.playerOnly(action)) { msg(p, "Eso no se puede probar con un NPC"); return; }
+        pairAct(p, npc, action);
     }
 
     static void answer(ServerPlayer t, boolean accept) {
@@ -158,11 +156,10 @@ public final class Sessions {
         if (!accept) { msg(p, t.getGameProfile().getName() + " rechazo"); return; }
         if (busy(p) || busy(t)) { msg(t, "Ahora no se puede"); return; }
         switch (r.action) {
-            case Act.HIGH_FIVE -> greet(p, t, Anims.HIGH_FIVE, 10);
-            case Act.FIST_BUMP -> greet(p, t, Anims.FIST_BUMP, 9);
-            case Act.CARRY -> startCarry(p, t);
+            case Act.CARRY -> startCarry(p, t, false);
+            case Act.PIGGYBACK -> startCarry(p, t, true);
             case Act.TRADE -> TradeMenu.Session.open(p, t);
-            default -> { }
+            default -> pairAct(p, t, r.action);
         }
     }
 
@@ -174,42 +171,119 @@ public final class Sessions {
         else { e.moveTo(x, y, z, yaw, pitch); e.setYHeadRot(yaw); }
     }
 
-    /** los pone de frente a 1 bloque y los dos hacen la animacion; en el contacto, sonido y chispas. 'b' puede ser
-     * otro jugador o, para probar en solitario, un NPC de Easy NPC. */
-    private static void greet(ServerPlayer a, LivingEntity b, AnimationManager.AnimationAccessor<StaticAnimation> anim, int contact) {
+    /**
+     * Interaccion de dos: los pone de frente a 'dist' bloques, cada uno con su animacion, y en el tick 'contact' lanza
+     * el efecto (sonido, particulas, empujon...). 'b' puede ser otro jugador o, para probar en solitario, un NPC.
+     */
+    private static void pair(ServerPlayer a, LivingEntity b, AnimationManager.AnimationAccessor<StaticAnimation> animA,
+                             AnimationManager.AnimationAccessor<StaticAnimation> animB, double dist, int contact, Runnable fx) {
         Vec3 dir = b.position().subtract(a.position()).multiply(1, 0, 1);
         if (dir.lengthSqr() < 1e-3) dir = Vec3.directionFromRotation(0, a.getYRot());
         dir = dir.normalize();
-        Vec3 nb = a.position().add(dir.scale(1.0));
+        Vec3 nb = a.position().add(dir.scale(dist));
         nb = new Vec3(nb.x, b.getY(), nb.z);
         if (Math.abs(a.getY() - b.getY()) > 0.8 || !b.level().noCollision(b, b.getBoundingBox().move(nb.subtract(b.position())))) nb = b.position();
         float ya = yawTo(a.position(), nb), yb = ya + 180F;
         a.connection.teleport(a.getX(), a.getY(), a.getZ(), ya, a.getXRot());
         face(b, nb.x, nb.y, nb.z, yb, b.getXRot());
-        play(a, anim);
-        play(b, anim);
-        final Vec3 mid = a.position().add(nb).scale(0.5).add(0, anim == Anims.HIGH_FIVE ? 1.85 : 1.25, 0);
-        later(contact, () -> {
-            if (!(a.level() instanceof ServerLevel lv)) return;
-            lv.playSound(null, mid.x, mid.y, mid.z, anim == Anims.HIGH_FIVE ? SoundEvents.PLAYER_ATTACK_STRONG : SoundEvents.PLAYER_ATTACK_WEAK, SoundSource.PLAYERS, 0.9F, anim == Anims.HIGH_FIVE ? 1.5F : 1.1F);
-            lv.sendParticles(ParticleTypes.CRIT, mid.x, mid.y, mid.z, 10, 0.05, 0.05, 0.05, 0.25);
+        play(a, animA);
+        play(b, animB);
+        if (fx != null) later(contact, () -> { if (a.isAlive() && b.isAlive() && a.level() == b.level()) fx.run(); });
+    }
+
+    private static Vec3 between(LivingEntity a, LivingEntity b, double h) { return a.position().add(b.position()).scale(0.5).add(0, h, 0); }
+
+    private static void sfx(LivingEntity at, Vec3 pos, net.minecraft.sounds.SoundEvent ev, float vol, float pitch) {
+        at.level().playSound(null, pos.x, pos.y, pos.z, ev, SoundSource.PLAYERS, vol, pitch);
+    }
+
+    private static void particles(LivingEntity at, net.minecraft.core.particles.ParticleOptions o, Vec3 pos, int n, double spread, double speed) {
+        if (at.level() instanceof ServerLevel lv) lv.sendParticles(o, pos.x, pos.y, pos.z, n, spread, spread, spread, speed);
+    }
+
+    /** chocar los cinco / choque de puno: misma animacion los dos, chispas y golpe en el contacto */
+    private static void greet(ServerPlayer a, LivingEntity b, AnimationManager.AnimationAccessor<StaticAnimation> anim, int contact) {
+        boolean five = anim == Anims.HIGH_FIVE;
+        pair(a, b, anim, anim, 1.0, contact, () -> {
+            Vec3 mid = between(a, b, five ? 1.85 : 1.25);
+            sfx(a, mid, five ? SoundEvents.PLAYER_ATTACK_STRONG : SoundEvents.PLAYER_ATTACK_WEAK, 0.9F, five ? 1.5F : 1.1F);
+            particles(a, ParticleTypes.CRIT, mid, 10, 0.05, 0.25);
         });
     }
 
+    /** todas las interacciones "de dos" (las que no son cargar, tradear ni la ejecucion) */
+    private static void pairAct(ServerPlayer a, LivingEntity b, int action) {
+        switch (action) {
+            case Act.HIGH_FIVE -> greet(a, b, Anims.HIGH_FIVE, 10);
+            case Act.FIST_BUMP -> greet(a, b, Anims.FIST_BUMP, 9);
+            case Act.HUG -> pair(a, b, Anims.HUG, Anims.HUG, 0.5, 18, () -> particles(a, ParticleTypes.HEART, between(a, b, 2.1), 3, 0.25, 0.02));
+            case Act.HANDSHAKE -> pair(a, b, Anims.HANDSHAKE, Anims.HANDSHAKE, 0.85, 10,
+                    () -> sfx(a, between(a, b, 1.1), SoundEvents.ARMOR_EQUIP_LEATHER, 0.6F, 1.4F));
+            case Act.BOW -> pair(a, b, Anims.BOW, Anims.BOW, 1.4, 0, null);
+            case Act.SALUTE -> pair(a, b, Anims.SALUTE, Anims.SALUTE, 1.6, 6, () -> sfx(a, a.position(), SoundEvents.ARMOR_EQUIP_IRON, 0.5F, 1.3F));
+            case Act.CHEST_BUMP -> pair(a, b, Anims.CHEST_BUMP, Anims.CHEST_BUMP, 0.9, 11, () -> {
+                Vec3 m = between(a, b, 1.3);
+                sfx(a, m, SoundEvents.PLAYER_ATTACK_STRONG, 1F, 0.8F);
+                particles(a, ParticleTypes.CRIT, m, 14, 0.1, 0.3);
+            });
+            case Act.PAT -> pair(a, b, Anims.PAT_GIVE, Anims.PAT_TAKE, 0.75, 9, () -> {
+                for (int i = 0; i < 3; i++) later(i * 4, () -> sfx(a, b.position().add(0, 1.4, 0), SoundEvents.PLAYER_ATTACK_WEAK, 0.4F, 1.6F));
+            });
+            case Act.DANCE -> pair(a, b, Anims.DANCE, Anims.DANCE, 1.6, 2, () -> {
+                for (int i = 0; i < 10; i++) later(i * 9, () -> {
+                    particles(a, ParticleTypes.NOTE, a.position().add(0, 2.2, 0), 1, 0.3, 1);
+                    particles(b, ParticleTypes.NOTE, b.position().add(0, 2.2, 0), 1, 0.3, 1);
+                });
+            });
+            case Act.SHOVE -> pair(a, b, Anims.SHOVE, Anims.SHOVED, 0.8, 7, () -> {
+                Vec3 d = b.position().subtract(a.position()).multiply(1, 0, 1);
+                d = d.lengthSqr() < 1e-4 ? Vec3.directionFromRotation(0, a.getYRot()) : d.normalize();
+                b.setDeltaMovement(d.x * 0.7, 0.22, d.z * 0.7);
+                b.hasImpulse = true;
+                if (b instanceof ServerPlayer sp) sp.hurtMarked = true;
+                sfx(a, b.position().add(0, 1.2, 0), SoundEvents.PLAYER_ATTACK_KNOCKBACK, 0.9F, 0.9F);
+            });
+            case Act.SLAP -> pair(a, b, Anims.SLAP, Anims.SLAPPED, 0.8, 8, () -> {
+                Vec3 face = b.position().add(0, 1.6, 0);
+                sfx(a, face, SoundEvents.PLAYER_ATTACK_STRONG, 1F, 1.9F);
+                particles(a, ParticleTypes.CRIT, face, 6, 0.05, 0.2);
+            });
+            case Act.FRISK -> pair(a, b, Anims.FRISK, Anims.FRISKED, 0.75, 56, () -> friskReport(a, b));
+            default -> { }
+        }
+    }
+
+    /** al terminar de cachear: lo que el otro lleva a mano (cinturon / hotbar y mano izquierda) */
+    private static void friskReport(ServerPlayer a, LivingEntity b) {
+        List<String> found = new ArrayList<>();
+        if (b instanceof Player bp) {
+            for (int i = 0; i < 9; i++) {
+                ItemStack st = bp.getInventory().getItem(i);
+                if (!st.isEmpty()) found.add(st.getHoverName().getString() + (st.getCount() > 1 ? " x" + st.getCount() : ""));
+            }
+        } else if (!b.getMainHandItem().isEmpty()) found.add(b.getMainHandItem().getHoverName().getString());
+        if (!b.getOffhandItem().isEmpty()) found.add(b.getOffhandItem().getHoverName().getString());
+        String who = b.getDisplayName().getString();
+        a.sendSystemMessage(Component.literal(found.isEmpty() ? "Cacheo de " + who + ": no lleva nada encima"
+                : "Cacheo de " + who + ": " + String.join(", ", found)));
+        sfx(a, a.position(), SoundEvents.ARMOR_EQUIP_LEATHER, 0.6F, 0.9F);
+    }
+
     // ------------------------------------------------------------------ cargar ----
-    private static void startCarry(ServerPlayer a, ServerPlayer b) {
+    private static void startCarry(ServerPlayer a, ServerPlayer b, boolean piggy) {
         if (a.isPassenger() || b.isPassenger() || a.isVehicle() || b.isVehicle()) { msg(a, "Ahora no se puede"); return; }
         if (!b.startRiding(a, true)) return;
         CARRY.put(a.getUUID(), b.getUUID());
         CARRY_SLOT.put(a.getUUID(), a.getInventory().selected);
         AttributeInstance sp = a.getAttribute(Attributes.MOVEMENT_SPEED);
         if (sp != null && sp.getModifier(SLOW) == null)
-            sp.addTransientModifier(new AttributeModifier(SLOW, "cargando a alguien", -0.25, AttributeModifier.Operation.MULTIPLY_TOTAL));
+            sp.addTransientModifier(new AttributeModifier(SLOW, "cargando a alguien", piggy ? -0.15 : -0.25, AttributeModifier.Operation.MULTIPLY_TOTAL));
         emptyHands(a);
-        play(a, Anims.CARRY_HOLD);
-        play(b, Anims.CARRIED);
-        msg(a, "Cargando a " + b.getGameProfile().getName() + " (vuelve a pulsar la tecla de interaccion para soltarlo)");
-        msg(b, "Te cargan al hombro (agachate para bajarte)");
+        if (piggy) PIGGY.add(a.getUUID()); else PIGGY.remove(a.getUUID());
+        play(a, piggy ? Anims.PIGGY_CARRY : Anims.CARRY_HOLD);
+        play(b, piggy ? Anims.PIGGY_RIDE : Anims.CARRIED);
+        msg(a, (piggy ? "Llevas a caballito a " : "Cargando a ") + b.getGameProfile().getName() + " (vuelve a pulsar la tecla de interaccion para soltarlo)");
+        msg(b, (piggy ? "Vas a caballito" : "Te cargan al hombro") + " (agachate para bajarte)");
     }
 
     /** mientras carga, las manos van ocupadas: se pasa a una casilla vacia de la barra (si hay) */
@@ -229,10 +303,11 @@ public final class Sessions {
         if (bid == null) return;
         AttributeInstance sp = a.getAttribute(Attributes.MOVEMENT_SPEED);
         if (sp != null) sp.removeModifier(SLOW);
-        stop(a, Anims.CARRY_HOLD);
+        boolean piggy = PIGGY.remove(a.getUUID());
+        stop(a, piggy ? Anims.PIGGY_CARRY : Anims.CARRY_HOLD);
         ServerPlayer b = a.server.getPlayerList().getPlayer(bid);
         if (b != null) {
-            stop(b, Anims.CARRIED);
+            stop(b, piggy ? Anims.PIGGY_RIDE : Anims.CARRIED);
             if (b.getVehicle() == a) b.stopRiding();
             if (drop) {
                 Vec3 f = Vec3.directionFromRotation(0, a.getYRot());
@@ -314,10 +389,13 @@ public final class Sessions {
         if (e.phase != TickEvent.Phase.END) return;
         now++;
         var s = e.getServer();
+        // se sacan primero: un efecto puede programar otros (palmadas, notas del baile...) mientras se recorre la lista
+        List<Runnable> due = new ArrayList<>();
         for (Iterator<Object[]> it = LATER.iterator(); it.hasNext(); ) {
             Object[] o = it.next();
-            if ((long) o[0] <= now) { it.remove(); ((Runnable) o[1]).run(); }
+            if ((long) o[0] <= now) { it.remove(); due.add((Runnable) o[1]); }
         }
+        for (Runnable r : due) r.run();
         tickExecs(s);
         PENDING.entrySet().removeIf(en -> {
             if (en.getValue().expire >= now) return false;
