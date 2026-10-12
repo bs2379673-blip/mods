@@ -1,0 +1,11 @@
+{
+  "entity.bestialago.bestia": "Bestia del Lago",
+  "item.bestialago.bestia_spawn_egg": "Huevo de la Bestia del Lago",
+  "death.attack.bestialago.swallowed": "%1$s fue tragado por la Bestia del Lago",
+  "death.attack.bestialago.swallowed.player": "%1$s fue tragado por %2$s",
+  "bestialago.subtitle.roar": "Rugido desde el lago",
+  "bestialago.subtitle.growl": "Algo enorme bajo el agua",
+  "bestialago.subtitle.splash": "Gran chapoteo",
+  "bestialago.subtitle.bite": "Mordida",
+  "bestialago.subtitle.swallow": "Algo es tragado"
+}

@@ -1,0 +1,7 @@
+{
+  "roar":    { "subtitle": "bestialago.subtitle.roar",    "sounds": [ { "name": "bestialago:roar", "attenuation_distance": 160 }, { "name": "bestialago:roar2", "attenuation_distance": 160 } ] },
+  "growl":   { "subtitle": "bestialago.subtitle.growl",   "sounds": [ { "name": "bestialago:growl", "attenuation_distance": 64 } ] },
+  "splash":  { "subtitle": "bestialago.subtitle.splash",  "sounds": [ { "name": "bestialago:splash", "attenuation_distance": 128 } ] },
+  "bite":    { "subtitle": "bestialago.subtitle.bite",    "sounds": [ { "name": "bestialago:bite", "attenuation_distance": 64 } ] },
+  "swallow": { "subtitle": "bestialago.subtitle.swallow", "sounds": [ { "name": "bestialago:swallow", "attenuation_distance": 48 } ] }
+}

@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="bestialago"
+version="1.0.0"
+displayName="Bestia del Lago"
+description='''Un monstruo gigante e inmortal que vigila un lago: persigue botes y nadadores, rompe botes desde abajo y te atrapa en su boca (quick time event).'''
+
+[[dependencies.bestialago]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.bestialago]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.bestialago]]
+modId="epicfight"
+mandatory=true
+versionRange="[20.14,)"
+ordering="AFTER"
+side="BOTH"

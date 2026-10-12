@@ -1,0 +1,11 @@
+{
+  "entity.bestialago.bestia": "Lake Beast",
+  "item.bestialago.bestia_spawn_egg": "Lake Beast Spawn Egg",
+  "death.attack.bestialago.swallowed": "%1$s was swallowed by the Lake Beast",
+  "death.attack.bestialago.swallowed.player": "%1$s was swallowed by %2$s",
+  "bestialago.subtitle.roar": "Roar from the lake",
+  "bestialago.subtitle.growl": "Something huge underwater",
+  "bestialago.subtitle.splash": "Huge splash",
+  "bestialago.subtitle.bite": "Bite",
+  "bestialago.subtitle.swallow": "Something is swallowed"
+}
