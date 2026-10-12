@@ -390,7 +390,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
     }
 
     private int cellAt(double mx, double my) {
-        if (mode != Mode.CREATIVE || rects.get(ITEMS) == null) return -1;
+        if (!creative || rects.get(ITEMS) == null) return -1;
         double rx = mx - gridX, ry = my - gridY;
         if (rx < 0 || ry < 0 || rx >= 180 || ry >= gridRows * 20) return -1;
         int idx = (scroll + (int) (ry / 20)) * 9 + (int) (rx / 20);
@@ -431,7 +431,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
     }
 
     private void creativeTooltip(GuiGraphics g, int mx, int my) {
-        if (mode != Mode.CREATIVE) return;
+        if (!creative) return;
         int c = cellAt(mx, my);
         if (c >= 0 && held.isEmpty() && menu.getCarried().isEmpty()) g.renderTooltip(font, shown.get(c), mx, my);
         if (!held.isEmpty()) {
