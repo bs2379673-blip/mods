@@ -583,9 +583,9 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
 
         // ---- 1) todas las formas en un solo lote; el texto, los iconos y los objetos se apuntan en 'later'
         g.drawManaged(() -> {
-            // fondo translucido: se ve el mundo y se puede caminar con la tableta abierta
-            g.fill(0, 0, w, h, Theme.alpha(t.bg, 0x78));
+            g.fill(0, 0, w, h, t.bg);
             Draw.vignette(g, w, h);
+            Draw.scanlines(g, w, h);   // dentro del lote: son cientos de rectangulos pero una sola llamada
             Draw.corners(g, 10, 10, w - 20, h - 20, 18, Theme.alpha(t.accent, 200));
             boolean blink = (now / 600) % 2 == 0;
             g.fill(ww / 2 - 62, 9, ww / 2 - 58, 13, blink ? t.accent : Theme.alpha(t.accent, 70));
@@ -593,20 +593,20 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
 
             // marco del modelo y barrido de escaneo
             Draw.corners(g, mcx - 52, fy0, 104, fh, 8, Theme.alpha(t.accent, 160));
+            for (int[] p : ringPts) Draw.dotted(g, p[0], p[1], mcx, mcy, Theme.alpha(t.accent, 90), 5);
             int sweep = fy0 + (int) ((now % 2600) / 2600.0 * fh);
             g.fill(mcx - 50, sweep, mcx + 50, sweep + 1, Theme.alpha(t.accent, 70));
             g.fill(mcx - 50, sweep - 3, mcx + 50, sweep, Theme.alpha(t.accent, 18));
-            txtC("OPERATOR // " + player.getName().getString().toUpperCase(), mcx, fy0 + 3, Theme.alpha(t.text, 200), 0.6f);
+            txtC("OPERATOR // " + player.getName().getString().toUpperCase(), mcx, fy0 - 9, Theme.alpha(t.text, 210), 0.7f);
             boolean hovModel = in(modelRect, mx, my) && slotAt(mx, my) == null;
             if (hovModel || rotating)
-                txtC("ARRASTRA: GIRAR  ·  RUEDA: ZOOM  ·  DOBLE CLIC: CENTRAR", mcx, fy0 + fh + 24, Theme.alpha(t.text, 140), 0.5f);
+                txtC("ARRASTRA: GIRAR  ·  RUEDA: ZOOM  ·  DOBLE CLIC: CENTRAR", mcx, fy0 + fh + 30, Theme.alpha(t.text, 140), 0.5f);
             if (btnReset != null) {
                 boolean hr = in(btnReset, mx, my);
                 g.fill(btnReset[0], btnReset[1], btnReset[0] + 9, btnReset[1] + 9, hr ? Theme.alpha(t.accent, 120) : 0x99000000);
                 Draw.frame(g, btnReset[0], btnReset[1], 9, 9, hr ? t.accent : Theme.alpha(t.dim, 230));
                 txtC("R", btnReset[0] + 5, btnReset[1] + 2, t.text, 0.6f);
             }
-            statusStrip(g, t, mcx, 38, now);
             drawVitals(g, t, mcx, fy0 + fh + 3);
 
             // paneles
@@ -669,7 +669,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
                 boolean hov = mx >= s.x - 1 && mx < s.x + 17 && my >= s.y - 1 && my < s.y + 17;
                 Draw.slot(g, t, s.x, s.y, hov, mode == Mode.CURIOS && CuriosCompat.cosmetic(s));
             }
-            if (edit) txtC("EDIT MODE  |  ARRASTRA LOS PANELES  |  R REINICIAR  |  ESC GUARDAR", ww / 2, h - 10, t.accent, 0.8f);
+            if (edit) txtC("EDIT MODE  |  ARRASTRA LOS PANELES  |  R REINICIAR  |  ESC GUARDAR", ww / 2, 46, t.accent, 0.8f);
         });
 
         // ---- 2) el modelo del jugador (tiene su propio recorte)
@@ -768,112 +768,26 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         }
     }
 
-    /** Bajo el modelo: vida, armadura, dureza y nivel, y las barras de hambre, sed, resistencia, cordura y oxigeno. */
+    /** Vida, armadura, dureza y nivel bajo el modelo, y los efectos activos (los iconos se dibujan despues del lote). */
     private void drawVitals(GuiGraphics g, Theme t, int cx, int y) {
         int hp = (int) Math.ceil(player.getHealth()), max = (int) Math.ceil(player.getMaxHealth());
         int tough = (int) player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR_TOUGHNESS);
-        txtC("HP " + hp + "/" + max + "   ARM " + player.getArmorValue() + "   TGH " + tough + "   LV " + player.experienceLevel,
-                cx, y, Theme.alpha(t.text, 210), 0.7f);
-        List<Object[]> bars = new ArrayList<>();
-        bars.add(new Object[]{"HP", Math.min(1f, player.getHealth() / Math.max(1f, player.getMaxHealth())), t.accent});
-        bars.add(new Object[]{"HUN", player.getFoodData().getFoodLevel() / 20f, 0xFFE59B3A});
-        float th = Mods.thirst(player);
-        if (th >= 0) bars.add(new Object[]{"H2O", th, 0xFF4FA8E8});
-        float st = Mods.stamina(player);
-        if (st >= 0) bars.add(new Object[]{"STA", st, 0xFFE8C040});
-        float sa = Mods.sanity(player);
-        if (sa >= 0) bars.add(new Object[]{"SAN", sa, 0xFFB58AE0});
-        if (player.getAirSupply() < player.getMaxAirSupply())
-            bars.add(new Object[]{"O2", Math.max(0f, player.getAirSupply() / (float) player.getMaxAirSupply()), 0xFF8FD6F5});
-        int n = bars.size(), bw = 34, gap = 6, x0 = cx - (n * bw + (n - 1) * gap) / 2;
-        for (int i = 0; i < n; i++) {
-            Object[] b = bars.get(i);
-            float v = (Float) b[1];
-            int bx = x0 + i * (bw + gap), col = v < 0.25f ? 0xFFFF6A6A : (Integer) b[2];
-            txt((String) b[0], bx, y + 8, Theme.alpha(t.text, 150), 0.5f);
-            final String pct = Math.round(v * 100) + "%";
-            later.add(gg -> Draw.textRight(gg, font, pct, bx + bw, y + 8, Theme.alpha(t.text, 220), 0.5f));
-            Draw.bar(g, bx, y + 13, bw, 3, v, col, 0x88000000);
-        }
-    }
-
-    /** Franja de arriba de la tableta: dia y hora, rumbo, coordenadas, bioma y los efectos activos. */
-    private void statusStrip(GuiGraphics g, Theme t, int cx, int y, long now) {
-        long dayTime = player.level().getDayTime();
-        long day = dayTime / 24000L + 1;
-        int tod = (int) ((dayTime + 6000L) % 24000L);
-        int hh = tod / 1000, mi = (tod % 1000) * 60 / 1000;
-        boolean night = (dayTime % 24000L) >= 13000L && (dayTime % 24000L) < 23000L;
-        float heading = ((player.getYRot() + 180f) % 360f + 360f) % 360f;
-        String[] dir = {"N", "NE", "E", "SE", "S", "SO", "O", "NO"};
-        String card = dir[Math.round(heading / 45f) % 8];
-        net.minecraft.core.BlockPos bp = player.blockPosition();
-        String l1 = "DIA " + day + "  ·  " + String.format("%02d:%02d", hh, mi) + (night ? " NOCHE" : "") + "  ·  " + card + " " + String.format("%03d", Math.round(heading) % 360);
-        String bio = biome();
-        String l2 = "X " + bp.getX() + "   Y " + bp.getY() + "   Z " + bp.getZ() + (bio.isEmpty() ? "" : "   ·   " + bio);
-        int tw = (int) (Math.max(font.width(l1), font.width(l2)) * 0.65f) + 16;
-        g.fill(cx - tw / 2, y - 3, cx + tw / 2, y + 16, 0x88000000);
-        Draw.frame(g, cx - tw / 2, y - 3, tw, 19, Theme.alpha(t.accent, 110));
-        txtC(l1, cx, y, night ? 0xFFFF8A8A : Theme.alpha(t.text, 235), 0.65f);
-        txtC(l2, cx, y + 8, Theme.alpha(t.text, 190), 0.65f);
-
-        // efectos: icono + nombre + tiempo, centrados en una o dos filas
-        List<net.minecraft.world.effect.MobEffectInstance> effects = new ArrayList<>(player.getActiveEffects());
+        String s = "HP " + hp + "/" + max + "   ARM " + player.getArmorValue() + "   TGH " + tough + "   LV " + player.experienceLevel;
+        txtC(s, cx, y, Theme.alpha(t.text, 200), 0.7f);
+        int bw = 100;
+        Draw.bar(g, cx - bw / 2, y + 7, bw, 2, max <= 0 ? 0 : Math.min(1f, player.getHealth() / player.getMaxHealth()), t.accent, 0x66000000);
+        var effects = new ArrayList<>(player.getActiveEffects());
         if (effects.isEmpty()) return;
+        int n = Math.min(10, effects.size()), ex = cx - (n * 15 - 3) / 2, ey = y + 12;
         var tex = Minecraft.getInstance().getMobEffectTextures();
-        int maxW = Math.max(140, workW() - 2 * 170);
-        List<List<Object[]>> rows = new ArrayList<>();
-        List<Object[]> row = new ArrayList<>();
-        int rowW = 0;
-        for (var inst : effects) {
-            if (!inst.showIcon()) continue;
-            String name = inst.getEffect().getDisplayName().getString().toUpperCase();
-            if (inst.getAmplifier() > 0) name += " " + (inst.getAmplifier() + 1);
-            String dur = net.minecraft.world.effect.MobEffectUtil.formatDuration(inst, 1.0f).getString();
-            String label = name + "  " + dur;
-            int cw = 16 + (int) (font.width(label) * 0.5f) + 6;
-            if (rowW + cw > maxW && !row.isEmpty()) {
-                if (rows.size() == 1) break;   // dos filas como mucho
-                rows.add(row); row = new ArrayList<>(); rowW = 0;
-            }
-            row.add(new Object[]{inst, label, cw});
-            rowW += cw + 3;
+        for (int i = 0; i < n; i++) {
+            var inst = effects.get(i);
+            int x = ex + i * 15;
+            g.fill(x - 1, ey - 1, x + 13, ey + 13, 0xAA000000);
+            Draw.frame(g, x - 1, ey - 1, 14, 14, inst.getEffect().isBeneficial() ? Theme.alpha(t.accent, 160) : 0xFFAA3030);
+            later.add(gg -> gg.blit(x, ey, 0, 12, 12, tex.get(inst.getEffect())));
+            if (mouseX >= x - 1 && mouseX < x + 13 && mouseY >= ey - 1 && mouseY < ey + 13) hoverEffect = inst;
         }
-        if (!row.isEmpty()) rows.add(row);
-        int ry = y + 20;
-        for (List<Object[]> r : rows) {
-            int total = -3;
-            for (Object[] o : r) total += (Integer) o[2] + 3;
-            int x = cx - total / 2;
-            for (Object[] o : r) {
-                var inst = (net.minecraft.world.effect.MobEffectInstance) o[0];
-                int cw = (Integer) o[2];
-                boolean good = inst.getEffect().isBeneficial();
-                boolean ending = !inst.isInfiniteDuration() && inst.getDuration() < 200 && (now / 250) % 2 == 0;
-                g.fill(x, ry, x + cw, ry + 14, 0x99000000);
-                Draw.frame(g, x, ry, cw, 14, good ? Theme.alpha(t.accent, 150) : 0xFFC03030);
-                final int ix = x + 1, iy = ry + 1;
-                if (!ending) later.add(gg -> gg.blit(ix, iy, 0, 12, 12, tex.get(inst.getEffect())));
-                txt((String) o[1], x + 16, ry + 5, good ? Theme.alpha(t.text, 220) : 0xFFFF9090, 0.5f);
-                if (mouseX >= x && mouseX < x + cw && mouseY >= ry && mouseY < ry + 14) hoverEffect = inst;
-                x += cw + 3;
-            }
-            ry += 16;
-        }
-    }
-
-    private String biomeName = "";
-    private int biomeAge = 99;
-
-    private String biome() {
-        if (++biomeAge > 30) {
-            biomeAge = 0;
-            try {
-                biomeName = player.level().getBiome(player.blockPosition()).unwrapKey()
-                        .map(k -> k.location().getPath().toUpperCase().replace('_', ' ')).orElse("");
-            } catch (Throwable ignored) { }
-        }
-        return biomeName;
     }
 
     private net.minecraft.world.effect.MobEffectInstance hoverEffect;

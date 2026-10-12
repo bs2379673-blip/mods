@@ -22,7 +22,25 @@ public final class Draw {
         g.fill(x + w - len, y + h - 1, x + w, y + h, c); g.fill(x + w - 1, y + h - len, x + w, y + h, c);
     }
 
+    /**
+     * Modo "diferido": mientras esta activo, el texto (y lo que se pase a later()) no se dibuja al momento sino que
+     * se apunta para despues. Asi un bloque entero de formas puede ir en un solo lote (drawManaged) y el texto
+     * encima, sin cambiar el codigo que dibuja.
+     */
+    private static java.util.List<Runnable> defer;
+
+    public static void beginDefer() { defer = new java.util.ArrayList<>(); }
+
+    public static void later(Runnable r) { if (defer != null) defer.add(r); else r.run(); }
+
+    public static void endDefer() {
+        java.util.List<Runnable> d = defer;
+        defer = null;
+        if (d != null) for (Runnable r : d) r.run();
+    }
+
     public static void text(GuiGraphics g, Font f, String s, int x, int y, int color, float scale) {
+        if (defer != null) { defer.add(() -> text(g, f, s, x, y, color, scale)); return; }
         g.pose().pushPose();
         g.pose().translate(x, y, 0);
         g.pose().scale(scale, scale, 1f);
