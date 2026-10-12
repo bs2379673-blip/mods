@@ -18,6 +18,7 @@ public final class Layout {
     public boolean inventory = true;
     public boolean hud = true;
     public boolean containers = true;
+    public String start = "CURIOS";   // pantalla con la que se abre la tecla del inventario: CURIOS, COSMETIC o INVENTORY
     public Map<String, double[]> pos = new HashMap<>();
 
     public static Layout get() {

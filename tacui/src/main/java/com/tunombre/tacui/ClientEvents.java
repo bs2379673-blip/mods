@@ -29,11 +29,20 @@ public final class ClientEvents {
             if (mc.player == null) return;
             Screen s = e.getNewScreen();
             try {
-                if (s instanceof InventoryScreen) e.setNewScreen(new TacInventoryScreen(mc.player));
-                else if (s instanceof CreativeModeInventoryScreen)
-                    e.setNewScreen(new TacInventoryScreen(mc.player, mc.player.inventoryMenu, TacInventoryScreen.Mode.CREATIVE));
-                else if (s instanceof AbstractContainerScreen<?> acs && CuriosCompat.isMenu(acs.getMenu()))
-                    e.setNewScreen(new TacInventoryScreen(mc.player, acs.getMenu(), TacInventoryScreen.Mode.CURIOS));
+                if (s instanceof InventoryScreen || s instanceof CreativeModeInventoryScreen) {
+                    String st = Layout.get().start == null ? "CURIOS" : Layout.get().start.toUpperCase();
+                    if (mc.getConnection() != null) {
+                        // la tecla del inventario abre directamente el menu elegido (por defecto Curios): el servidor lo abre y lo recogemos abajo
+                        if (st.equals("CURIOS") && CuriosCompat.loaded()) { e.setCanceled(true); CuriosCompat.openCurios(); return; }
+                        if (st.equals("COSMETIC") && CosCompat.loaded()) { e.setCanceled(true); CosCompat.openCos(); return; }
+                    }
+                    e.setNewScreen(new TacInventoryScreen(mc.player));
+                } else if (s instanceof AbstractContainerScreen<?> acs) {
+                    if (CuriosCompat.isMenu(acs.getMenu()))
+                        e.setNewScreen(new TacInventoryScreen(mc.player, acs.getMenu(), TacInventoryScreen.Mode.CURIOS));
+                    else if (CosCompat.isMenu(acs.getMenu()))
+                        e.setNewScreen(new TacInventoryScreen(mc.player, acs.getMenu(), TacInventoryScreen.Mode.COSMETIC));
+                }
             } catch (Throwable t) {
                 TacUI.LOGGER.warn("No se pudo abrir la pantalla tactica, se usa la de vainilla: {}", t.toString());
             }
@@ -61,6 +70,9 @@ public final class ClientEvents {
                     .then(Commands.literal("inventory").then(Commands.argument("on", StringArgumentType.word())
                             .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(new String[]{"on", "off"}, b))
                             .executes(c -> { Layout l = Layout.get(); l.inventory = !StringArgumentType.getString(c, "on").equalsIgnoreCase("off"); l.save(); msg("Inventario tactico: " + (l.inventory ? "activado" : "desactivado")); return 1; })))
+                    .then(Commands.literal("start").then(Commands.argument("menu", StringArgumentType.word())
+                            .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(new String[]{"curios", "cosmetic", "inventory"}, b))
+                            .executes(c -> { Layout l = Layout.get(); l.start = StringArgumentType.getString(c, "menu").toUpperCase(); l.save(); msg("Al abrir el inventario se empieza en: " + l.start); return 1; })))
                     .then(Commands.literal("containers").then(Commands.argument("on", StringArgumentType.word())
                             .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(new String[]{"on", "off"}, b))
                             .executes(c -> { Layout l = Layout.get(); l.containers = !StringArgumentType.getString(c, "on").equalsIgnoreCase("off"); l.save(); msg("Contenedores tacticos: " + (l.containers ? "activados" : "desactivados")); return 1; })))

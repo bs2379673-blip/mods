@@ -1,4 +1,4 @@
-Tactical UI 0.2.1 (solo cliente)
+Tactical UI 0.3.0 (solo cliente)
 
 HUD tactico: barras de armadura / hambre / sed (Thirst Was Taken) / aire, vida, hotbar, municion de TACZ
 (cargador y reserva, modo de disparo), resistencia de Epic Fight y cordura (Sanity) a la derecha, brujula.
@@ -17,12 +17,16 @@ Novedades 0.2.0:
   (RING, NECKLACE...) con paginas y boton COSMETIC si existen. Tambien se abre con la tecla de Curios.
 - Contenedores (cofres, barriles, shulkers, tolvas, dispensadores y mochilas) con el estilo tactico: /tacui containers on|off
 
-Novedades 0.2.1:
-- Clic en una zona vacia con un objeto en el cursor lo tira al suelo.
-- Mochila y ropa con bolsillos de Survivors Arsenal: paneles BACKPACK y CLOTHING con sus casillas activas.
-- Curios: las primeras casillas, en orden y con su nombre (RING, NECKLACE...), en el arco derecho; el resto en el panel CURIOS.
-- Con la pantalla tactica abierta se oculta el HUD de abajo; los botones EDIT/THEME/CURIOS/RECIPES pasan al centro arriba
-  (no chocan con los iconos que otros mods ponen en la esquina) y se deja hueco abajo para el buscador de EMI.
-- Boton RECIPES (si esta EMI): recetas del objeto en el cursor / ultimo bajo el cursor; Shift = usos.
+Novedades 0.3.0 (integracion de menus):
+- Un solo inventario para todo. Al pulsar la tecla del inventario se abre el menu de Curios (cambialo con
+  /tacui start curios|cosmetic|inventory). Arriba hay pestanas CURIOS / COSMETIC / INVENTORY: cada una abre su menu
+  (el servidor solo permite uno a la vez), pero las casillas de los otros menus se ven siempre, en solo lectura;
+  pulsarlas abre su pestana.
+- Curios: las casillas, en orden y con su nombre, en el arco derecho; el resto en el panel CURIOS.
+- Armadura cosmetica: una casilla junto a cada pieza de armadura, con su boton H (ocultar la pieza), que funciona en cualquier pestana.
+- EMI: la pantalla deja libre la derecha para su indice/buscador normal (clic en un objeto = recetas, R/U sobre una casilla).
+  Se quita el boton RECIPES.
+- Mochila y ropa de Survivors Arsenal: estan en la pestana INVENTORY (paneles BACKPACK y CLOTHING).
+- Clic en zona vacia con un objeto en el cursor lo tira. Con la pantalla abierta se oculta el HUD de abajo.
 
 Pendiente: armadura cosmetica (Cosmetic Armor Reworked) dentro de esta pantalla.

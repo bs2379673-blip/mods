@@ -3,6 +3,7 @@ package com.tunombre.tacui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -65,6 +66,33 @@ public final class CuriosCompat {
 
     public static void toggleCosmetics(AbstractContainerMenu m) {
         send("CPacketToggleCosmetics", new Class<?>[]{int.class}, m.containerId);
+    }
+
+    /** Contenido actual de las ranuras de Curios sin necesidad de su menu: lista de {identificador, ItemStack}. */
+    public static java.util.List<Object[]> live(Player player) {
+        java.util.List<Object[]> out = new java.util.ArrayList<>();
+        try {
+            Object r = Class.forName(BASE + "api.CuriosApi").getMethod("getCuriosInventory", net.minecraft.world.entity.LivingEntity.class).invoke(null, player);
+            Object handler = null;
+            if (r instanceof java.util.Optional<?> o) handler = o.orElse(null);
+            else if (r instanceof net.minecraftforge.common.util.LazyOptional<?> lo) handler = lo.orElse(null);
+            if (handler == null) return out;
+            Class<?> hc = Class.forName(BASE + "api.type.capability.ICuriosItemHandler");
+            Class<?> sc = Class.forName(BASE + "api.type.inventory.ICurioStacksHandler");
+            Class<?> dc = Class.forName(BASE + "api.type.inventory.IDynamicStackHandler");
+            Object map = hc.getMethod("getCurios").invoke(handler);
+            for (java.util.Map.Entry<?, ?> en : ((java.util.Map<?, ?>) map).entrySet()) {
+                Object sh = en.getValue();
+                try { if (!(Boolean) sc.getMethod("isVisible").invoke(sh)) continue; } catch (Throwable ignored) { }
+                Object stacks = sc.getMethod("getStacks").invoke(sh);
+                int n = (Integer) dc.getMethod("getSlots").invoke(stacks);
+                for (int i = 0; i < n; i++) {
+                    Object st = dc.getMethod("getStackInSlot", int.class).invoke(stacks, i);
+                    out.add(new Object[]{String.valueOf(en.getKey()), st instanceof ItemStack s ? s : ItemStack.EMPTY});
+                }
+            }
+        } catch (Throwable t) { /* sin datos: no se muestran */ }
+        return out;
     }
 
     // ---- lectura de datos del menu / casillas

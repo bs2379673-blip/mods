@@ -29,7 +29,7 @@ import java.util.Map;
  * (mochilas, ropa de Survivors Arsenal...) siguen funcionando: solo se recolocan en pantalla mientras esta abierta.
  */
 public class TacInventoryScreen extends AbstractContainerScreen<AbstractContainerMenu> {
-    public enum Mode { INVENTORY, CREATIVE, CURIOS }
+    public enum Mode { INVENTORY, CURIOS, COSMETIC }
 
     private static Field FX, FY;
     private static final String CRAFT = "craft", EQUIP = "equip", HOTBAR = "hotbar", EXTRA = "extra", ITEMS = "items", CURIOS = "curios", BACKPACK = "backpack", CLOTHES = "clothes";
@@ -42,8 +42,30 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
 
     // rectangulos de los paneles (x, y, w, h) y botones, recalculados en cada fotograma
     private final Map<String, int[]> rects = new HashMap<>();
-    private int[] btnSort, btnDrop, btnEdit, btnTheme, btnMode;
+    private int[] btnSort, btnDrop, btnEdit, btnTheme;
     private final Mode mode;
+    private final boolean creative;
+
+    /** Casilla de solo lectura de otro menu (Curios / cosmetica): al pulsarla se cambia a su pestana. */
+    private static final class Ghost {
+        final Mode tab; final String label; final ItemStack stack; int x, y;
+        Ghost(Mode tab, String label, ItemStack stack) { this.tab = tab; this.label = label; this.stack = stack; }
+    }
+    private final List<Ghost> ghosts = new ArrayList<>();
+    private final List<int[]> ringPts = new ArrayList<>();
+    private final List<int[]> skinBtns = new ArrayList<>();      // {x, y, k}
+    private final List<Object[]> tabBtns = new ArrayList<>();    // {texto, int[] rect, Mode}
+
+    private int workW() {
+        if (!EmiCompat.loaded()) return this.width;
+        return this.width - Math.min(9 * 18 + 12, (int) (this.width * 0.38));   // el resto lo usa el indice de EMI
+    }
+
+    private static int xOf(Object o) { return o instanceof Slot s ? s.x : ((Ghost) o).x; }
+    private static int yOf(Object o) { return o instanceof Slot s ? s.y : ((Ghost) o).y; }
+    private static void put(Object o, int x, int y) {
+        if (o instanceof Slot s) place(s, x, y); else { Ghost g = (Ghost) o; g.x = x; g.y = y; }
+    }
 
     // ---- modo creativo
     private EditBox search;
@@ -61,12 +83,8 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
     // ---- Curios
     private final List<Object[]> curioLabels = new ArrayList<>();   // {x, y, texto}
     private int[] btnCosm, btnPgPrev, btnPgNext;
-    private final java.util.Set<Slot> ringSet = new java.util.HashSet<>();
     private final List<Object[]> ringLabels = new ArrayList<>();   // {x, y, texto} (centrado)
     private final List<Object[]> saLabels = new ArrayList<>();     // etiquetas del panel de ropa
-    private int[] btnEmi;
-    private ItemStack lastHover = ItemStack.EMPTY;
-    private long emiHint;
     private int pgX, pgY;
 
     public TacInventoryScreen(Player p) { this(p, p.inventoryMenu, Mode.INVENTORY); }
@@ -75,6 +93,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         super(menu, p.getInventory(), Component.translatable("container.crafting"));
         this.player = p;
         this.mode = mode;
+        this.creative = p.isCreative();
     }
 
     private static void ensureFields() {
@@ -89,14 +108,14 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
 
     @Override
     protected void init() {
-        this.imageWidth = this.width;
+        this.imageWidth = workW();   // EMI y compania usan este ancho para saber donde queda sitio libre
         this.imageHeight = this.height;
         super.init();
         this.leftPos = 0;
         this.topPos = 0;
         ensureFields();
         recordOriginals();
-        if (mode == Mode.CREATIVE) initCreative();
+        if (creative) initCreative();
         layout();
     }
 
@@ -112,7 +131,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
     }
 
     private boolean visibleOriginally(Slot s) {
-        if (mode == Mode.CURIOS) return s.isActive();
+        if (mode != Mode.INVENTORY) return s.isActive();
         int[] o = original.get(s);
         return o != null && o[0] >= -50 && o[0] <= 400 && o[1] >= -50 && o[1] <= 400;
     }
@@ -124,7 +143,8 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         Layout lay = Layout.get();
         int w = this.width, h = this.height;
         rects.clear();
-        curioLabels.clear(); ringLabels.clear(); saLabels.clear(); ringSet.clear();
+        curioLabels.clear(); ringLabels.clear(); saLabels.clear(); ringPts.clear(); ghosts.clear(); skinBtns.clear(); tabBtns.clear();
+        int ww = workW();
         recordOriginals();
         btnCosm = btnPgPrev = btnPgNext = null;
 
@@ -132,7 +152,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         int rows = Math.max(4, Math.min(9, (h - 110) / 20));
         int cols = (27 + rows - 1) / rows;
         int ew = Math.max(cols * 20 + 12, 98), eh = 13 + 6 + 24 + rows * 20 + 6 + 16 + 6;
-        int[] ep = lay.px(EQUIP, w - ew - 14, Math.max(6, (h - eh) / 2 - 10), w, h);
+        int[] ep = lay.px(EQUIP, ww - ew - 14, Math.max(6, (h - eh) / 2 - 10), w, h);
         ep = clamp(ep, ew, eh, w, h);
         rects.put(EQUIP, new int[]{ep[0], ep[1], ew, eh});
         btnSort = new int[]{ep[0] + ew - 36, ep[1] + 1, 34, 11};
@@ -145,7 +165,7 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
 
         // ---- crafting (no hace falta en creativo)
         int cw = 104, ch = 70;
-        if (mode == Mode.CREATIVE) {
+        if (creative) {
             for (int i = 0; i <= 4; i++) offscreen(menu.slots.get(i));
         } else {
             int defY = h - ch - 14 - (EmiCompat.loaded() ? 26 : 0);
@@ -158,12 +178,13 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
 
         // ---- hotbar
         int hw = 9 * 20 + 8, hh = 28;
-        int[] hp = clamp(lay.px(HOTBAR, (w - hw) / 2, h - hh - 14 - (EmiCompat.loaded() ? 26 : 0), w, h), hw, hh, w, h);
+        int[] hp = clamp(lay.px(HOTBAR, (ww - hw) / 2, h - hh - 14, w, h), hw, hh, w, h);
         rects.put(HOTBAR, new int[]{hp[0], hp[1], hw, hh});
         for (int i = 0; i < 9; i++) place(menu.slots.get(36 + i), hp[0] + 5 + i * 20, hp[1] + 6);
 
-        // ---- anillo de equipo alrededor del modelo: armadura, mano secundaria y casillas de otros mods
-        List<Slot> left = new ArrayList<>(), right = new ArrayList<>(), extra = new ArrayList<>(), curios = new ArrayList<>(), bpSlots = new ArrayList<>();
+        // ---- anillo de equipo alrededor del modelo: armadura (+ cosmetica), mano secundaria, Curios y casillas de otros mods
+        List<Object> left = new ArrayList<>(), right = new ArrayList<>(), curios = new ArrayList<>(), cosItems = new ArrayList<>();
+        List<Slot> extra = new ArrayList<>(), bpSlots = new ArrayList<>(), cosSlots = new ArrayList<>();
         java.util.Map<String, List<Slot>> clothes = new java.util.LinkedHashMap<>();
         for (int i = 5; i <= 8; i++) left.add(menu.slots.get(i));
         if (menu.slots.size() > 45) right.add(menu.slots.get(45));
@@ -172,30 +193,42 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             if (SaCompat.isBackpack(s)) { if (s.isActive()) bpSlots.add(s); else offscreen(s); continue; }
             String area = SaCompat.clothingArea(s);
             if (area != null) { if (s.isActive()) clothes.computeIfAbsent(area, k -> new ArrayList<>()).add(s); else offscreen(s); continue; }
+            if (CosCompat.isCosSlot(s)) { cosSlots.add(s); continue; }
             if (mode == Mode.CURIOS) { if (s.isActive()) curios.add(s); else offscreen(s); continue; }
             if (!s.isActive() || !visibleOriginally(s)) continue;
             if (right.size() < 6) right.add(s); else extra.add(s);
         }
-        int mx = w / 2, my = (int) (h * 0.46);
-        int rx = Math.max(60, Math.min(w / 5, 170)), ry = Math.max(50, (int) (h * 0.27));
-        if (mode == Mode.CURIOS) {   // las primeras casillas de Curios, en orden, en el arco derecho; el resto, en su panel
-            int cap = ry >= 70 ? 8 : 6;
-            while (right.size() < cap && !curios.isEmpty()) {
-                Slot s = curios.remove(0);
-                right.add(s);
-                String id = CuriosCompat.identifier(s);
-                ringLabels.add(new Object[]{s, id == null ? "" : id.toUpperCase().replace('_', ' ')});
-            }
+        // lo que vive en otros menus se ve igualmente (solo lectura); al pulsarlo se abre su pestana
+        if (mode != Mode.CURIOS && CuriosCompat.loaded())
+            for (Object[] c : CuriosCompat.live(player)) { Ghost gh = new Ghost(Mode.CURIOS, (String) c[0], (ItemStack) c[1]); ghosts.add(gh); curios.add(gh); }
+        if (mode == Mode.COSMETIC) cosItems.addAll(cosSlots);
+        else if (CosCompat.loaded()) for (int k = 0; k < 4; k++) { Ghost gh = new Ghost(Mode.COSMETIC, "COSMETIC", CosCompat.stack(player, k)); ghosts.add(gh); cosItems.add(gh); }
+        int mx = ww / 2, my = (int) (h * 0.46);
+        int rx = Math.max(60, Math.min(ww / 5, 170)), ry = Math.max(50, (int) (h * 0.27));
+        int cap = ry >= 70 ? 8 : 6;   // las primeras casillas de Curios, en orden, en el arco derecho; el resto, en su panel
+        while (right.size() < cap && !curios.isEmpty()) {
+            Object o = curios.remove(0);
+            right.add(o);
+            String id = o instanceof Slot s ? CuriosCompat.identifier(s) : ((Ghost) o).label;
+            ringLabels.add(new Object[]{o, id == null ? "" : id.toUpperCase().replace('_', ' ')});
         }
-        ringSet.addAll(left); ringSet.addAll(right);
         for (int i = 0; i < left.size(); i++) {
             double a = Math.toRadians(left.size() <= 1 ? 180 : 235 - 110.0 * i / (left.size() - 1));
-            place(left.get(i), (int) (mx + Math.cos(a) * rx) - 8, (int) (my + Math.sin(a) * ry) - 8);
+            put(left.get(i), (int) (mx + Math.cos(a) * rx) - 8, (int) (my + Math.sin(a) * ry) - 8);
         }
         for (int i = 0; i < right.size(); i++) {
             double a = Math.toRadians(right.size() <= 1 ? 0 : -55 + 110.0 * i / (right.size() - 1));
-            place(right.get(i), (int) (mx + Math.cos(a) * rx) - 8, (int) (my + Math.sin(a) * ry) - 8);
+            put(right.get(i), (int) (mx + Math.cos(a) * rx) - 8, (int) (my + Math.sin(a) * ry) - 8);
         }
+        for (Object o : left) ringPts.add(new int[]{xOf(o) + 8, yOf(o) + 8});
+        for (Object o : right) ringPts.add(new int[]{xOf(o) + 8, yOf(o) + 8});
+        // armadura cosmetica: una casilla al lado de cada pieza de armadura, con su boton de ocultar
+        for (int k = 0; k < cosItems.size() && k < left.size(); k++) {
+            int cx = xOf(left.get(k)) - 24, cy = yOf(left.get(k));
+            put(cosItems.get(k), cx, cy);
+            skinBtns.add(new int[]{cx - 10, cy + 4, k});
+        }
+        for (int k = 0; k < cosItems.size(); k++) if (k >= left.size() && cosItems.get(k) instanceof Slot s) offscreen(s);
         // ---- panel de almacenamiento extra
         if (!extra.isEmpty()) {
             int xc = 4, xr = (extra.size() + xc - 1) / xc;
@@ -228,34 +261,41 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
                 y += ((g.size() + ccols - 1) / ccols) * 20 + 3;
             }
         }
-        if (mode == Mode.CURIOS) layoutCurios(curios, lay, w, h);
-        if (mode == Mode.CREATIVE) layoutCreative(lay, w, h);
+        layoutCurios(curios, lay, w, h);
+        if (creative) layoutCreative(lay, w, h);
 
-        // ---- botones superiores
-        boolean hasMode = mode == Mode.CURIOS || CuriosCompat.loaded(), hasEmi = EmiCompat.loaded();
-        int total = 30 + 4 + 44 + (hasMode ? 4 + 52 : 0) + (hasEmi ? 4 + 52 : 0);
-        int bx = (w - total) / 2, by = 22;
+        // ---- botones superiores: EDIT, THEME y pestañas de menu (Curios / Cosmetic / Inventory)
+        List<Object[]> tabs = new ArrayList<>();
+        if (CuriosCompat.loaded()) tabs.add(new Object[]{"CURIOS", Mode.CURIOS, 40});
+        if (CosCompat.loaded()) tabs.add(new Object[]{"COSMETIC", Mode.COSMETIC, 50});
+        if (!tabs.isEmpty()) tabs.add(new Object[]{"INVENTORY", Mode.INVENTORY, 52});
+        int total = 30 + 4 + 44;
+        for (Object[] tb : tabs) total += 4 + (Integer) tb[2];
+        int bx = (ww - total) / 2, by = 22;
         btnEdit = new int[]{bx, by, 30, 11}; bx += 34;
-        btnTheme = new int[]{bx, by, 44, 11}; bx += 48;
-        btnMode = hasMode ? new int[]{bx, by, 52, 11} : null; if (hasMode) bx += 56;
-        btnEmi = hasEmi ? new int[]{bx, by, 52, 11} : null;
+        btnTheme = new int[]{bx, by, 44, 11}; bx += 44;
+        for (Object[] tb : tabs) {
+            bx += 4;
+            tabBtns.add(new Object[]{tb[0], new int[]{bx, by, (Integer) tb[2], 11}, tb[1]});
+            bx += (Integer) tb[2];
+        }
     }
 
-    private void layoutCurios(List<Slot> curios, Layout lay, int w, int h) {
+    private void layoutCurios(List<Object> curios, Layout lay, int w, int h) {
         int cols = 5, pw = cols * 20 + 12;
         // grupos consecutivos del mismo tipo de ranura
         List<String> ids = new ArrayList<>();
-        List<List<Slot>> groups = new ArrayList<>();
-        for (Slot s : curios) {
-            String id = CuriosCompat.identifier(s);
+        List<List<Object>> groups = new ArrayList<>();
+        for (Object o : curios) {
+            String id = o instanceof Slot s ? CuriosCompat.identifier(s) : ((Ghost) o).label;
             if (id == null) id = "other";
             if (ids.isEmpty() || !ids.get(ids.size() - 1).equals(id)) { ids.add(id); groups.add(new ArrayList<>()); }
-            groups.get(groups.size() - 1).add(s);
+            groups.get(groups.size() - 1).add(o);
         }
         boolean footer = CuriosCompat.totalPages(menu) > 1 || CuriosCompat.hasCosmetics(menu);
         if (curios.isEmpty() && !footer) return;
         int ph = 13 + 4;
-        for (List<Slot> g : groups) ph += 9 + ((g.size() + cols - 1) / cols) * 20 + 3;
+        for (List<Object> g : groups) ph += 9 + ((g.size() + cols - 1) / cols) * 20 + 3;
         if (groups.isEmpty()) ph += 14;
         ph += 4 + (footer ? 15 : 0);
         int[] cp = clamp(lay.px(CURIOS, 18, 40, w, h), pw, ph, w, h);
@@ -266,8 +306,8 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             if (name.length() > 22) name = name.substring(0, 22);
             curioLabels.add(new Object[]{cp[0] + 7, y, name});
             y += 9;
-            List<Slot> g = groups.get(gi);
-            for (int i = 0; i < g.size(); i++) place(g.get(i), cp[0] + 7 + (i % cols) * 20, y + (i / cols) * 20 + 1);
+            List<Object> g = groups.get(gi);
+            for (int i = 0; i < g.size(); i++) put(g.get(i), cp[0] + 7 + (i % cols) * 20, y + (i / cols) * 20 + 1);
             y += ((g.size() + cols - 1) / cols) * 20 + 3;
         }
         if (footer) {
@@ -457,7 +497,8 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
                 return true;
             }
             for (int[] r : rects.values()) if (in(r, mx, my)) return true;
-            if (in(btnEdit, mx, my) || in(btnTheme, mx, my) || in(btnMode, mx, my)) return true;
+            if (in(btnEdit, mx, my) || in(btnTheme, mx, my)) return true;
+            for (Object[] tb : tabBtns) if (in((int[]) tb[1], mx, my)) return true;
             mc.gameMode.handleCreativeModeItemDrop(held);
             held = ItemStack.EMPTY;
             return true;
@@ -478,23 +519,20 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         this.mouseX = mx; this.mouseY = my;
         layout();   // las casillas de otros mods pueden aparecer o desaparecer
         Theme t = Layout.get().theme();
-        int w = this.width, h = this.height;
+        int w = this.width, h = this.height, ww = workW();
 
         g.fill(0, 0, w, h, t.bg);
         Draw.vignette(g, w, h);
         Draw.scanlines(g, w, h);
         Draw.corners(g, 10, 10, w - 20, h - 20, 18, Theme.alpha(t.accent, 200));
         boolean blink = (System.currentTimeMillis() / 600) % 2 == 0;
-        g.fill(w / 2 - 62, 9, w / 2 - 58, 13, blink ? t.accent : Theme.alpha(t.accent, 70));
-        Draw.text(g, this.font, "LIVE //TAC_STATUS_ACTIVE", w / 2 - 54, 8, Theme.alpha(t.text, 220), 0.8f);
+        g.fill(ww / 2 - 62, 9, ww / 2 - 58, 13, blink ? t.accent : Theme.alpha(t.accent, 70));
+        Draw.text(g, this.font, "LIVE //TAC_STATUS_ACTIVE", ww / 2 - 54, 8, Theme.alpha(t.text, 220), 0.8f);
 
         // modelo del jugador y anillo de equipo
-        int mcx = w / 2, mcy = (int) (h * 0.46);
+        int mcx = ww / 2, mcy = (int) (h * 0.46);
         Draw.corners(g, mcx - 52, mcy - (int) (h * 0.23), 104, (int) (h * 0.46), 8, Theme.alpha(t.accent, 160));
-        for (Slot s : menu.slots) {
-            if (!isRing(s)) continue;
-            Draw.dotted(g, s.x + 8, s.y + 8, mcx, mcy, Theme.alpha(t.accent, 90), 5);
-        }
+        for (int[] p : ringPts) Draw.dotted(g, p[0], p[1], mcx, mcy, Theme.alpha(t.accent, 90), 5);
         int scale = Math.max(30, h / 6);
         InventoryScreen.renderEntityInInventoryFollowsMouse(g, mcx, mcy + scale, scale, (float) (mcx - mx), (float) (mcy - scale - my), player);
 
@@ -516,49 +554,49 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             button(g, t, btnDrop, "DROP", !menu.getCarried().isEmpty());
         }
         for (Object[] l : saLabels) Draw.text(g, font, (String) l[2], (Integer) l[0], (Integer) l[1], Theme.alpha(t.text, 150), 0.6f);
-        for (Object[] l : ringLabels) {
-            Slot s = (Slot) l[0];
-            Draw.textCenter(g, font, (String) l[1], s.x + 8, s.y + 19, Theme.alpha(t.text, 130), 0.5f);
-        }
-        if (btnEmi != null) {
-            button(g, t, btnEmi, "RECIPES", false);
-            if (System.currentTimeMillis() - emiHint < 2500)
-                Draw.text(g, font, "PASA EL CURSOR POR UN OBJETO Y PULSA RECIPES (SHIFT = USOS)", w / 2 - 110, 36, t.accent, 0.7f);
-        }
-        if (mode == Mode.CREATIVE) drawCreative(g, t, mx, my);
-        if (mode == Mode.CURIOS) {
-            for (Object[] l : curioLabels) Draw.text(g, font, (String) l[2], (Integer) l[0], (Integer) l[1], Theme.alpha(t.text, 150), 0.6f);
-            if (btnCosm != null) button(g, t, btnCosm, "COSMETIC", CuriosCompat.viewingCosmetics(menu));
-            if (btnPgPrev != null) {
-                button(g, t, btnPgPrev, "<", false);
-                button(g, t, btnPgNext, ">", false);
-                Draw.textCenter(g, font, (CuriosCompat.currentPage(menu) + 1) + "/" + CuriosCompat.totalPages(menu), pgX + 0, pgY, t.text, 0.7f);
-            }
+        for (Object[] l : ringLabels)
+            Draw.textCenter(g, font, (String) l[1], xOf(l[0]) + 8, yOf(l[0]) + 19, Theme.alpha(t.text, 130), 0.5f);
+        if (creative) drawCreative(g, t, mx, my);
+        for (Object[] l : curioLabels) Draw.text(g, font, (String) l[2], (Integer) l[0], (Integer) l[1], Theme.alpha(t.text, 150), 0.6f);
+        if (btnCosm != null) button(g, t, btnCosm, "CURIO-COS", CuriosCompat.viewingCosmetics(menu));
+        if (btnPgPrev != null) {
+            button(g, t, btnPgPrev, "<", false);
+            button(g, t, btnPgNext, ">", false);
+            Draw.textCenter(g, font, (CuriosCompat.currentPage(menu) + 1) + "/" + CuriosCompat.totalPages(menu), pgX, pgY, t.text, 0.7f);
         }
         button(g, t, btnEdit, "EDIT", edit);
         button(g, t, btnTheme, Layout.get().theme, false);
-        if (btnMode != null) button(g, t, btnMode, mode == Mode.CURIOS ? "INVENTORY" : "CURIOS", mode == Mode.CURIOS);
+        for (Object[] tb : tabBtns) button(g, t, (int[]) tb[1], (String) tb[0], tb[2] == mode);
+        // botones de ocultar armadura (los del propio mod Cosmetic Armor)
+        for (int[] sb : skinBtns) {
+            boolean on = CosCompat.skin(player, sb[2]);
+            boolean hov = mx >= sb[0] && mx < sb[0] + 9 && my >= sb[1] && my < sb[1] + 9;
+            g.fill(sb[0], sb[1], sb[0] + 9, sb[1] + 9, on ? Theme.alpha(t.accent, 140) : 0xAA000000);
+            Draw.frame(g, sb[0], sb[1], 9, 9, hov || on ? t.accent : Theme.alpha(t.dim, 230));
+            Draw.textCenter(g, font, "H", sb[0] + 5, sb[1] + 2, hov || on ? t.text : Theme.alpha(t.text, 170), 0.7f);
+        }
+        // casillas de solo lectura de otros menus
+        for (Ghost gh : ghosts) {
+            boolean hov = mx >= gh.x - 1 && mx < gh.x + 17 && my >= gh.y - 1 && my < gh.y + 17;
+            Draw.slot(g, t, gh.x, gh.y, hov, false);
+            if (!gh.stack.isEmpty()) {
+                g.renderItem(gh.stack, gh.x, gh.y);
+                g.renderItemDecorations(font, gh.stack, gh.x, gh.y);
+            }
+            g.fill(gh.x, gh.y, gh.x + 16, gh.y + 16, 0x44000000);
+        }
 
         // marcos de todas las casillas visibles
         for (Slot s : menu.slots) {
             if (!s.isActive()) continue;
-            if (mode != Mode.CURIOS && s.index >= 46 && !visibleOriginally(s) && SaCompat.clothingArea(s) == null && !SaCompat.isBackpack(s)) continue;
+            if (mode == Mode.INVENTORY && s.index >= 46 && !visibleOriginally(s) && SaCompat.clothingArea(s) == null && !SaCompat.isBackpack(s)) continue;
             if (s.x < 0) continue;
             boolean hov = mx >= s.x - 1 && mx < s.x + 17 && my >= s.y - 1 && my < s.y + 17;
             Draw.slot(g, t, s.x, s.y, hov, mode == Mode.CURIOS && CuriosCompat.cosmetic(s));
         }
         if (edit) {
-            Draw.textCenter(g, font, "EDIT MODE  |  ARRASTRA LOS PANELES  |  R REINICIAR  |  ESC GUARDAR", w / 2, 46, t.accent, 0.8f);
+            Draw.textCenter(g, font, "EDIT MODE  |  ARRASTRA LOS PANELES  |  R REINICIAR  |  ESC GUARDAR", ww / 2, 46, t.accent, 0.8f);
         }
-    }
-
-    private boolean isRing(Slot s) {
-        return ringSet.contains(s);
-    }
-
-    private boolean inExtra(Slot s) {
-        int[] r = rects.get(EXTRA);
-        return r != null && s.x >= r[0] && s.x < r[0] + r[2] && s.y >= r[1] && s.y < r[1] + r[3];
     }
 
     private void button(GuiGraphics g, Theme t, int[] r, String label, boolean active) {
@@ -573,7 +611,10 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
     @Override
     protected boolean hasClickedOutside(double mx, double my, int left, int top, int button) {
         for (int[] r : rects.values()) if (in(r, mx, my)) return false;
-        for (int[] b : new int[][]{btnEdit, btnTheme, btnMode, btnEmi, btnSort, btnDrop, btnCosm, btnPgPrev, btnPgNext}) if (in(b, mx, my)) return false;
+        for (int[] b : new int[][]{btnEdit, btnTheme, btnSort, btnDrop, btnCosm, btnPgPrev, btnPgNext}) if (in(b, mx, my)) return false;
+        for (Object[] tb : tabBtns) if (in((int[]) tb[1], mx, my)) return false;
+        for (int[] sb : skinBtns) if (mx >= sb[0] && mx < sb[0] + 9 && my >= sb[1] && my < sb[1] + 9) return false;
+        for (Ghost gh : ghosts) if (mx >= gh.x - 1 && mx < gh.x + 17 && my >= gh.y - 1 && my < gh.y + 17) return false;
         return slotAt(mx, my) == null;
     }
 
@@ -583,9 +624,15 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
     @Override
     public void render(GuiGraphics g, int mx, int my, float pt) {
         super.render(g, mx, my, pt);
-        Slot hs = getSlotUnderMouse();
-        if (hs != null && hs.hasItem()) lastHover = hs.getItem().copy();
-        else { int c = cellAt(mx, my); if (c >= 0) lastHover = shown.get(c).copy(); }
+        for (Ghost gh : ghosts) {
+            if (mx >= gh.x - 1 && mx < gh.x + 17 && my >= gh.y - 1 && my < gh.y + 17) {
+                if (!gh.stack.isEmpty()) g.renderTooltip(font, gh.stack, mx, my);
+                else g.renderTooltip(font, Component.literal(gh.label.toUpperCase().replace('_', ' ') + "  (CLIC: ABRIR)"), mx, my);
+            }
+        }
+        for (int[] sb : skinBtns)
+            if (mx >= sb[0] && mx < sb[0] + 9 && my >= sb[1] && my < sb[1] + 9)
+                g.renderTooltip(font, Component.literal("OCULTAR ESTA PIEZA DE ARMADURA"), mx, my);
         creativeTooltip(g, mx, my);
     }
 
@@ -596,14 +643,12 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         if (button == 0) {
             if (in(btnEdit, mx, my)) { edit = !edit; if (!edit) Layout.get().save(); return true; }
             if (in(btnTheme, mx, my)) { Layout lay = Layout.get(); lay.theme = lay.theme().next().name(); lay.save(); return true; }
-            if (in(btnEmi, mx, my) && !edit) {
-                ItemStack st = !menu.getCarried().isEmpty() ? menu.getCarried() : !held.isEmpty() ? held : lastHover;
-                if (st.isEmpty()) emiHint = System.currentTimeMillis(); else EmiCompat.show(st.copy(), hasShiftDown());
-                return true;
-            }
-            if (in(btnMode, mx, my) && !edit) {
-                if (mode == Mode.CURIOS) CuriosCompat.openVanilla(); else CuriosCompat.openCurios();
-                return true;
+            if (!edit) {
+                for (Object[] tb : tabBtns) if (in((int[]) tb[1], mx, my)) { switchTo((Mode) tb[2]); return true; }
+                for (int[] sb : skinBtns)
+                    if (mx >= sb[0] && mx < sb[0] + 9 && my >= sb[1] && my < sb[1] + 9) { CosCompat.toggleSkin(player, sb[2]); return true; }
+                for (Ghost gh : ghosts)
+                    if (mx >= gh.x - 1 && mx < gh.x + 17 && my >= gh.y - 1 && my < gh.y + 17) { switchTo(gh.tab); return true; }
             }
             if (edit) {
                 for (String k : new String[]{EQUIP, CRAFT, HOTBAR, EXTRA, ITEMS, CURIOS, BACKPACK, CLOTHES}) {
@@ -612,22 +657,20 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
                 }
                 return true;
             }
-            if (mode == Mode.CURIOS) {
-                if (in(btnCosm, mx, my)) { CuriosCompat.toggleCosmetics(menu); return true; }
-                if (in(btnPgPrev, mx, my)) { CuriosCompat.page(menu, false); return true; }
-                if (in(btnPgNext, mx, my)) { CuriosCompat.page(menu, true); return true; }
-            }
+            if (in(btnCosm, mx, my)) { CuriosCompat.toggleCosmetics(menu); return true; }
+            if (in(btnPgPrev, mx, my)) { CuriosCompat.page(menu, false); return true; }
+            if (in(btnPgNext, mx, my)) { CuriosCompat.page(menu, true); return true; }
             if (in(btnSort, mx, my)) { sort(); return true; }
             if (in(btnDrop, mx, my)) { drop(); return true; }
         }
         if (edit) return true;
-        if (mode == Mode.CREATIVE && creativeClick(mx, my, button)) return true;
+        if (creative && creativeClick(mx, my, button)) return true;
         return super.mouseClicked(mx, my, button);
     }
 
     @Override
     public boolean mouseScrolled(double mx, double my, double delta) {
-        if (mode == Mode.CREATIVE && in(rects.get(ITEMS), mx, my)) {
+        if (creative && in(rects.get(ITEMS), mx, my)) {
             scroll = Math.max(0, Math.min(maxScroll(), scroll - (int) Math.signum(delta)));
             return true;
         }
@@ -669,6 +712,21 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
     }
 
     // ------------------------------------------------------------------ acciones
+
+    /** Cambia de menu (Curios / armadura cosmetica / inventario): la pantalla se vuelve a abrir con el menu nuevo. */
+    private void switchTo(Mode target) {
+        if (target == mode) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        try {
+            if (target == Mode.CURIOS) CuriosCompat.openCurios();
+            else if (target == Mode.COSMETIC) CosCompat.openCos();
+            else {
+                mc.player.closeContainer();
+                mc.setScreen(new TacInventoryScreen(mc.player, mc.player.inventoryMenu, Mode.INVENTORY));
+            }
+        } catch (Throwable t) { TacUI.LOGGER.warn("No se pudo cambiar de menu: {}", t.toString()); }
+    }
 
     private void drop() {
         Minecraft mc = Minecraft.getInstance();
