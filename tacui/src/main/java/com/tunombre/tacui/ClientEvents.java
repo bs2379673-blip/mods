@@ -48,6 +48,12 @@ public final class ClientEvents {
             }
         }
 
+        /** Las imagenes de los admins se ven tambien con cualquier pantalla abierta. */
+        @SubscribeEvent
+        public static void onScreenPost(ScreenEvent.Render.Post e) {
+            ImageOverlay.render(e.getGuiGraphics(), e.getScreen().width, e.getScreen().height);
+        }
+
         @SubscribeEvent
         public static void onOverlay(RenderGuiOverlayEvent.Pre e) {
             if (!Layout.get().hud) return;
@@ -55,7 +61,7 @@ public final class ClientEvents {
             if (id.equals(VanillaGuiOverlay.HOTBAR.id()) || id.equals(VanillaGuiOverlay.PLAYER_HEALTH.id())
                     || id.equals(VanillaGuiOverlay.ARMOR_LEVEL.id()) || id.equals(VanillaGuiOverlay.FOOD_LEVEL.id())
                     || id.equals(VanillaGuiOverlay.AIR_LEVEL.id()) || id.equals(VanillaGuiOverlay.EXPERIENCE_BAR.id())
-                    || id.equals(VanillaGuiOverlay.ITEM_NAME.id())) {
+                    || id.equals(VanillaGuiOverlay.ITEM_NAME.id()) || id.equals(VanillaGuiOverlay.POTION_ICONS.id())) {
                 e.setCanceled(true);
             }
         }
@@ -92,6 +98,7 @@ public final class ClientEvents {
         @SubscribeEvent
         public static void onOverlays(RegisterGuiOverlaysEvent e) {
             e.registerAboveAll("hud", HudOverlay::render);
+            e.registerAboveAll("images", (gui, g, pt, w, h) -> { if (Minecraft.getInstance().screen == null) ImageOverlay.render(g, w, h); });
         }
     }
 }

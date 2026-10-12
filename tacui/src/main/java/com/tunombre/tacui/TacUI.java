@@ -14,5 +14,6 @@ public class TacUI {
     public TacUI() {
         ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class,
                 () -> new IExtensionPoint.DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (s, b) -> true));
+        TacNet.init();
     }
 }

@@ -260,10 +260,10 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         int sy = 38, bpBottom = 38;
         if (!bpSlots.isEmpty()) {
             int bcols = 6, rowsB = (bpSlots.size() + bcols - 1) / bcols;
-            int pw = bcols * 20 + 12, ph = 13 + 6 + rowsB * 20 + 6;
+            int pw = bcols * 20 + 12, ph = 13 + 12 + rowsB * 20 + 7;
             int[] bp = clamp(lay.px(BACKPACK, 18, sy, w, h), pw, ph, w, h);
             rects.put(BACKPACK, new int[]{bp[0], bp[1], pw, ph});
-            for (int i = 0; i < bpSlots.size(); i++) place(bpSlots.get(i), bp[0] + 7 + (i % bcols) * 20, bp[1] + 19 + (i / bcols) * 20);
+            for (int i = 0; i < bpSlots.size(); i++) place(bpSlots.get(i), bp[0] + 7 + (i % bcols) * 20, bp[1] + 26 + (i / bcols) * 20);
             bpBottom = bp[1] + ph;
         }
         if (!clothes.isEmpty()) {
@@ -591,6 +591,8 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
             String ti = titles[i].isEmpty() ? "" : String.format("%02d // %s", i + 1, titles[i]);
             Draw.panel(g, font, t, r[0], r[1], r[2], r[3], ti, edit || keys[i].equals(dragging));
         }
+        int[] bpr = rects.get(BACKPACK);
+        if (bpr != null) drawBackpackDeco(g, t, bpr);
         int[] c = rects.get(CRAFT);
         if (c != null) Draw.textCenter(g, font, "→", c[0] + 62, c[1] + 36, t.accent, 1.2f);
         int[] e = rects.get(EQUIP);
@@ -636,6 +638,15 @@ public class TacInventoryScreen extends AbstractContainerScreen<AbstractContaine
         if (edit) {
             Draw.textCenter(g, font, "EDIT MODE  |  ARRASTRA LOS PANELES  |  R REINICIAR  |  ESC GUARDAR", ww / 2, 46, t.accent, 0.8f);
         }
+    }
+
+    /** Mochila: tela con trama, costura y cremallera que se abre al entrar. */
+    private void drawBackpackDeco(GuiGraphics g, Theme t, int[] r) {
+        for (int y = r[1] + 16; y < r[1] + r[3] - 2; y += 3) g.fill(r[0] + 1, y, r[0] + r[2] - 1, y + 1, 0x0AFFFFFF);   // trama de tela
+        Draw.stitch(g, r[0] + 3, r[1] + 16, r[2] - 6, r[3] - 19, Theme.alpha(t.accent, 110));
+        float k = Math.min(1f, (System.currentTimeMillis() - openedAt) / 650f);
+        float e = 1f - (1f - k) * (1f - k) * (1f - k);
+        Draw.zipper(g, t, r[0] + 7, r[1] + 18, r[2] - 18, e);
     }
 
     private void button(GuiGraphics g, Theme t, int[] r, String label, boolean active) {

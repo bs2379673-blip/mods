@@ -99,4 +99,64 @@ public final class Draw {
             g.fill(px, py, px + 1, py + 1, color);
         }
     }
+
+    /** Paralelogramo inclinado: la fila de arriba se desplaza 'skew' px a la derecha. */
+    public static void slant(GuiGraphics g, int x, int y, int w, int h, int skew, int c) {
+        if (w <= 0) return;
+        for (int r = 0; r < h; r++) {
+            int off = h <= 1 ? 0 : skew * (h - 1 - r) / (h - 1);
+            g.fill(x + off, y + r, x + off + w, y + r + 1, c);
+        }
+    }
+
+    /** Barra inclinada con segmentos. */
+    public static void slantBar(GuiGraphics g, int x, int y, int w, int h, int skew, float frac, int col, int back, int segs) {
+        slant(g, x, y, w, h, skew, back);
+        int fw = Math.round(w * Math.max(0f, Math.min(1f, frac)));
+        slant(g, x, y, fw, h, skew, col);
+        if (fw > 0 && h > 2) slant(g, x + (h > 1 ? 0 : 0), y, fw, 1, 0, 0x30FFFFFF);
+        for (int s = 1; s < segs; s++) {
+            int sx = x + w * s / segs;
+            for (int r = 0; r < h; r++) {
+                int off = h <= 1 ? 0 : skew * (h - 1 - r) / (h - 1);
+                g.fill(sx + off, y + r, sx + off + 1, y + r + 1, 0x99000000);
+            }
+        }
+    }
+
+    /** Degradado horizontal de negro (para el fondo de los bloques del HUD). dir 1 = se desvanece hacia la derecha. */
+    public static void fadeRect(GuiGraphics g, int x, int y, int w, int h, int alpha, int dir) {
+        int steps = 16;
+        for (int i = 0; i < steps; i++) {
+            int a = (int) (alpha * (1f - i / (float) steps));
+            int x1 = dir > 0 ? x + w * i / steps : x + w - w * (i + 1) / steps;
+            int x2 = dir > 0 ? x + w * (i + 1) / steps : x + w - w * i / steps;
+            g.fill(x1, y, x2, y + h, a << 24);
+        }
+    }
+
+    /** Cremallera: dientes metalicos a lo largo de una linea; 'open' 0..1 = hasta donde esta abierta (el tirador va ahi). */
+    public static void zipper(GuiGraphics g, Theme t, int x, int y, int w, float open) {
+        int ox = x + Math.round(w * Math.max(0f, Math.min(1f, open)));
+        for (int i = 0; x + i * 3 < x + w; i++) {
+            int tx = x + i * 3;
+            boolean opened = tx < ox;
+            int up = (i % 2 == 0) ? 0 : 2;
+            int dy = opened ? (up == 0 ? -1 : 2) : up;
+            g.fill(tx, y + dy, tx + 2, y + dy + 2, 0xFFB8B8B8);
+            g.fill(tx, y + dy + 1, tx + 2, y + dy + 2, 0xFF6E6E6E);
+        }
+        g.fill(x, y + 4, x + w, y + 5, 0x55000000);
+        // tirador
+        g.fill(ox - 2, y - 2, ox + 4, y + 5, 0xFFD0D0D0);
+        frame(g, ox - 2, y - 2, 6, 7, 0xFF505050);
+        g.fill(ox, y + 5, ox + 2, y + 10, 0xFFB0B0B0);
+        g.fill(ox - 1, y + 9, ox + 3, y + 11, t.accent);
+    }
+
+    /** Costura: linea discontinua por dentro de un rectangulo. */
+    public static void stitch(GuiGraphics g, int x, int y, int w, int h, int c) {
+        for (int i = 0; i < w; i += 4) { g.fill(x + i, y, x + Math.min(i + 2, w), y + 1, c); g.fill(x + i, y + h - 1, x + Math.min(i + 2, w), y + h, c); }
+        for (int i = 0; i < h; i += 4) { g.fill(x, y + i, x + 1, y + Math.min(i + 2, h), c); g.fill(x + w - 1, y + i, x + w, y + Math.min(i + 2, h), c); }
+    }
 }

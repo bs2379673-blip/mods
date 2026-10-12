@@ -31,6 +31,7 @@ public final class ContainerSkin {
     private ContainerSkin() {}
 
     private static final Map<Screen, Component> TITLES = new WeakHashMap<>();
+    private static final Map<Screen, Long> OPENED = new WeakHashMap<>();
     private static Field titleField, invTitleField;
     private static boolean fieldsDone;
 
@@ -91,6 +92,13 @@ public final class ContainerSkin {
         }
         if (minY != Integer.MAX_VALUE) Draw.text(g, mc.font, "INVENTORY", L + minX, T + minY - 9, Theme.alpha(t.text, 170), 0.7f);
 
+        if (s.getMenu().getClass().getName().toLowerCase().contains("backpack")) {
+            // mochila: costura por dentro y cremallera bajo el titulo, que se abre al entrar
+            Draw.stitch(g, L, T + 13, W, H - 15, Theme.alpha(t.accent, 110));
+            long since = System.currentTimeMillis() - OPENED.computeIfAbsent(s, k -> System.currentTimeMillis());
+            float k = Math.min(1f, since / 650f);
+            Draw.zipper(g, t, L + 6, T + 14, W - 16, 1f - (1f - k) * (1f - k) * (1f - k));
+        }
         for (Slot sl : s.getMenu().slots) {
             if (!sl.isActive()) continue;
             int x = L + sl.x, y = T + sl.y;
