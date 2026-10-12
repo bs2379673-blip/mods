@@ -73,6 +73,7 @@ public class BestiaLago {
     public static AnimationManager.AnimationAccessor<StaticAnimation> JAW_HOLD;
     /** (cliente) el servidor nos tiene agarrados: no dejar que el cliente se baje solo */
     public static volatile boolean clientHeld;
+    public static final org.slf4j.Logger LOG = com.mojang.logging.LogUtils.getLogger();
 
     // ---- configuracion (config/bestialago-common.toml) ----
     private static final ForgeConfigSpec.Builder B = new ForgeConfigSpec.Builder();
@@ -96,6 +97,12 @@ public class BestiaLago {
         bus.addListener(BestiaLago::onAttributes);
         bus.addListener(BestiaLago::onCreativeTab);
         MinecraftForge.EVENT_BUS.addListener(BestiaLago::onMount);
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.entity.living.LivingDeathEvent e) -> {
+            if (e.getEntity() instanceof net.minecraft.server.level.ServerPlayer p && p.getVehicle() instanceof Bestia b && b.getState() != Bestia.SWALLOW) b.forceRelease(p);
+        });
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent e) -> {
+            if (e.getEntity().getVehicle() instanceof Bestia b && e.getEntity() instanceof net.minecraft.server.level.ServerPlayer p) b.forceRelease(p);
+        });
         MinecraftForge.EVENT_BUS.addListener(BestiaLago::onCommands);
         BestiaNet.init();
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.bestialago.client.ClientSetup.init(bus));

@@ -147,6 +147,12 @@ public class Motosierra extends InfMob {
     }
 
     @Override
+    protected void onForceRelease() {
+        decap = -1;
+        stop(Anims.M_GRAB);
+    }
+
+    @Override
     protected void endGrab(Player p, boolean escaped) {
         stop(Anims.M_GRAB);
         super.endGrab(p, escaped);

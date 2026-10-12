@@ -158,6 +158,13 @@ public class Ganado extends InfMob {
     }
 
     @Override
+    protected void onForceRelease() {
+        stop(Anims.G_GRAB);
+        entityData.set(IMPALE_START, -1000);
+        dodgeState = 0;
+    }
+
+    @Override
     protected void endGrab(Player p, boolean escaped) {
         stop(Anims.G_GRAB);
         super.endGrab(p, escaped);

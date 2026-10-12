@@ -220,10 +220,27 @@ public abstract class InfMob extends Monster {
     @Override public LivingEntity getControllingPassenger() { return null; }
 
     // ------------------------------------------------------------------ tick ----
+    protected void onForceRelease() { }
+
+    /** suelta al jugador y limpia el estado (el jugador murio por otra causa, se desconecto...) */
+    public void forceRelease(Player p) {
+        if (p instanceof ServerPlayer sp) InfNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new InfNet.Qte(0, false, qteKind));
+        releasing = true;
+        p.stopRiding();
+        releasing = false;
+        grip = 50F;
+        grabTicks = 0;
+        move = null;
+        attackCd = 100;
+        onForceRelease();
+    }
+
     @Override
     public void aiStep() {
         super.aiStep();
         if (!level().isClientSide) {
+            Entity pas = getFirstPassenger();
+            if (pas instanceof Player pp && (!pp.isAlive() || pp.isRemoved())) forceRelease(pp);
             if (attackCd > 0) attackCd--;
             tickMove();
         }

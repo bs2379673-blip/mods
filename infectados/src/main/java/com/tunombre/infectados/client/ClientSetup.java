@@ -50,6 +50,10 @@ public final class ClientSetup {
             QteHud.renderPrompt(g, pt);
         }));
         MinecraftForge.EVENT_BUS.addListener(ClientSetup::onKey);
+        MinecraftForge.EVENT_BUS.addListener(ClientSetup::onMouse);
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.client.event.ClientPlayerNetworkEvent.Clone e) -> { Infectados.clientHeld = false; });
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggingIn e) -> { Infectados.clientHeld = false; });
+        MinecraftForge.EVENT_BUS.addListener(ClientSetup::onTick);
         MinecraftForge.EVENT_BUS.addListener(ClientSetup::onCamera);
         MinecraftForge.EVENT_BUS.addListener(ClientFx::renderStage);
         MinecraftForge.EVENT_BUS.addListener(ClientFx::clientTick);
@@ -97,11 +101,41 @@ public final class ClientSetup {
             }
             return;
         }
-        if (!QteHud.on()) return;
-        if (mc.options.keyJump.matches(e.getKey(), e.getScanCode())) {
-            InfNet.CH.sendToServer(new InfNet.Struggle());
-            QteHud.pressed();
+        if (!held(mc)) return;
+        if (mc.options.keyJump.matches(e.getKey(), e.getScanCode())) { raw++; press(); }
+    }
+
+    private static int raw;
+    private static boolean wasDown;
+
+    /** el cliente cree estar agarrado por un infectado (no depende del paquete del QTE) */
+    private static boolean held(Minecraft mc) {
+        return mc.player != null && mc.screen == null && !QteHud.promptActive() && mc.player.getVehicle() instanceof com.tunombre.infectados.InfMob;
+    }
+
+    private static void press() {
+        InfNet.CH.sendToServer(new InfNet.Struggle());
+        QteHud.pressed();
+    }
+
+    private static void onMouse(InputEvent.MouseButton.Pre e) {
+        if (e.getAction() != GLFW.GLFW_PRESS) return;
+        if (held(Minecraft.getInstance())) { raw++; press(); }
+    }
+
+    /** red de seguridad por estado de la tecla, por si no llega el evento de teclado */
+    private static void onTick(net.minecraftforge.event.TickEvent.ClientTickEvent e) {
+        if (e.phase != net.minecraftforge.event.TickEvent.Phase.END) return;
+        Minecraft mc = Minecraft.getInstance();
+        boolean down = false;
+        if (held(mc)) {
+            com.mojang.blaze3d.platform.InputConstants.Key k = mc.options.keyJump.getKey();
+            if (k.getType() == com.mojang.blaze3d.platform.InputConstants.Type.KEYSYM)
+                down = com.mojang.blaze3d.platform.InputConstants.isKeyDown(mc.getWindow().getWindow(), k.getValue());
+            if (down && !wasDown && raw == 0) press();
         }
+        wasDown = down;
+        raw = 0;
     }
 
     private static void onCamera(ViewportEvent.ComputeCameraAngles e) {

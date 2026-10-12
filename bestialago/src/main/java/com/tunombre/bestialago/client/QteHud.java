@@ -23,6 +23,12 @@ public final class QteHud {
 
     static boolean on() {
         Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null && mc.player.getVehicle() instanceof com.tunombre.bestialago.Bestia b && b.getState() == com.tunombre.bestialago.Bestia.GRAB) {
+            // dato sincronizado de la propia bestia: funciona aunque no llegue el paquete del QTE
+            grip = Math.round(b.getGrip());
+            active = true;
+            lastUpdate = System.currentTimeMillis();
+        }
         if (active && System.currentTimeMillis() - lastUpdate > 1500) active = false;   // se perdio el paquete de fin
         return active && mc.player != null && mc.player.isAlive();
     }

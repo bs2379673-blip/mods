@@ -24,17 +24,52 @@ public final class ClientSetup {
         bus.addListener((EntityRenderersEvent.RegisterRenderers e) -> e.registerEntityRenderer(BestiaLago.BESTIA.get(), BestiaRenderer::new));
         bus.addListener((RegisterGuiOverlaysEvent e) -> e.registerAboveAll("qte", (gui, g, pt, w, h) -> QteHud.render(g, pt)));
         MinecraftForge.EVENT_BUS.addListener(ClientSetup::onKey);
+        MinecraftForge.EVENT_BUS.addListener(ClientSetup::onMouse);
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.client.event.ClientPlayerNetworkEvent.Clone e) -> { BestiaLago.clientHeld = false; });
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggingIn e) -> { BestiaLago.clientHeld = false; });
+        MinecraftForge.EVENT_BUS.addListener(ClientSetup::onTick);
         MinecraftForge.EVENT_BUS.addListener(ClientSetup::onCamera);
     }
 
+    private static int raw;
+    private static boolean wasDown;
+
+    /** el cliente cree estar en la boca de la bestia (no depende del paquete del QTE) */
+    private static boolean held(Minecraft mc) {
+        return mc.player != null && mc.screen == null && mc.player.getVehicle() instanceof com.tunombre.bestialago.Bestia;
+    }
+
+    private static void press() {
+        BestiaNet.CH.sendToServer(new BestiaNet.Struggle());
+        QteHud.pressed();
+    }
+
     private static void onKey(InputEvent.Key e) {
-        if (e.getAction() != GLFW.GLFW_PRESS || !QteHud.on()) return;
+        if (e.getAction() != GLFW.GLFW_PRESS) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != null) return;
-        if (mc.options.keyJump.matches(e.getKey(), e.getScanCode())) {
-            BestiaNet.CH.sendToServer(new BestiaNet.Struggle());
-            QteHud.pressed();
+        if (!held(mc)) return;
+        if (mc.options.keyJump.matches(e.getKey(), e.getScanCode())) { raw++; press(); }
+    }
+
+    /** tambien vale el click del raton */
+    private static void onMouse(InputEvent.MouseButton.Pre e) {
+        if (e.getAction() != GLFW.GLFW_PRESS) return;
+        if (held(Minecraft.getInstance())) { raw++; press(); }
+    }
+
+    /** red de seguridad: si por lo que sea no llego el evento de teclado, se detecta por estado de la tecla cada tick */
+    private static void onTick(net.minecraftforge.event.TickEvent.ClientTickEvent e) {
+        if (e.phase != net.minecraftforge.event.TickEvent.Phase.END) return;
+        Minecraft mc = Minecraft.getInstance();
+        boolean down = false;
+        if (held(mc)) {
+            com.mojang.blaze3d.platform.InputConstants.Key k = mc.options.keyJump.getKey();
+            if (k.getType() == com.mojang.blaze3d.platform.InputConstants.Type.KEYSYM)
+                down = com.mojang.blaze3d.platform.InputConstants.isKeyDown(mc.getWindow().getWindow(), k.getValue());
+            if (down && !wasDown && raw == 0) press();
         }
+        wasDown = down;
+        raw = 0;
     }
 
     private static void onCamera(ViewportEvent.ComputeCameraAngles e) {

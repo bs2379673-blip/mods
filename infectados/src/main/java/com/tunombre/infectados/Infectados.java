@@ -140,6 +140,13 @@ public class Infectados {
         bus.addListener(Infectados::onSpawnPlacement);
         bus.addListener(Infectados::onCreativeTab);
         MinecraftForge.EVENT_BUS.addListener(Infectados::onMount);
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.entity.living.LivingDeathEvent e) -> {
+            // si muere por otra causa mientras lo agarran, el infectado lo suelta y se limpia (si lo mata el propio agarre, ya se encarga el)
+            if (e.getEntity() instanceof net.minecraft.server.level.ServerPlayer p && p.getVehicle() instanceof InfMob m && !(e.getSource().getEntity() == m)) m.forceRelease(p);
+        });
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent e) -> {
+            if (e.getEntity() instanceof net.minecraft.server.level.ServerPlayer p && p.getVehicle() instanceof InfMob m) m.forceRelease(p);
+        });
         MinecraftForge.EVENT_BUS.addListener(Infectados::onCommands);
         MinecraftForge.EVENT_BUS.addListener(Infectados::onServerTick);
         MinecraftForge.EVENT_BUS.addListener(Infectados::onPlayerTick);

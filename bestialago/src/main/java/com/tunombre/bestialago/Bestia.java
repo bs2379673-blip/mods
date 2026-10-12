@@ -68,6 +68,7 @@ public class Bestia extends PathfinderMob {
     private float grip;
     private int struggleTick, strugglesThisTick;
     private boolean releasing;
+    private int presses;
     private double speed;
     private float turnBias;
     private int roarCd;
@@ -257,6 +258,7 @@ public class Bestia extends PathfinderMob {
         if (struggleTick != tickCount) { struggleTick = tickCount; strugglesThisTick = 0; }
         if (++strugglesThisTick > 3) return;
         grip = Math.min(100F, grip + BestiaLago.cfgPress);
+        presses++;
     }
 
     // ------------------------------------------------------------------ IA (servidor) ----
@@ -276,6 +278,9 @@ public class Bestia extends PathfinderMob {
         if (cooldown > 0) cooldown--;
         if (roarCd > 0) roarCd--;
 
+        // el pasajero murio por otra causa (o ya no existe): soltarlo y limpiar, para no quedar con un agarre fantasma
+        Entity pas = getFirstPassenger();
+        if (pas instanceof Player pp && (!pp.isAlive() || pp.isRemoved()) && getState() != SWALLOW) forceRelease(pp);
         Player target = target(lv);
         byte s = getState();
         switch (s) {
@@ -472,8 +477,10 @@ public class Bestia extends PathfinderMob {
     private void startGrab(Player t) {
         if (!t.startRiding(this, true)) { setState(RETREAT); return; }
         grip = 55F;
+        presses = 0;
         releasing = false;
         setState(GRAB);
+        BestiaLago.LOG.info("[Bestia] agarre iniciado sobre {}", t.getName().getString());
         playLoud(BestiaLago.BITE.get(), 1.0F);
         splash(mouth(), 60);
         if (t instanceof ServerPlayer sp) {
@@ -504,22 +511,40 @@ public class Bestia extends PathfinderMob {
         }
         if (grip >= 100F) endGrab(t, true);
         else if (grip <= 0F) {
+            BestiaLago.LOG.info("[Bestia] el jugador no completo el QTE (pulsaciones recibidas={})", presses);
             setState(SWALLOW);
             setJaw(0F);
         }
     }
 
+    /** suelta al jugador y deja a la bestia en un estado limpio (muerte del jugador, desconexion...) */
+    public void forceRelease(Player p) {
+        if (p instanceof ServerPlayer sp) BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Qte(0, false));
+        releasing = true;
+        p.stopRiding();
+        releasing = false;
+        if (p instanceof ServerPlayer sp) {
+            ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(sp, ServerPlayerPatch.class);
+            if (pp != null && BestiaLago.JAW_HOLD != null) pp.stopPlaying(BestiaLago.JAW_HOLD);
+        }
+        targetId = null;
+        grip = 55F;
+        cooldown = 120;
+        setState(RETREAT);
+    }
+
     private void swallow() {
         Entity e = getFirstPassenger();
         speed = 0.05;
-        if (stateTicks == 5 && e instanceof Player p) {
+        if (stateTicks == 20 && e instanceof Player p) {
             playLoud(BestiaLago.SWALLOW.get(), 1.0F);
             releasing = true;
             if (p instanceof ServerPlayer sp) BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Qte(0, false));
             p.hurt(new DamageSource(level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(BestiaLago.SWALLOWED), this), Float.MAX_VALUE);
             if (p.isAlive()) p.stopRiding();   // totem de la inmortalidad: lo escupe
         }
-        if (stateTicks > 30) {
+        if (stateTicks > 45) {
+            if (e instanceof Player dp && !dp.isAlive()) forceRelease(dp);
             releasing = false;
             targetId = null;
             cooldown = 200;
@@ -528,6 +553,7 @@ public class Bestia extends PathfinderMob {
     }
 
     private void endGrab(Player t, boolean escaped) {
+        BestiaLago.LOG.info("[Bestia] agarre terminado (escapo={}, pulsaciones recibidas={})", escaped, presses);
         if (t instanceof ServerPlayer sp) {
             // primero se avisa al cliente (los paquetes llegan en orden) y recien despues se lo baja
             BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Qte(100, false));
