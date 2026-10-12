@@ -1,0 +1,22 @@
+Bestia del Lago 1.0.0 (Forge 1.20.1, Epic Fight 20.14) - SERVIDOR y CLIENTES
+============================================================================
+Un monstruo gigante (~22 bloques) e inmortal que vigila un lago. No aparece solo: se spawnea a mano DENTRO del agua.
+  /summon bestialago:bestia ~ ~ ~     (o el huevo de la pestana de huevos)
+El punto donde aparece es el centro de su lago. Comandos (op 2), afectan a las bestias en 256 bloques:
+  /bestialago radio <bloques>   radio que patrulla (por defecto 64)
+  /bestialago casa              el centro pasa a ser donde esta ahora
+  /bestialago info              donde esta, centro, radio, estado
+Solo /kill la elimina (no recibe ningun otro dano).
+
+Comportamiento
+- Patrulla hondo y lento. Si alguien entra al agua o navega en bote dentro del lago, lo caza.
+- A veces asoma la cabeza y ruge antes de cazar. Acecha justo bajo la superficie (se le ve el lomo).
+- Bote: se pone debajo, sube en vertical, ROMPE EL BOTE (suelta el item) y tira al jugador al agua.
+- Nadando: abre la boca y se lanza. Si te alcanza te ATRAPA: quedas dentro de la boca sujetando las mandibulas.
+- Quick time event: spamear la tecla de SALTAR. La barra baja sola; si llega a 0 te TRAGA (mueres);
+  si la llenas te escupe, ruge y se aleja un rato antes de volver a cazarte.
+- No se puede salir de la boca con shift. Es mas rapida que un bote.
+Dificultad del QTE en config/bestialago-common.toml (qte_pulsacion, qte_caida_por_tick).
+
+Sonidos: assets/bestialago/sounds/*.ogg son propios (sintetizados). Para cambiarlos, un resource pack con los mismos
+nombres (roar, roar2, growl, splash, bite, swallow); deben ser .ogg MONO para que se oigan con distancia.
