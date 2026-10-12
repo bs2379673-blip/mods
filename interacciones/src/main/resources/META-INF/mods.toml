@@ -33,6 +33,6 @@ side="BOTH"
 [[dependencies.interacciones]]
 modId="easy_npc"
 mandatory=false
-versionRange=""
+versionRange="[0,)"
 ordering="AFTER"
 side="BOTH"
