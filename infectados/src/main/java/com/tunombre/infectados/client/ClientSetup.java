@@ -45,7 +45,10 @@ public final class ClientSetup {
         bus.addListener((EntityRenderersEvent.RegisterLayerDefinitions e) -> e.registerLayerDefinition(PLAGA_LAYER, PlagaModel::create));
         bus.addListener(ClientSetup::onRenderers);
         bus.addListener(ClientSetup::onPatched);
-        bus.addListener((RegisterGuiOverlaysEvent e) -> e.registerAboveAll("qte", (gui, g, pt, w, h) -> QteHud.render(g, pt)));
+        bus.addListener((RegisterGuiOverlaysEvent e) -> e.registerAboveAll("qte", (gui, g, pt, w, h) -> {
+            QteHud.render(g, pt);
+            QteHud.renderPrompt(g, pt);
+        }));
         MinecraftForge.EVENT_BUS.addListener(ClientSetup::onKey);
         MinecraftForge.EVENT_BUS.addListener(ClientSetup::onCamera);
         MinecraftForge.EVENT_BUS.addListener(ClientFx::renderStage);
@@ -81,9 +84,20 @@ public final class ClientSetup {
     }
 
     private static void onKey(InputEvent.Key e) {
-        if (e.getAction() != GLFW.GLFW_PRESS || !QteHud.on()) return;
+        if (e.getAction() != GLFW.GLFW_PRESS) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.screen != null) return;
+        if (QteHud.promptActive()) {
+            // esquiva: UNA pulsacion; si es la tecla equivocada, se falla
+            int k = mc.options.keyLeft.matches(e.getKey(), e.getScanCode()) ? 0 : mc.options.keyRight.matches(e.getKey(), e.getScanCode()) ? 1 : -1;
+            boolean other = mc.options.keyUp.matches(e.getKey(), e.getScanCode()) || mc.options.keyDown.matches(e.getKey(), e.getScanCode());
+            if (k >= 0 || other) {
+                InfNet.CH.sendToServer(new InfNet.Dodge(k < 0 ? 9 : k));
+                QteHud.promptPressed(k == QteHud.promptKey);
+            }
+            return;
+        }
+        if (!QteHud.on()) return;
         if (mc.options.keyJump.matches(e.getKey(), e.getScanCode())) {
             InfNet.CH.sendToServer(new InfNet.Struggle());
             QteHud.pressed();

@@ -8,6 +8,8 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.PacketDistributor;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -116,7 +118,7 @@ public class Ganado extends InfMob {
     private static final Move CHOP = new Move(null, 16, 30, 2.7, 7F, 80F);
 
     @Override
-    protected double attackRange() { return headless() ? 3.0 : 2.4; }
+    protected double attackRange() { return headless() ? 3.0 : variant() == 1 ? 3.8 : 2.4; }
 
     @Override
     protected void chooseAttack(LivingEntity t, double d) {
@@ -129,6 +131,11 @@ public class Ganado extends InfMob {
             alertOthers(p, Voice.AGARRADLO);
             return;
         }
+        if (variant() == 1 && t instanceof ServerPlayer sp && (d > 2.5 || random.nextBoolean()) && !Grabs.recentlyGrabbed(sp)) {
+            startThrust(sp);
+            return;
+        }
+        if (d > 2.8) return;
         if (!armed()) {
             startMove(new Move(Anims.G_SWIPE, 13, 27, 2.2, 4F, 90F), t);
         } else if (random.nextBoolean()) {
@@ -152,6 +159,81 @@ public class Ganado extends InfMob {
     protected void endGrab(Player p, boolean escaped) {
         stop(Anims.G_GRAB);
         super.endGrab(p, escaped);
+    }
+
+
+    // ------------------------------------------------------------------ estocada con la horca (esquiva con una tecla) ----
+    private ServerPlayer dodgePlayer;
+    private int dodgeKey, dodgeDeadline;
+    private byte dodgeState;        // 0 nada, 1 esperando tecla, 2 esquivo, 3 fallo
+
+    private void startThrust(ServerPlayer p) {
+        startMove(new Move(Anims.G_THRUST, 15, 26, 3.7, 0F, 50F), p);
+        dodgePlayer = p;
+        dodgeKey = random.nextInt(2);
+        int window = Infectados.cfgDodgeTicks();
+        dodgeDeadline = tickCount + Math.min(window, 14);
+        dodgeState = 1;
+        InfNet.CH.send(PacketDistributor.PLAYER.with(() -> p), new InfNet.Prompt(dodgeKey, Math.min(window, 14), true));
+        Voice.pick(random, Voice.MUERETE, Voice.PICADILLO, Voice.TE_VOY_A_MATAR).say(this, false);
+        attackCd = 40 + random.nextInt(30);
+    }
+
+    /** llamado por el paquete de esquiva; true si este aldeano estaba esperando a ese jugador */
+    public boolean tryDodge(ServerPlayer p, int key) {
+        if (dodgeState != 1 || dodgePlayer != p) return false;
+        if (key == dodgeKey && tickCount <= dodgeDeadline) {
+            dodgeState = 2;
+            Vec3 f = p.getLookAngle().multiply(1, 0, 1).normalize();
+            Vec3 right = new Vec3(-f.z, 0, f.x);
+            Vec3 side = key == 1 ? right : right.scale(-1);
+            p.setDeltaMovement(side.x * 0.95, 0.28, side.z * 0.95);
+            p.hurtMarked = true;
+        } else {
+            dodgeState = 3;
+        }
+        closePrompt();
+        return true;
+    }
+
+    private void closePrompt() {
+        if (dodgePlayer != null) InfNet.CH.send(PacketDistributor.PLAYER.with(() -> dodgePlayer), new InfNet.Prompt(dodgeKey, 0, false));
+    }
+
+    @Override
+    protected void onMoveHit(Move m) {
+        if (m.anim() != Anims.G_THRUST) {
+            super.onMoveHit(m);
+            return;
+        }
+        Vec3 f = Vec3.directionFromRotation(0, getYRot());
+        for (LivingEntity e : level().getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(m.reach()), x -> x != this && x.isAlive() && !(x instanceof InfMob))) {
+            if (e instanceof Player p && (p.isCreative() || p.isSpectator())) continue;
+            if (e == dodgePlayer && dodgeState == 2) continue;          // lo esquivo
+            Vec3 to = e.position().subtract(position());
+            double dd = to.horizontalDistance();
+            if (dd > m.reach() + e.getBbWidth() / 2) continue;
+            double ang = Math.toDegrees(Math.acos(Math.max(-1, Math.min(1, (to.x * f.x + to.z * f.z) / Math.max(dd, 1e-4)))));
+            if (ang > m.arc() / 2) continue;
+            // EMPALADO: mucho dano y sale despedido unos bloques
+            e.hurt(damageSources().mobAttack(this), Infectados.cfgImpale());
+            e.setDeltaMovement(f.x * 1.75, 0.6, f.z * 1.75);
+            e.hurtMarked = true;
+            if (level() instanceof ServerLevel lv) {
+                lv.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.REDSTONE_BLOCK.defaultBlockState()), e.getX(), e.getY() + 1.1, e.getZ(), 50, 0.2, 0.3, 0.2, 0.3);
+            }
+        }
+        if (dodgeState == 1) closePrompt();
+        dodgeState = 0;
+        dodgePlayer = null;
+    }
+
+    private void tickDodge() {
+        if (dodgeState == 1 && (move == null || move.anim() != Anims.G_THRUST)) {   // interrumpido
+            closePrompt();
+            dodgeState = 0;
+            dodgePlayer = null;
+        }
     }
 
     // ------------------------------------------------------------------ plaga ----
@@ -281,6 +363,7 @@ public class Ganado extends InfMob {
         if (level().isClientSide) return;
         if (isGrabbing()) tickGrab();
         tickPlaga();
+        tickDodge();
         voices();
     }
 

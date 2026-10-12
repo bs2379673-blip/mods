@@ -66,5 +66,61 @@ public final class QteHud {
         g.drawString(mc.font, r, bx + bw - mc.font.width(r), by + bh + 4, 0xFF60D060, true);
     }
 
+    // ---- aviso de esquiva (una sola tecla, a tiempo) ----
+    static volatile boolean promptOn;
+    static volatile int promptKey, promptTicks;
+    static long promptStart;
+    static boolean promptDone;
+    static String promptResult = "";
+    static long resultAt;
+
+    public static void prompt(int key, int ticks, boolean active) {
+        if (active) {
+            promptKey = key;
+            promptTicks = ticks;
+            promptStart = System.currentTimeMillis();
+            promptDone = false;
+        }
+        promptOn = active;
+    }
+
+    static boolean promptActive() {
+        if (promptOn && System.currentTimeMillis() - promptStart > promptTicks * 50L + 600) promptOn = false;
+        return promptOn && !promptDone;
+    }
+
+    static void promptPressed(boolean ok) {
+        promptDone = true;
+        promptResult = ok ? "¡ESQUIVADO!" : "";
+        resultAt = System.currentTimeMillis();
+    }
+
+    static void renderPrompt(GuiGraphics g, float pt) {
+        Minecraft mc = Minecraft.getInstance();
+        int w = g.guiWidth(), h = g.guiHeight();
+        if (!promptResult.isEmpty() && System.currentTimeMillis() - resultAt < 700) {
+            g.drawString(mc.font, promptResult, w / 2 - mc.font.width(promptResult) / 2, h / 2 + 30, 0xFF60E060, true);
+        }
+        if (!promptActive()) return;
+        float frac = 1F - Math.min(1F, (System.currentTimeMillis() - promptStart) / (promptTicks * 50F));
+        String key = (promptKey == 0 ? mc.options.keyLeft : mc.options.keyRight).getTranslatedKeyMessage().getString().toUpperCase();
+        int cx = w / 2, cy = h / 2 + 34;
+        // anillo que se cierra
+        int r = (int) (14 + 26 * frac);
+        int col = frac > 0.35F ? 0xFFFFFFFF : 0xFFFF4040;
+        for (int i = 0; i < 48; i++) {
+            double a = i * Math.PI * 2 / 48;
+            int x = cx + (int) (Math.cos(a) * r), y = cy + (int) (Math.sin(a) * r);
+            g.fill(x - 1, y - 1, x + 1, y + 1, col);
+        }
+        g.fill(cx - 13, cy - 13, cx + 13, cy + 13, 0xFFE8E8E8);
+        g.fill(cx - 12, cy - 12, cx + 12, cy + 12, 0xFF1A1A1A);
+        g.drawString(mc.font, key, cx - mc.font.width(key) / 2, cy - 4, 0xFFFFFFFF, false);
+        String t = "¡ESQUIVA!";
+        g.drawString(mc.font, t, cx - mc.font.width(t) / 2, cy - 30 - 14, 0xFFFFD040, true);
+        String arrow = promptKey == 0 ? "<<" : ">>";
+        g.drawString(mc.font, arrow, promptKey == 0 ? cx - 46 : cx + 34, cy - 4, 0xFFFFD040, true);
+    }
+
     static float shake() { return on() ? 0.3F + 0.7F * (1F - shown / 100F) * (kind == 1 ? 1.4F : 1F) : 0F; }
 }

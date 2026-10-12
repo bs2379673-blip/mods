@@ -93,16 +93,21 @@ public class Infectados {
     private static final ForgeConfigSpec.DoubleValue PRESS_M = B.comment("QTE motosierra: cuanto suma cada pulsacion").defineInRange("qte_motosierra_pulsacion", 5.0, 0.5, 50);
     private static final ForgeConfigSpec.DoubleValue DECAY_M = B.comment("QTE motosierra: cuanto baja por tick (si llega a 0 te decapita)").defineInRange("qte_motosierra_caida", 1.2, 0.05, 10);
     private static final ForgeConfigSpec.DoubleValue PLAGA = B.comment("Probabilidad de que salga la plaga al reventar la cabeza (0-1)").defineInRange("probabilidad_plaga", 0.4, 0, 1);
+    private static final ForgeConfigSpec.IntValue DODGE = B.comment("Estocada de la horca: ticks para pulsar la tecla de esquiva (20 = 1 s, maximo 14)").defineInRange("esquiva_ticks", 11, 3, 14);
+    private static final ForgeConfigSpec.DoubleValue IMPALE = B.comment("Dano del empalamiento con la horca").defineInRange("dano_empalar", 14.0, 1, 100);
     private static final ForgeConfigSpec.IntValue ZONE_TICKS = B.comment("Cada cuantos ticks se intenta poblar las zonas (20 = 1 s)").defineInRange("zonas_intervalo", 100, 20, 6000);
     private static final ForgeConfigSpec.IntValue BOSS = B.comment("Rareza de la motosierra en zonas con motosierra: 1 de cada N intentos").defineInRange("motosierra_rareza", 30, 1, 10000);
     private static final ForgeConfigSpec SPEC = B.build();
     private static float pressG = 7, decayG = 0.9F, pressM = 5, decayM = 1.2F, plaga = 0.4F;
-    private static int zoneTicks = 100, boss = 30;
+    private static int zoneTicks = 100, boss = 30, dodge = 11;
+    private static float impale = 14;
 
     public static float cfgPress(int kind) { return kind == 1 ? pressM : pressG; }
     public static float cfgDecay(int kind) { return kind == 1 ? decayM : decayG; }
     public static float cfgPlagaChance() { return plaga; }
     public static int cfgBossRarity() { return boss; }
+    public static int cfgDodgeTicks() { return dodge; }
+    public static float cfgImpale() { return impale; }
 
     private static <T extends Monster> RegistryObject<EntityType<T>> mob(String name, EntityType.EntityFactory<T> f, float w, float h) {
         return ENTITIES.register(name, () -> EntityType.Builder.of(f, MobCategory.MONSTER).sized(w, h).clientTrackingRange(10).build(MODID + ":" + name));
@@ -144,6 +149,8 @@ public class Infectados {
         plaga = PLAGA.get().floatValue();
         zoneTicks = ZONE_TICKS.get();
         boss = BOSS.get();
+        dodge = DODGE.get();
+        impale = IMPALE.get().floatValue();
     }
 
     private static void onAttributes(EntityAttributeCreationEvent e) {

@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -103,22 +104,46 @@ public class Motosierra extends InfMob {
     @Override
     protected double grabDistance() { return 0.95; }
 
+    private int decap = -1;
+
     @Override
     protected void failGrab(Player p) {
-        // DECAPITADO
+        // DECAPITADO: la cabeza cae, el cuerpo se arrodilla y cae... y luego muere
+        decap = 0;
         stop(Anims.M_GRAB);
-        Voice.MS_CORTE.say(this, true);
-        if (level() instanceof ServerLevel lv) {
-            Vec3 h = p.position().add(0, 1.6, 0);
-            lv.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.REDSTONE_BLOCK.defaultBlockState()), h.x, h.y, h.z, 120, 0.3, 0.3, 0.3, 0.35);
-        }
-        releasing = true;
-        p.hurt(new DamageSource(level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(Infectados.DECAPITATED), this), Float.MAX_VALUE);
-        releasing = false;
-        if (p.isAlive()) endGrab(p, false);
-        attackCd = 60;
         play(Anims.M_TAUNT);
-        Voice.MS_RISA.say(this, true);
+        Voice.MS_CORTE.say(this, true);
+        if (p instanceof ServerPlayer sp) {
+            InfNet.CH.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp), new InfNet.Qte(0, false, 1));
+            yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch pp = yesman.epicfight.world.capabilities.EpicFightCapabilities.getEntityPatch(sp, yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch.class);
+            if (pp != null) {
+                pp.stopPlaying(Anims.P_CHAINSAW);
+                pp.playAnimationSynchronized(Anims.P_DECAP, 0.05F);
+            }
+        }
+    }
+
+    private void tickDecap() {
+        Entity e = getFirstPassenger();
+        if (!(e instanceof Player p)) { decap = -1; return; }
+        decap++;
+        getNavigation().stop();
+        float k = Math.min(1F, decap / 30F);
+        if (level() instanceof ServerLevel lv && decap % 2 == 0 && decap < 34) {
+            Vec3 neck = p.position().add(0, 1.5 - 0.9 * k, 0);
+            lv.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.REDSTONE_BLOCK.defaultBlockState()), neck.x, neck.y, neck.z, 14, 0.08, 0.05, 0.08, 0.25);
+            lv.sendParticles(ParticleTypes.DAMAGE_INDICATOR, neck.x, neck.y, neck.z, 2, 0.1, 0.1, 0.1, 0.1);
+        }
+        if (decap == 12) p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.BLINDNESS, 60));
+        if (decap >= 42) {
+            releasing = true;
+            p.hurt(new DamageSource(level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(Infectados.DECAPITATED), this), Float.MAX_VALUE);
+            releasing = false;
+            if (p.isAlive()) endGrab(p, false);
+            decap = -1;
+            attackCd = 60;
+            Voice.MS_RISA.say(this, true);
+        }
     }
 
     @Override
@@ -133,7 +158,8 @@ public class Motosierra extends InfMob {
         super.aiStep();
         if (level().isClientSide) return;
         if (grabCd > 0) grabCd--;
-        if (isGrabbing()) tickGrab();
+        if (decap >= 0) tickDecap();
+        else if (isGrabbing()) tickGrab();
         LivingEntity t = getTarget();
         if (t != null && lastTarget == null) {
             Voice.MS_RUGIDO.say(this, true);
