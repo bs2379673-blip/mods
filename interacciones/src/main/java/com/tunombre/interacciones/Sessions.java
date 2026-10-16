@@ -6,6 +6,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -345,9 +346,14 @@ public final class Sessions {
         return mode == 1 ? Anims.PIGGY_RIDE : mode == 2 ? Anims.BRIDAL_CARRIED : Anims.CARRIED;
     }
 
+    /** Minecraft solo avisa de los pasajeros a quienes ven al vehiculo, no al propio jugador-vehiculo: sin esto, en la
+     * pantalla de quien carga el cargado nunca se sube (queda parado donde empezo la accion haciendo la animacion). */
+    private static void syncPassengers(ServerPlayer a) { a.connection.send(new ClientboundSetPassengersPacket(a)); }
+
     private static void startCarry(ServerPlayer a, ServerPlayer b, int mode) {
         if (a.isPassenger() || b.isPassenger() || a.isVehicle() || b.isVehicle()) { msg(a, "Ahora no se puede"); return; }
         if (!b.startRiding(a, true)) return;
+        syncPassengers(a);
         CARRY.put(a.getUUID(), b.getUUID());
         CARRY_SLOT.put(a.getUUID(), a.getInventory().selected);
         AttributeInstance sp = a.getAttribute(Attributes.MOVEMENT_SPEED);
@@ -387,6 +393,7 @@ public final class Sessions {
         if (b != null) {
             stop(b, riderAnim(mode));
             if (b.getVehicle() == a) b.stopRiding();
+            syncPassengers(a);
             if (drop) {
                 Vec3 f = Vec3.directionFromRotation(0, a.getYRot());
                 b.teleportTo(a.getX() + f.x * 0.8, a.getY(), a.getZ() + f.z * 0.8);
@@ -576,6 +583,7 @@ public final class Sessions {
             if (a == null) { CARRY.remove(en.getKey()); continue; }
             if (b == null || !a.isAlive() || !b.isAlive() || b.getVehicle() != a) { stopCarry(a, false); continue; }
             if (now % 10 == 0) emptyHands(a);
+            if (now % 40 == 0) syncPassengers(a);      // por si el cliente de quien carga lo perdio (cambio de chunk, lag...)
         }
     }
 
