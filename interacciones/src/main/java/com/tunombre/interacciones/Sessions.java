@@ -129,6 +129,7 @@ public final class Sessions {
             if (Act.instant(action)) { instant(p, t, action, false); return; }
             if (action < 0 || action >= Act.COUNT || action == Act.DROP) return;
             if (!precheck(p, action)) return;
+            if (Act.direct(action)) { pairAct(p, t, action); return; }
             PENDING.put(t.getUUID(), new Req(p.getUUID(), action, now + REQUEST_TICKS));
             Net.CH.send(PacketDistributor.PLAYER.with(() -> t), new Net.Prompt(p.getGameProfile().getName(), action, REQUEST_TICKS, true));
             msg(p, "Solicitud enviada a " + t.getGameProfile().getName());

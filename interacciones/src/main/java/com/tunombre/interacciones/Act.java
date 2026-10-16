@@ -23,6 +23,9 @@ public final class Act {
     /** por la espalda y sin pedir permiso (como la ejecucion) */
     public static boolean instant(int a) { return a == EXECUTE || a == ARREST || a == CHOKE || a == SCARE; }
 
+    /** sorpresa: se hacen directo, sin que el otro tenga que aceptar */
+    public static boolean direct(int a) { return a == SHOVE || a == SLAP; }
+
     /** las que no tienen sentido con un NPC (necesitan que el otro sea un jugador de verdad) */
     public static boolean playerOnly(int a) { return a == CARRY || a == TRADE || a == PIGGYBACK || a == BRIDAL || a == ARREST || a == GIVE; }
 
