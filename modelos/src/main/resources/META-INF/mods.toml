@@ -6,7 +6,7 @@ license="All Rights Reserved"
 modId="modelos"
 version="${mod_version}"
 displayName="Modelos"
-description='''Menu para admins: poner modelos de Custom Player Models (.cpmodel) a cualquier jugador del servidor y apagar Epic Fight mientras lo usan.'''
+description='''Menu para admins: poner modelos de Custom Player Models (.cpmmodel) a cualquier jugador del servidor y apagar Epic Fight mientras lo usan.'''
 
 [[dependencies.modelos]]
 modId="forge"

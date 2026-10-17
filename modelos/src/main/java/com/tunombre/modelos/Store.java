@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
-/** Biblioteca de modelos: config/modelos/. Acepta .cpmodel (se codifica a base64) y .b64 / .txt (ya con el texto base64 que exporta el editor de CPM). */
+/** Biblioteca de modelos: config/modelos/. Acepta .cpmmodel (y .cpmodel) (se codifica a base64) y .b64 / .txt (ya con el texto base64 que exporta el editor de CPM). */
 final class Store {
     private Store() { }
 
@@ -21,7 +21,7 @@ final class Store {
             Files.createDirectories(dir());
             Path readme = dir().resolve("LEEME.txt");
             if (!Files.exists(readme)) Files.writeString(readme, "Pone aca los modelos de Custom Player Models:\n"
-                    + "  - archivos .cpmodel (exportados del editor de CPM), o\n"
+                    + "  - archivos .cpmmodel (exportados del editor de CPM), o\n"
                     + "  - archivos .b64 / .txt con el texto base64 del modelo (Export -> Base64 en el editor).\n"
                     + "Despues usa /modelos recargar (o el boton Recargar del menu /modelos gui).\n");
         } catch (Exception ignored) { }
@@ -29,7 +29,7 @@ final class Store {
 
     private static boolean isModel(String n) {
         n = n.toLowerCase(Locale.ROOT);
-        return n.endsWith(".cpmodel") || n.endsWith(".b64") || n.endsWith(".txt") && !n.equals("leeme.txt");
+        return n.endsWith(".cpmmodel") || n.endsWith(".cpmodel") || n.endsWith(".b64") || n.endsWith(".txt") && !n.equals("leeme.txt");
     }
 
     static String baseName(String file) { int i = file.lastIndexOf('.'); return i < 0 ? file : file.substring(0, i); }
@@ -47,10 +47,10 @@ final class Store {
     static String read(String name) {
         if (name.contains("/") || name.contains("\\") || name.contains("..")) return null;
         try {
-            for (String ext : new String[]{".cpmodel", ".b64", ".txt"}) {
+            for (String ext : new String[]{".cpmmodel", ".cpmodel", ".b64", ".txt"}) {
                 Path f = dir().resolve(name + ext);
                 if (!Files.isRegularFile(f)) continue;
-                if (ext.equals(".cpmodel")) return Base64.getEncoder().encodeToString(Files.readAllBytes(f));
+                if (ext.equals(".cpmmodel") || ext.equals(".cpmodel")) return Base64.getEncoder().encodeToString(Files.readAllBytes(f));
                 return Files.readString(f).replaceAll("\\s+", "");
             }
         } catch (Exception ignored) { }

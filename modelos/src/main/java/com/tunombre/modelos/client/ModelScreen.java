@@ -96,7 +96,7 @@ public class ModelScreen extends Screen {
         g.drawCenteredString(font, "Modelos de jugador", width / 2, 8, 0xFFFFFF);
         g.drawString(font, "Jugadores (" + data.players().size() + ")", x0, 32, 0xAAAAAA, false);
         g.drawString(font, "Modelos en config/modelos (" + data.models().size() + ")", x0 + colW + 8, 32, 0xAAAAAA, false);
-        if (data.models().isEmpty()) g.drawString(font, "Carpeta vacia: pone .cpmodel o .b64", x0 + colW + 12, 50, 0x888888, false);
+        if (data.models().isEmpty()) g.drawString(font, "Carpeta vacia: pone .cpmmodel o .b64", x0 + colW + 12, 50, 0x888888, false);
         int ty = height - 72;
         String sel = (selPlayer.isEmpty() ? "jugador: -" : "jugador: " + selPlayer) + "   " + (selModel.isEmpty() ? "modelo: -" : "modelo: " + selModel);
         g.drawString(font, sel, x0, ty, 0xFFFFFF, false);
