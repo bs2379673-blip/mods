@@ -37,7 +37,27 @@ public class SpawnControl {
     static final Map<String, int[]> STATS = new ConcurrentHashMap<>();
     /** mobs que ya pasaron por el spawn normal y fueron aprobados: su entrada al mundo no se vuelve a revisar */
     private static final Set<Mob> APPROVED = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
+    /** /spawns depurar: avisa a los operadores de cada mob que entra al mundo y por que se dejo pasar o se bloqueo */
+    static volatile boolean DEBUG = false;
+    private static long lastDebug;
     private static int tick;
+
+    static void debug(Mob m, String how, boolean disk, boolean ok) {
+        if (!DEBUG) return;
+        var id = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getKey(m.getType());
+        Rule r = Rules.find(m.getType());
+        String why;
+        if (r == null) why = Rules.defaultBlock && m.getType().getCategory() == net.minecraft.world.entity.MobCategory.MONSTER ? "sin regla, monstruo bloqueado por defecto" : "sin regla, libre";
+        else if (!r.types.contains(how.equals("DIRECT") ? "NATURAL" : how)) why = "tiene regla pero NO controla el tipo " + how + " (controla " + r.types + ")";
+        else why = r.enabled ? "regla ACTIVA" : "regla DESACTIVADA";
+        String line = "[spawns] " + id + " via " + how + (disk ? " (guardado en chunk)" : "") + " -> " + (ok ? "PASA" : "BLOQUEADO") + " (" + why + ")";
+        LOG.info(line);
+        long now = System.currentTimeMillis();
+        if (now - lastDebug < 250 && ok) return; // no inundar el chat con lo que pasa
+        lastDebug = now;
+        var s = m.getServer();
+        if (s != null) for (ServerPlayer p : s.getPlayerList().getPlayers()) if (p.hasPermissions(2)) p.sendSystemMessage(net.minecraft.network.chat.Component.literal(line));
+    }
 
     public SpawnControl() {
         MinecraftForge.EVENT_BUS.addListener(SpawnControl::onStarting);
@@ -59,6 +79,7 @@ public class SpawnControl {
             var id = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getKey(m.getType());
             if (id != null) STATS.computeIfAbsent(id.toString(), k -> new int[2])[ok ? 0 : 1]++;
         }
+        debug(m, st, false, ok);
         if (!ok) {
             e.setSpawnCancelled(true);
             DENIED.add(m);
@@ -74,7 +95,9 @@ public class SpawnControl {
             if (m.isPersistenceRequired() || m.hasCustomName() || m.isPassenger() || m.isLeashed()) return;
             String st = m.getSpawnType() != null ? m.getSpawnType().name() : "DIRECT";
             ServerLevel lvd = (ServerLevel) e.getLevel();
-            if (!Rules.allowed(m.getType(), st, lvd.dimension().location().toString(), m.position(), false)) e.setCanceled(true);
+            boolean okd = Rules.allowed(m.getType(), st, lvd.dimension().location().toString(), m.position(), false);
+            debug(m, st, true, okd);
+            if (!okd) e.setCanceled(true);
             return;
         }
         if (APPROVED.remove(m)) return;
@@ -83,6 +106,7 @@ public class SpawnControl {
         boolean ok = Rules.allowed(m.getType(), "DIRECT", lv.dimension().location().toString(), m.position());
         var id = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getKey(m.getType());
         if (id != null) STATS.computeIfAbsent(id.toString(), k -> new int[2])[ok ? 0 : 1]++;
+        debug(m, "DIRECT", false, ok);
         if (!ok) e.setCanceled(true);
     }
 

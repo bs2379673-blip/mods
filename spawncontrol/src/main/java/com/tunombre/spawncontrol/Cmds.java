@@ -167,6 +167,11 @@ final class Cmds {
                     r.releaseDay = -1;
                     return changed(c, Rules.cmdId(k) + " DESACTIVADO: no spawneara de forma natural.");
                 })))
+                .then(lit("depurar").then(Commands.argument("activar", BoolArgumentType.bool()).executes(c -> {
+                    SpawnControl.DEBUG = BoolArgumentType.getBool(c, "activar");
+                    ok(c, SpawnControl.DEBUG ? "Depuracion ACTIVADA: vas a ver en el chat cada mob que entra al mundo, por que tipo de spawn y si pasa o se bloquea (tambien queda en el log)." : "Depuracion apagada.");
+                    return 1;
+                })))
                 .then(lit("limpiar").then(mob().executes(c -> {
                     String k = key(c);
                     int n = 0;
