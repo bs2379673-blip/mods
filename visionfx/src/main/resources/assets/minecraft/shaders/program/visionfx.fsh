@@ -16,6 +16,7 @@ void main() {
 
     // aberracion cromatica: rojo y azul se separan hacia los bordes
     float off = Chromatic * d;
+    vec4 src = texture(DiffuseSampler, uv);
     vec3 col;
     col.r = texture(DiffuseSampler, vec2(uv.x + off, uv.y)).r;
     col.g = texture(DiffuseSampler, uv).g;
@@ -32,5 +33,5 @@ void main() {
     col *= Brightness;
     col *= max(1.0 - d * Vignette, 0.0);
 
-    fragColor = vec4(col, 1.0);
+    fragColor = vec4(col, src.a); // se conserva el alfa original (otros pases, como la linterna, pueden leerlo)
 }
