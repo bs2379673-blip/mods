@@ -89,7 +89,7 @@ public class SpawnControl {
     static void onJoin(EntityJoinLevelEvent e) {
         if (e.getLevel().isClientSide) return;
         if (!(e.getEntity() instanceof Mob m)) return;
-        if (!DENIED.isEmpty() && DENIED.remove(m)) { e.setCanceled(true); return; }
+        if (!DENIED.isEmpty() && DENIED.remove(m)) { kill(e, m, "denegado en finalize"); return; }
         if (e.loadedFromDisk()) {
             // un mob guardado en el chunk (de antes de apagar el spawn): se borra al cargarse, salvo que sea persistente o tenga nombre
             if (m.isPersistenceRequired() || m.hasCustomName() || m.isPassenger() || m.isLeashed()) return;
@@ -97,17 +97,32 @@ public class SpawnControl {
             ServerLevel lvd = (ServerLevel) e.getLevel();
             boolean okd = Rules.allowed(m.getType(), st, lvd.dimension().location().toString(), m.position(), false);
             debug(m, st, true, okd);
-            if (!okd) e.setCanceled(true);
+            if (!okd) kill(e, m, "guardado en chunk");
             return;
         }
         if (APPROVED.remove(m)) return;
+        // llego sin que se viera su finalize pero con tipo de spawn conocido (lo guarda el propio mob): se juzga igual, como hace BadMobs
+        if (m.getSpawnType() != null) {
+            ServerLevel lw = (ServerLevel) e.getLevel();
+            boolean oks = Rules.allowed(m.getType(), m.getSpawnType().name(), lw.dimension().location().toString(), m.position(), false);
+            debug(m, m.getSpawnType().name() + " (sin finalize)", false, oks);
+            if (!oks) { kill(e, m, "tipo " + m.getSpawnType().name()); return; }
+            return;
+        }
         // entra al mundo sin haber pasado por el spawn normal (otro mod lo agrega directo): se le aplican las mismas reglas
         ServerLevel lv = (ServerLevel) e.getLevel();
         boolean ok = Rules.allowed(m.getType(), "DIRECT", lv.dimension().location().toString(), m.position());
         var id = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getKey(m.getType());
         if (id != null) STATS.computeIfAbsent(id.toString(), k -> new int[2])[ok ? 0 : 1]++;
         debug(m, "DIRECT", false, ok);
-        if (!ok) e.setCanceled(true);
+        if (!ok) kill(e, m, "directo");
+    }
+
+    /** cancela el ingreso Y descarta el mob (igual que BadMobs), por si otro mod lo sigue manteniendo vivo */
+    private static void kill(EntityJoinLevelEvent e, Mob m, String why) {
+        e.setCanceled(true);
+        m.discard();
+        if (DEBUG) LOG.info("[spawns] descartado {} ({})", net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getKey(m.getType()), why);
     }
 
     static void onTick(TickEvent.ServerTickEvent e) {
