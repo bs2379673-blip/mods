@@ -6,7 +6,7 @@ license="All Rights Reserved"
 modId="crafteos"
 version="${mod_version}"
 displayName="Crafteos"
-description='''Menu para admins: activar y desactivar crafteos (mesa de crafteo, hornos, banco de TACZ y recetas de otros mods) en vivo, sin reiniciar.'''
+description='''Menu para admins: activar y desactivar crafteos y prohibir items (como borrarlos del juego) (mesa de crafteo, hornos, banco de TACZ y recetas de otros mods) en vivo, sin reiniciar.'''
 
 [[dependencies.crafteos]]
 modId="forge"

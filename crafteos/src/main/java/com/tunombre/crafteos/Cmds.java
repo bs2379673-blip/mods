@@ -22,6 +22,16 @@ public final class Cmds {
     private static final SuggestionProvider<CommandSourceStack> KEYS = (c, b) -> SharedSuggestionProvider.suggest(Recipes.groups().keySet().stream().limit(5000).toList(), b);
     private static final SuggestionProvider<CommandSourceStack> OFFS = (c, b) -> SharedSuggestionProvider.suggest(new ArrayList<>(Recipes.disabledSet()), b);
 
+    private static final SuggestionProvider<CommandSourceStack> ITEMS = (c, b) -> {
+        List<String> l = new ArrayList<>();
+        java.util.TreeSet<String> ns = new java.util.TreeSet<>();
+        for (var id : net.minecraftforge.registries.ForgeRegistries.ITEMS.getKeys()) { l.add(id.toString()); ns.add(id.getNamespace() + ":*"); }
+        l.addAll(ns);
+        l.add("mano");
+        return SharedSuggestionProvider.suggest(l, b);
+    };
+    private static final SuggestionProvider<CommandSourceStack> BANNED = (c, b) -> SharedSuggestionProvider.suggest(new ArrayList<>(Bans.all()), b);
+
     @SubscribeEvent
     public static void onCommands(RegisterCommandsEvent e) { register(e.getDispatcher()); }
 
@@ -32,6 +42,20 @@ public final class Cmds {
         if (!Recipes.set(key, off)) { say(src, key + " ya estaba " + (off ? "desactivado" : "activado")); return 0; }
         int removed = Recipes.change(src.getServer());
         say(src, key + (off ? " DESACTIVADO" : " ACTIVADO") + " (recetas desactivadas en total: " + removed + ")");
+        return 1;
+    }
+
+    private static int ban(CommandSourceStack src, String key, boolean ban) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        if (ban && key.equals("mano")) {
+            var held = src.getPlayerOrException().getMainHandItem();
+            if (held.isEmpty()) { src.sendFailure(Component.literal("No tenes nada en la mano")); return 0; }
+            key = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(held.getItem()).toString();
+        }
+        if (!key.endsWith(":*") && net.minecraft.resources.ResourceLocation.tryParse(key) == null) { src.sendFailure(Component.literal("Id invalido: " + key)); return 0; }
+        if (!key.endsWith(":*") && ban && !net.minecraftforge.registries.ForgeRegistries.ITEMS.containsKey(new net.minecraft.resources.ResourceLocation(key))) { src.sendFailure(Component.literal("No existe el item \"" + key + "\" (para un mod entero usa modid:*)")); return 0; }
+        if (!Bans.set(key, ban)) { say(src, key + " ya estaba " + (ban ? "prohibido" : "permitido")); return 0; }
+        Bans.changed(src.getServer());
+        say(src, key + (ban ? " PROHIBIDO: no sale en cofres ni drops, no se craftea y se borra de inventarios" : " PERMITIDO otra vez (los items ya borrados no vuelven)") + " (prohibidos en total: " + Bans.size() + ")");
         return 1;
     }
 
@@ -47,7 +71,18 @@ public final class Cmds {
                     say(c.getSource(), "Desactivados (" + Recipes.disabledSet().size() + "): " + String.join(", ", Recipes.disabledSet()));
                     return Recipes.disabledSet().size();
                 }))
+                .then(Commands.literal("prohibir").then(Commands.argument("item", StringArgumentType.greedyString()).suggests(ITEMS)
+                        .executes(c -> ban(c.getSource(), StringArgumentType.getString(c, "item").trim(), true))))
+                .then(Commands.literal("permitir").then(Commands.argument("item", StringArgumentType.greedyString()).suggests(BANNED)
+                        .executes(c -> ban(c.getSource(), StringArgumentType.getString(c, "item").trim(), false))))
+                .then(Commands.literal("prohibidos").executes(c -> {
+                    if (Bans.size() == 0) { say(c.getSource(), "No hay items prohibidos."); return 0; }
+                    say(c.getSource(), "Prohibidos (" + Bans.size() + "): " + String.join(", ", Bans.all()));
+                    return Bans.size();
+                }))
                 .then(Commands.literal("recargar").executes(c -> {
+                    Bans.load();
+                    Bans.changed(c.getSource().getServer());
                     Recipes.load();
                     int removed = Recipes.change(c.getSource().getServer());
                     say(c.getSource(), "Lista recargada desde config/crafteos/desactivados.json: " + removed + " recetas desactivadas.");
@@ -59,7 +94,19 @@ public final class Cmds {
         Net.LAST.put(p.getUUID(), q);
         String f = q.search().toLowerCase(Locale.ROOT).trim();
         List<Net.Row> all = new ArrayList<>();
-        if (q.tipo() == 5) {
+        if (q.tipo() == 6 || q.tipo() == 7) {
+            java.util.TreeSet<String> keys = new java.util.TreeSet<>();
+            for (var id : net.minecraftforge.registries.ForgeRegistries.ITEMS.getKeys()) keys.add(q.tipo() == 6 ? id.toString() : id.getNamespace() + ":*");
+            keys.addAll(Bans.all());
+            for (String key : keys) {
+                if (q.tipo() == 7 && !key.endsWith(":*")) continue;
+                if (!f.isEmpty() && !key.toLowerCase(Locale.ROOT).contains(f)) continue;
+                boolean off = Bans.has(key) || (q.tipo() == 6 && Bans.isBannedId(key));
+                if (q.estado() == 1 && !off || q.estado() == 2 && off) continue;
+                String ns = key.contains(":") ? key.substring(0, key.indexOf(':')) : key;
+                all.add(new Net.Row(key, ns, 0, 0, off));
+            }
+        } else if (q.tipo() == 5) {
             java.util.Map<String, int[]> mods = new java.util.TreeMap<>();
             for (Recipes.Group g : Recipes.groups().values()) { int[] a = mods.computeIfAbsent(g.mod, k -> new int[2]); a[0] += g.recipes.size(); a[1] |= g.kinds; }
             for (var en : mods.entrySet()) {
@@ -90,6 +137,6 @@ public final class Cmds {
         int pages = Math.max(1, (all.size() + per - 1) / per);
         int page = Math.max(0, Math.min(q.page(), pages - 1));
         List<Net.Row> rows = all.subList(page * per, Math.min(all.size(), (page + 1) * per));
-        Net.send(p, new Net.Page(q.open(), all.size(), page, Recipes.disabledSet().size(), new ArrayList<>(rows)));
+        Net.send(p, new Net.Page(q.open(), all.size(), page, q.tipo() >= 6 ? Bans.size() : Recipes.disabledSet().size(), new ArrayList<>(rows)));
     }
 }

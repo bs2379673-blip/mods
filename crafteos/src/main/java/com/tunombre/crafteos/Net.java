@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public final class Net {
-    private static final String V = "1";
+    private static final String V = "2";
     public static final SimpleChannel CH = NetworkRegistry.newSimpleChannel(new ResourceLocation(Crafteos.MODID, "main"), () -> V, V::equals, V::equals);
     /** ultima consulta de cada admin, para reenviarle la lista actualizada despues de un cambio */
     static final Map<UUID, Query> LAST = new ConcurrentHashMap<>();
@@ -30,6 +30,7 @@ public final class Net {
     static void init() {
         CH.registerMessage(0, Page.class, Page::write, Page::read, Page::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CH.registerMessage(1, Query.class, Query::write, Query::read, Query::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CH.registerMessage(3, Banned.class, Banned::write, Banned::read, Banned::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CH.registerMessage(2, Cmd.class, (m, b) -> b.writeUtf(m.line(), 300), b -> new Cmd(b.readUtf(300)), Cmd::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
 
@@ -81,6 +82,21 @@ public final class Net {
             ctx.get().setPacketHandled(true);
         }
     }
+
+    /** lista de items prohibidos para los clientes (los esconden del inventario creativo) */
+    public record Banned(java.util.List<String> ids) {
+        void write(FriendlyByteBuf b) { b.writeVarInt(ids.size()); for (String s : ids) b.writeUtf(s, 120); }
+        static Banned read(FriendlyByteBuf b) { int n = b.readVarInt(); List<String> l = new ArrayList<>(n); for (int i = 0; i < n; i++) l.add(b.readUtf(120)); return new Banned(l); }
+
+        void handle(Supplier<NetworkEvent.Context> ctx) {
+            ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.crafteos.client.ClientBans.set(new java.util.HashSet<>(ids))));
+            ctx.get().setPacketHandled(true);
+        }
+    }
+
+    public static void sendBanned(ServerPlayer p) { CH.send(PacketDistributor.PLAYER.with(() -> p), new Banned(new ArrayList<>(Bans.all()))); }
+
+    public static void sendBanned(net.minecraft.server.MinecraftServer s) { CH.send(PacketDistributor.ALL.noArg(), new Banned(new ArrayList<>(Bans.all()))); }
 
     public static void send(ServerPlayer p, Page d) { CH.send(PacketDistributor.PLAYER.with(() -> p), d); }
 }

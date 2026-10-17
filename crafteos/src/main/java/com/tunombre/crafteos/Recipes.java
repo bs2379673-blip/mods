@@ -41,7 +41,7 @@ public final class Recipes {
 
     /** un resultado (o una receta suelta) con todas las recetas que lo producen */
     public static final class Group {
-        public final String key, mod;
+        public final String key; public String mod; public String item = "";
         public int kinds;           // bits: 1 mesa, 2 hornos, 4 herreria, 8 cantero, 16 otros (mods)
         public final List<Recipe<?>> recipes = new ArrayList<>();
         Group(String key, String mod) { this.key = key; this.mod = mod; }
@@ -100,7 +100,7 @@ public final class Recipes {
 
     /** una receta queda desactivada si lo esta su grupo, su id o todo su mod */
     private static boolean blocked(Group g) {
-        return disabled.contains(g.key) || disabled.contains(g.mod + ":*");
+        return disabled.contains(g.key) || disabled.contains(g.mod + ":*") || Bans.isBannedId(g.item);
     }
 
     // ------------------------------------------------------------------ construccion ----
@@ -147,6 +147,10 @@ public final class Recipes {
                 if (out != null && !out.isEmpty()) { ResourceLocation id = ForgeRegistries.ITEMS.getKey(out.getItem()); if (id != null) mod = id.getNamespace(); }
             } catch (Throwable ignored) { }
             Group n = new Group(g.key, mod);
+            try {
+                ItemStack o2 = first.getResultItem(ra);
+                if (o2 != null && !o2.isEmpty()) { ResourceLocation i2 = ForgeRegistries.ITEMS.getKey(o2.getItem()); if (i2 != null) n.item = i2.toString(); }
+            } catch (Throwable ignored) { }
             n.kinds = g.kinds;
             n.recipes.addAll(g.recipes);
             fixed.put(g.key, n);

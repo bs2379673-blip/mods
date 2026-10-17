@@ -21,7 +21,7 @@ import java.util.List;
 /** /crafteos gui: lista paginada (la arma el servidor) de lo que se puede craftear, con ON/OFF por resultado o por mod entero. */
 public class CraftScreen extends Screen {
     private static final int ROW_H = 24;
-    private static final String[] TIPO = {"Todos", "Mesa de crafteo", "Hornos", "Herreria/Cantero", "Otros (TACZ, mods)", "Mods enteros"};
+    private static final String[] TIPO = {"Todos", "Mesa de crafteo", "Hornos", "Herreria/Cantero", "Otros (TACZ, mods)", "Mods enteros", "PROHIBIR items", "PROHIBIR mods"};
     private static final String[] ESTADO = {"Todos", "Desactivados", "Activos"};
 
     private Net.Page data;
@@ -80,11 +80,15 @@ public class CraftScreen extends Screen {
         int w = panelW(), x0 = (width - w) / 2, y = 66;
         for (Net.Row r : data.rows()) {
             boolean off = r.off();
-            Component label = Component.literal(off ? "OFF" : "ON").withStyle(off ? ChatFormatting.RED : ChatFormatting.GREEN);
+            boolean ban = tipo >= 6;
+            Component label = ban ? Component.literal(off ? "BAN" : "OK").withStyle(off ? ChatFormatting.RED : ChatFormatting.GREEN)
+                    : Component.literal(off ? "OFF" : "ON").withStyle(off ? ChatFormatting.RED : ChatFormatting.GREEN);
             String cmdKey = r.key();
-            Button b = Button.builder(label, bb -> send((off ? "crafteos activar " : "crafteos desactivar ") + cmdKey))
+            Button b = Button.builder(label, bb -> send(ban ? (off ? "crafteos permitir " : "crafteos prohibir ") + cmdKey : (off ? "crafteos activar " : "crafteos desactivar ") + cmdKey))
                     .bounds(x0 + w - 40, y, 40, 20)
-                    .tooltip(Tooltip.create(Component.literal(off ? "Esta DESACTIVADO (nadie puede craftearlo). Click: lo activa" : "Se puede craftear. Click: lo desactiva en vivo"))).build();
+                    .tooltip(Tooltip.create(Component.literal(ban
+                            ? (off ? "PROHIBIDO: no sale en cofres, no se craftea, se borra de inventarios y se oculta. Click: lo permite" : "Permitido. Click: lo prohibe (como si lo hubieras borrado del juego)")
+                            : (off ? "Esta DESACTIVADO (nadie puede craftearlo). Click: lo activa" : "Se puede craftear. Click: lo desactiva en vivo")))).build();
             addRenderableWidget(b);
             rowWidgets.add(b);
             y += ROW_H;
@@ -119,13 +123,14 @@ public class CraftScreen extends Screen {
             int tx = x0 + 20, maxW = w - 70;
             if (font.width(shown) > maxW) shown = font.plainSubstrByWidth(shown, maxW - 6) + "..";
             g.drawString(font, shown, tx, y + 1, r.off() ? 0xFF8888 : 0xFFFFFF, false);
-            g.drawString(font, r.mod() + " - " + kinds(r.kinds()) + " - " + r.count() + (r.count() == 1 ? " receta" : " recetas") + (r.off() ? " - DESACTIVADO" : ""), tx, y + 12,
+            if (tipo >= 6) g.drawString(font, r.mod() + (r.off() ? " - PROHIBIDO (borrado del juego)" : " - permitido"), tx, y + 12, r.off() ? 0xFF5555 : 0x888888, false);
+            else g.drawString(font, r.mod() + " - " + kinds(r.kinds()) + " - " + r.count() + (r.count() == 1 ? " receta" : " recetas") + (r.off() ? " - DESACTIVADO" : ""), tx, y + 12,
                     r.off() ? 0xFF5555 : 0x888888, false);
             y += ROW_H;
         }
         if (data.rows().isEmpty()) g.drawCenteredString(font, "Nada coincide con el filtro", width / 2, 90, 0x888888);
         int pages = Math.max(1, (data.total() + perPage - 1) / perPage);
-        g.drawString(font, (data.page() + 1) + "/" + pages + "  (" + data.total() + ")  desactivados: " + data.disabledTotal(), x0 + 50, height - 20, 0xAAAAAA, false);
+        g.drawString(font, (data.page() + 1) + "/" + pages + "  (" + data.total() + ")" + (tipo >= 6 ? "  prohibidos: " : "  desactivados: ") + data.disabledTotal(), x0 + 50, height - 20, 0xAAAAAA, false);
         super.render(g, mx, my, pt);
     }
 
