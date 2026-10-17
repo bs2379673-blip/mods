@@ -1,0 +1,23 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="crafteos"
+version="${mod_version}"
+displayName="Crafteos"
+description='''Menu para admins: activar y desactivar crafteos (mesa de crafteo, hornos, banco de TACZ y recetas de otros mods) en vivo, sin reiniciar.'''
+
+[[dependencies.crafteos]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.crafteos]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
