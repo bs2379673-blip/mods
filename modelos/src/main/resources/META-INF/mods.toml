@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="modelos"
+version="${mod_version}"
+displayName="Modelos"
+description='''Menu para admins: poner modelos de Custom Player Models (.cpmodel) a cualquier jugador del servidor y apagar Epic Fight mientras lo usan.'''
+
+[[dependencies.modelos]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.modelos]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.modelos]]
+modId="epicfight"
+mandatory=false
+versionRange="[20.14,)"
+ordering="AFTER"
+side="BOTH"
