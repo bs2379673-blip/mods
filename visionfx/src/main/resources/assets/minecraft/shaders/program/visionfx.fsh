@@ -22,8 +22,10 @@ void main() {
     col.g = texture(DiffuseSampler, uv).g;
     col.b = texture(DiffuseSampler, vec2(uv.x - off, uv.y)).b;
 
-    // contraste: lo claro se aclara y lo oscuro se oscurece (mismo calculo que el mod de cordura)
-    float mul = max(1.0 + ((col.r + col.g + col.b) - 1.0) * Contrast, 0.0);
+    // contraste: lo claro se aclara y lo oscuro se oscurece, pero con pivote bajo y piso
+    // para que escenas oscuras (hojas, niebla) no se vayan a negro
+    float sum = col.r + col.g + col.b;
+    float mul = clamp(1.0 + (sum - 0.6) * Contrast, 0.8, 1.8);
     col *= mul;
 
     // desaturacion hacia gris
