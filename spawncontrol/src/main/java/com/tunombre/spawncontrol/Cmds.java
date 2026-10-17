@@ -106,6 +106,18 @@ final class Cmds {
                     Net.send(c.getSource().getPlayerOrException(), true);
                     return 1;
                 }))
+                .then(lit("defecto")
+                        .then(lit("animales").executes(c -> {
+                            Rules.defaultBlock = true; Rules.saveSettings();
+                            ok(c, "Politica por defecto: los monstruos sin regla NO spawnean; animales y demas siguen normal. Activa los que quieras uno a uno.");
+                            return 1;
+                        }))
+                        .then(lit("libre").executes(c -> {
+                            Rules.defaultBlock = false; Rules.saveSettings();
+                            ok(c, "Politica por defecto: todo spawnea como siempre salvo lo que tenga regla.");
+                            return 1;
+                        })))
+                .then(lit("stats").then(lit("borrar").executes(c -> { SpawnControl.STATS.clear(); ok(c, "Contadores de intentos de spawn reiniciados."); return 1; })))
                 .then(lit("lista").executes(c -> {
                     if (Rules.all().isEmpty()) { ok(c, "No hay reglas: todos los mobs spawnean como siempre."); return 0; }
                     for (Map.Entry<String, Rule> en : new TreeMap<>(Rules.all()).entrySet())
@@ -158,7 +170,7 @@ final class Cmds {
                 .then(lit("reset").then(mob().executes(c -> {
                     String k = key(c);
                     Rules.all().remove(k);
-                    return changed(c, Rules.cmdId(k) + ": regla borrada, vuelve a spawnear como siempre.");
+                    return changed(c, Rules.cmdId(k) + ": regla borrada: vuelve a la politica por defecto (/spawns defecto).");
                 })))
                 .then(lit("dia").then(mob()
                         .then(lit("no").executes(c -> {

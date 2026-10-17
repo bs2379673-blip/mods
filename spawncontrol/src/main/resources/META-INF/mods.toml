@@ -4,7 +4,7 @@ license="All Rights Reserved"
 
 [[mods]]
 modId="spawncontrol"
-version="1.0.0"
+version="1.1.0"
 displayName="SpawnControl"
 description='''Controla en tiempo real, sin reiniciar, el spawn natural de cualquier mob (vanilla o de otros mods): activar/desactivar, zonas con centro y radio, liberar por dia con aviso (tacui), limites y probabilidad.'''
 

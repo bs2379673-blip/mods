@@ -33,6 +33,8 @@ public class SpawnControl {
     private static final Set<Mob> DENIED = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
     /** jugadores viendo los bordes de las zonas: uuid -> {clave, ticks restantes} */
     static final Map<UUID, Object[]> VIEWERS = new ConcurrentHashMap<>();
+    /** intentos de spawn natural vistos desde que arranco el servidor: id -> {dejados pasar, bloqueados}. Sirve para saber que mobs "quieren" aparecer. */
+    static final Map<String, int[]> STATS = new ConcurrentHashMap<>();
     private static int tick;
 
     public SpawnControl() {
@@ -49,7 +51,13 @@ public class SpawnControl {
     static void onFinalize(MobSpawnEvent.FinalizeSpawn e) {
         Mob m = e.getEntity();
         ServerLevel lv = e.getLevel().getLevel();
-        if (!Rules.allowed(m.getType(), e.getSpawnType().name(), lv.dimension().location().toString(), m.position())) {
+        String st = e.getSpawnType().name();
+        boolean ok = Rules.allowed(m.getType(), st, lv.dimension().location().toString(), m.position());
+        if (Rules.isNaturalType(st)) {
+            var id = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getKey(m.getType());
+            if (id != null) STATS.computeIfAbsent(id.toString(), k -> new int[2])[ok ? 0 : 1]++;
+        }
+        if (!ok) {
             e.setSpawnCancelled(true);
             DENIED.add(m);
         }
