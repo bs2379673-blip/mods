@@ -50,7 +50,11 @@ final class Store {
             for (String ext : new String[]{".cpmmodel", ".cpmodel", ".b64", ".txt"}) {
                 Path f = dir().resolve(name + ext);
                 if (!Files.isRegularFile(f)) continue;
-                if (ext.equals(".cpmmodel") || ext.equals(".cpmodel")) return Base64.getEncoder().encodeToString(Files.readAllBytes(f));
+                if (ext.equals(".cpmmodel") || ext.equals(".cpmodel")) {
+                    byte[] raw = Files.readAllBytes(f);
+                    try { return Base64.getEncoder().encodeToString(Cpm.extract(raw)); }
+                    catch (Exception e) { return Base64.getEncoder().encodeToString(raw); }
+                }
                 return Files.readString(f).replaceAll("\\s+", "");
             }
         } catch (Exception ignored) { }
