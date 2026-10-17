@@ -31,9 +31,11 @@ public class Rule {
 
     public transient AtomicInteger alive = new AtomicInteger();
 
+    /** tipos de spawn que una regla controla por defecto: todo lo que no es una accion directa de un jugador (huevo, comando, spawner) */
+    static final java.util.List<String> DEFAULT_TYPES = java.util.List.of("NATURAL", "CHUNK_GENERATION", "STRUCTURE", "PATROL", "EVENT", "REINFORCEMENT", "TRIGGERED", "JOCKEY");
+
     public Rule() {
-        types.add("NATURAL");
-        types.add("CHUNK_GENERATION");
+        types.addAll(DEFAULT_TYPES);
     }
 
     /** repara los campos tras leer el JSON */
@@ -41,7 +43,7 @@ public class Rule {
         if (zones == null) zones = new CopyOnWriteArrayList<>(); else zones = new CopyOnWriteArrayList<>(zones);
         Set<String> t = ConcurrentHashMap.newKeySet();
         if (types != null) t.addAll(types);
-        if (t.isEmpty()) { t.add("NATURAL"); t.add("CHUNK_GENERATION"); }
+        if (t.isEmpty() || t.equals(Set.of("NATURAL", "CHUNK_GENERATION"))) t.addAll(DEFAULT_TYPES); // reglas viejas: ahora controlan tambien estructuras, eventos, etc.
         types = t;
         if (aImage == null) aImage = "";
         if (aMode == null) aMode = "center";

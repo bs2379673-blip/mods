@@ -58,7 +58,7 @@ public final class Rules {
     public static boolean defaultAllows(EntityType<?> t) { return !defaultBlock || t.getCategory() != MobCategory.MONSTER; }
 
     /** los tipos de spawn que cubre la politica por defecto (no toca spawners, huevos, estructuras, patrullas, eventos...) */
-    public static boolean isNaturalType(String spawnType) { return spawnType.equals("NATURAL") || spawnType.equals("CHUNK_GENERATION"); }
+    public static boolean isNaturalType(String spawnType) { return Rule.DEFAULT_TYPES.contains(spawnType) || spawnType.equals("DIRECT"); }
 
     public static Map<String, Rule> all() { return RULES; }
 
@@ -130,7 +130,8 @@ public final class Rules {
     public static boolean allowed(EntityType<?> type, String spawnType, String dim, Vec3 pos) {
         Rule r = find(type);
         if (r == null) return !isNaturalType(spawnType) || defaultAllows(type);
-        if (!r.types.contains(spawnType)) return true;
+        // "DIRECT": un mod puso el mob en el mundo sin pasar por el spawn normal; se trata como spawn natural
+        if (!r.types.contains(spawnType.equals("DIRECT") ? "NATURAL" : spawnType)) return true;
         if (!r.enabled) return false;
         boolean inAllow = false;
         for (Zone z : r.zones) {

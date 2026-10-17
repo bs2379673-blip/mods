@@ -35,6 +35,8 @@ public class SpawnControl {
     static final Map<UUID, Object[]> VIEWERS = new ConcurrentHashMap<>();
     /** intentos de spawn natural vistos desde que arranco el servidor: id -> {dejados pasar, bloqueados}. Sirve para saber que mobs "quieren" aparecer. */
     static final Map<String, int[]> STATS = new ConcurrentHashMap<>();
+    /** mobs que ya pasaron por el spawn normal y fueron aprobados: su entrada al mundo no se vuelve a revisar */
+    private static final Set<Mob> APPROVED = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
     private static int tick;
 
     public SpawnControl() {
@@ -60,12 +62,20 @@ public class SpawnControl {
         if (!ok) {
             e.setSpawnCancelled(true);
             DENIED.add(m);
-        }
+        } else APPROVED.add(m);
     }
 
     static void onJoin(EntityJoinLevelEvent e) {
         if (e.getLevel().isClientSide) return;
-        if (e.getEntity() instanceof Mob m && !DENIED.isEmpty() && DENIED.remove(m)) e.setCanceled(true);
+        if (!(e.getEntity() instanceof Mob m)) return;
+        if (!DENIED.isEmpty() && DENIED.remove(m)) { e.setCanceled(true); return; }
+        if (APPROVED.remove(m) || e.loadedFromDisk()) return;
+        // entra al mundo sin haber pasado por el spawn normal (otro mod lo agrega directo): se le aplican las mismas reglas
+        ServerLevel lv = (ServerLevel) e.getLevel();
+        boolean ok = Rules.allowed(m.getType(), "DIRECT", lv.dimension().location().toString(), m.position());
+        var id = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getKey(m.getType());
+        if (id != null) STATS.computeIfAbsent(id.toString(), k -> new int[2])[ok ? 0 : 1]++;
+        if (!ok) e.setCanceled(true);
     }
 
     static void onTick(TickEvent.ServerTickEvent e) {

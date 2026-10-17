@@ -42,7 +42,7 @@ final class Cmds {
 
     private static final Map<String, String> TYPES = Map.of(
             "natural", "NATURAL", "chunk", "CHUNK_GENERATION", "estructura", "STRUCTURE", "spawner", "SPAWNER",
-            "patrulla", "PATROL", "evento", "EVENT", "refuerzo", "REINFORCEMENT", "jinete", "JOCKEY");
+            "patrulla", "PATROL", "evento", "EVENT", "refuerzo", "REINFORCEMENT", "jinete", "JOCKEY", "trigger", "TRIGGERED");
 
     private static final SuggestionProvider<CommandSourceStack> MOBS = (c, b) -> {
         List<String> l = new ArrayList<>();
@@ -166,6 +166,24 @@ final class Cmds {
                     r.enabled = false;
                     r.releaseDay = -1;
                     return changed(c, Rules.cmdId(k) + " DESACTIVADO: no spawneara de forma natural.");
+                })))
+                .then(lit("limpiar").then(mob().executes(c -> {
+                    String k = key(c);
+                    int n = 0;
+                    for (var lv : c.getSource().getServer().getAllLevels()) {
+                        List<net.minecraft.world.entity.Entity> kill = new ArrayList<>();
+                        for (var en : lv.getAllEntities()) {
+                            if (!(en instanceof net.minecraft.world.entity.Mob)) continue;
+                            ResourceLocation id = ForgeRegistries.ENTITY_TYPES.getKey(en.getType());
+                            if (id == null) continue;
+                            if (k.equals("*") || k.equals(id.toString()) || (k.endsWith(":*") && k.equals(id.getNamespace() + ":*"))) kill.add(en);
+                        }
+                        for (var en : kill) en.discard();
+                        n += kill.size();
+                    }
+                    int total = n;
+                    c.getSource().sendSuccess(() -> Component.literal(Rules.cmdId(k) + ": " + total + " mobs que ya estaban en el mundo fueron eliminados."), true);
+                    return total;
                 })))
                 .then(lit("reset").then(mob().executes(c -> {
                     String k = key(c);
