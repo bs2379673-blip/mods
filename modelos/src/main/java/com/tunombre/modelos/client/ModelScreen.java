@@ -39,7 +39,7 @@ public class ModelScreen extends Screen {
         perPage = Math.max(3, (height - 130) / ROW_H);
         int bw = (w - 8) / 3;
         addRenderableWidget(Button.builder(Component.literal("Poner (forzado)"), b -> apply(false)).bounds(x0, ay, bw, 20)
-                .tooltip(Tooltip.create(Component.literal("Le pone el modelo y no puede cambiarlo. Epic Fight se apaga para el.\\nQueda guardado aunque se desconecte."))).build());
+                .tooltip(Tooltip.create(Component.literal("Le pone el modelo y no puede cambiarlo. Epic Fight se apaga para el.\nQueda guardado aunque se desconecte."))).build());
         addRenderableWidget(Button.builder(Component.literal("Poner temporal"), b -> apply(true)).bounds(x0 + bw + 4, ay, bw, 20)
                 .tooltip(Tooltip.create(Component.literal("Igual, pero el modelo se borra cuando el jugador se desconecta."))).build());
         addRenderableWidget(Button.builder(Component.literal("Quitar modelo"), b -> { if (!selPlayer.isEmpty()) send("modelos quitar " + selPlayer); }).bounds(x0 + 2 * (bw + 4), ay, bw, 20)
