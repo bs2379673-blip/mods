@@ -1,0 +1,15 @@
+{
+  "vertex": "blit",
+  "fragment": "visionfx",
+  "attributes": [ "Position" ],
+  "samplers": [ { "name": "DiffuseSampler" } ],
+  "uniforms": [
+    { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [ 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 ] },
+    { "name": "OutSize", "type": "float", "count": 2, "values": [ 1, 1 ] },
+    { "name": "Contrast", "type": "float", "count": 1, "values": [ 0 ] },
+    { "name": "Desaturate", "type": "float", "count": 1, "values": [ 0 ] },
+    { "name": "Brightness", "type": "float", "count": 1, "values": [ 1 ] },
+    { "name": "Chromatic", "type": "float", "count": 1, "values": [ 0 ] },
+    { "name": "Vignette", "type": "float", "count": 1, "values": [ 0 ] }
+  ]
+}
