@@ -127,7 +127,10 @@ public final class Rules {
     }
 
     /** decide si un spawn de este tipo, en este punto, esta permitido */
-    public static boolean allowed(EntityType<?> type, String spawnType, String dim, Vec3 pos) {
+    public static boolean allowed(EntityType<?> type, String spawnType, String dim, Vec3 pos) { return allowed(type, spawnType, dim, pos, true); }
+
+    /** fresh=false: un mob que ya estaba guardado en el mundo; no gasta cupos ni tira el dado (solo se aplican reglas fijas) */
+    public static boolean allowed(EntityType<?> type, String spawnType, String dim, Vec3 pos, boolean fresh) {
         Rule r = find(type);
         if (r == null) return !isNaturalType(spawnType) || defaultAllows(type);
         // "DIRECT": un mod puso el mob en el mundo sin pasar por el spawn normal; se trata como spawn natural
@@ -140,6 +143,7 @@ public final class Rules {
             inAllow = true;
         }
         if (r.onlyZones && !inAllow) return false;
+        if (!fresh) return true;
         if (r.max > 0 && r.alive.get() >= r.max) return false;
         if (r.prob < 100 && Math.random() * 100.0 >= r.prob) return false;
         if (r.max > 0) r.alive.incrementAndGet();

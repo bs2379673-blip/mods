@@ -69,7 +69,15 @@ public class SpawnControl {
         if (e.getLevel().isClientSide) return;
         if (!(e.getEntity() instanceof Mob m)) return;
         if (!DENIED.isEmpty() && DENIED.remove(m)) { e.setCanceled(true); return; }
-        if (APPROVED.remove(m) || e.loadedFromDisk()) return;
+        if (e.loadedFromDisk()) {
+            // un mob guardado en el chunk (de antes de apagar el spawn): se borra al cargarse, salvo que sea persistente o tenga nombre
+            if (m.isPersistenceRequired() || m.hasCustomName() || m.isPassenger() || m.isLeashed()) return;
+            String st = m.getSpawnType() != null ? m.getSpawnType().name() : "DIRECT";
+            ServerLevel lvd = (ServerLevel) e.getLevel();
+            if (!Rules.allowed(m.getType(), st, lvd.dimension().location().toString(), m.position(), false)) e.setCanceled(true);
+            return;
+        }
+        if (APPROVED.remove(m)) return;
         // entra al mundo sin haber pasado por el spawn normal (otro mod lo agrega directo): se le aplican las mismas reglas
         ServerLevel lv = (ServerLevel) e.getLevel();
         boolean ok = Rules.allowed(m.getType(), "DIRECT", lv.dimension().location().toString(), m.position());
