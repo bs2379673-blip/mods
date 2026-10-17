@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.tunombre.flashlightef.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [],
+  "client": [
+    "AimMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

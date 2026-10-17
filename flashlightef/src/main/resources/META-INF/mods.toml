@@ -1,0 +1,37 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="flashlightef"
+version="${mod_version}"
+displayName="Flashlight Epic Fight"
+description='''Hace compatible Flashier Flashlights con Epic Fight: en tercera persona la luz de la linterna apunta hacia adelante (donde mira el jugador) en vez de hacia la espalda.'''
+
+[[dependencies.flashlightef]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.flashlightef]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.flashlightef]]
+modId="epicfight"
+mandatory=true
+versionRange="[20.14,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.flashlightef]]
+modId="flashlightmod"
+mandatory=true
+versionRange="[1.2,)"
+ordering="AFTER"
+side="CLIENT"
