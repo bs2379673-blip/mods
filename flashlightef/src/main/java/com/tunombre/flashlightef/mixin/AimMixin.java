@@ -36,7 +36,8 @@ public abstract class AimMixin {
             Vec3 origin = fl.origin;
             GlassPositionManager.HandTransformData hand = GlassPositionManager.getFreshHandTransform(uid);
             if (hand != null) {
-                Matrix4f w = new Matrix4f((Matrix4fc) invView).mul((Matrix4fc) hand.transformMatrix);
+                // la matriz capturada ya incluye el giro de FlipModel: se deshace para quedarse con la posicion de la mano
+                Matrix4f w = new Matrix4f((Matrix4fc) invView).mul((Matrix4fc) hand.transformMatrix).mul((Matrix4fc) com.tunombre.flashlightef.FlipModel.FLIP);
                 // posicion de la mano, un poco hacia adelante para que el haz no nazca dentro del cuerpo
                 origin = new Vec3(w.m30(), w.m31(), w.m32()).add(dir.scale(0.3));
             }

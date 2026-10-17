@@ -1,6 +1,9 @@
 package com.tunombre.flashlightef;
 
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 /**
  * Compatibilidad de Flashier Flashlights con Epic Fight. Toda la logica esta en el mixin {@code AimMixin}: con Epic Fight
@@ -11,4 +14,8 @@ import net.minecraftforge.fml.common.Mod;
 @Mod(FlashlightEF.MODID)
 public class FlashlightEF {
     public static final String MODID = "flashlightef";
+
+    public FlashlightEF() {
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().register(ClientSetup.class));
+    }
 }
