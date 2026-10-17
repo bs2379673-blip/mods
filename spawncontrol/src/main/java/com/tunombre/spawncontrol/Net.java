@@ -43,7 +43,7 @@ public final class Net {
                       int alive, int ok, int blocked) {
         void write(FriendlyByteBuf b) {
             b.writeUtf(id, 120);
-            b.writeUtf(cat, 24);
+            b.writeUtf(cat, 48);
             b.writeByte(state);
             b.writeBoolean(inh);
             b.writeBoolean(only);
@@ -59,7 +59,7 @@ public final class Net {
         }
 
         static Row read(FriendlyByteBuf b) {
-            return new Row(b.readUtf(120), b.readUtf(24), b.readByte(), b.readBoolean(), b.readBoolean(), b.readShort(), b.readShort(), b.readShort(), b.readByte(),
+            return new Row(b.readUtf(120), b.readUtf(48), b.readByte(), b.readBoolean(), b.readBoolean(), b.readShort(), b.readShort(), b.readShort(), b.readByte(),
                     b.readBoolean(), b.readBoolean(), b.readVarInt(), b.readVarInt(), b.readVarInt());
         }
     }
