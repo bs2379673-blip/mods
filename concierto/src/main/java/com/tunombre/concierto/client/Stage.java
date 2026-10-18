@@ -35,6 +35,9 @@ public final class Stage {
 
     public static final float FALL_TIME = 0.9F;
     public final List<Column> columns = new ArrayList<>();
+    private float[] hts;
+    private int hR, hcx, hcz;
+    private long hTime;
 
     /** direccion en que mira el publico (hacia donde se van los rayos) y su derecha */
     public double fx() { return -Math.sin(Math.toRadians(yaw)); }
@@ -87,14 +90,46 @@ public final class Stage {
         if (floorA > 0.003F) {
             set(sh, "Kind", 0F);
             set(sh, "Alpha", floorA);
-            // piso redondo centrado en el escenario; radio = piso_ancho * escala * 0.75
+            // piso redondo centrado en el escenario; radio = piso_ancho * escala * 0.75. Cada bloque va a la altura del suelo para que el terreno no lo tape.
             float R = p[2] * S * 0.75F;
-            begin(bb);
-            double[][] c = {{-R, -R}, {R, -R}, {R, R}, {-R, R}};
-            for (double[] q : c) {
-                b.v(ox + rx * q[0] + fx * q[1], oy, oz + rz * q[0] + fz * q[1], (float) (q[0] / R), (float) (q[1] / R), 0F, 1F, (float) q[0] + 0.5F, (float) q[1] + 0.5F);
+            var lv = net.minecraft.client.Minecraft.getInstance().level;
+            int cx0 = (int) Math.floor(x), cz0 = (int) Math.floor(z);
+            int Ri = (int) Math.ceil(R) + 1;
+            long now = System.currentTimeMillis();
+            if (lv != null && (hts == null || hR != Ri || hcx != cx0 || hcz != cz0 || now - hTime > 1500)) {
+                int n = 2 * Ri + 1;
+                hts = new float[n * n];
+                for (int i = 0; i < n; i++) {
+                    for (int j = 0; j < n; j++) {
+                        int wx = cx0 - Ri + i, wz = cz0 - Ri + j;
+                        hts[i * n + j] = lv.hasChunk(wx >> 4, wz >> 4)
+                                ? lv.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, wx, wz) : Float.NaN;
+                    }
+                }
+                hR = Ri; hcx = cx0; hcz = cz0; hTime = now;
             }
-            flush(bb);
+            if (hts != null) {
+                int n = 2 * Ri + 1;
+                begin(bb);
+                for (int i = 0; i < n; i++) {
+                    for (int j = 0; j < n; j++) {
+                        float h = hts[i * n + j];
+                        if (Float.isNaN(h) || Math.abs(h - y) > 4.5) continue;
+                        int wx = cx0 - Ri + i, wz = cz0 - Ri + j;
+                        double dx = wx + 0.5 - x, dz = wz + 0.5 - z;
+                        double lx = rx * dx + rz * dz, lf = fx * dx + fz * dz;
+                        if (Math.sqrt(lx * lx + lf * lf) > R) continue;
+                        double yy = h + 0.03 - camY;
+                        for (int k = 0; k < 4; k++) {
+                            double qx = wx + ((k == 1 || k == 2) ? 1 : 0), qz = wz + ((k >= 2) ? 1 : 0);
+                            double ddx = qx - x, ddz = qz - z;
+                            double ql = rx * ddx + rz * ddz, qf = fx * ddx + fz * ddz;
+                            b.v(qx - camX, yy, qz - camZ, (float) (ql / R), (float) (qf / R), 0F, 1F, (float) ql + 0.5F, (float) qf + 0.5F);
+                        }
+                    }
+                }
+                flush(bb);
+            }
         }
         if (eqA > 0.003F) {
             set(sh, "Kind", 1F);
