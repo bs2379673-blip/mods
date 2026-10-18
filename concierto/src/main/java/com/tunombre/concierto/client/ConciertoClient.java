@@ -355,7 +355,6 @@ public final class ConciertoClient {
         Matrix4f invView = view.invert();
         Matrix4f invProj = new Matrix4f(e.getProjectionMatrix()).invert();
         // hacia donde esta el escenario visto desde el publico (el publico mira hacia -F... el escenario queda del lado de -F)
-        StageFx.draw(fxAdd, cam.x, cam.y, cam.z, stage, Math.max(0F, songT), level, kickEnv, pal, alpha * Math.max(floorA, beamsA));
         float sdx = stage.set ? (float) -stage.fx() : 0F, sdz = stage.set ? (float) -stage.fz() : -1F;
 
         sky.safeGetUniform("InvProj").set(invProj);
@@ -445,6 +444,7 @@ public final class ConciertoClient {
         stage.drawStars(fxAdd, cam.x, cam.y, cam.z);
         stage.drawShells(fxAdd, cam.x, cam.y, cam.z);
         ModelFx.draw(fxAdd, cam.x, cam.y, cam.z, e.getPartialTick(), stage, Math.max(0F, songT), level, kickEnv, !dark);
+        StageFx.draw(fxAdd, cam.x, cam.y, cam.z, stage, Math.max(0F, songT), level, kickEnv, pal, alpha * Math.max(floorA, beamsA));
         float sdx = stage.set ? (float) -stage.fx() : 0F, sdz = stage.set ? (float) -stage.fz() : -1F;
         if (!dark) sprites.draw(fx, fxAdd, sdx, sdz, Math.max(0F, songT), kickEnv, alpha);
         RenderSystem.defaultBlendFunc();
