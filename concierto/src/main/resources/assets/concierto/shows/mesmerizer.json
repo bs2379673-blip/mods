@@ -4,7 +4,7 @@
  "cues": [
   {
    "t": 0.0,
-   "scene": "milkdrop",
+   "scene": "hypno",
    "floor": "off",
    "eq": 0.0,
    "beams": "off",
@@ -40,7 +40,7 @@
   },
   {
    "t": 14.06,
-   "scene": "milkdrop",
+   "scene": "hypno",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -75,7 +75,7 @@
   },
   {
    "t": 24.427,
-   "scene": "kaleidoscope",
+   "scene": "hypno",
    "floor": "disco",
    "eq": 1.2,
    "beams": "cross",
@@ -135,7 +135,7 @@
   },
   {
    "t": 34.818,
-   "scene": "kaleidoscope",
+   "scene": "hypno",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -182,7 +182,7 @@
   },
   {
    "t": 68.545,
-   "scene": "kaleidoscope",
+   "scene": "hypno",
    "floor": "disco",
    "eq": 1.2,
    "beams": "cross",
@@ -233,7 +233,7 @@
   },
   {
    "t": 78.925,
-   "scene": "kaleidoscope",
+   "scene": "hypno",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -282,7 +282,7 @@
   },
   {
    "t": 97.106,
-   "scene": "milkdrop",
+   "scene": "hypno",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -317,7 +317,7 @@
   },
   {
    "t": 110.063,
-   "scene": "kaleidoscope",
+   "scene": "hypno",
    "floor": "disco",
    "eq": 1.2,
    "beams": "cross",
@@ -377,7 +377,7 @@
   },
   {
    "t": 120.442,
-   "scene": "milkdrop",
+   "scene": "hypno",
    "floor": "grid",
    "eq": 0.3,
    "beams": "off",

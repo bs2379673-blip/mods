@@ -4,7 +4,7 @@
  "cues": [
   {
    "t": 0.0,
-   "scene": "starfield",
+   "scene": "obscure",
    "floor": "off",
    "eq": 0,
    "beams": "off",
@@ -31,7 +31,7 @@
   },
   {
    "t": 4.8,
-   "scene": "starfield",
+   "scene": "obscure",
    "floor": "grid",
    "eq": 0,
    "beams": "off",
@@ -101,7 +101,7 @@
   },
   {
    "t": 11.95,
-   "scene": "magnetosphere",
+   "scene": "obscure",
    "floor": "ripple",
    "eq": 0.8,
    "beams": "fan",
@@ -257,7 +257,7 @@
   },
   {
    "t": 21.6,
-   "scene": "fireworks",
+   "scene": "cosmos",
    "floor": "disco",
    "eq": 1.3,
    "beams": "cross",

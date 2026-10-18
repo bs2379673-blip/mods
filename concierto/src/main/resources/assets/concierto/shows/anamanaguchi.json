@@ -4,7 +4,7 @@
  "cues": [
   {
    "t": 0.0,
-   "scene": "sunset",
+   "scene": "synth",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -22,7 +22,7 @@
   },
   {
    "t": 15.871,
-   "scene": "sunset",
+   "scene": "synth",
    "floor": "grid",
    "eq": 0.7,
    "beams": "slow",
@@ -48,7 +48,7 @@
   },
   {
    "t": 27.121,
-   "scene": "fireworks",
+   "scene": "synth",
    "floor": "disco",
    "eq": 1.3,
    "beams": "cross",
@@ -107,7 +107,7 @@
   },
   {
    "t": 45.871,
-   "scene": "fireworks",
+   "scene": "synth",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -149,7 +149,7 @@
   },
   {
    "t": 60.871,
-   "scene": "fireworks",
+   "scene": "synth",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -191,7 +191,7 @@
   },
   {
    "t": 75.871,
-   "scene": "sunset",
+   "scene": "synth",
    "floor": "grid",
    "eq": 0.7,
    "beams": "slow",
@@ -217,7 +217,7 @@
   },
   {
    "t": 83.383,
-   "scene": "sunset",
+   "scene": "synth",
    "floor": "grid",
    "eq": 0.7,
    "beams": "slow",
@@ -243,7 +243,7 @@
   },
   {
    "t": 90.883,
-   "scene": "sunset",
+   "scene": "synth",
    "floor": "grid",
    "eq": 0.7,
    "beams": "slow",
@@ -269,7 +269,7 @@
   },
   {
    "t": 105.883,
-   "scene": "starfield",
+   "scene": "synth",
    "floor": "grid",
    "eq": 0.4,
    "beams": "off",
@@ -295,7 +295,7 @@
   },
   {
    "t": 120.871,
-   "scene": "fireworks",
+   "scene": "synth",
    "floor": "disco",
    "eq": 1.3,
    "beams": "cross",
@@ -354,7 +354,7 @@
   },
   {
    "t": 135.872,
-   "scene": "fireworks",
+   "scene": "synth",
    "floor": "disco",
    "eq": 1.3,
    "beams": "cross",
@@ -396,7 +396,7 @@
   },
   {
    "t": 150.872,
-   "scene": "sunset",
+   "scene": "synth",
    "floor": "grid",
    "eq": 0.7,
    "beams": "slow",
@@ -422,7 +422,7 @@
   },
   {
    "t": 165.872,
-   "scene": "fireworks",
+   "scene": "synth",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -481,7 +481,7 @@
   },
   {
    "t": 179.003,
-   "scene": "fireworks",
+   "scene": "synth",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -523,7 +523,7 @@
   },
   {
    "t": 188.383,
-   "scene": "sunset",
+   "scene": "synth",
    "floor": "grid",
    "eq": 0.7,
    "beams": "slow",
@@ -549,7 +549,7 @@
   },
   {
    "t": 195.86,
-   "scene": "sunset",
+   "scene": "synth",
    "floor": "grid",
    "eq": 0.3,
    "beams": "off",

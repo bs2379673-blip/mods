@@ -345,6 +345,337 @@ vec3 sceneMeltGlow(vec3 d, float t) {
     return col;
 }
 
+
+// ============================================================================================================
+// FONDOS PROPIOS DE CADA CANCION (10..19). Todos anclados al eje del escenario (azimut/altura), no giran con la camara.
+// ============================================================================================================
+mat2 rot2(float a) { float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
+vec3 rainbow(float h) { return clamp(abs(mod(h * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0); }
+float seg(vec2 p, vec2 a, vec2 b) { vec2 pa = p - a, ba = b - a; float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0); return length(pa - ba * h); }
+float sdBox(vec2 p, vec2 b) { vec2 q = abs(p) - b; return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0); }
+
+// 10: STATIC - tele sin senal: nieve, barras de color, lluvia de datos y cortes de imagen con corte de color rojo/cian
+float dataPat(vec2 ae, float t) {
+    vec2 f = abs(fract(ae * 8.0) - 0.5);
+    float line = smoothstep(0.462, 0.5, max(f.x, f.y));
+    float id = floor(ae.x * 34.0);
+    float h = hash11(id + 3.0);
+    float y = fract(ae.y * 2.6 - t * (0.25 + 0.9 * h) + h * 9.0);
+    float trail = pow(1.0 - y, 3.0) * step(0.5, hash11(id * 1.7)) * (0.45 + 1.4 * spec(fract(id / 34.0)));
+    return line * 0.55 + trail;
+}
+vec3 sceneStatic(vec3 d, float t) {
+    vec2 ae = azel(d);
+    float el = max(ae.y, 0.0);
+    float band = floor(ae.y * 16.0 + floor(t * 7.0) * 3.1);
+    float gh = hash11(band);
+    float glitch = gh > 0.86 ? (gh - 0.93) * (0.5 + 1.2 * Kick) : 0.0;
+    vec3 col = P0 * 0.04 + vec3(0.0, 0.01, 0.03);
+    col += P0 * dataPat(ae + vec2(glitch, 0.0), t) * 0.85;
+    col += P1 * dataPat(ae - vec2(glitch * 1.3, 0.0), t) * (0.18 + 5.0 * abs(glitch));
+    // pantalla central con barras de color
+    vec2 c = vec2(0.0, 0.62);
+    vec2 q = ae - c;
+    q.x += glitch * 0.6;
+    float bx = sdBox(q, vec2(0.60, 0.33)) - 0.04;
+    float inside = smoothstep(0.01, -0.01, bx);
+    float bar = floor((q.x + 0.60) / 1.2 * 7.0);
+    vec3 bars = bar < 0.5 ? vec3(0.95) : bar < 1.5 ? vec3(0.95, 0.9, 0.1) : bar < 2.5 ? vec3(0.1, 0.9, 0.9) : bar < 3.5 ? vec3(0.1, 0.9, 0.2) : bar < 4.5 ? vec3(0.9, 0.1, 0.9) : bar < 5.5 ? vec3(0.9, 0.1, 0.15) : vec3(0.15, 0.2, 0.95);
+    float nz = hash21(floor(ae * vec2(170.0, 110.0)) + floor(t * 30.0));
+    bars = mix(bars, vec3(nz), 0.28 + 0.5 * High) * (0.5 + 0.4 * sin(ae.y * 420.0 + t * 8.0) * 0.5 + 0.35);
+    col = mix(col, bars * (0.7 + 0.4 * Kick), inside * 0.9);
+    col += P0 * exp(-pow(bx * 22.0, 2.0)) * (0.6 + 0.8 * Kick);
+    // nieve de fondo
+    col += vec3(0.55, 0.8, 0.9) * nz * (0.07 + 0.32 * High + 0.25 * Kick) * smoothstep(0.0, 0.1, 1.0 - inside);
+    col += stars(ae, el, t) * 0.4;
+    return col * (0.85 + 0.35 * Level);
+}
+
+// 11: KONTON BOOGIE - pared de espirales mareadas que giran en sentidos opuestos y cambian de color
+vec3 sceneKonton(vec3 d, float t) {
+    vec2 ae = azel(d);
+    float el = max(ae.y, 0.0);
+    float S = 0.62;
+    vec2 g = vec2(ae.x, el) / S;
+    vec2 cell = floor(g + vec2(0.5, 0.0));
+    vec2 p = vec2(fract(g.x + 0.5) - 0.5, fract(g.y) - 0.5);
+    float par = mod(cell.x + cell.y, 2.0);
+    float dir = par < 0.5 ? 1.0 : -1.0;
+    float a = atan(p.y, p.x), r = length(p);
+    float sp = sin(a * 3.0 * dir + log(r + 0.04) * 9.0 - t * 2.2 * dir - Bass * 3.0);
+    float arms = smoothstep(-0.05, 0.05, sp);
+    float id = hash21(cell);
+    vec3 ca = id < 0.34 ? P0 : id < 0.67 ? P1 : P2;
+    vec3 cb = id < 0.34 ? P1 : id < 0.67 ? P2 : P0;
+    vec3 col = mix(cb * 0.25, ca * 1.1, arms);
+    col *= smoothstep(0.52, 0.30, r + 0.12 * Bass);                 // cada espiral es un disco
+    col += ca * exp(-r * r * 90.0) * (0.5 + Kick);                   // centro brillante
+    // fondo oscuro con puntos
+    vec3 bg = P2 * 0.05 + vec3(0.02, 0.0, 0.05) * (1.0 + el);
+    col = max(col, bg);
+    col *= 0.7 + 0.5 * Level;
+    col += stars(ae, el, t) * 0.5;
+    return col * smoothstep(-0.02, 0.1, ae.y + 0.05);
+}
+
+// 12: MAGICAL CURE - cielo pastel con un circulo magico gigante (pentagrama y runas) y lluvia de destellos
+vec3 sceneMagia(vec3 d, float t) {
+    vec2 ae = azel(d);
+    float el = max(ae.y, 0.0);
+    vec3 col = mix(P1 * 0.9, P0 * 0.5, smoothstep(0.0, 0.9, el));
+    col = mix(col, vec3(0.05, 0.02, 0.15), smoothstep(0.55, 1.5, el));
+    col += P2 * exp(-pow(el * 6.0, 2.0)) * 0.25;
+    // circulo magico en lo alto, delante del publico
+    vec2 c = vec2(0.0, 0.92);
+    vec2 p = (ae - c);
+    p.x *= 0.62;
+    float R = 0.78 * (1.0 + 0.05 * Kick);
+    p = rot2(t * 0.18) * p;
+    float r = length(p), a = atan(p.y, p.x);
+    float ring1 = exp(-pow((r - R) * 70.0, 2.0)), ring2 = exp(-pow((r - R * 0.88) * 120.0, 2.0)), ring3 = exp(-pow((r - R * 0.45) * 90.0, 2.0));
+    float ticks = smoothstep(0.55, 0.0, abs(fract(a / TAU * 36.0) - 0.5) - 0.3) * exp(-pow((r - R * 0.94) * 60.0, 2.0));
+    float star = 0.0;
+    for (int k = 0; k < 5; k++) {
+        float a0 = TAU * float(k) / 5.0 + PI * 0.5, a1 = TAU * float(k + 2) / 5.0 + PI * 0.5;
+        float dd = seg(p, R * 0.88 * vec2(cos(a0), sin(a0)), R * 0.88 * vec2(cos(a1), sin(a1)));
+        star += exp(-dd * dd * 9000.0);
+    }
+    // runas giratorias entre los anillos
+    vec2 q2 = rot2(-t * 0.35) * p;
+    float ra = atan(q2.y, q2.x);
+    float runes = step(0.5, hash11(floor(ra / TAU * 18.0))) * exp(-pow((r - R * 0.68) * 55.0, 2.0)) * smoothstep(0.45, 0.2, abs(fract(ra / TAU * 18.0) - 0.5));
+    vec3 mc = mix(P0, P2, 0.35) * (ring1 + ring2 * 0.8 + ring3 + ticks * 0.7 + star + runes * 0.8);
+    mc += vec3(1.0) * (ring1 * 0.3 + star * 0.3);
+    col += mc * (0.9 + 0.8 * Level + 0.5 * Beat);
+    col += P2 * exp(-r * r * 3.0) * 0.12 * (1.0 + Level);
+    // destellos que caen
+    for (int i = 0; i < 3; i++) {
+        float fi = float(i);
+        vec2 g = ae * vec2(10.0 + fi * 7.0, 8.0 + fi * 5.0) + vec2(0.0, t * (0.6 + 0.3 * fi));
+        vec2 cell = floor(g);
+        float h = hash21(cell + fi * 17.0);
+        vec2 f = fract(g) - 0.5;
+        float tw = 0.5 + 0.5 * sin(t * (2.0 + h * 5.0) + h * 40.0);
+        float on = step(0.93, h) * smoothstep(0.35, 0.0, length(f)) * tw;
+        col += mix(vec3(1.0), P0, 0.4) * on * 0.9;
+    }
+    col += stars(ae, el, t) * 0.5;
+    return col;
+}
+
+// 13: LOOPING THE ROOMS - techo infinito de las backrooms: paneles fluorescentes que parpadean y papel tapiz amarillo
+vec3 sceneRooms(vec3 d, float t) {
+    vec2 ae = azel(d);
+    float el = max(ae.y, 0.0);
+    vec3 wall = P0 * 0.55;
+    float stripe = 0.5 + 0.5 * sin(ae.x * 120.0);
+    wall *= 0.82 + 0.18 * stripe;
+    wall *= 0.5 + 0.9 * smoothstep(0.0, 0.14, el);
+    float dy = max(d.y, 0.02);
+    vec2 p = d.xz / dy * 0.8;
+    p = vec2(dot(p, vec2(StageDir.z, -StageDir.x)), dot(p, vec2(StageDir.x, StageDir.z)));
+    vec2 cell = floor(p * 0.5);
+    vec2 f = fract(p * 0.5);
+    float h = hash21(cell);
+    float flick = 0.55 + 0.45 * step(0.5, fract(sin(floor(t * 11.0) + h * 40.0) * 43758.5));
+    float broken = step(0.9, h) * (0.15 + 0.85 * step(0.6, fract(t * 3.0 + h * 9.0)));
+    float lightOn = mix(flick, broken, step(0.82, h)) * (0.75 + 0.5 * Kick);
+    float panel = smoothstep(0.16, 0.2, f.x) * smoothstep(0.84, 0.8, f.x) * smoothstep(0.38, 0.42, f.y) * smoothstep(0.62, 0.58, f.y);
+    float tile = smoothstep(0.02, 0.0, min(min(f.x, 1.0 - f.x), min(f.y, 1.0 - f.y)) - 0.01);
+    vec3 ceil = P0 * 0.28 + P0 * 0.08 * tile;
+    ceil += P1 * panel * lightOn * 1.8;
+    ceil += P1 * 0.05 * exp(-pow((f.y - 0.5) * 3.0, 2.0)) * lightOn;
+    float fogk = exp(-dy * 7.0);
+    ceil = mix(ceil, wall * 0.6, fogk * 0.85);
+    vec3 col = mix(wall, ceil, smoothstep(0.05, 0.2, el));
+    col *= 0.7 + 0.5 * Level;
+    col += P2 * 0.06 * Beat;
+    return col;
+}
+
+// 14: ANAMANAGUCHI - synthwave: sol rayado, montanas y ciudad de barras pixeladas que bailan con el espectro
+vec3 sceneSynth(vec3 d, float t) {
+    vec2 ae = azel(d);
+    float el = max(ae.y, 0.0);
+    vec3 col = mix(P0 * 0.9, vec3(0.06, 0.0, 0.2), smoothstep(0.0, 0.8, el));
+    col = mix(col, P1 * 0.25, exp(-pow(el * 9.0, 2.0)) * 0.3);
+    float cy = 0.34, r = 0.27 * (1.0 + 0.03 * Kick);
+    vec2 sp = vec2(ae.x, el - cy);
+    float dist = length(sp);
+    float disc = smoothstep(r, r - 0.012, dist);
+    float yy = (el - (cy - r)) / (2.0 * r);
+    float cut = smoothstep(0.0, 0.03, abs(fract(yy * 9.0 - t * 0.12) - 0.5) - (0.5 - (0.12 + 0.5 * (1.0 - yy)) * 0.55)) * step(yy, 0.6);
+    cut = yy < 0.6 ? cut : 1.0;
+    vec3 sunC = mix(P0, P2, clamp(yy * 1.2, 0.0, 1.0));
+    col = mix(col, sunC * (1.15 + 0.3 * Level), disc * cut);
+    col += mix(P0, P2, 0.5) * exp(-dist * 4.0) * (0.22 + 0.35 * Level);
+    // montanas
+    float m = 0.025 + 0.07 * fbm(vec3(ae.x * 3.0, 0.0, 1.0)) * smoothstep(0.0, 0.5, abs(ae.x));
+    float mt = smoothstep(m + 0.004, m, el);
+    col = mix(col, vec3(0.04, 0.0, 0.1), mt);
+    col += P1 * exp(-pow((el - m) * 90.0, 2.0)) * 0.45 * step(el, m + 0.01) * smoothstep(0.0, 0.01, el);
+    // ciudad pixelada: 32 columnas que suben con el espectro
+    float bx = floor(ae.x * 14.0);
+    float u = clamp((bx + 16.0) / 32.0, 0.0, 1.0);
+    float bh = 0.02 + 0.16 * spec(u);
+    bh = floor(bh * 40.0) / 40.0;
+    float inb = step(abs(ae.x), 1.14) * step(el, bh);
+    vec3 bld = vec3(0.03, 0.0, 0.08);
+    float win = step(0.55, hash21(floor(vec2(ae.x * 14.0 * 3.0, el * 40.0)))) * step(0.12, fract(ae.x * 14.0));
+    bld += P1 * win * 0.55 * (0.5 + Level);
+    col = mix(col, bld, inb);
+    col += P1 * inb * exp(-pow((el - bh) * 80.0, 2.0)) * 0.9;
+    col += stars(ae, el, t) * 0.8;
+    return col;
+}
+
+// 15: MINNA MIKU MIKU - cielo de caramelo: arcoiris, lunares, nubes y corazoncitos que rebotan
+vec3 scenePop(vec3 d, float t) {
+    vec2 ae = azel(d);
+    float el = max(ae.y, 0.0);
+    vec3 col = mix(P2, P1, smoothstep(0.0, 0.45, el));
+    col = mix(col, P0, smoothstep(0.35, 1.0, el));
+    // lunares grandes
+    vec2 g = vec2(ae.x, el) * 5.5;
+    vec2 cell = floor(g);
+    vec2 f = fract(g) - 0.5;
+    f.y *= 1.0;
+    float dots = smoothstep(0.30, 0.26, length(f + 0.18 * vec2(sin(t + cell.x), cos(t * 0.8 + cell.y)))) * step(0.5, hash21(cell));
+    col = mix(col, mix(col, vec3(1.0), 0.6), dots * 0.5 * (0.8 + 0.4 * Kick));
+    // arcoiris
+    vec2 rc = vec2(0.0, -0.45);
+    float rr = length(ae - rc) * 0.62;
+    float ra = (rr - 0.62) / 0.16;
+    float inr = step(0.0, ra) * step(ra, 1.0);
+    col = mix(col, rainbow(1.0 - ra) * 1.0 + 0.1, inr * 0.85 * (0.85 + 0.3 * Level));
+    // nubes
+    float cl = fbm(vec3(ae.x * 2.4, el * 6.0, t * 0.03));
+    col = mix(col, vec3(1.0), pow(smoothstep(0.52, 0.8, cl), 1.4) * smoothstep(0.02, 0.15, el) * smoothstep(0.65, 0.15, el) * 0.9);
+    // corazoncitos
+    for (int i = 0; i < 3; i++) {
+        float fi = float(i);
+        float x = (fi - 1.0) * 0.55 + 0.0;
+        float yb = 0.42 + 0.1 * fi + 0.045 * abs(sin(t * 2.2 + fi * 1.7)) * (1.0 + Kick);
+        vec2 h = heart(ae, vec2(x * 2.0, yb), 0.07 + 0.01 * fi);
+        col = mix(col, mix(P0, vec3(1.0), 0.15) * 1.15, h.x * 0.95);
+        col += vec3(1.0) * h.y * 0.45;
+    }
+    col += stars(ae, el, t) * vec3(1.0, 0.9, 0.6) * 0.6;
+    return col * (0.85 + 0.25 * Level + 0.15 * Beat);
+}
+
+// 16: MESMERIZER - tunel hipnotico de espirales con ojos que giran y parpadean con el bombo
+vec3 sceneHypno(vec3 d, float t) {
+    vec2 ae = azel(d);
+    float el = max(ae.y, 0.0);
+    vec2 c = vec2(0.0, 0.58);
+    vec2 p = ae - c;
+    p.x *= 0.85;
+    float r = length(p), a = atan(p.y, p.x);
+    float tun = 1.0 / (r + 0.12);
+    float sp = sin(a * 4.0 + tun * 3.2 - t * 1.9 - Bass * 2.0);
+    float rg = sin(tun * 6.0 - t * 2.6);
+    float m = smoothstep(-0.1, 0.1, sp * 0.7 + rg * 0.3);
+    vec3 col = mix(P0 * 0.45, P1 * 0.95, m);
+    col *= 0.35 + 0.9 * smoothstep(0.0, 0.5, r);
+    col += P2 * exp(-r * r * 40.0) * (0.5 + 1.2 * Kick);
+    // 6 ojos en ronda
+    for (int i = 0; i < 6; i++) {
+        float fi = float(i);
+        float ang = fi * TAU / 6.0 + t * 0.22;
+        vec2 ec = c + vec2(cos(ang) * 0.95 / 0.85, sin(ang) * 0.5 + 0.0);
+        vec2 q = ae - ec;
+        float L = 0.30, hgt = 0.11 * (0.35 + 0.65 * (1.0 - 0.8 * Kick));
+        float lens = hgt * (1.0 - pow(abs(q.x) / L, 2.0));
+        float inLens = smoothstep(0.012, -0.004, abs(q.y) - max(lens, 0.0)) * step(abs(q.x), L);
+        float iris = smoothstep(0.075, 0.055, length(q));
+        float pup = smoothstep(0.034, 0.024, length(q));
+        vec3 ec3 = mix(vec3(0.97), mix(P2, vec3(1.0), 0.2), iris);
+        ec3 = mix(ec3, vec3(0.03), pup);
+        col = mix(col, ec3, inLens * 0.95);
+        col += P2 * exp(-pow((abs(q.y) - max(lens, 0.0)) * 40.0, 2.0)) * 0.3 * step(abs(q.x), L);
+    }
+    col *= 0.75 + 0.5 * Level;
+    col += stars(ae, el, t) * 0.4;
+    return col;
+}
+
+// 17: TRIPLE BAKA - pop art: rayos de sol de tres colores, puntos de semitono y destellos en cada golpe
+vec3 sceneBaka(vec3 d, float t) {
+    vec2 ae = azel(d);
+    float el = max(ae.y, 0.0);
+    vec2 c = vec2(0.0, 0.5);
+    vec2 p = ae - c;
+    p.x *= 0.8;
+    float r = length(p), a = atan(p.y, p.x) + t * 0.12;
+    float n = 30.0;
+    float sec = floor(a / TAU * n + 0.5 * 0.0);
+    float k = mod(sec, 3.0);
+    vec3 col = k < 0.5 ? P0 : k < 1.5 ? P1 : P2;
+    col *= 0.62 + 0.35 * smoothstep(0.0, 1.0, r) + 0.25 * Level;
+    // semitono
+    vec2 g = (ae + vec2(0.0, 0.0)) * 22.0;
+    g = rot2(0.5) * g;
+    vec2 f = fract(g) - 0.5;
+    float rad = 0.10 + 0.32 * smoothstep(0.1, 1.2, r);
+    float dots = smoothstep(rad, rad - 0.08, length(f));
+    col = mix(col, col * 0.55, dots * 0.55);
+    // anillos de impacto
+    float ring = exp(-pow((fract(r * 2.5 - t * 0.5) - 0.5) * 7.0, 2.0)) * 0.18;
+    col += ring;
+    col += vec3(1.0) * exp(-r * r * 10.0) * (0.35 + 1.1 * Kick);
+    col = mix(col, vec3(0.04), smoothstep(0.0, 0.22, -ae.y + 0.0) * 0.0);
+    col += stars(ae, el, t) * 0.5;
+    return col;
+}
+
+// 18: APERTURA OBSCURE LIVE - niebla turquesa oscura con latidos que salen del escenario
+vec3 sceneObscure(vec3 d, float t) {
+    vec2 ae = azel(d);
+    float el = max(ae.y, 0.0);
+    vec3 col = mix(P1 * 0.10, vec3(0.0, 0.01, 0.025), smoothstep(0.0, 0.8, el));
+    float f1 = fbm(vec3(ae.x * 1.3, el * 3.0, t * 0.05)), f2 = fbm(vec3(ae.x * 2.6 + 3.0, el * 5.0, t * 0.08 + 5.0));
+    col += P0 * pow(f1, 2.4) * 0.55 * smoothstep(0.0, 0.25, el) * (0.5 + 0.8 * Level);
+    col += P2 * pow(f2, 3.0) * 0.25 * (0.3 + Level);
+    // anillos de latido desde detras del escenario
+    vec2 q = vec2(ae.x, el - 0.1);
+    float r = length(q);
+    float beat = Kick;
+    float rings = exp(-pow((r - (0.12 + (1.0 - beat) * 0.9)) * 7.0, 2.0)) * beat * 1.2;
+    col += P0 * rings + P0 * exp(-r * 6.0) * (0.15 + 0.5 * beat);
+    // rendija de luz vertical al fondo
+    col += mix(P0, vec3(1.0), 0.4) * exp(-pow(ae.x * 14.0, 2.0)) * exp(-el * 2.2) * (0.25 + 0.5 * Level + 0.5 * beat);
+    col += stars(ae, el, t) * 0.9;
+    return col;
+}
+
+// 19: DESPEDIDA / INTERMEDIO - cosmos con auroras de tres colores, nebulosa y estrellas fugaces
+vec3 sceneCosmos(vec3 d, float t) {
+    vec2 ae = azel(d);
+    float el = max(ae.y, 0.0);
+    vec3 col = mix(vec3(0.03, 0.02, 0.10), vec3(0.01, 0.0, 0.03), smoothstep(0.0, 0.9, el));
+    col += mix(P0, P1, 0.5 + 0.5 * sin(ae.x * 1.3)) * pow(fbm(vec3(ae.x * 1.4, el * 2.4, t * 0.03)), 2.6) * 0.8;
+    for (int k = 0; k < 3; k++) {
+        float fk = float(k);
+        float y = 0.28 + 0.22 * fk + 0.08 * sin(ae.x * (1.8 + fk) + t * (0.4 + 0.15 * fk) + Bass * 2.0);
+        float b = exp(-pow((el - y) * (7.0 - fk), 2.0)) * (0.35 + 0.6 * Level);
+        col += (k == 0 ? P0 : k == 1 ? P1 : P2) * b * 0.9;
+    }
+    // estrellas fugaces
+    for (int i = 0; i < 2; i++) {
+        float fi = float(i);
+        float ph = fract(t * 0.13 + fi * 0.5);
+        vec2 s0 = vec2(-1.2 + fi * 0.9, 1.0), s1 = vec2(0.6 + fi * 0.3, 0.2);
+        vec2 hp = mix(s0, s1, ph);
+        vec2 dir = normalize(s1 - s0);
+        vec2 qq = vec2(ae.x, el) - hp;
+        float along = dot(qq, -dir), across = length(qq + dir * along);
+        col += vec3(1.0) * exp(-across * across * 4000.0) * exp(-max(along, 0.0) * 9.0) * step(0.0, along) * (1.0 - ph);
+    }
+    col += stars(ae, el, t) * 1.2;
+    return col * (0.8 + 0.4 * Level);
+}
+
 void main() {
     vec4 v = InvProj * vec4(ndc, 1.0, 1.0);
     vec3 vd = v.xyz / v.w;
@@ -367,7 +698,17 @@ void main() {
     else if (sc == 6) col = sceneFire(d, zen, ang, t);
     else if (sc == 7) col = sceneFire2(dm, zen, ang, t);
     else if (sc == 8) col = sceneSunset(dm, t);
-    else col = sceneMeltGlow(dm, t);
+    else if (sc == 9) col = sceneMeltGlow(dm, t);
+    else if (sc == 10) col = sceneStatic(dm, t);
+    else if (sc == 11) col = sceneKonton(dm, t);
+    else if (sc == 12) col = sceneMagia(dm, t);
+    else if (sc == 13) col = sceneRooms(dm, t);
+    else if (sc == 14) col = sceneSynth(dm, t);
+    else if (sc == 15) col = scenePop(dm, t);
+    else if (sc == 16) col = sceneHypno(dm, t);
+    else if (sc == 17) col = sceneBaka(dm, t);
+    else if (sc == 18) col = sceneObscure(dm, t);
+    else col = sceneCosmos(dm, t);
 
     if (Nova >= 0.0) {
         float ang2 = acos(clamp(dot(d, normalize(vec3(StageDir.x, 0.35, StageDir.z))), -1.0, 1.0));

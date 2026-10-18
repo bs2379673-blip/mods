@@ -4,7 +4,7 @@
  "cues": [
   {
    "t": 0.0,
-   "scene": "spectrum",
+   "scene": "baka",
    "floor": "off",
    "eq": 0.0,
    "beams": "off",
@@ -32,7 +32,7 @@
   },
   {
    "t": 18.042,
-   "scene": "spectrum",
+   "scene": "baka",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -59,7 +59,7 @@
   },
   {
    "t": 47.369,
-   "scene": "fireworks",
+   "scene": "baka",
    "floor": "disco",
    "eq": 1.0,
    "beams": "fan",
@@ -128,7 +128,7 @@
   },
   {
    "t": 71.378,
-   "scene": "spectrum",
+   "scene": "baka",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -155,7 +155,7 @@
   },
   {
    "t": 92.706,
-   "scene": "spectrum",
+   "scene": "baka",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -182,7 +182,7 @@
   },
   {
    "t": 103.375,
-   "scene": "fireworks",
+   "scene": "baka",
    "floor": "disco",
    "eq": 1.3,
    "beams": "cross",
@@ -258,7 +258,7 @@
   },
   {
    "t": 148.712,
-   "scene": "fireworks",
+   "scene": "baka",
    "floor": "disco",
    "eq": 1.0,
    "beams": "fan",
@@ -310,7 +310,7 @@
   },
   {
    "t": 162.04,
-   "scene": "spectrum",
+   "scene": "baka",
    "floor": "grid",
    "eq": 0.3,
    "beams": "off",

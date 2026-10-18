@@ -137,12 +137,12 @@ PLANS = {}
 PLANS["static"] = dict(
     title="t_static", pal={"*": P_STATIC, "break": [RED, "#7a0f24", "#ffb0b8"]}, pyro=("climax",),
     look=dict(
-        intro=L("oscilloscope", "off", 0.0, "off", True, k=0.3, s=0.1, a=0.5),
-        verse=L("oscilloscope", "grid", 0.55, "slow", True, k=0.55, s=0.3, a=0.7),
-        **{"break": L("oscilloscope", "off", 0.0, "strobe", False, k=0.5, s=0.5, a=0.8)},
-        chorus=L("magnetosphere", "ripple", 1.0, "cross", True, k=0.85, s=0.5, a=1.0),
-        climax=L("cthugha", "disco", 1.2, "strobe", True, k=1.0, s=0.6, a=1.0),
-        outro=L("oscilloscope", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
+        intro=L("static", "off", 0.0, "off", True, k=0.3, s=0.1, a=0.5),
+        verse=L("static", "grid", 0.55, "slow", True, k=0.55, s=0.3, a=0.7),
+        **{"break": L("static", "off", 0.0, "strobe", False, k=0.5, s=0.5, a=0.8)},
+        chorus=L("static", "ripple", 1.0, "cross", True, k=0.85, s=0.5, a=1.0),
+        climax=L("static", "disco", 1.2, "strobe", True, k=1.0, s=0.6, a=1.0),
+        outro=L("static", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
     spr=dict(
         verse=[dict(id="s_tv", slot="C", size=26)],
         chorus=[dict(id="u_head_smug", slot="C"), dict(id="s_bolt", slot="LR1"), dict(id="u_01", slot="H", size=16)],
@@ -155,11 +155,11 @@ PLANS["static"]["spr"]["break"] = [dict(id="s_cursor", slot="C", size=22)]
 PLANS["konton_boogie"] = dict(
     title="t_konton", pal={"*": P_KONTON}, pyro=("chorus", "climax"),
     look=dict(
-        intro=L("kaleidoscope", "disco", 0.8, "fan", True, k=0.8, s=0.5, a=0.9, swap="snare"),
-        climax=L("kaleidoscope", "disco", 1.2, "cross", True, k=1.0, s=0.6, a=1.0, swap="snare"),
-        verse=L("milkdrop", "grid", 0.5, "slow", True, k=0.5, s=0.35, a=0.7, swap="snare"),
-        chorus=L("kaleidoscope", "ripple", 1.0, "fan", True, k=0.85, s=0.5, a=1.0, swap="snare"),
-        outro=L("milkdrop", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
+        intro=L("konton", "disco", 0.8, "fan", True, k=0.8, s=0.5, a=0.9, swap="snare"),
+        climax=L("konton", "disco", 1.2, "cross", True, k=1.0, s=0.6, a=1.0, swap="snare"),
+        verse=L("konton", "grid", 0.5, "slow", True, k=0.5, s=0.35, a=0.7, swap="snare"),
+        chorus=L("konton", "ripple", 1.0, "fan", True, k=0.85, s=0.5, a=1.0, swap="snare"),
+        outro=L("konton", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
     spr=dict(
         intro=[dict(id="s_spiral", slot="C", spin=28, size=26)],
         verse=[dict(id="s_spiral", slot="C", spin=18, size=24), dict(id="s_eye", slot="LR2", size=13)],
@@ -185,12 +185,12 @@ PLANS["melt"] = dict(
 PLANS["magical_cure"] = dict(
     title=None, pal={"*": P_MAGIC}, pyro=("chorus", "climax"),
     look=dict(
-        intro=L("magnetosphere", "off", 0.0, "off", True, k=0.3, s=0.1, a=0.5),
-        verse=L("magnetosphere", "grid", 0.6, "slow", True, k=0.55, s=0.3, a=0.7),
-        **{"break": L("starfield", "off", 0.0, "off", True, k=0.3, s=0.1, a=0.5)},
-        chorus=L("fireworks", "ripple", 1.0, "fan", True, k=0.85, s=0.5, a=1.0),
-        climax=L("fireworks", "disco", 1.25, "cross", True, k=1.0, s=0.6, a=1.0),
-        outro=L("magnetosphere", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
+        intro=L("magia", "off", 0.0, "off", True, k=0.3, s=0.1, a=0.5),
+        verse=L("magia", "grid", 0.6, "slow", True, k=0.55, s=0.3, a=0.7),
+        **{"break": L("magia", "off", 0.0, "off", True, k=0.3, s=0.1, a=0.5)},
+        chorus=L("magia", "ripple", 1.0, "fan", True, k=0.85, s=0.5, a=1.0),
+        climax=L("magia", "disco", 1.25, "cross", True, k=1.0, s=0.6, a=1.0),
+        outro=L("magia", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
     spr=dict(
         intro=[dict(id="s_magiccircle", slot="C", spin=7, size=32)],
         verse=[dict(id="s_magiccircle", slot="C", spin=7, size=30), dict(id="u_wand", slot="LR2", size=14)],
@@ -201,11 +201,11 @@ PLANS["magical_cure"] = dict(
 PLANS["looping_the_rooms"] = dict(
     title="t_loop", pal={"*": P_ROOMS}, pyro=(),
     look=dict(
-        intro=L("oscilloscope", "off", 0.0, "off", True, k=0.3, s=0.1, a=0.4),
-        verse=L("oscilloscope", "grid", 0.5, "strobe", True, k=0.6, s=0.3, a=0.6),
-        climax=L("oscilloscope", "grid", 0.9, "strobe", True, k=0.9, s=0.5, a=0.9),
-        chorus=L("oscilloscope", "ripple", 0.9, "cross", True, k=0.8, s=0.45, a=0.9),
-        outro=L("oscilloscope", "off", 0.2, "off", True, k=0.25, s=0.1, a=0.3)),
+        intro=L("rooms", "off", 0.0, "off", True, k=0.3, s=0.1, a=0.4),
+        verse=L("rooms", "grid", 0.5, "strobe", True, k=0.6, s=0.3, a=0.6),
+        climax=L("rooms", "grid", 0.9, "strobe", True, k=0.9, s=0.5, a=0.9),
+        chorus=L("rooms", "ripple", 0.9, "cross", True, k=0.8, s=0.45, a=0.9),
+        outro=L("rooms", "off", 0.2, "off", True, k=0.25, s=0.1, a=0.3)),
     spr=dict(
         intro=[dict(id="u_backroom", slot="C", size=30)],
         verse=[dict(id="u_backroom", slot="C", size=30), dict(id="u_exit", slot="H", size=14)],
@@ -216,12 +216,12 @@ PLANS["looping_the_rooms"] = dict(
 PLANS["anamanaguchi"] = dict(
     title=None, pal={"*": P_SYNTH}, pyro=("chorus", "climax"),
     look=dict(
-        intro=L("sunset", "grid", 0.6, "slow", True, k=0.6, s=0.3, a=0.7),
-        verse=L("sunset", "grid", 0.7, "slow", True, k=0.7, s=0.3, a=0.7),
-        climax=L("fireworks", "disco", 1.3, "cross", True, k=1.0, s=0.6, a=1.0),
-        chorus=L("fireworks", "ripple", 1.0, "fan", True, k=0.9, s=0.5, a=1.0),
-        **{"break": L("starfield", "grid", 0.4, "off", True, k=0.4, s=0.2, a=0.5)},
-        outro=L("sunset", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
+        intro=L("synth", "grid", 0.6, "slow", True, k=0.6, s=0.3, a=0.7),
+        verse=L("synth", "grid", 0.7, "slow", True, k=0.7, s=0.3, a=0.7),
+        climax=L("synth", "disco", 1.3, "cross", True, k=1.0, s=0.6, a=1.0),
+        chorus=L("synth", "ripple", 1.0, "fan", True, k=0.9, s=0.5, a=1.0),
+        **{"break": L("synth", "grid", 0.4, "off", True, k=0.4, s=0.2, a=0.5)},
+        outro=L("synth", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
     spr=dict(
         verse=[dict(id="u_pxheart", slot="LR1", size=14)],
         chorus=[dict(id="u_head_smug", slot="C", size=26), dict(id="u_pxheart", slot="LR1", size=15), dict(id="s_pxleek", slot="LR2", size=13)],
@@ -231,11 +231,11 @@ PLANS["anamanaguchi"] = dict(
 PLANS["minna_miku_miku"] = dict(
     title="t_mikumiku", pal={"*": P_MINNA}, pyro=("climax",),
     look=dict(
-        intro=L("sunset", "off", 0.0, "off", True, k=0.3, s=0.1, a=0.5),
-        verse=L("sunset", "grid", 0.5, "slow", True, k=0.5, s=0.25, a=0.7),
-        chorus=L("fireworks", "ripple", 1.0, "fan", True, k=0.8, s=0.45, a=1.0),
-        climax=L("meltglow", "disco", 1.3, "cross", True, k=1.0, s=0.6, a=1.0),
-        outro=L("sunset", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
+        intro=L("pop", "off", 0.0, "off", True, k=0.3, s=0.1, a=0.5),
+        verse=L("pop", "grid", 0.5, "slow", True, k=0.5, s=0.25, a=0.7),
+        chorus=L("pop", "ripple", 1.0, "fan", True, k=0.8, s=0.45, a=1.0),
+        climax=L("pop", "disco", 1.3, "cross", True, k=1.0, s=0.6, a=1.0),
+        outro=L("pop", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
     spr=dict(
         intro=[dict(id="u_leek", slot="C", size=22)],
         verse=[dict(id="u_head_calm", slot="C", size=22), dict(id="s_note_pink", slot="L2", size=12), dict(id="s_note_teal", slot="R2", size=12)],
@@ -247,11 +247,11 @@ PLANS["minna_miku_miku"] = dict(
 PLANS["mesmerizer"] = dict(
     title="u_mesmerizer", pal={"*": P_MES}, pyro=("climax",),
     look=dict(
-        intro=L("milkdrop", "off", 0.0, "off", True, k=0.3, s=0.1, a=0.5),
-        verse=L("milkdrop", "grid", 0.5, "slow", True, k=0.55, s=0.3, a=0.7),
-        chorus=L("kaleidoscope", "ripple", 1.0, "fan", True, k=0.85, s=0.5, a=1.0),
-        climax=L("kaleidoscope", "disco", 1.2, "cross", True, k=1.0, s=0.6, a=1.0),
-        outro=L("milkdrop", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
+        intro=L("hypno", "off", 0.0, "off", True, k=0.3, s=0.1, a=0.5),
+        verse=L("hypno", "grid", 0.5, "slow", True, k=0.55, s=0.3, a=0.7),
+        chorus=L("hypno", "ripple", 1.0, "fan", True, k=0.85, s=0.5, a=1.0),
+        climax=L("hypno", "disco", 1.2, "cross", True, k=1.0, s=0.6, a=1.0),
+        outro=L("hypno", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
     spr=dict(
         intro=[dict(id="s_spiral", slot="C", spin=22, size=28)],
         verse=[dict(id="s_spiral", slot="C", spin=22, size=26), dict(id="s_eye", slot="H", size=12)],
@@ -263,11 +263,11 @@ PLANS["mesmerizer"] = dict(
 PLANS["triple_baka"] = dict(
     title="t_triplebaka", pal={"*": P_BAKA}, pyro=("chorus", "climax"),
     look=dict(
-        intro=L("spectrum", "off", 0.0, "off", True, k=0.4, s=0.2, a=0.6, swap="kick"),
-        verse=L("spectrum", "grid", 0.6, "slow", True, k=0.7, s=0.35, a=0.8, swap="snare"),
-        chorus=L("fireworks", "disco", 1.0, "fan", True, k=0.9, s=0.5, a=1.0, swap="snare"),
-        climax=L("fireworks", "disco", 1.3, "cross", True, k=1.0, s=0.6, a=1.0, swap="kick"),
-        outro=L("spectrum", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
+        intro=L("baka", "off", 0.0, "off", True, k=0.4, s=0.2, a=0.6, swap="kick"),
+        verse=L("baka", "grid", 0.6, "slow", True, k=0.7, s=0.35, a=0.8, swap="snare"),
+        chorus=L("baka", "disco", 1.0, "fan", True, k=0.9, s=0.5, a=1.0, swap="snare"),
+        climax=L("baka", "disco", 1.3, "cross", True, k=1.0, s=0.6, a=1.0, swap="kick"),
+        outro=L("baka", "grid", 0.3, "off", True, k=0.3, s=0.1, a=0.4)),
     spr=dict(
         verse=[dict(id="u_head_smug", slot="C", size=24)],
         chorus=[dict(id="u3_trio_wave", slot="C", size=30), dict(id="u3_neru_phone", slot="L1", size=19), dict(id="u3_teto_box", slot="R1", size=19), dict(id="s_star", slot="LRH", spin=25, size=11)],
@@ -282,8 +282,8 @@ def extra_magical(sh, d, section_at, role_look):
     BEAM_OFF = 83.02            # el clip mikubeam.ogg empieza en este segundo de Magical Cure
     BEAM_T = BEAM_OFF + 12.40   # el grito "beaaam"
     BEAM_END = BEAM_OFF + 20.9
-    CHARGE = dict(scene="starfield", floor="ripple", eq=1.0, beams="strobe", ring=True, col=[TEAL, WHITE, PINK], react=dict(kick=1.0, snare=0.6, accent=1.0))
-    BEAM = dict(scene="fireworks", floor="disco", eq=1.4, beams="cross", ring=True, col=[TEAL, WHITE, "#9ffff4"], react=dict(kick=1.0, snare=0.7, accent=1.0))
+    CHARGE = dict(scene="magia", floor="ripple", eq=1.0, beams="strobe", ring=True, col=[TEAL, WHITE, PINK], react=dict(kick=1.0, snare=0.6, accent=1.0))
+    BEAM = dict(scene="magia", floor="disco", eq=1.4, beams="cross", ring=True, col=[TEAL, WHITE, "#9ffff4"], react=dict(kick=1.0, snare=0.7, accent=1.0))
     # la cuenta: los ultimos 3 compases de la voz
     cnt = [b for b in d["bars"] if BEAM_OFF + 2.0 <= b < BEAM_T - 0.3][-3:]
     start = cnt[0] if cnt else BEAM_T - 5
@@ -323,7 +323,7 @@ def extra_magical(sh, d, section_at, role_look):
 
 def extra_rooms(sh, d, section_at, role_look):
     """en la pausa se cortan las luces: luz de emergencia roja y ojos detras del publico"""
-    RED_LOOK = dict(scene="starfield", floor="off", eq=0.0, beams="off", ring=False, col=["#ff2020", "#7a0a0a", "#ffb0a0"], react=dict(kick=0.5, snare=0.3, accent=0.4))
+    RED_LOOK = dict(scene="rooms", floor="off", eq=0.0, beams="off", ring=False, col=["#ff2020", "#7a0a0a", "#ffb0a0"], react=dict(kick=0.5, snare=0.3, accent=0.4))
     sh.look(85.1, RED_LOOK)
     sh.spr(86.0, "s_eyes", "XL", 11.0, size=18, pulse=0.0, bob=0.4)
     sh.spr(89.0, "s_eyes", "X", 8.0, size=24, pulse=0.0, bob=0.4)
@@ -345,16 +345,16 @@ def intro():
     T = json.load(open(os.path.join(SRC, "intro.timing.json")))
     BEAT, BAR, CNT, CUT, IMP, DUR = T["beat"], T["bar"], T["count"], T["cut"], T["impact"], T["dur"]
     sh = Show("intro")
-    DARK = dict(scene="starfield", floor="off", eq=0, beams="off", ring=False, col=[TEAL, "#0e4a47", "#bff5f0"], react=dict(kick=0.3, snare=0.1, accent=0.3))
+    DARK = dict(scene="obscure", floor="off", eq=0, beams="off", ring=False, col=[TEAL, "#0e4a47", "#bff5f0"], react=dict(kick=0.3, snare=0.1, accent=0.3))
     sh.look(0.0, DARK)
     sh.spr(0.6, "t_obscure", "T", 8.0, size=27, pulse=0.08)
     # latido: el bombo hace crecer el piso y el aro
-    sh.look(4.8, dict(scene="starfield", floor="grid", eq=0, beams="off", ring=True, col=[TEAL, "#1f8f87", "#d8fffb"], react=dict(kick=1.0, snare=0.2, accent=0.5)))
+    sh.look(4.8, dict(scene="obscure", floor="grid", eq=0, beams="off", ring=True, col=[TEAL, "#1f8f87", "#d8fffb"], react=dict(kick=1.0, snare=0.2, accent=0.5)))
     for k, (tp, sid, slot) in enumerate([(3 * BAR, "u2_chibi", "L2"), (3 * BAR + 2 * BEAT, "u2_fly", "R2"), (4 * BAR, "u2_swirl", "L3"), (4 * BAR + 2 * BEAT, "u2_wink", "R3")]):
         sh.spr(tp, sid, slot, CNT[0] - tp - 0.2, size=15, pulse=0.2)
         sh.fx(tp, "shock")
     # cuenta 1 . 2 . 3
-    sh.look(CNT[0] - 0.05, dict(scene="magnetosphere", floor="ripple", eq=0.8, beams="fan", ring=True, col=[TEAL, PINK, GOLD], react=dict(kick=1.0, snare=0.5, accent=0.9)))
+    sh.look(CNT[0] - 0.05, dict(scene="obscure", floor="ripple", eq=0.8, beams="fan", ring=True, col=[TEAL, PINK, GOLD], react=dict(kick=1.0, snare=0.5, accent=0.9)))
     sh.spr(CNT[0] - 0.05, "s_magiccircle", "C", CUT - CNT[0], size=34, grow=0.3, spin=35, pulse=0.12)
     for i, tc in enumerate(CNT):
         sh.spr(tc, f"t_321_{i + 1}", "C", BAR - 0.2, size=15 + 7 * i, pulse=0.3)
@@ -370,7 +370,7 @@ def intro():
         tt += BEAT / (2 + 6 * (tt - b8) / BAR)
     sh.fx(CUT, "blackout", dur=round(IMP - CUT - 0.05, 2))
     # impacto: explota todo
-    sh.look(IMP, dict(scene="fireworks", floor="disco", eq=1.3, beams="cross", ring=True, col=[TEAL, PINK, GOLD], react=dict(kick=1.0, snare=0.7, accent=1.0)))
+    sh.look(IMP, dict(scene="cosmos", floor="disco", eq=1.3, beams="cross", ring=True, col=[TEAL, PINK, GOLD], react=dict(kick=1.0, snare=0.7, accent=1.0)))
     sh.fx(IMP, "flash")
     sh.fx(IMP, "nova")
     sh.fx(IMP, "shock")
@@ -391,12 +391,12 @@ intro()
 
 # intermedio entre canciones: cielo cosmico tranquilo
 short("intermedio", [dict(t=0.5, fx="sprite", id="s_sparkle_teal", slot="LRH", dur=30, spin=12, size=11)],
-      L("starfield", "off", 0.0, "off", True, [TEAL, "#7a5cff", "#d8fffb"], 0.15, 0.05, 0.2))
+      L("cosmos", "off", 0.0, "off", True, [TEAL, "#7a5cff", "#d8fffb"], 0.15, 0.05, 0.2))
 # antes de Mesmerizer entra Teto, antes de Triple Baka entra Neru: estrella de su color
 short("pre_mesmerizer", [dict(t=0.1, fx="estrella", col="#e0324b", dur=2.9, side=-1), dict(t=3.2, fx="pyro", dur=2.5, col="#e0324b")],
-      L("kaleidoscope", "ripple", 0.6, "slow", True, [RED, VIO, "#ffd0d8"], 0.6, 0.3, 0.6))
+      L("hypno", "ripple", 0.6, "slow", True, [RED, VIO, "#ffd0d8"], 0.6, 0.3, 0.6))
 short("pre_triple_baka", [dict(t=0.1, fx="estrella", col="#f2d21b", dur=2.9, side=1), dict(t=3.2, fx="pyro", dur=2.5, col="#f2d21b")],
-      L("spectrum", "ripple", 0.6, "slow", True, [GOLD, TEAL, RED], 0.6, 0.3, 0.6))
+      L("baka", "ripple", 0.6, "slow", True, [GOLD, TEAL, RED], 0.6, 0.3, 0.6))
 
 # despedida de las tres: fuegos de colores a lo largo de los tiempos del datapack (2, 4.2, 7.5, 9, 10.5 y 13 s)
 FIN = [dict(t=0.0, fx="sprite", id="t_gracias", slot="T", dur=15.0, size=30, pulse=0.06),
@@ -406,4 +406,4 @@ FIN = [dict(t=0.0, fx="sprite", id="t_gracias", slot="T", dur=15.0, size=30, pul
        dict(t=0.0, fx="jugadores", modo="confeti", dur=16, radio=80)]
 for t, c in [(2.0, GOLD), (4.2, TEAL), (7.5, RED), (9.0, PINK), (10.5, TEAL), (13.0, WHITE)]:
     FIN += [dict(t=t, fx="pyro", dur=2.4, col=c), dict(t=t, fx="flash"), dict(t=t, fx="nova")]
-short("despedida", FIN, L("fireworks", "ripple", 1.0, "fan", True, [PINK, TEAL, GOLD], 0.8, 0.4, 0.8))
+short("despedida", FIN, L("cosmos", "ripple", 1.0, "fan", True, [PINK, TEAL, GOLD], 0.8, 0.4, 0.8))

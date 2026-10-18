@@ -4,7 +4,7 @@
  "cues": [
   {
    "t": 0.0,
-   "scene": "kaleidoscope",
+   "scene": "konton",
    "floor": "disco",
    "eq": 1.2,
    "beams": "cross",
@@ -55,7 +55,7 @@
   },
   {
    "t": 21.42,
-   "scene": "milkdrop",
+   "scene": "konton",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -91,7 +91,7 @@
   },
   {
    "t": 31.521,
-   "scene": "milkdrop",
+   "scene": "konton",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -127,7 +127,7 @@
   },
   {
    "t": 41.633,
-   "scene": "milkdrop",
+   "scene": "konton",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -163,7 +163,7 @@
   },
   {
    "t": 61.846,
-   "scene": "kaleidoscope",
+   "scene": "konton",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -222,7 +222,7 @@
   },
   {
    "t": 82.059,
-   "scene": "milkdrop",
+   "scene": "konton",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -268,7 +268,7 @@
   },
   {
    "t": 99.753,
-   "scene": "kaleidoscope",
+   "scene": "konton",
    "floor": "disco",
    "eq": 1.2,
    "beams": "cross",
@@ -327,7 +327,7 @@
   },
   {
    "t": 142.687,
-   "scene": "milkdrop",
+   "scene": "konton",
    "floor": "grid",
    "eq": 0.3,
    "beams": "off",

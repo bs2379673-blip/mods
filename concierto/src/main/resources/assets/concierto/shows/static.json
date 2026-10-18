@@ -4,7 +4,7 @@
  "cues": [
   {
    "t": 0.0,
-   "scene": "oscilloscope",
+   "scene": "static",
    "floor": "off",
    "eq": 0.0,
    "beams": "off",
@@ -56,7 +56,7 @@
   },
   {
    "t": 30.917,
-   "scene": "oscilloscope",
+   "scene": "static",
    "floor": "off",
    "eq": 0.0,
    "beams": "strobe",
@@ -102,7 +102,7 @@
   },
   {
    "t": 58.839,
-   "scene": "cthugha",
+   "scene": "static",
    "floor": "disco",
    "eq": 1.2,
    "beams": "strobe",
@@ -171,7 +171,7 @@
   },
   {
    "t": 81.595,
-   "scene": "magnetosphere",
+   "scene": "static",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "cross",
@@ -216,7 +216,7 @@
   },
   {
    "t": 101.82,
-   "scene": "magnetosphere",
+   "scene": "static",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "cross",
@@ -256,7 +256,7 @@
   },
   {
    "t": 119.629,
-   "scene": "oscilloscope",
+   "scene": "static",
    "floor": "off",
    "eq": 0.0,
    "beams": "strobe",
@@ -302,7 +302,7 @@
   },
   {
    "t": 129.765,
-   "scene": "oscilloscope",
+   "scene": "static",
    "floor": "grid",
    "eq": 0.55,
    "beams": "slow",
@@ -328,7 +328,7 @@
   },
   {
    "t": 147.447,
-   "scene": "cthugha",
+   "scene": "static",
    "floor": "disco",
    "eq": 1.2,
    "beams": "strobe",
@@ -392,7 +392,7 @@
   },
   {
    "t": 177.795,
-   "scene": "oscilloscope",
+   "scene": "static",
    "floor": "grid",
    "eq": 0.55,
    "beams": "slow",
@@ -418,7 +418,7 @@
   },
   {
    "t": 200.528,
-   "scene": "magnetosphere",
+   "scene": "static",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "cross",
@@ -470,7 +470,7 @@
   },
   {
    "t": 238.422,
-   "scene": "oscilloscope",
+   "scene": "static",
    "floor": "grid",
    "eq": 0.3,
    "beams": "off",

@@ -4,7 +4,7 @@
  "cues": [
   {
    "t": 0.0,
-   "scene": "starfield",
+   "scene": "cosmos",
    "floor": "off",
    "eq": 0.0,
    "beams": "off",

@@ -4,7 +4,7 @@
  "cues": [
   {
    "t": 0.0,
-   "scene": "spectrum",
+   "scene": "baka",
    "floor": "ripple",
    "eq": 0.6,
    "beams": "slow",

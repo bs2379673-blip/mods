@@ -4,7 +4,7 @@
  "cues": [
   {
    "t": 0.0,
-   "scene": "sunset",
+   "scene": "pop",
    "floor": "off",
    "eq": 0.0,
    "beams": "off",
@@ -44,7 +44,7 @@
   },
   {
    "t": 40.194,
-   "scene": "sunset",
+   "scene": "pop",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -86,7 +86,7 @@
   },
   {
    "t": 73.189,
-   "scene": "fireworks",
+   "scene": "pop",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -148,7 +148,7 @@
   },
   {
    "t": 112.187,
-   "scene": "sunset",
+   "scene": "pop",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -190,7 +190,7 @@
   },
   {
    "t": 124.192,
-   "scene": "sunset",
+   "scene": "pop",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -232,7 +232,7 @@
   },
   {
    "t": 145.194,
-   "scene": "meltglow",
+   "scene": "pop",
    "floor": "disco",
    "eq": 1.3,
    "beams": "cross",
@@ -300,7 +300,7 @@
   },
   {
    "t": 172.188,
-   "scene": "sunset",
+   "scene": "pop",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -342,7 +342,7 @@
   },
   {
    "t": 202.211,
-   "scene": "fireworks",
+   "scene": "pop",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -404,7 +404,7 @@
   },
   {
    "t": 226.197,
-   "scene": "sunset",
+   "scene": "pop",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -446,7 +446,7 @@
   },
   {
    "t": 238.19,
-   "scene": "meltglow",
+   "scene": "pop",
    "floor": "disco",
    "eq": 1.3,
    "beams": "cross",
@@ -528,7 +528,7 @@
   },
   {
    "t": 253.19,
-   "scene": "fireworks",
+   "scene": "pop",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -578,7 +578,7 @@
   },
   {
    "t": 274.193,
-   "scene": "sunset",
+   "scene": "pop",
    "floor": "grid",
    "eq": 0.3,
    "beams": "off",

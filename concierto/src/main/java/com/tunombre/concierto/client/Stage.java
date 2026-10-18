@@ -142,11 +142,12 @@ public final class Stage {
                 for (int i = 0; i < n; i++) {
                     for (int j = 0; j < n; j++) {
                         float h = hts[i * n + j];
-                        if (Float.isNaN(h) || Math.abs(h - y) > 4.5) continue;
+                        // sigue el suelo solo en escalones de 1 bloque; objetos, arboles o fosos no deforman la tarima
+                        if (Float.isNaN(h) || Math.abs(h - y) > 1.01) h = (float) y;
                         int wx = cx0 - Ri + i, wz = cz0 - Ri + j;
                         double dx = wx + 0.5 - x, dz = wz + 0.5 - z;
                         double lx = rx * dx + rz * dz, lf = fx * dx + fz * dz;
-                        if (Math.sqrt(lx * lx + lf * lf) > R) continue;
+                        if (Math.sqrt(lx * lx + lf * lf) > R + 1.5) continue; // el borde exacto lo recorta el shader
                         double yy = h + 0.03 - camY;
                         for (int k = 0; k < 4; k++) {
                             double qx = wx + ((k == 1 || k == 2) ? 1 : 0), qz = wz + ((k >= 2) ? 1 : 0);

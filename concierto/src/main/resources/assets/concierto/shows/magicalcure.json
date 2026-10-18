@@ -4,7 +4,7 @@
  "cues": [
   {
    "t": 0.0,
-   "scene": "magnetosphere",
+   "scene": "magia",
    "floor": "off",
    "eq": 0.0,
    "beams": "off",
@@ -31,7 +31,7 @@
   },
   {
    "t": 10.414,
-   "scene": "fireworks",
+   "scene": "magia",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -126,7 +126,7 @@
   },
   {
    "t": 35.422,
-   "scene": "magnetosphere",
+   "scene": "magia",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -161,7 +161,7 @@
   },
   {
    "t": 50.422,
-   "scene": "fireworks",
+   "scene": "magia",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -229,7 +229,7 @@
   },
   {
    "t": 60.418,
-   "scene": "fireworks",
+   "scene": "magia",
    "floor": "disco",
    "eq": 1.25,
    "beams": "cross",
@@ -289,7 +289,7 @@
   },
   {
    "t": 70.426,
-   "scene": "fireworks",
+   "scene": "magia",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -340,7 +340,7 @@
   },
   {
    "t": 82.918,
-   "scene": "magnetosphere",
+   "scene": "magia",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -358,7 +358,7 @@
   },
   {
    "t": 87.611,
-   "scene": "starfield",
+   "scene": "magia",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "strobe",
@@ -443,7 +443,7 @@
   },
   {
    "t": 95.42,
-   "scene": "fireworks",
+   "scene": "magia",
    "floor": "disco",
    "eq": 1.4,
    "beams": "cross",
@@ -526,7 +526,7 @@
   },
   {
    "t": 95.422,
-   "scene": "magnetosphere",
+   "scene": "magia",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -566,7 +566,7 @@
   },
   {
    "t": 103.92,
-   "scene": "magnetosphere",
+   "scene": "magia",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -584,7 +584,7 @@
   },
   {
    "t": 115.415,
-   "scene": "fireworks",
+   "scene": "magia",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -652,7 +652,7 @@
   },
   {
    "t": 135.419,
-   "scene": "fireworks",
+   "scene": "magia",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
@@ -712,7 +712,7 @@
   },
   {
    "t": 160.427,
-   "scene": "starfield",
+   "scene": "magia",
    "floor": "off",
    "eq": 0.0,
    "beams": "off",
@@ -740,7 +740,7 @@
   },
   {
    "t": 170.411,
-   "scene": "fireworks",
+   "scene": "magia",
    "floor": "disco",
    "eq": 1.25,
    "beams": "cross",
@@ -816,7 +816,7 @@
   },
   {
    "t": 192.923,
-   "scene": "magnetosphere",
+   "scene": "magia",
    "floor": "grid",
    "eq": 0.3,
    "beams": "off",

@@ -4,7 +4,7 @@
  "cues": [
   {
    "t": 0.0,
-   "scene": "fireworks",
+   "scene": "cosmos",
    "floor": "ripple",
    "eq": 1.0,
    "beams": "fan",
