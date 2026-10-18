@@ -1,0 +1,17 @@
+execute if score #t mikushow matches 0..199 run function mikushow:song/mesmerizer/b0
+execute if score #t mikushow matches 200..399 run function mikushow:song/mesmerizer/b1
+execute if score #t mikushow matches 400..599 run function mikushow:song/mesmerizer/b2
+execute if score #t mikushow matches 600..799 run function mikushow:song/mesmerizer/b3
+execute if score #t mikushow matches 800..999 run function mikushow:song/mesmerizer/b4
+execute if score #t mikushow matches 1000..1199 run function mikushow:song/mesmerizer/b5
+execute if score #t mikushow matches 1200..1399 run function mikushow:song/mesmerizer/b6
+execute if score #t mikushow matches 1400..1599 run function mikushow:song/mesmerizer/b7
+execute if score #t mikushow matches 1600..1799 run function mikushow:song/mesmerizer/b8
+execute if score #t mikushow matches 1800..1999 run function mikushow:song/mesmerizer/b9
+execute if score #t mikushow matches 2000..2199 run function mikushow:song/mesmerizer/b10
+execute if score #t mikushow matches 2200..2399 run function mikushow:song/mesmerizer/b11
+execute if score #t mikushow matches 2400..2599 run function mikushow:song/mesmerizer/b12
+execute if score #t mikushow matches 2600..2799 run function mikushow:song/mesmerizer/b13
+execute if score #t mikushow matches 2800..2999 run function mikushow:song/mesmerizer/b14
+execute if score #t mikushow matches 3000..3199 run function mikushow:song/mesmerizer/b15
+execute if score #t mikushow matches 3149.. run function mikushow:song/mesmerizer/fin

@@ -14,6 +14,7 @@ public class Concierto {
     public Concierto() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         Net.init();
+        com.tunombre.dancers.Dancers.init(bus);
         MinecraftForge.EVENT_BUS.register(Show.class);
         MinecraftForge.EVENT_BUS.register(Players.class);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.concierto.client.ConciertoClient.init(bus));

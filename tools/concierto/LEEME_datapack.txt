@@ -1,3 +1,5 @@
+NOTA 1.7.0: el datapack ahora va DENTRO del mod (concierto/src/main/resources/data/mikushow) y es la version que vale; las marcas y la aparicion son nativas (/concierto marcar, aparecer, entrada). Este texto es historico.
+
 MIKU SHOW 2.0 - concierto con el mod "concierto" (cielos y escenario con shaders)
 (Forge 1.20.1. Ya NO usa CustomSkyboxes.)
 

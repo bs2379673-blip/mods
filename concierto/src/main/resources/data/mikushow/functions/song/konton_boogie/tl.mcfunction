@@ -1,0 +1,17 @@
+execute if score #t mikushow matches 0..199 run function mikushow:song/konton_boogie/b0
+execute if score #t mikushow matches 200..399 run function mikushow:song/konton_boogie/b1
+execute if score #t mikushow matches 400..599 run function mikushow:song/konton_boogie/b2
+execute if score #t mikushow matches 600..799 run function mikushow:song/konton_boogie/b3
+execute if score #t mikushow matches 800..999 run function mikushow:song/konton_boogie/b4
+execute if score #t mikushow matches 1000..1199 run function mikushow:song/konton_boogie/b5
+execute if score #t mikushow matches 1200..1399 run function mikushow:song/konton_boogie/b6
+execute if score #t mikushow matches 1400..1599 run function mikushow:song/konton_boogie/b7
+execute if score #t mikushow matches 1600..1799 run function mikushow:song/konton_boogie/b8
+execute if score #t mikushow matches 1800..1999 run function mikushow:song/konton_boogie/b9
+execute if score #t mikushow matches 2000..2199 run function mikushow:song/konton_boogie/b10
+execute if score #t mikushow matches 2200..2399 run function mikushow:song/konton_boogie/b11
+execute if score #t mikushow matches 2400..2599 run function mikushow:song/konton_boogie/b12
+execute if score #t mikushow matches 2600..2799 run function mikushow:song/konton_boogie/b13
+execute if score #t mikushow matches 2800..2999 run function mikushow:song/konton_boogie/b14
+execute if score #t mikushow matches 3000..3199 run function mikushow:song/konton_boogie/b15
+execute if score #t mikushow matches 3095.. run function mikushow:song/konton_boogie/fin

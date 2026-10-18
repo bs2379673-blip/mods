@@ -96,23 +96,14 @@ public final class Show {
         srv.getCommands().performPrefixedCommand(src, cmd);
     }
 
-    /** corre la funcion de aparicion y, si no aparecio nadie, avisa en pantalla (el chat puede estar oculto) */
+    /** hace aparecer a la bailarina (nativo, sin datapack) */
     private static void appearNow(MinecraftServer srv, String who) {
-        String fn = fnOf(who);
-        if (fn == null) return;
-        runCmd(srv, "function " + fn);
-        String tag = "mks_" + who.toLowerCase();
-        boolean ok = false;
-        for (var lv : srv.getAllLevels())
-            for (var en : lv.getAllEntities())
-                if (en.getTags().contains(tag)) { ok = true; break; }
-        if (!ok) {
-            String m = "[Concierto] " + who + " NO aparecio: revisa marca (/concierto marcar), bailes (/function mikushow:config/bailes_on) y que el mod dancers este en servidor y clientes";
-            for (var pl : srv.getPlayerList().getPlayers()) {
-                pl.sendSystemMessage(Component.literal(m).withStyle(net.minecraft.ChatFormatting.RED));
-                pl.sendSystemMessage(Component.literal(m).withStyle(net.minecraft.ChatFormatting.RED), true);
-            }
-        }
+        Dancing.appear(srv, who, stageFallback(srv));
+    }
+
+    private static Dancing.Mark stageFallback(MinecraftServer srv) {
+        if (!stageSet || stageLevel == null) return null;
+        return new Dancing.Mark(stageLevel.dimension(), sx, sy, sz, stageYaw);
     }
 
     private static String fnOf(String who) {
@@ -127,6 +118,7 @@ public final class Show {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent e) {
         if (e.phase != TickEvent.Phase.END) return;
+        Dancing.tick();
         if (!pending.isEmpty()) {
             long now = System.currentTimeMillis();
             for (var it = pending.iterator(); it.hasNext(); ) {
@@ -208,34 +200,26 @@ public final class Show {
 
     /** marca (sin invocar nada) el lugar donde aparecen las bailarinas: donde estas parado y mirando hacia el publico */
     private static int mark(CommandSourceStack s, int scale) {
-        Vec3 p = s.getPosition();
-        float yaw = s.getRotation().y;
-        var src = s.withSuppressedOutput();
-        var cm = s.getServer().getCommands();
-        cm.performPrefixedCommand(src, "kill @e[type=marker,tag=mikushow_s" + scale + "]");
-        cm.performPrefixedCommand(src, String.format(java.util.Locale.ROOT,
-                "summon marker %.3f %.3f %.3f {Tags:[\"mikushow_spot\",\"mikushow_s%d\"],Rotation:[%.1ff,0.0f]}", p.x, p.y, p.z, scale, yaw));
-        cm.performPrefixedCommand(src, String.format(java.util.Locale.ROOT, "particle minecraft:end_rod %.2f %.2f %.2f 0.2 0.8 0.2 0.01 50", p.x, p.y + 1, p.z));
-        say(s, "Marca guardada (escala " + scale + "). Las bailarinas solo aparecen cuando la estrella toca el escenario. Para probar: /concierto entrada miku");
+        if (!(s.getEntity() instanceof net.minecraft.server.level.ServerPlayer p)) { say(s, "Usa /concierto marcar parado donde bailan"); return 0; }
+        say(s, Dancing.setMark(p, scale));
         return 1;
     }
 
     private static int unmark(CommandSourceStack s) {
-        s.getServer().getCommands().performPrefixedCommand(s.withSuppressedOutput(), "kill @e[type=marker,tag=mikushow_spot]");
-        say(s, "Marcas borradas");
+        int n = Dancing.clearMarks(s.getServer());
+        say(s, n + " marca(s) borradas");
         return 1;
     }
 
     private static int appear(CommandSourceStack s, String who) {
-        if (fnOf(who) == null) { say(s, "Usa miku, teto o neru"); return 0; }
+        if (!Dancing.known(who)) { say(s, "Usa miku, teto o neru"); return 0; }
         appearNow(s.getServer(), who);
         return 1;
     }
 
     /** estrella que cae y, justo en la explosion del impacto, aparece la bailarina (todo con el mismo reloj) */
     private static int entry(CommandSourceStack s, String who, float secs) {
-        String fn = fnOf(who);
-        if (fn == null) { say(s, "Usa miku, teto o neru"); return 0; }
+        if (!Dancing.known(who)) { say(s, "Usa miku, teto o neru"); return 0; }
         star(s, who, stageOr(s), secs);
         pending.add(new Pending(System.currentTimeMillis() + (long) ((secs + 0.1F) * 1000F), "@appear " + who));
         return 1;
@@ -303,6 +287,7 @@ public final class Show {
                         .then(Commands.literal("aqui")
                                 .executes(c -> setStage(c.getSource(), stageScale))
                                 .then(Commands.argument("escala", FloatArgumentType.floatArg(0.25F, 40F)).executes(c -> setStage(c.getSource(), FloatArgumentType.getFloat(c, "escala")))))
+                        .then(Commands.literal("marca").executes(c -> stageFromMark(c.getSource())))
                         .then(Commands.literal("quitar").executes(c -> {
                             stageSet = false;
                             Net.sendAll(stageMsg());
@@ -340,6 +325,7 @@ public final class Show {
                         .executes(c -> mark(c.getSource(), 4))
                         .then(Commands.argument("escala", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 10))
                                 .executes(c -> mark(c.getSource(), com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "escala")))))
+                .then(Commands.literal("vermarcas").executes(c -> { say(c.getSource(), Dancing.listMarks(c.getSource().getServer())); return 1; }))
                 .then(Commands.literal("quitarmarcas").executes(c -> unmark(c.getSource())))
                 .then(Commands.literal("aparecer").then(Commands.argument("quien", StringArgumentType.word())
                         .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("miku", "teto", "neru"), b))
@@ -377,17 +363,27 @@ public final class Show {
                 })));
     }
 
+    private static int stageFromMark(CommandSourceStack s) {
+        Dancing.Mark m = Dancing.stageMark(s.getServer());
+        if (m == null) { say(s, "No hay marca: parate donde bailan y usa /concierto marcar"); return 0; }
+        var lv = s.getServer().getLevel(m.dim());
+        if (lv == null) { say(s, "La dimension de la marca no existe"); return 0; }
+        return setStageAt(s, lv, new Vec3(m.x(), m.y(), m.z()), m.yaw(), stageScale);
+    }
+
     private static int setStage(CommandSourceStack s, float scale) {
-        Vec3 p = s.getPosition();
+        return setStageAt(s, s.getLevel(), s.getPosition(), s.getRotation().y, scale);
+    }
+
+    private static int setStageAt(CommandSourceStack s, net.minecraft.server.level.ServerLevel lv, Vec3 p, float yaw, float scale) {
         // el escenario se alinea a la cuadricula de bloques: centro del bloque y giro de 90 en 90
         sx = Mth.floor(p.x) + 0.5;
         sy = Mth.floor(p.y + 0.001);
         sz = Mth.floor(p.z) + 0.5;
-        float yaw = s.getRotation().y;
         stageYaw = Math.round(yaw / 90F) * 90F;
         stageScale = scale;
         stageSet = true;
-        stageLevel = s.getLevel();
+        stageLevel = lv;
         Net.sendAll(stageMsg());
         say(s, String.format("Escenario en %.0f %.0f %.0f, mirando hacia %s, escala %.2f", sx, sy, sz, switch (((int) Math.floorMod(Math.round(stageYaw), 360)) / 90) { case 0 -> "el sur (+Z)"; case 1 -> "el oeste (-X)"; case 2 -> "el norte (-Z)"; default -> "el este (+X)"; }, scale));
         return 1;

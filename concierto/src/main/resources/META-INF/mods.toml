@@ -6,7 +6,7 @@ license="All Rights Reserved"
 modId="concierto"
 version="${mod_version}"
 displayName="Concierto"
-description='''Cielo de concierto: escenas visuales que reaccionan a la musica (espectro, osciloscopio, starfield, caleidoscopio, milkdrop, magnetosfera, cthugha, fuegos artificiales). Se controla con /concierto.'''
+description='''Evento de concierto completo en un solo mod: cielos y escenario con shaders, show (/concierto), bailarinas (entidad dancers:dancer con modelos y animaciones propias), marcas de aparicion y el datapack MikuShow incluido. No necesita el mod dancers ni el datapack aparte.'''
 
 [[dependencies.concierto]]
 modId="forge"
