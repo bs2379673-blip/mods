@@ -1,0 +1,33 @@
+{
+ "song": "intermedio",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "cues": [
+  {
+   "t": 0.0,
+   "scene": "starfield",
+   "floor": "off",
+   "eq": 0.0,
+   "beams": "off",
+   "ring": true,
+   "react": {
+    "kick": 0.15,
+    "snare": 0.05,
+    "accent": 0.2
+   },
+   "col": [
+    "#39c5bb",
+    "#7a5cff",
+    "#d8fffb"
+   ]
+  },
+  {
+   "t": 0.5,
+   "fx": "sprite",
+   "id": "s_sparkle_teal",
+   "slot": "LRH",
+   "dur": 30,
+   "spin": 12,
+   "size": 11
+  }
+ ]
+}

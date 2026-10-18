@@ -1,0 +1,422 @@
+{
+"t_obscure": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_321_1": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_321_2": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_321_3": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_static": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_konton": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_melt": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_beam": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_loveshot": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_loop": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_mikumiku": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_teto": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_neru": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_triplebaka": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_gracias": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"t_go": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_head_calm": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_head_happy": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_head_smug": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_head_dizzy": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_head_sparkle": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_leek": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_crystalheart": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_wand": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_bow": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_mesmerizer": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_pxheart": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_backroom": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_exit": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_01": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_spiral": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_eye": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_eyes": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_heart": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_heart_teal": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_heartdrip": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_sundrip": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_synthsun": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_magiccircle": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_note_pink": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_note_teal": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_ring": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_ring_pink": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_sparkle_gold": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_sparkle_pink": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_sparkle_teal": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_star": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_star_pink": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_bolt": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_bolt_red": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_eq": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_tv": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_rainbow": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_light": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_cursor": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"s_pxleek": {
+"cols": 1,
+"rows": 1,
+"frames": 1,
+"fps": 0
+},
+"u_magical": {
+"cols": 4,
+"rows": 4,
+"frames": 16,
+"fps": 9.41
+},
+"u_beam": {
+"cols": 4,
+"rows": 4,
+"frames": 16,
+"fps": 4.62
+},
+"u2_wink": {
+"cols": 4,
+"rows": 4,
+"frames": 16,
+"fps": 12.6
+},
+"u2_chibi": {
+"cols": 4,
+"rows": 4,
+"frames": 4,
+"fps": 5.0
+},
+"u2_fly": {
+"cols": 4,
+"rows": 4,
+"frames": 8,
+"fps": 17.78
+},
+"u2_swirl": {
+"cols": 4,
+"rows": 4,
+"frames": 12,
+"fps": 10.0
+},
+"u2_teary": {
+"cols": 4,
+"rows": 4,
+"frames": 13,
+"fps": 11.11
+},
+"u2_magicard": {
+"cols": 4,
+"rows": 4,
+"frames": 16,
+"fps": 19.28
+},
+"u3_maid_duo": {
+"cols": 4,
+"rows": 4,
+"frames": 16,
+"fps": 1.7
+},
+"u3_neru_phone": {
+"cols": 4,
+"rows": 4,
+"frames": 16,
+"fps": 8.0
+},
+"u3_teto_box": {
+"cols": 4,
+"rows": 4,
+"frames": 8,
+"fps": 6.25
+},
+"u3_teto_sketch": {
+"cols": 4,
+"rows": 4,
+"frames": 12,
+"fps": 18.46
+},
+"u3_trio_wave": {
+"cols": 4,
+"rows": 4,
+"frames": 16,
+"fps": 2.82
+},
+"u3_trio_wink": {
+"cols": 4,
+"rows": 4,
+"frames": 16,
+"fps": 12.03
+}
+}

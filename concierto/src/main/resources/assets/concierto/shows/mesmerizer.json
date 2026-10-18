@@ -1,0 +1,406 @@
+{
+ "song": "mesmerizer",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "cues": [
+  {
+   "t": 0.0,
+   "scene": "milkdrop",
+   "floor": "off",
+   "eq": 0.0,
+   "beams": "off",
+   "ring": true,
+   "react": {
+    "kick": 0.3,
+    "snare": 0.1,
+    "accent": 0.5
+   },
+   "col": [
+    "#b45cff",
+    "#39c5bb",
+    "#ff4a6a"
+   ]
+  },
+  {
+   "t": 0.7,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "C",
+   "dur": 12.36,
+   "spin": 22,
+   "size": 28
+  },
+  {
+   "t": 2.53,
+   "fx": "sprite",
+   "id": "u_mesmerizer",
+   "slot": "T",
+   "dur": 5.5,
+   "size": 28,
+   "pulse": 0.06
+  },
+  {
+   "t": 14.06,
+   "scene": "milkdrop",
+   "floor": "grid",
+   "eq": 0.5,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.55,
+    "snare": 0.3,
+    "accent": 0.7
+   },
+   "col": [
+    "#b45cff",
+    "#39c5bb",
+    "#ff4a6a"
+   ]
+  },
+  {
+   "t": 14.76,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "C",
+   "dur": 8.67,
+   "spin": 22,
+   "size": 26
+  },
+  {
+   "t": 14.76,
+   "fx": "sprite",
+   "id": "s_eye",
+   "slot": "H",
+   "dur": 8.67,
+   "size": 12
+  },
+  {
+   "t": 24.427,
+   "scene": "kaleidoscope",
+   "floor": "disco",
+   "eq": 1.2,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 1.0,
+    "snare": 0.6,
+    "accent": 1.0
+   },
+   "col": [
+    "#b45cff",
+    "#39c5bb",
+    "#ff4a6a"
+   ]
+  },
+  {
+   "t": 24.427,
+   "fx": "flash"
+  },
+  {
+   "t": 24.427,
+   "fx": "nova"
+  },
+  {
+   "t": 24.427,
+   "fx": "shock"
+  },
+  {
+   "t": 24.427,
+   "fx": "pyro",
+   "dur": 3.0
+  },
+  {
+   "t": 25.127,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "C",
+   "dur": 8.69,
+   "spin": 40,
+   "size": 30
+  },
+  {
+   "t": 25.127,
+   "fx": "sprite",
+   "id": "s_eye",
+   "slot": "LR2",
+   "dur": 8.69,
+   "size": 14
+  },
+  {
+   "t": 25.127,
+   "fx": "sprite",
+   "id": "s_heart",
+   "slot": "LRH",
+   "dur": 8.69,
+   "size": 12
+  },
+  {
+   "t": 34.818,
+   "scene": "kaleidoscope",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "fan",
+   "ring": true,
+   "react": {
+    "kick": 0.85,
+    "snare": 0.5,
+    "accent": 1.0
+   },
+   "col": [
+    "#b45cff",
+    "#39c5bb",
+    "#ff4a6a"
+   ]
+  },
+  {
+   "t": 35.518,
+   "fx": "sprite",
+   "id": "u3_maid_duo",
+   "slot": "L1",
+   "dur": 32.03,
+   "size": 21
+  },
+  {
+   "t": 35.518,
+   "fx": "sprite",
+   "id": "u3_teto_sketch",
+   "slot": "R1",
+   "dur": 32.03,
+   "size": 21
+  },
+  {
+   "t": 35.518,
+   "fx": "sprite",
+   "id": "s_eye",
+   "slot": "H",
+   "dur": 32.03,
+   "size": 14
+  },
+  {
+   "t": 44.652,
+   "fx": "blackout",
+   "dur": 0.27
+  },
+  {
+   "t": 68.545,
+   "scene": "kaleidoscope",
+   "floor": "disco",
+   "eq": 1.2,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 1.0,
+    "snare": 0.6,
+    "accent": 1.0
+   },
+   "col": [
+    "#b45cff",
+    "#39c5bb",
+    "#ff4a6a"
+   ]
+  },
+  {
+   "t": 68.545,
+   "fx": "flash"
+  },
+  {
+   "t": 68.545,
+   "fx": "nova"
+  },
+  {
+   "t": 69.245,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "C",
+   "dur": 8.68,
+   "spin": 40,
+   "size": 30
+  },
+  {
+   "t": 69.245,
+   "fx": "sprite",
+   "id": "s_eye",
+   "slot": "LR2",
+   "dur": 8.68,
+   "size": 14
+  },
+  {
+   "t": 69.245,
+   "fx": "sprite",
+   "id": "s_heart",
+   "slot": "LRH",
+   "dur": 8.68,
+   "size": 12
+  },
+  {
+   "t": 78.925,
+   "scene": "kaleidoscope",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "fan",
+   "ring": true,
+   "react": {
+    "kick": 0.85,
+    "snare": 0.5,
+    "accent": 1.0
+   },
+   "col": [
+    "#b45cff",
+    "#39c5bb",
+    "#ff4a6a"
+   ]
+  },
+  {
+   "t": 79.5,
+   "fx": "jugadores",
+   "modo": "brillo",
+   "dur": 18,
+   "radio": 80
+  },
+  {
+   "t": 79.625,
+   "fx": "sprite",
+   "id": "u3_maid_duo",
+   "slot": "L1",
+   "dur": 16.48,
+   "size": 21
+  },
+  {
+   "t": 79.625,
+   "fx": "sprite",
+   "id": "u3_teto_sketch",
+   "slot": "R1",
+   "dur": 16.48,
+   "size": 21
+  },
+  {
+   "t": 79.625,
+   "fx": "sprite",
+   "id": "s_eye",
+   "slot": "H",
+   "dur": 16.48,
+   "size": 14
+  },
+  {
+   "t": 97.106,
+   "scene": "milkdrop",
+   "floor": "grid",
+   "eq": 0.5,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.55,
+    "snare": 0.3,
+    "accent": 0.7
+   },
+   "col": [
+    "#b45cff",
+    "#39c5bb",
+    "#ff4a6a"
+   ]
+  },
+  {
+   "t": 97.806,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "C",
+   "dur": 11.26,
+   "spin": 22,
+   "size": 26
+  },
+  {
+   "t": 97.806,
+   "fx": "sprite",
+   "id": "s_eye",
+   "slot": "H",
+   "dur": 11.26,
+   "size": 12
+  },
+  {
+   "t": 110.063,
+   "scene": "kaleidoscope",
+   "floor": "disco",
+   "eq": 1.2,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 1.0,
+    "snare": 0.6,
+    "accent": 1.0
+   },
+   "col": [
+    "#b45cff",
+    "#39c5bb",
+    "#ff4a6a"
+   ]
+  },
+  {
+   "t": 110.063,
+   "fx": "flash"
+  },
+  {
+   "t": 110.063,
+   "fx": "nova"
+  },
+  {
+   "t": 110.063,
+   "fx": "shock"
+  },
+  {
+   "t": 110.063,
+   "fx": "pyro",
+   "dur": 3.0
+  },
+  {
+   "t": 110.763,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "C",
+   "dur": 8.68,
+   "spin": 40,
+   "size": 30
+  },
+  {
+   "t": 110.763,
+   "fx": "sprite",
+   "id": "s_eye",
+   "slot": "LR2",
+   "dur": 8.68,
+   "size": 14
+  },
+  {
+   "t": 110.763,
+   "fx": "sprite",
+   "id": "s_heart",
+   "slot": "LRH",
+   "dur": 8.68,
+   "size": 12
+  },
+  {
+   "t": 120.442,
+   "scene": "milkdrop",
+   "floor": "grid",
+   "eq": 0.3,
+   "beams": "off",
+   "ring": true,
+   "react": {
+    "kick": 0.3,
+    "snare": 0.1,
+    "accent": 0.4
+   },
+   "col": [
+    "#b45cff",
+    "#39c5bb",
+    "#ff4a6a"
+   ]
+  },
+  {
+   "t": 121.142,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "C",
+   "dur": 33.3,
+   "spin": 14,
+   "size": 24
+  }
+ ]
+}

@@ -75,6 +75,69 @@
    "fx": "column",
    "col": "#39c5bb",
    "dur": 5
+  },
+  {
+   "t": 1.0,
+   "fx": "estrella",
+   "col": "#39c5bb",
+   "dur": 3.2,
+   "side": 1
+  },
+  {
+   "t": 4.5,
+   "fx": "pyro",
+   "dur": 3.0
+  },
+  {
+   "t": 5.0,
+   "fx": "sprite",
+   "id": "u_head_happy",
+   "slot": "C",
+   "dur": 9,
+   "size": 28
+  },
+  {
+   "t": 5.5,
+   "fx": "sprite",
+   "id": "s_heart",
+   "slot": "LR1",
+   "dur": 8.5
+  },
+  {
+   "t": 6.0,
+   "fx": "sprite",
+   "id": "s_note_pink",
+   "slot": "L2",
+   "dur": 8
+  },
+  {
+   "t": 6.0,
+   "fx": "sprite",
+   "id": "s_note_teal",
+   "slot": "R2",
+   "dur": 8
+  },
+  {
+   "t": 6.5,
+   "fx": "sprite",
+   "id": "u3_trio_wave",
+   "slot": "LRH",
+   "dur": 7.5,
+   "size": 13
+  },
+  {
+   "t": 9.0,
+   "fx": "estrella",
+   "col": "#e0324b",
+   "dur": 3.2,
+   "side": -1
+  },
+  {
+   "t": 13.0,
+   "fx": "estrella",
+   "col": "#f2d21b",
+   "dur": 3.2,
+   "side": 1
   }
  ]
 }

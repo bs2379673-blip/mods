@@ -1,0 +1,37 @@
+{
+ "song": "pre_mesmerizer",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "cues": [
+  {
+   "t": 0.0,
+   "scene": "kaleidoscope",
+   "floor": "ripple",
+   "eq": 0.6,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.6,
+    "snare": 0.3,
+    "accent": 0.6
+   },
+   "col": [
+    "#ff3a5a",
+    "#b45cff",
+    "#ffd0d8"
+   ]
+  },
+  {
+   "t": 0.2,
+   "fx": "estrella",
+   "col": "#e0324b",
+   "dur": 3.0,
+   "side": -1
+  },
+  {
+   "t": 3.2,
+   "fx": "pyro",
+   "dur": 2.5,
+   "col": "#e0324b"
+  }
+ ]
+}

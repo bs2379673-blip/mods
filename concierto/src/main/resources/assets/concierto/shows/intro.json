@@ -1,0 +1,303 @@
+{
+ "song": "intro",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "cues": [
+  {
+   "t": 0.0,
+   "scene": "starfield",
+   "floor": "off",
+   "eq": 0,
+   "beams": "off",
+   "ring": false,
+   "col": [
+    "#39c5bb",
+    "#0e4a47",
+    "#bff5f0"
+   ],
+   "react": {
+    "kick": 0.3,
+    "snare": 0.1,
+    "accent": 0.3
+   }
+  },
+  {
+   "t": 0.6,
+   "fx": "sprite",
+   "id": "t_obscure",
+   "slot": "T",
+   "dur": 8.0,
+   "size": 27,
+   "pulse": 0.08
+  },
+  {
+   "t": 4.8,
+   "scene": "starfield",
+   "floor": "grid",
+   "eq": 0,
+   "beams": "off",
+   "ring": true,
+   "col": [
+    "#39c5bb",
+    "#1f8f87",
+    "#d8fffb"
+   ],
+   "react": {
+    "kick": 1.0,
+    "snare": 0.2,
+    "accent": 0.5
+   }
+  },
+  {
+   "t": 7.2,
+   "fx": "sprite",
+   "id": "u2_chibi",
+   "slot": "L2",
+   "dur": 4.6,
+   "size": 15,
+   "pulse": 0.2
+  },
+  {
+   "t": 7.2,
+   "fx": "shock"
+  },
+  {
+   "t": 8.4,
+   "fx": "sprite",
+   "id": "u2_fly",
+   "slot": "R2",
+   "dur": 3.4,
+   "size": 15,
+   "pulse": 0.2
+  },
+  {
+   "t": 8.4,
+   "fx": "shock"
+  },
+  {
+   "t": 9.6,
+   "fx": "sprite",
+   "id": "u2_swirl",
+   "slot": "L3",
+   "dur": 2.2,
+   "size": 15,
+   "pulse": 0.2
+  },
+  {
+   "t": 9.6,
+   "fx": "shock"
+  },
+  {
+   "t": 10.8,
+   "fx": "sprite",
+   "id": "u2_wink",
+   "slot": "R3",
+   "dur": 1.0,
+   "size": 15,
+   "pulse": 0.2
+  },
+  {
+   "t": 10.8,
+   "fx": "shock"
+  },
+  {
+   "t": 11.95,
+   "scene": "magnetosphere",
+   "floor": "ripple",
+   "eq": 0.8,
+   "beams": "fan",
+   "ring": true,
+   "col": [
+    "#39c5bb",
+    "#ff6aa8",
+    "#ffd23a"
+   ],
+   "react": {
+    "kick": 1.0,
+    "snare": 0.5,
+    "accent": 0.9
+   }
+  },
+  {
+   "t": 11.95,
+   "fx": "sprite",
+   "id": "s_magiccircle",
+   "slot": "C",
+   "dur": 9.3,
+   "size": 34,
+   "grow": 0.3,
+   "spin": 35,
+   "pulse": 0.12
+  },
+  {
+   "t": 12.0,
+   "fx": "sprite",
+   "id": "t_321_1",
+   "slot": "C",
+   "dur": 2.2,
+   "size": 15,
+   "pulse": 0.3
+  },
+  {
+   "t": 12.0,
+   "fx": "flash"
+  },
+  {
+   "t": 12.0,
+   "fx": "shock"
+  },
+  {
+   "t": 14.4,
+   "fx": "sprite",
+   "id": "t_321_2",
+   "slot": "C",
+   "dur": 2.2,
+   "size": 22,
+   "pulse": 0.3
+  },
+  {
+   "t": 14.4,
+   "fx": "flash"
+  },
+  {
+   "t": 14.4,
+   "fx": "shock"
+  },
+  {
+   "t": 16.8,
+   "fx": "sprite",
+   "id": "t_321_3",
+   "slot": "C",
+   "dur": 2.2,
+   "size": 29,
+   "pulse": 0.3
+  },
+  {
+   "t": 16.8,
+   "fx": "flash"
+  },
+  {
+   "t": 16.8,
+   "fx": "shock"
+  },
+  {
+   "t": 17.7,
+   "fx": "estrella",
+   "col": "#39c5bb",
+   "dur": 3.4,
+   "side": 1
+  },
+  {
+   "t": 19.2,
+   "fx": "flash"
+  },
+  {
+   "t": 19.5,
+   "fx": "flash"
+  },
+  {
+   "t": 19.718,
+   "fx": "flash"
+  },
+  {
+   "t": 19.9,
+   "fx": "flash"
+  },
+  {
+   "t": 20.06,
+   "fx": "flash"
+  },
+  {
+   "t": 20.205,
+   "fx": "flash"
+  },
+  {
+   "t": 20.338,
+   "fx": "flash"
+  },
+  {
+   "t": 20.462,
+   "fx": "flash"
+  },
+  {
+   "t": 20.578,
+   "fx": "flash"
+  },
+  {
+   "t": 20.688,
+   "fx": "flash"
+  },
+  {
+   "t": 20.793,
+   "fx": "flash"
+  },
+  {
+   "t": 20.893,
+   "fx": "flash"
+  },
+  {
+   "t": 20.99,
+   "fx": "flash"
+  },
+  {
+   "t": 21.082,
+   "fx": "flash"
+  },
+  {
+   "t": 21.172,
+   "fx": "flash"
+  },
+  {
+   "t": 21.258,
+   "fx": "flash"
+  },
+  {
+   "t": 21.3,
+   "fx": "blackout",
+   "dur": 0.25
+  },
+  {
+   "t": 21.6,
+   "scene": "fireworks",
+   "floor": "disco",
+   "eq": 1.3,
+   "beams": "cross",
+   "ring": true,
+   "col": [
+    "#39c5bb",
+    "#ff6aa8",
+    "#ffd23a"
+   ],
+   "react": {
+    "kick": 1.0,
+    "snare": 0.7,
+    "accent": 1.0
+   }
+  },
+  {
+   "t": 21.6,
+   "fx": "flash"
+  },
+  {
+   "t": 21.6,
+   "fx": "nova"
+  },
+  {
+   "t": 21.6,
+   "fx": "shock"
+  },
+  {
+   "t": 21.6,
+   "fx": "pyro",
+   "dur": 4.0
+  },
+  {
+   "t": 21.7,
+   "fx": "sprite",
+   "id": "t_go",
+   "slot": "T",
+   "dur": 4.0,
+   "size": 24,
+   "pulse": 0.3
+  }
+ ]
+}

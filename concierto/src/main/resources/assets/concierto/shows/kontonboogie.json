@@ -1,0 +1,347 @@
+{
+ "song": "konton_boogie",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "cues": [
+  {
+   "t": 0.0,
+   "scene": "kaleidoscope",
+   "floor": "disco",
+   "eq": 1.2,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 1.0,
+    "snare": 0.6,
+    "accent": 1.0
+   },
+   "swap": "snare",
+   "col": [
+    "#ff6aa8",
+    "#39c5bb",
+    "#ffd23a"
+   ]
+  },
+  {
+   "t": 0.7,
+   "fx": "sprite",
+   "id": "u_head_dizzy",
+   "slot": "C",
+   "dur": 19.72
+  },
+  {
+   "t": 0.7,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "LR1",
+   "dur": 19.72,
+   "spin": 60
+  },
+  {
+   "t": 0.7,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "LR3",
+   "dur": 19.72,
+   "spin": -50
+  },
+  {
+   "t": 2.019,
+   "fx": "sprite",
+   "id": "t_konton",
+   "slot": "T",
+   "dur": 5.5,
+   "size": 28,
+   "pulse": 0.06
+  },
+  {
+   "t": 21.42,
+   "scene": "milkdrop",
+   "floor": "grid",
+   "eq": 0.5,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.5,
+    "snare": 0.35,
+    "accent": 0.7
+   },
+   "swap": "snare",
+   "col": [
+    "#ff6aa8",
+    "#39c5bb",
+    "#ffd23a"
+   ]
+  },
+  {
+   "t": 22.12,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "C",
+   "dur": 8.4,
+   "spin": 18,
+   "size": 24
+  },
+  {
+   "t": 22.12,
+   "fx": "sprite",
+   "id": "s_eye",
+   "slot": "LR2",
+   "dur": 8.4,
+   "size": 13
+  },
+  {
+   "t": 31.521,
+   "scene": "milkdrop",
+   "floor": "grid",
+   "eq": 0.5,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.5,
+    "snare": 0.35,
+    "accent": 0.7
+   },
+   "swap": "snare",
+   "col": [
+    "#ff6aa8",
+    "#39c5bb",
+    "#ffd23a"
+   ]
+  },
+  {
+   "t": 32.221,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "C",
+   "dur": 8.41,
+   "spin": 18,
+   "size": 24
+  },
+  {
+   "t": 32.221,
+   "fx": "sprite",
+   "id": "s_eye",
+   "slot": "LR2",
+   "dur": 8.41,
+   "size": 13
+  },
+  {
+   "t": 41.633,
+   "scene": "milkdrop",
+   "floor": "grid",
+   "eq": 0.5,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.5,
+    "snare": 0.35,
+    "accent": 0.7
+   },
+   "swap": "snare",
+   "col": [
+    "#ff6aa8",
+    "#39c5bb",
+    "#ffd23a"
+   ]
+  },
+  {
+   "t": 42.333,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "C",
+   "dur": 18.51,
+   "spin": 18,
+   "size": 24
+  },
+  {
+   "t": 42.333,
+   "fx": "sprite",
+   "id": "s_eye",
+   "slot": "LR2",
+   "dur": 18.51,
+   "size": 13
+  },
+  {
+   "t": 61.846,
+   "scene": "kaleidoscope",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "fan",
+   "ring": true,
+   "react": {
+    "kick": 0.85,
+    "snare": 0.5,
+    "accent": 1.0
+   },
+   "swap": "snare",
+   "col": [
+    "#ff6aa8",
+    "#39c5bb",
+    "#ffd23a"
+   ]
+  },
+  {
+   "t": 61.846,
+   "fx": "flash"
+  },
+  {
+   "t": 61.846,
+   "fx": "nova"
+  },
+  {
+   "t": 61.846,
+   "fx": "shock"
+  },
+  {
+   "t": 61.846,
+   "fx": "pyro",
+   "dur": 3.0
+  },
+  {
+   "t": 62.546,
+   "fx": "sprite",
+   "id": "u_head_dizzy",
+   "slot": "C",
+   "dur": 18.51
+  },
+  {
+   "t": 62.546,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "LR1",
+   "dur": 18.51,
+   "spin": 45
+  },
+  {
+   "t": 62.546,
+   "fx": "sprite",
+   "id": "s_eye",
+   "slot": "LH",
+   "dur": 18.51,
+   "size": 11
+  },
+  {
+   "t": 82.059,
+   "scene": "milkdrop",
+   "floor": "grid",
+   "eq": 0.5,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.5,
+    "snare": 0.35,
+    "accent": 0.7
+   },
+   "swap": "snare",
+   "col": [
+    "#ff6aa8",
+    "#39c5bb",
+    "#ffd23a"
+   ]
+  },
+  {
+   "t": 82.759,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "C",
+   "dur": 15.99,
+   "spin": 18,
+   "size": 24
+  },
+  {
+   "t": 82.759,
+   "fx": "sprite",
+   "id": "s_eye",
+   "slot": "LR2",
+   "dur": 15.99,
+   "size": 13
+  },
+  {
+   "t": 85.809,
+   "fx": "blackout",
+   "dur": 0.27
+  },
+  {
+   "t": 90.848,
+   "fx": "blackout",
+   "dur": 0.39
+  },
+  {
+   "t": 99.753,
+   "scene": "kaleidoscope",
+   "floor": "disco",
+   "eq": 1.2,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 1.0,
+    "snare": 0.6,
+    "accent": 1.0
+   },
+   "swap": "snare",
+   "col": [
+    "#ff6aa8",
+    "#39c5bb",
+    "#ffd23a"
+   ]
+  },
+  {
+   "t": 99.753,
+   "fx": "flash"
+  },
+  {
+   "t": 99.753,
+   "fx": "nova"
+  },
+  {
+   "t": 99.753,
+   "fx": "shock"
+  },
+  {
+   "t": 99.753,
+   "fx": "pyro",
+   "dur": 3.0
+  },
+  {
+   "t": 100.453,
+   "fx": "sprite",
+   "id": "u_head_dizzy",
+   "slot": "C",
+   "dur": 33.3
+  },
+  {
+   "t": 100.453,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "LR1",
+   "dur": 33.3,
+   "spin": 60
+  },
+  {
+   "t": 100.453,
+   "fx": "sprite",
+   "id": "s_spiral",
+   "slot": "LR3",
+   "dur": 33.3,
+   "spin": -50
+  },
+  {
+   "t": 142.687,
+   "scene": "milkdrop",
+   "floor": "grid",
+   "eq": 0.3,
+   "beams": "off",
+   "ring": true,
+   "react": {
+    "kick": 0.3,
+    "snare": 0.1,
+    "accent": 0.4
+   },
+   "col": [
+    "#ff6aa8",
+    "#39c5bb",
+    "#ffd23a"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,338 @@
+{
+ "song": "triple_baka",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "cues": [
+  {
+   "t": 0.0,
+   "scene": "spectrum",
+   "floor": "off",
+   "eq": 0.0,
+   "beams": "off",
+   "ring": true,
+   "react": {
+    "kick": 0.4,
+    "snare": 0.2,
+    "accent": 0.6
+   },
+   "swap": "kick",
+   "col": [
+    "#ffd23a",
+    "#39c5bb",
+    "#ff3a5a"
+   ]
+  },
+  {
+   "t": 1.5,
+   "fx": "sprite",
+   "id": "t_triplebaka",
+   "slot": "T",
+   "dur": 5.5,
+   "size": 28,
+   "pulse": 0.06
+  },
+  {
+   "t": 18.042,
+   "scene": "spectrum",
+   "floor": "grid",
+   "eq": 0.6,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.7,
+    "snare": 0.35,
+    "accent": 0.8
+   },
+   "swap": "snare",
+   "col": [
+    "#ffd23a",
+    "#39c5bb",
+    "#ff3a5a"
+   ]
+  },
+  {
+   "t": 18.742,
+   "fx": "sprite",
+   "id": "u_head_smug",
+   "slot": "C",
+   "dur": 27.63,
+   "size": 24
+  },
+  {
+   "t": 47.369,
+   "scene": "fireworks",
+   "floor": "disco",
+   "eq": 1.0,
+   "beams": "fan",
+   "ring": true,
+   "react": {
+    "kick": 0.9,
+    "snare": 0.5,
+    "accent": 1.0
+   },
+   "swap": "snare",
+   "col": [
+    "#ffd23a",
+    "#39c5bb",
+    "#ff3a5a"
+   ]
+  },
+  {
+   "t": 47.369,
+   "fx": "flash"
+  },
+  {
+   "t": 47.369,
+   "fx": "nova"
+  },
+  {
+   "t": 47.369,
+   "fx": "shock"
+  },
+  {
+   "t": 47.369,
+   "fx": "pyro",
+   "dur": 3.0
+  },
+  {
+   "t": 48.069,
+   "fx": "sprite",
+   "id": "u3_trio_wave",
+   "slot": "C",
+   "dur": 22.31,
+   "size": 30
+  },
+  {
+   "t": 48.069,
+   "fx": "sprite",
+   "id": "u3_neru_phone",
+   "slot": "L1",
+   "dur": 22.31,
+   "size": 19
+  },
+  {
+   "t": 48.069,
+   "fx": "sprite",
+   "id": "u3_teto_box",
+   "slot": "R1",
+   "dur": 22.31,
+   "size": 19
+  },
+  {
+   "t": 48.069,
+   "fx": "sprite",
+   "id": "s_star",
+   "slot": "LRH",
+   "dur": 22.31,
+   "spin": 25,
+   "size": 11
+  },
+  {
+   "t": 71.378,
+   "scene": "spectrum",
+   "floor": "grid",
+   "eq": 0.6,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.7,
+    "snare": 0.35,
+    "accent": 0.8
+   },
+   "swap": "snare",
+   "col": [
+    "#ffd23a",
+    "#39c5bb",
+    "#ff3a5a"
+   ]
+  },
+  {
+   "t": 72.078,
+   "fx": "sprite",
+   "id": "u_head_smug",
+   "slot": "C",
+   "dur": 19.63,
+   "size": 24
+  },
+  {
+   "t": 92.706,
+   "scene": "spectrum",
+   "floor": "grid",
+   "eq": 0.6,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.7,
+    "snare": 0.35,
+    "accent": 0.8
+   },
+   "swap": "snare",
+   "col": [
+    "#ffd23a",
+    "#39c5bb",
+    "#ff3a5a"
+   ]
+  },
+  {
+   "t": 93.406,
+   "fx": "sprite",
+   "id": "u_head_smug",
+   "slot": "C",
+   "dur": 8.97,
+   "size": 24
+  },
+  {
+   "t": 103.375,
+   "scene": "fireworks",
+   "floor": "disco",
+   "eq": 1.3,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 1.0,
+    "snare": 0.6,
+    "accent": 1.0
+   },
+   "swap": "kick",
+   "col": [
+    "#ffd23a",
+    "#39c5bb",
+    "#ff3a5a"
+   ]
+  },
+  {
+   "t": 103.375,
+   "fx": "flash"
+  },
+  {
+   "t": 103.375,
+   "fx": "nova"
+  },
+  {
+   "t": 103.375,
+   "fx": "shock"
+  },
+  {
+   "t": 103.375,
+   "fx": "pyro",
+   "dur": 3.0
+  },
+  {
+   "t": 103.5,
+   "fx": "jugadores",
+   "modo": "confeti",
+   "dur": 40,
+   "radio": 80
+  },
+  {
+   "t": 104.075,
+   "fx": "sprite",
+   "id": "u3_trio_wink",
+   "slot": "C",
+   "dur": 33.3,
+   "size": 32
+  },
+  {
+   "t": 104.075,
+   "fx": "sprite",
+   "id": "u3_neru_phone",
+   "slot": "L1",
+   "dur": 33.3,
+   "size": 19
+  },
+  {
+   "t": 104.075,
+   "fx": "sprite",
+   "id": "u3_teto_box",
+   "slot": "R1",
+   "dur": 33.3,
+   "size": 19
+  },
+  {
+   "t": 104.075,
+   "fx": "sprite",
+   "id": "s_star_pink",
+   "slot": "LRU",
+   "dur": 33.3,
+   "spin": -25,
+   "size": 11
+  },
+  {
+   "t": 148.712,
+   "scene": "fireworks",
+   "floor": "disco",
+   "eq": 1.0,
+   "beams": "fan",
+   "ring": true,
+   "react": {
+    "kick": 0.9,
+    "snare": 0.5,
+    "accent": 1.0
+   },
+   "swap": "snare",
+   "col": [
+    "#ffd23a",
+    "#39c5bb",
+    "#ff3a5a"
+   ]
+  },
+  {
+   "t": 149.412,
+   "fx": "sprite",
+   "id": "u3_trio_wave",
+   "slot": "C",
+   "dur": 11.63,
+   "size": 30
+  },
+  {
+   "t": 149.412,
+   "fx": "sprite",
+   "id": "u3_neru_phone",
+   "slot": "L1",
+   "dur": 11.63,
+   "size": 19
+  },
+  {
+   "t": 149.412,
+   "fx": "sprite",
+   "id": "u3_teto_box",
+   "slot": "R1",
+   "dur": 11.63,
+   "size": 19
+  },
+  {
+   "t": 149.412,
+   "fx": "sprite",
+   "id": "s_star",
+   "slot": "LRH",
+   "dur": 11.63,
+   "spin": 25,
+   "size": 11
+  },
+  {
+   "t": 162.04,
+   "scene": "spectrum",
+   "floor": "grid",
+   "eq": 0.3,
+   "beams": "off",
+   "ring": true,
+   "react": {
+    "kick": 0.3,
+    "snare": 0.1,
+    "accent": 0.4
+   },
+   "col": [
+    "#ffd23a",
+    "#39c5bb",
+    "#ff3a5a"
+   ]
+  },
+  {
+   "t": 162.74,
+   "fx": "sprite",
+   "id": "u_head_smug",
+   "slot": "C",
+   "dur": 8.9,
+   "size": 22
+  }
+ ]
+}

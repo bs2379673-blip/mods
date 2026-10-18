@@ -17,6 +17,18 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.fml.loading.FMLPaths;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +53,47 @@ public final class Show {
     private static float stageYaw, stageScale = 4F;
     private static final float[] stageParams = DEFAULTS.clone();
 
+    /** ordenes del guion que corren en el servidor (efectos para los jugadores) */
+    private static final List<JsonObject> srvCues = new ArrayList<>();
+    private static int srvNext;
+
     private Show() { }
+
+    private static void loadServerCues(String name) {
+        srvCues.clear();
+        srvNext = 0;
+        String key = name.replace("_", "").toLowerCase();
+        try {
+            Path p = FMLPaths.CONFIGDIR.get().resolve("concierto").resolve("shows").resolve(key + ".json");
+            Reader r = null;
+            if (Files.isRegularFile(p)) r = Files.newBufferedReader(p, StandardCharsets.UTF_8);
+            else {
+                InputStream in = Show.class.getResourceAsStream("/assets/concierto/shows/" + key + ".json");
+                if (in != null) r = new InputStreamReader(in, StandardCharsets.UTF_8);
+            }
+            if (r == null) return;
+            try (r) {
+                JsonElement root = JsonParser.parseReader(r);
+                for (JsonElement e : root.getAsJsonObject().getAsJsonArray("cues")) {
+                    JsonObject o = e.getAsJsonObject();
+                    if (o.has("fx") && o.get("fx").getAsString().equals("jugadores")) srvCues.add(o);
+                }
+            }
+            srvCues.sort((a, b) -> Float.compare(a.get("t").getAsFloat(), b.get("t").getAsFloat()));
+        } catch (Exception ignored) { }
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(TickEvent.ServerTickEvent e) {
+        if (e.phase != TickEvent.Phase.END || !playing || srvNext >= srvCues.size()) return;
+        float t = (System.currentTimeMillis() - startMs) / 1000F;
+        while (srvNext < srvCues.size() && srvCues.get(srvNext).get("t").getAsFloat() <= t) {
+            JsonObject o = srvCues.get(srvNext++);
+            if (t - o.get("t").getAsFloat() > 2F) continue;
+            Vec3 c = stageSet ? new Vec3(sx, sy, sz) : Vec3.ZERO;
+            Players.apply(e.getServer(), o.has("modo") ? o.get("modo").getAsString() : "brillo", o.has("dur") ? o.get("dur").getAsFloat() : 8F, c, o.has("radio") ? o.get("radio").getAsFloat() : 80F);
+        }
+    }
 
     private static int sceneIndex(String n) { return n.equalsIgnoreCase("auto") ? -1 : SCENES.indexOf(n.toLowerCase()); }
 
@@ -60,7 +112,7 @@ public final class Show {
     @SubscribeEvent
     public static void onCommands(RegisterCommandsEvent e) { register(e.getDispatcher()); }
 
-    private static void say(CommandSourceStack s, String m) { s.sendSuccess(() -> Component.literal(m), true); }
+    private static void say(CommandSourceStack s, String m) { s.sendSuccess(() -> Component.literal(m), false); }
 
     private static void audio(CommandSourceStack s, String cmd) {
         MinecraftServer srv = s.getServer();
@@ -74,23 +126,38 @@ public final class Show {
         scene = idx;
         startMs = System.currentTimeMillis();
         playing = true;
+        loadServerCues(name);
         Net.sendAll(new Net.Msg(Net.PLAY, song, scene, 0F, 0F, 0F));
         if (withAudio) audio(s, "execute as @a at @s run playsound customsounds:" + song + " master @s ~ ~ ~ 4 1");
         say(s, "Concierto: " + song + " (escena " + (idx < 0 ? "segun el guion" : SCENES.get(idx)) + ")" + (withAudio ? "" : " [sin audio]"));
         return 1;
     }
 
+    private static int colorOf(String color) {
+        String c = color.startsWith("#") ? color.substring(1) : color;
+        return switch (c.toLowerCase()) {
+            case "miku" -> 0x39C5BB;
+            case "teto" -> 0xE0324B;
+            case "neru" -> 0xF2D21B;
+            default -> Integer.parseInt(c, 16);
+        };
+    }
+
+    /** estrella del color de cada una: cruza el cielo sobre el publico y cae en el escenario (o en pos) */
+    private static int star(CommandSourceStack s, String color, Vec3 at, float secs) {
+        int rgb;
+        try { rgb = colorOf(color); } catch (NumberFormatException ex) { say(s, "Color invalido: " + color); return 0; }
+        float side = color.equalsIgnoreCase("teto") ? -1F : 1F;
+        Net.sendAll(new Net.Msg(Net.STAR, "", rgb, secs, side, 0F, at.x, at.y, at.z, new float[0]));
+        return 1;
+    }
+
+    private static Vec3 stageOr(CommandSourceStack s) { return stageSet ? new Vec3(sx, sy, sz) : s.getPosition(); }
+
     private static int light(CommandSourceStack s, String color, Vec3 at, float size, float secs) {
         int rgb;
-        try {
-            String c = color.startsWith("#") ? color.substring(1) : color;
-            rgb = switch (c.toLowerCase()) {
-                case "miku" -> 0x39C5BB;
-                case "teto" -> 0xE0324B;
-                case "neru" -> 0xF2D21B;
-                default -> Integer.parseInt(c, 16);
-            };
-        } catch (NumberFormatException ex) { say(s, "Color invalido: " + color + " (usa miku, teto, neru o un hex como #ff6a9a)"); return 0; }
+        try { rgb = colorOf(color); }
+        catch (NumberFormatException ex) { say(s, "Color invalido: " + color + " (usa miku, teto, neru o un hex como #ff6a9a)"); return 0; }
         Net.sendAll(new Net.Msg(Net.LIGHT, "", rgb, size, secs, 0F, at.x, at.y, at.z, new float[0]));
         say(s, "Columna de luz #" + String.format("%06x", rgb));
         return 1;
@@ -136,6 +203,8 @@ public final class Show {
                 .then(Commands.literal("detener").executes(c -> {
                     if (playing && !song.isEmpty()) audio(c.getSource(), "stopsound @a * customsounds:" + song);
                     playing = false;
+                    srvCues.clear();
+                    Players.cancel(c.getSource().getServer());
                     Net.sendAll(new Net.Msg(Net.STOP, "", 0, 0F, 0F, 0F));
                     say(c.getSource(), "Concierto detenido");
                     return 1;
@@ -177,8 +246,24 @@ public final class Show {
                                         .executes(c -> light(c.getSource(), StringArgumentType.getString(c, "color"), Vec3Argument.getVec3(c, "pos"), FloatArgumentType.getFloat(c, "tamano"), 4F))
                                         .then(Commands.argument("segundos", FloatArgumentType.floatArg(1F, 60F))
                                                 .executes(c -> light(c.getSource(), StringArgumentType.getString(c, "color"), Vec3Argument.getVec3(c, "pos"), FloatArgumentType.getFloat(c, "tamano"), FloatArgumentType.getFloat(c, "segundos"))))))))
+                // /concierto estrella <miku|teto|neru|#hex> [pos] [segundos]
+                .then(Commands.literal("estrella").then(Commands.argument("color", StringArgumentType.word())
+                        .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("miku", "teto", "neru"), b))
+                        .executes(c -> star(c.getSource(), StringArgumentType.getString(c, "color"), stageOr(c.getSource()), 3.2F))
+                        .then(Commands.argument("pos", Vec3Argument.vec3())
+                                .executes(c -> star(c.getSource(), StringArgumentType.getString(c, "color"), Vec3Argument.getVec3(c, "pos"), 3.2F))
+                                .then(Commands.argument("segundos", FloatArgumentType.floatArg(1F, 20F))
+                                        .executes(c -> star(c.getSource(), StringArgumentType.getString(c, "color"), Vec3Argument.getVec3(c, "pos"), FloatArgumentType.getFloat(c, "segundos")))))))
+                // /concierto jugadores <volar|brillo|confeti|nada> [segundos] [radio]
+                .then(Commands.literal("jugadores").then(Commands.argument("modo", StringArgumentType.word())
+                        .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("volar", "brillo", "confeti", "nada"), b))
+                        .executes(c -> Players.apply(c.getSource().getServer(), StringArgumentType.getString(c, "modo"), 10F, stageOr(c.getSource()), 80F))
+                        .then(Commands.argument("segundos", FloatArgumentType.floatArg(1F, 120F))
+                                .executes(c -> Players.apply(c.getSource().getServer(), StringArgumentType.getString(c, "modo"), FloatArgumentType.getFloat(c, "segundos"), stageOr(c.getSource()), 80F))
+                                .then(Commands.argument("radio", FloatArgumentType.floatArg(5F, 400F))
+                                        .executes(c -> Players.apply(c.getSource().getServer(), StringArgumentType.getString(c, "modo"), FloatArgumentType.getFloat(c, "segundos"), stageOr(c.getSource()), FloatArgumentType.getFloat(c, "radio")))))))
                 .then(Commands.literal("efecto").then(Commands.argument("nombre", StringArgumentType.word())
-                        .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("destello", "nova", "onda", "apagon"), b))
+                        .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("destello", "nova", "onda", "apagon", "pirotecnia"), b))
                         .executes(c -> {
                             Net.sendAll(new Net.Msg(Net.FX, StringArgumentType.getString(c, "nombre"), 0, 0F, 0F, 0F));
                             return 1;

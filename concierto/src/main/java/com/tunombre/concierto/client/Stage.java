@@ -25,6 +25,8 @@ public final class Stage {
         public final float size, secs;
         public float age;
         public boolean hit;
+        /** instantanea: la luz ya esta arriba desde el primer cuadro (la usa el impacto de la estrella) */
+        public Column instant() { this.age = FALL_TIME; return this; }
         public Column(Vec3 pos, int rgb, float size, float secs) {
             this.pos = pos;
             this.rgb = new float[]{((rgb >> 16) & 255) / 255F, ((rgb >> 8) & 255) / 255F, (rgb & 255) / 255F};
@@ -35,6 +37,32 @@ public final class Stage {
 
     public static final float FALL_TIME = 0.9F;
     public final List<Column> columns = new ArrayList<>();
+
+    /** estrella que cruza el cielo y cae en el escenario */
+    public static final class Star {
+        public final float[] rgb;
+        public final Vec3 target;
+        public final float dur, side;
+        public float age;
+        public boolean hit;
+        public Star(Vec3 target, int rgb, float dur, float side) {
+            this.target = target;
+            this.rgb = new float[]{((rgb >> 16) & 255) / 255F, ((rgb >> 8) & 255) / 255F, (rgb & 255) / 255F};
+            this.dur = dur;
+            this.side = side;
+        }
+    }
+    public final List<Star> stars = new ArrayList<>();
+
+    /** fuentes de chispas a los costados del escenario */
+    public static final class Pyro {
+        public final float dur;
+        public final float[] rgb;
+        public final int seed;
+        public float age;
+        public Pyro(float dur, float[] rgb, int seed) { this.dur = dur; this.rgb = rgb; this.seed = seed; }
+    }
+    public final List<Pyro> pyros = new ArrayList<>();
     private float[] hts;
     private int hR, hcx, hcz;
     private long hTime;
@@ -245,5 +273,117 @@ public final class Stage {
             }
         }
         return !columns.isEmpty();
+    }
+
+    private static double[] bez(double[] a, double[] c, double[] e, double u) {
+        double k = 1 - u;
+        return new double[]{k * k * a[0] + 2 * k * u * c[0] + u * u * e[0], k * k * a[1] + 2 * k * u * c[1] + u * u * e[1], k * k * a[2] + 2 * k * u * c[2] + u * u * e[2]};
+    }
+
+    /** estrellas fugaces: cola de luz que sigue la trayectoria y cabeza brillante. Aditivo. */
+    public void drawStars(ShaderInstance sh, double camX, double camY, double camZ) {
+        if (stars.isEmpty()) return;
+        double fx = fx(), fz = fz(), rx = rx(), rz = rz();
+        BufferBuilder bb = Tesselator.getInstance().getBuilder();
+        V b = new V(bb);
+        for (Star st : stars) {
+            if (st.age >= st.dur) continue;
+            double tx = st.target.x - camX, ty = st.target.y - camY, tz = st.target.z - camZ;
+            double[] p0 = {tx + fx * 130 + rx * st.side * 70, ty + 78, tz + fz * 130 + rz * st.side * 70};
+            double[] p1 = {tx + fx * 55 - rx * st.side * 25, ty + 165, tz + fz * 55 - rz * st.side * 25};
+            double[] p2 = {tx, ty + 0.6, tz};
+            final int N = 18;
+            double[][] pts = new double[N][];
+            for (int k = 0; k < N; k++) {
+                double tau = Math.min(1.0, Math.max(0.0, (st.age - k * 0.035) / st.dur));
+                pts[k] = bez(p0, p1, p2, Math.pow(tau, 1.6));
+            }
+            // cola (cinta con fundido hacia atras)
+            set(sh, "Kind", 7F);
+            set(sh, "Alpha", 1F);
+            begin(bb);
+            double[][] side = new double[N][];
+            for (int k = 0; k < N; k++) {
+                double[] a = pts[Math.max(0, k - 1)], c = pts[Math.min(N - 1, k + 1)];
+                double dx = c[0] - a[0], dy = c[1] - a[1], dz = c[2] - a[2];
+                double vx = -pts[k][0], vy = -pts[k][1], vz = -pts[k][2];
+                double sx = dy * vz - dz * vy, sy = dz * vx - dx * vz, sz = dx * vy - dy * vx;
+                double l = Math.sqrt(sx * sx + sy * sy + sz * sz);
+                if (l < 1e-6) l = 1;
+                double w = (3.6 - 3.2 * k / (N - 1.0)) * Math.max(1.0, scale / 4F);
+                side[k] = new double[]{sx / l * w, sy / l * w, sz / l * w};
+            }
+            for (int k = 0; k < N - 1; k++) {
+                float a0 = (float) Math.pow(1.0 - k / (double) (N - 1), 1.4), a1 = (float) Math.pow(1.0 - (k + 1) / (double) (N - 1), 1.4);
+                b.v(pts[k][0] - side[k][0], pts[k][1] - side[k][1], pts[k][2] - side[k][2], st.rgb[0], st.rgb[1], st.rgb[2], a0, -1F, 0F);
+                b.v(pts[k][0] + side[k][0], pts[k][1] + side[k][1], pts[k][2] + side[k][2], st.rgb[0], st.rgb[1], st.rgb[2], a0, 1F, 0F);
+                b.v(pts[k + 1][0] + side[k + 1][0], pts[k + 1][1] + side[k + 1][1], pts[k + 1][2] + side[k + 1][2], st.rgb[0], st.rgb[1], st.rgb[2], a1, 1F, 1F);
+                b.v(pts[k + 1][0] - side[k + 1][0], pts[k + 1][1] - side[k + 1][1], pts[k + 1][2] - side[k + 1][2], st.rgb[0], st.rgb[1], st.rgb[2], a1, -1F, 1F);
+            }
+            flush(bb);
+            // cabeza: estrella brillante que mira a la camara, de tamano angular casi fijo
+            double[] h = pts[0];
+            double dist = Math.sqrt(h[0] * h[0] + h[1] * h[1] + h[2] * h[2]);
+            double nx = -h[0] / dist, ny = -h[1] / dist, nz = -h[2] / dist;
+            double rxv = ny * 0 - nz * 1, ryv = nz * 0 - nx * 0, rzv = nx * 1 - ny * 0;
+            double rl = Math.sqrt(rxv * rxv + ryv * ryv + rzv * rzv);
+            if (rl < 1e-6) continue;
+            rxv /= rl; ryv /= rl; rzv /= rl;
+            double uxv = ny * rzv - nz * ryv, uyv = nz * rxv - nx * rzv, uzv = nx * ryv - ny * rxv;
+            double half = dist * (0.055 + 0.015 * Math.sin(st.age * 18.0));
+            set(sh, "Kind", 6F);
+            set(sh, "Prog", st.age);
+            begin(bb);
+            b.v(h[0] - rxv * half - uxv * half, h[1] - ryv * half - uyv * half, h[2] - rzv * half - uzv * half, st.rgb[0], st.rgb[1], st.rgb[2], 1F, -1F, -1F);
+            b.v(h[0] + rxv * half - uxv * half, h[1] + ryv * half - uyv * half, h[2] + rzv * half - uzv * half, st.rgb[0], st.rgb[1], st.rgb[2], 1F, 1F, -1F);
+            b.v(h[0] + rxv * half + uxv * half, h[1] + ryv * half + uyv * half, h[2] + rzv * half + uzv * half, st.rgb[0], st.rgb[1], st.rgb[2], 1F, 1F, 1F);
+            b.v(h[0] - rxv * half + uxv * half, h[1] - ryv * half + uyv * half, h[2] - rzv * half + uzv * half, st.rgb[0], st.rgb[1], st.rgb[2], 1F, -1F, 1F);
+            flush(bb);
+        }
+    }
+
+    private static float rnd(int seed, int i, int k) {
+        float s = (float) Math.sin(seed * 12.9898F + i * 78.233F + k * 37.719F) * 43758.5453F;
+        return s - (float) Math.floor(s);
+    }
+
+    /** fuentes de chispas (pirotecnia) a los costados del escenario. Aditivo. */
+    public void drawPyros(ShaderInstance sh, double camX, double camY, double camZ) {
+        if (!set || pyros.isEmpty()) return;
+        float S = scale;
+        double fx = fx(), fz = fz(), rx = rx(), rz = rz();
+        BufferBuilder bb = Tesselator.getInstance().getBuilder();
+        V b = new V(bb);
+        set(sh, "Kind", 2F);
+        set(sh, "Alpha", 1F);
+        begin(bb);
+        float k = (float) Math.sqrt(Math.max(1F, S / 4F));
+        for (Pyro py : pyros) {
+            for (int sgn = -1; sgn <= 1; sgn += 2) {
+                double lat = sgn * p[3] * S * 0.55, fwd = p[4] * S + 1.5 * S;
+                double sx0 = x + rx * lat + fx * fwd - camX, sy0 = y - camY + 0.2, sz0 = z + rz * lat + fz * fwd - camZ;
+                for (int i = 0; i < 70; i++) {
+                    int id = i * 2 + (sgn > 0 ? 1 : 0);
+                    float birth = rnd(py.seed, id, 1) * py.dur * 0.85F;
+                    float life = 1.5F + 0.8F * rnd(py.seed, id, 2);
+                    float a = py.age - birth;
+                    if (a < 0F || a > life) continue;
+                    double ang = rnd(py.seed, id, 3) * Math.PI * 2, spd = (1.5 + 4.5 * rnd(py.seed, id, 4)) * k;
+                    double vy = (15 + 9 * rnd(py.seed, id, 5)) * k, g = 15 * k;
+                    double inward = -sgn * 2.5 * k;
+                    double vx = Math.cos(ang) * spd + rx * inward, vz = Math.sin(ang) * spd + rz * inward;
+                    double[] pa = {sx0 + vx * a, sy0 + vy * a - 0.5 * g * a * a, sz0 + vz * a};
+                    double a2 = Math.max(0.0, a - 0.09);
+                    double[] pb = {sx0 + vx * a2, sy0 + vy * a2 - 0.5 * g * a2 * a2, sz0 + vz * a2};
+                    double dx = pb[0] - pa[0], dy = pb[1] - pa[1], dz = pb[2] - pa[2];
+                    double len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                    if (len < 1e-4) continue;
+                    float[] c = switch ((id + py.seed) % 3) { case 0 -> new float[]{1F, 0.85F, 0.45F}; case 1 -> new float[]{1F, 1F, 1F}; default -> py.rgb; };
+                    float fade = 1F - a / life;
+                    strip(b, pa[0], pa[1], pa[2], dx / len, dy / len, dz / len, len * 2.2, 0.07 * S / 4 + 0.03, 0.02, c, fade);
+                }
+            }
+        }
+        flush(bb);
     }
 }

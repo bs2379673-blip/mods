@@ -1,0 +1,149 @@
+{
+ "song": "despedida",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "cues": [
+  {
+   "t": 0.0,
+   "scene": "fireworks",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "fan",
+   "ring": true,
+   "react": {
+    "kick": 0.8,
+    "snare": 0.4,
+    "accent": 0.8
+   },
+   "col": [
+    "#ff6aa8",
+    "#39c5bb",
+    "#ffd23a"
+   ]
+  },
+  {
+   "t": 0.0,
+   "fx": "sprite",
+   "id": "t_gracias",
+   "slot": "T",
+   "dur": 15.0,
+   "size": 30,
+   "pulse": 0.06
+  },
+  {
+   "t": 0.0,
+   "fx": "jugadores",
+   "modo": "confeti",
+   "dur": 16,
+   "radio": 80
+  },
+  {
+   "t": 0.8,
+   "fx": "sprite",
+   "id": "u3_trio_wave",
+   "slot": "C",
+   "dur": 14.0,
+   "size": 30
+  },
+  {
+   "t": 1.0,
+   "fx": "sprite",
+   "id": "s_heart",
+   "slot": "LR1",
+   "dur": 13.5,
+   "size": 16
+  },
+  {
+   "t": 1.4,
+   "fx": "sprite",
+   "id": "s_sparkle_gold",
+   "slot": "LRH",
+   "dur": 13.0,
+   "size": 11,
+   "spin": 30
+  },
+  {
+   "t": 2.0,
+   "fx": "pyro",
+   "dur": 2.4,
+   "col": "#ffd23a"
+  },
+  {
+   "t": 2.0,
+   "fx": "flash"
+  },
+  {
+   "t": 2.0,
+   "fx": "nova"
+  },
+  {
+   "t": 4.2,
+   "fx": "pyro",
+   "dur": 2.4,
+   "col": "#39c5bb"
+  },
+  {
+   "t": 4.2,
+   "fx": "flash"
+  },
+  {
+   "t": 4.2,
+   "fx": "nova"
+  },
+  {
+   "t": 7.5,
+   "fx": "pyro",
+   "dur": 2.4,
+   "col": "#ff3a5a"
+  },
+  {
+   "t": 7.5,
+   "fx": "flash"
+  },
+  {
+   "t": 7.5,
+   "fx": "nova"
+  },
+  {
+   "t": 9.0,
+   "fx": "pyro",
+   "dur": 2.4,
+   "col": "#ff6aa8"
+  },
+  {
+   "t": 9.0,
+   "fx": "flash"
+  },
+  {
+   "t": 9.0,
+   "fx": "nova"
+  },
+  {
+   "t": 10.5,
+   "fx": "pyro",
+   "dur": 2.4,
+   "col": "#39c5bb"
+  },
+  {
+   "t": 10.5,
+   "fx": "flash"
+  },
+  {
+   "t": 10.5,
+   "fx": "nova"
+  },
+  {
+   "t": 13.0,
+   "fx": "pyro",
+   "dur": 2.4,
+   "col": "#ffffff"
+  },
+  {
+   "t": 13.0,
+   "fx": "flash"
+  },
+  {
+   "t": 13.0,
+   "fx": "nova"
+  }
+ ]
+}

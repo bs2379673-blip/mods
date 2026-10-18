@@ -1,0 +1,606 @@
+{
+ "song": "minna_miku_miku",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "cues": [
+  {
+   "t": 0.0,
+   "scene": "sunset",
+   "floor": "off",
+   "eq": 0.0,
+   "beams": "off",
+   "ring": true,
+   "react": {
+    "kick": 0.3,
+    "snare": 0.1,
+    "accent": 0.5
+   },
+   "col": [
+    "#ff9ad5",
+    "#9ad8ff",
+    "#fff3a8"
+   ]
+  },
+  {
+   "t": 0.7,
+   "fx": "sprite",
+   "id": "u_leek",
+   "slot": "C",
+   "dur": 33.3,
+   "size": 22
+  },
+  {
+   "t": 5.699,
+   "fx": "sprite",
+   "id": "t_mikumiku",
+   "slot": "T",
+   "dur": 5.5,
+   "size": 28,
+   "pulse": 0.06
+  },
+  {
+   "t": 27.388,
+   "fx": "blackout",
+   "dur": 0.49
+  },
+  {
+   "t": 40.194,
+   "scene": "sunset",
+   "floor": "grid",
+   "eq": 0.5,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.5,
+    "snare": 0.25,
+    "accent": 0.7
+   },
+   "col": [
+    "#ff9ad5",
+    "#9ad8ff",
+    "#fff3a8"
+   ]
+  },
+  {
+   "t": 40.894,
+   "fx": "sprite",
+   "id": "u_head_calm",
+   "slot": "C",
+   "dur": 31.3,
+   "size": 22
+  },
+  {
+   "t": 40.894,
+   "fx": "sprite",
+   "id": "s_note_pink",
+   "slot": "L2",
+   "dur": 31.3,
+   "size": 12
+  },
+  {
+   "t": 40.894,
+   "fx": "sprite",
+   "id": "s_note_teal",
+   "slot": "R2",
+   "dur": 31.3,
+   "size": 12
+  },
+  {
+   "t": 73.189,
+   "scene": "fireworks",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "fan",
+   "ring": true,
+   "react": {
+    "kick": 0.8,
+    "snare": 0.45,
+    "accent": 1.0
+   },
+   "col": [
+    "#ff9ad5",
+    "#9ad8ff",
+    "#fff3a8"
+   ]
+  },
+  {
+   "t": 73.189,
+   "fx": "flash"
+  },
+  {
+   "t": 73.189,
+   "fx": "nova"
+  },
+  {
+   "t": 73.189,
+   "fx": "shock"
+  },
+  {
+   "t": 73.889,
+   "fx": "sprite",
+   "id": "u_head_happy",
+   "slot": "C",
+   "dur": 33.3,
+   "size": 28
+  },
+  {
+   "t": 73.889,
+   "fx": "sprite",
+   "id": "s_heart",
+   "slot": "LR1",
+   "dur": 33.3,
+   "size": 15
+  },
+  {
+   "t": 73.889,
+   "fx": "sprite",
+   "id": "s_note_pink",
+   "slot": "L2",
+   "dur": 33.3,
+   "size": 13
+  },
+  {
+   "t": 73.889,
+   "fx": "sprite",
+   "id": "s_note_teal",
+   "slot": "R2",
+   "dur": 33.3,
+   "size": 13
+  },
+  {
+   "t": 112.187,
+   "scene": "sunset",
+   "floor": "grid",
+   "eq": 0.5,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.5,
+    "snare": 0.25,
+    "accent": 0.7
+   },
+   "col": [
+    "#ff9ad5",
+    "#9ad8ff",
+    "#fff3a8"
+   ]
+  },
+  {
+   "t": 112.887,
+   "fx": "sprite",
+   "id": "u_head_calm",
+   "slot": "C",
+   "dur": 10.3,
+   "size": 22
+  },
+  {
+   "t": 112.887,
+   "fx": "sprite",
+   "id": "s_note_pink",
+   "slot": "L2",
+   "dur": 10.3,
+   "size": 12
+  },
+  {
+   "t": 112.887,
+   "fx": "sprite",
+   "id": "s_note_teal",
+   "slot": "R2",
+   "dur": 10.3,
+   "size": 12
+  },
+  {
+   "t": 124.192,
+   "scene": "sunset",
+   "floor": "grid",
+   "eq": 0.5,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.5,
+    "snare": 0.25,
+    "accent": 0.7
+   },
+   "col": [
+    "#ff9ad5",
+    "#9ad8ff",
+    "#fff3a8"
+   ]
+  },
+  {
+   "t": 124.892,
+   "fx": "sprite",
+   "id": "u_head_calm",
+   "slot": "C",
+   "dur": 19.3,
+   "size": 22
+  },
+  {
+   "t": 124.892,
+   "fx": "sprite",
+   "id": "s_note_pink",
+   "slot": "L2",
+   "dur": 19.3,
+   "size": 12
+  },
+  {
+   "t": 124.892,
+   "fx": "sprite",
+   "id": "s_note_teal",
+   "slot": "R2",
+   "dur": 19.3,
+   "size": 12
+  },
+  {
+   "t": 145.194,
+   "scene": "meltglow",
+   "floor": "disco",
+   "eq": 1.3,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 1.0,
+    "snare": 0.6,
+    "accent": 1.0
+   },
+   "col": [
+    "#ff9ad5",
+    "#9ad8ff",
+    "#fff3a8"
+   ]
+  },
+  {
+   "t": 145.194,
+   "fx": "flash"
+  },
+  {
+   "t": 145.194,
+   "fx": "nova"
+  },
+  {
+   "t": 145.194,
+   "fx": "shock"
+  },
+  {
+   "t": 145.194,
+   "fx": "pyro",
+   "dur": 3.0
+  },
+  {
+   "t": 145.894,
+   "fx": "sprite",
+   "id": "u_head_sparkle",
+   "slot": "C",
+   "dur": 25.29,
+   "size": 30
+  },
+  {
+   "t": 145.894,
+   "fx": "sprite",
+   "id": "u2_wink",
+   "slot": "L1",
+   "dur": 25.29,
+   "size": 19
+  },
+  {
+   "t": 145.894,
+   "fx": "sprite",
+   "id": "u2_fly",
+   "slot": "R1",
+   "dur": 25.29,
+   "size": 19
+  },
+  {
+   "t": 145.894,
+   "fx": "sprite",
+   "id": "s_star_pink",
+   "slot": "LRH",
+   "dur": 25.29,
+   "spin": 30,
+   "size": 11
+  },
+  {
+   "t": 172.188,
+   "scene": "sunset",
+   "floor": "grid",
+   "eq": 0.5,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.5,
+    "snare": 0.25,
+    "accent": 0.7
+   },
+   "col": [
+    "#ff9ad5",
+    "#9ad8ff",
+    "#fff3a8"
+   ]
+  },
+  {
+   "t": 172.888,
+   "fx": "sprite",
+   "id": "u_head_calm",
+   "slot": "C",
+   "dur": 28.32,
+   "size": 22
+  },
+  {
+   "t": 172.888,
+   "fx": "sprite",
+   "id": "s_note_pink",
+   "slot": "L2",
+   "dur": 28.32,
+   "size": 12
+  },
+  {
+   "t": 172.888,
+   "fx": "sprite",
+   "id": "s_note_teal",
+   "slot": "R2",
+   "dur": 28.32,
+   "size": 12
+  },
+  {
+   "t": 202.211,
+   "scene": "fireworks",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "fan",
+   "ring": true,
+   "react": {
+    "kick": 0.8,
+    "snare": 0.45,
+    "accent": 1.0
+   },
+   "col": [
+    "#ff9ad5",
+    "#9ad8ff",
+    "#fff3a8"
+   ]
+  },
+  {
+   "t": 202.211,
+   "fx": "flash"
+  },
+  {
+   "t": 202.211,
+   "fx": "nova"
+  },
+  {
+   "t": 202.211,
+   "fx": "shock"
+  },
+  {
+   "t": 202.911,
+   "fx": "sprite",
+   "id": "u_head_happy",
+   "slot": "C",
+   "dur": 22.29,
+   "size": 28
+  },
+  {
+   "t": 202.911,
+   "fx": "sprite",
+   "id": "s_heart",
+   "slot": "LR1",
+   "dur": 22.29,
+   "size": 15
+  },
+  {
+   "t": 202.911,
+   "fx": "sprite",
+   "id": "s_note_pink",
+   "slot": "L2",
+   "dur": 22.29,
+   "size": 13
+  },
+  {
+   "t": 202.911,
+   "fx": "sprite",
+   "id": "s_note_teal",
+   "slot": "R2",
+   "dur": 22.29,
+   "size": 13
+  },
+  {
+   "t": 226.197,
+   "scene": "sunset",
+   "floor": "grid",
+   "eq": 0.5,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.5,
+    "snare": 0.25,
+    "accent": 0.7
+   },
+   "col": [
+    "#ff9ad5",
+    "#9ad8ff",
+    "#fff3a8"
+   ]
+  },
+  {
+   "t": 226.897,
+   "fx": "sprite",
+   "id": "u_head_calm",
+   "slot": "C",
+   "dur": 10.29,
+   "size": 22
+  },
+  {
+   "t": 226.897,
+   "fx": "sprite",
+   "id": "s_note_pink",
+   "slot": "L2",
+   "dur": 10.29,
+   "size": 12
+  },
+  {
+   "t": 226.897,
+   "fx": "sprite",
+   "id": "s_note_teal",
+   "slot": "R2",
+   "dur": 10.29,
+   "size": 12
+  },
+  {
+   "t": 238.19,
+   "scene": "meltglow",
+   "floor": "disco",
+   "eq": 1.3,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 1.0,
+    "snare": 0.6,
+    "accent": 1.0
+   },
+   "col": [
+    "#ff9ad5",
+    "#9ad8ff",
+    "#fff3a8"
+   ]
+  },
+  {
+   "t": 238.19,
+   "fx": "flash"
+  },
+  {
+   "t": 238.19,
+   "fx": "nova"
+  },
+  {
+   "t": 238.19,
+   "fx": "shock"
+  },
+  {
+   "t": 238.19,
+   "fx": "pyro",
+   "dur": 3.0
+  },
+  {
+   "t": 238.89,
+   "fx": "sprite",
+   "id": "u_head_sparkle",
+   "slot": "C",
+   "dur": 13.3,
+   "size": 30
+  },
+  {
+   "t": 238.89,
+   "fx": "sprite",
+   "id": "u2_wink",
+   "slot": "L1",
+   "dur": 13.3,
+   "size": 19
+  },
+  {
+   "t": 238.89,
+   "fx": "sprite",
+   "id": "u2_fly",
+   "slot": "R1",
+   "dur": 13.3,
+   "size": 19
+  },
+  {
+   "t": 238.89,
+   "fx": "sprite",
+   "id": "s_star_pink",
+   "slot": "LRH",
+   "dur": 13.3,
+   "spin": 30,
+   "size": 11
+  },
+  {
+   "t": 239.0,
+   "fx": "jugadores",
+   "modo": "volar",
+   "dur": 14,
+   "radio": 70
+  },
+  {
+   "t": 239.0,
+   "fx": "jugadores",
+   "modo": "confeti",
+   "dur": 14,
+   "radio": 80
+  },
+  {
+   "t": 253.19,
+   "scene": "fireworks",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "fan",
+   "ring": true,
+   "react": {
+    "kick": 0.8,
+    "snare": 0.45,
+    "accent": 1.0
+   },
+   "col": [
+    "#ff9ad5",
+    "#9ad8ff",
+    "#fff3a8"
+   ]
+  },
+  {
+   "t": 253.89,
+   "fx": "sprite",
+   "id": "u_head_happy",
+   "slot": "C",
+   "dur": 19.3,
+   "size": 28
+  },
+  {
+   "t": 253.89,
+   "fx": "sprite",
+   "id": "s_heart",
+   "slot": "LR1",
+   "dur": 19.3,
+   "size": 15
+  },
+  {
+   "t": 253.89,
+   "fx": "sprite",
+   "id": "s_note_pink",
+   "slot": "L2",
+   "dur": 19.3,
+   "size": 13
+  },
+  {
+   "t": 253.89,
+   "fx": "sprite",
+   "id": "s_note_teal",
+   "slot": "R2",
+   "dur": 19.3,
+   "size": 13
+  },
+  {
+   "t": 274.193,
+   "scene": "sunset",
+   "floor": "grid",
+   "eq": 0.3,
+   "beams": "off",
+   "ring": true,
+   "react": {
+    "kick": 0.3,
+    "snare": 0.1,
+    "accent": 0.4
+   },
+   "col": [
+    "#ff9ad5",
+    "#9ad8ff",
+    "#fff3a8"
+   ]
+  },
+  {
+   "t": 274.893,
+   "fx": "sprite",
+   "id": "u_head_calm",
+   "slot": "C",
+   "dur": 4.31,
+   "size": 22
+  }
+ ]
+}

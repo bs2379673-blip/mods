@@ -1,0 +1,345 @@
+{
+ "song": "looping_the_rooms",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "cues": [
+  {
+   "t": 0.0,
+   "scene": "oscilloscope",
+   "floor": "off",
+   "eq": 0.0,
+   "beams": "off",
+   "ring": true,
+   "react": {
+    "kick": 0.3,
+    "snare": 0.1,
+    "accent": 0.4
+   },
+   "col": [
+    "#e8d870",
+    "#fff8d0",
+    "#ff3a20"
+   ]
+  },
+  {
+   "t": 0.7,
+   "fx": "sprite",
+   "id": "u_backroom",
+   "slot": "C",
+   "dur": 23.85,
+   "size": 30
+  },
+  {
+   "t": 3.377,
+   "fx": "sprite",
+   "id": "t_loop",
+   "slot": "T",
+   "dur": 5.5,
+   "size": 28,
+   "pulse": 0.06
+  },
+  {
+   "t": 25.554,
+   "scene": "oscilloscope",
+   "floor": "grid",
+   "eq": 0.5,
+   "beams": "strobe",
+   "ring": true,
+   "react": {
+    "kick": 0.6,
+    "snare": 0.3,
+    "accent": 0.6
+   },
+   "col": [
+    "#e8d870",
+    "#fff8d0",
+    "#ff3a20"
+   ]
+  },
+  {
+   "t": 26.254,
+   "fx": "sprite",
+   "id": "u_backroom",
+   "slot": "C",
+   "dur": 10.15,
+   "size": 30
+  },
+  {
+   "t": 26.254,
+   "fx": "sprite",
+   "id": "u_exit",
+   "slot": "H",
+   "dur": 10.15,
+   "size": 14
+  },
+  {
+   "t": 37.407,
+   "scene": "oscilloscope",
+   "floor": "grid",
+   "eq": 0.9,
+   "beams": "strobe",
+   "ring": true,
+   "react": {
+    "kick": 0.9,
+    "snare": 0.5,
+    "accent": 0.9
+   },
+   "col": [
+    "#e8d870",
+    "#fff8d0",
+    "#ff3a20"
+   ]
+  },
+  {
+   "t": 37.407,
+   "fx": "flash"
+  },
+  {
+   "t": 37.407,
+   "fx": "nova"
+  },
+  {
+   "t": 37.407,
+   "fx": "shock"
+  },
+  {
+   "t": 38.107,
+   "fx": "sprite",
+   "id": "u_backroom",
+   "slot": "C",
+   "dur": 22.0,
+   "size": 32
+  },
+  {
+   "t": 38.107,
+   "fx": "sprite",
+   "id": "u_exit",
+   "slot": "LRH",
+   "dur": 22.0,
+   "size": 12
+  },
+  {
+   "t": 61.103,
+   "scene": "oscilloscope",
+   "floor": "grid",
+   "eq": 0.5,
+   "beams": "strobe",
+   "ring": true,
+   "react": {
+    "kick": 0.6,
+    "snare": 0.3,
+    "accent": 0.6
+   },
+   "col": [
+    "#e8d870",
+    "#fff8d0",
+    "#ff3a20"
+   ]
+  },
+  {
+   "t": 61.803,
+   "fx": "sprite",
+   "id": "u_backroom",
+   "slot": "C",
+   "dur": 13.11,
+   "size": 30
+  },
+  {
+   "t": 61.803,
+   "fx": "sprite",
+   "id": "u_exit",
+   "slot": "H",
+   "dur": 13.11,
+   "size": 14
+  },
+  {
+   "t": 75.918,
+   "scene": "oscilloscope",
+   "floor": "ripple",
+   "eq": 0.9,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 0.8,
+    "snare": 0.45,
+    "accent": 0.9
+   },
+   "col": [
+    "#e8d870",
+    "#fff8d0",
+    "#ff3a20"
+   ]
+  },
+  {
+   "t": 75.918,
+   "fx": "flash"
+  },
+  {
+   "t": 75.918,
+   "fx": "nova"
+  },
+  {
+   "t": 75.918,
+   "fx": "shock"
+  },
+  {
+   "t": 76.618,
+   "fx": "sprite",
+   "id": "u_backroom",
+   "slot": "C",
+   "dur": 30.89,
+   "size": 32
+  },
+  {
+   "t": 76.618,
+   "fx": "sprite",
+   "id": "u_exit",
+   "slot": "LRH",
+   "dur": 30.89,
+   "size": 12
+  },
+  {
+   "t": 84.428,
+   "fx": "blackout",
+   "dur": 0.69
+  },
+  {
+   "t": 85.1,
+   "scene": "starfield",
+   "floor": "off",
+   "eq": 0.0,
+   "beams": "off",
+   "ring": false,
+   "col": [
+    "#ff2020",
+    "#7a0a0a",
+    "#ffb0a0"
+   ],
+   "react": {
+    "kick": 0.5,
+    "snare": 0.3,
+    "accent": 0.4
+   }
+  },
+  {
+   "t": 86.0,
+   "fx": "sprite",
+   "id": "s_eyes",
+   "slot": "XL",
+   "dur": 11.0,
+   "size": 18,
+   "pulse": 0.0,
+   "bob": 0.4
+  },
+  {
+   "t": 89.0,
+   "fx": "sprite",
+   "id": "s_eyes",
+   "slot": "X",
+   "dur": 8.0,
+   "size": 24,
+   "pulse": 0.0,
+   "bob": 0.4
+  },
+  {
+   "t": 92.0,
+   "fx": "sprite",
+   "id": "s_eyes",
+   "slot": "XR",
+   "dur": 5.0,
+   "size": 18,
+   "pulse": 0.0,
+   "bob": 0.4
+  },
+  {
+   "t": 97.477,
+   "fx": "blackout",
+   "dur": 0.41
+  },
+  {
+   "t": 97.5,
+   "scene": "oscilloscope",
+   "floor": "ripple",
+   "eq": 0.9,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 0.8,
+    "snare": 0.45,
+    "accent": 0.9
+   },
+   "col": [
+    "#e8d870",
+    "#fff8d0",
+    "#ff3a20"
+   ]
+  },
+  {
+   "t": 97.6,
+   "fx": "flash"
+  },
+  {
+   "t": 97.6,
+   "fx": "shock"
+  },
+  {
+   "t": 108.507,
+   "scene": "oscilloscope",
+   "floor": "ripple",
+   "eq": 0.9,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 0.8,
+    "snare": 0.45,
+    "accent": 0.9
+   },
+   "col": [
+    "#e8d870",
+    "#fff8d0",
+    "#ff3a20"
+   ]
+  },
+  {
+   "t": 109.207,
+   "fx": "sprite",
+   "id": "u_backroom",
+   "slot": "C",
+   "dur": 10.15,
+   "size": 32
+  },
+  {
+   "t": 109.207,
+   "fx": "sprite",
+   "id": "u_exit",
+   "slot": "LRH",
+   "dur": 10.15,
+   "size": 12
+  },
+  {
+   "t": 120.361,
+   "scene": "oscilloscope",
+   "floor": "off",
+   "eq": 0.2,
+   "beams": "off",
+   "ring": true,
+   "react": {
+    "kick": 0.25,
+    "snare": 0.1,
+    "accent": 0.3
+   },
+   "col": [
+    "#e8d870",
+    "#fff8d0",
+    "#ff3a20"
+   ]
+  },
+  {
+   "t": 121.061,
+   "fx": "sprite",
+   "id": "u_exit",
+   "slot": "C",
+   "dur": 11.99,
+   "size": 22
+  }
+ ]
+}

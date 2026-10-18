@@ -24,6 +24,7 @@ uniform vec3 P0;
 uniform vec3 P1;
 uniform vec3 P2;
 uniform float Spec[32];
+uniform sampler2D Sampler0;
 
 float hash21(vec2 p) { vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
 vec3 rainbow(float h) { return clamp(abs(mod(h * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0); }
@@ -142,6 +143,35 @@ vec4 column() {
     return vec4(col, clamp(a, 0.0, 1.0) * Alpha);
 }
 
+// sticker o cuadro de GIF colgado del cielo
+vec4 sprite() {
+    vec4 t = texture(Sampler0, vUV);
+    return vec4(t.rgb * vColor.rgb, t.a * vColor.a * Alpha);
+}
+
+// cabeza de estrella: nucleo, halo y destellos en cruz que giran
+vec4 starHead() {
+    float r = length(vUV);
+    float core = exp(-r * r * 38.0);
+    float halo = exp(-r * r * 5.0);
+    float ca = cos(Prog * 2.2), sa = sin(Prog * 2.2);
+    vec2 q = vec2(ca * vUV.x - sa * vUV.y, sa * vUV.x + ca * vUV.y);
+    float cross1 = exp(-abs(q.x) * 26.0) * exp(-abs(q.y) * 2.6) + exp(-abs(q.y) * 26.0) * exp(-abs(q.x) * 2.6);
+    vec3 col = vColor.rgb * (halo * 0.9 + cross1 * 0.9) + vec3(core * 1.6);
+    float a = clamp(halo * 0.6 + core + cross1 * 0.7, 0.0, 1.0) * smoothstep(1.0, 0.8, r);
+    return vec4(col, a * Alpha);
+}
+
+// cola de estrella: cinta blanda con fundido por la alfa de los vertices
+vec4 trail() {
+    float x = abs(vUV.x);
+    float core = exp(-x * x * 4.0);
+    float hot = exp(-x * x * 22.0);
+    vec3 col = vColor.rgb * core * 1.5 + vec3(hot * 0.9);
+    float a = (core * 0.7 + hot * 0.5) * vColor.a;
+    return vec4(col, clamp(a, 0.0, 1.0) * Alpha);
+}
+
 void main() {
     int k = int(Kind + 0.5);
     vec4 c;
@@ -149,6 +179,9 @@ void main() {
     else if (k == 1) c = panelLed();
     else if (k == 2) c = beam();
     else if (k == 3) c = ring();
-    else c = column();
+    else if (k == 4) c = column();
+    else if (k == 5) c = sprite();
+    else if (k == 6) c = starHead();
+    else c = trail();
     fragColor = c;
 }

@@ -18,7 +18,7 @@ public final class Net {
     private static final String V = "1";
     public static final SimpleChannel CH = NetworkRegistry.newSimpleChannel(new ResourceLocation(Concierto.MODID, "main"), () -> V, V::equals, V::equals);
 
-    public static final byte PLAY = 0, STOP = 1, SCENE = 2, PARAMS = 3, STAGE = 4, LIGHT = 5, FX = 6;
+    public static final byte PLAY = 0, STOP = 1, SCENE = 2, PARAMS = 3, STAGE = 4, LIGHT = 5, FX = 6, STAR = 7;
 
     private Net() { }
 
@@ -30,7 +30,8 @@ public final class Net {
      * una sola orden servidor -> cliente.
      * PLAY: song + scene (-1 = segun el guion) + offset (segundos ya transcurridos); SCENE: scene; PARAMS: a = intensidad, b = estrobo;
      * STAGE: x,y,z del escenario, a = giro (grados), b = escala (0 = sin escenario), arr = medidas;
-     * LIGHT: x,y,z, scene = color 0xRRGGBB, a = tamano, b = segundos; FX: song = nombre del efecto
+     * LIGHT: x,y,z, scene = color 0xRRGGBB, a = tamano, b = segundos; FX: song = nombre del efecto;
+     * STAR: estrella que cae en x,y,z; scene = color, a = segundos de vuelo, b = lado (+1 / -1) desde donde entra
      */
     public record Msg(byte op, String song, int scene, float a, float b, float offset, double x, double y, double z, float[] arr) {
         public Msg(byte op, String song, int scene, float a, float b, float offset) { this(op, song, scene, a, b, offset, 0, 0, 0, new float[0]); }

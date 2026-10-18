@@ -32,7 +32,7 @@ public final class Script {
     /** lo que se ve en cada momento */
     public static final class Look {
         public int scene = 8;
-        public String floor = "off", beams = "off";
+        public String floor = "off", beams = "off", swap = "off";
         public float eq = 0F;
         public boolean ring = false;
         public float[][] col = {{1F, 0.42F, 0.6F}, {1F, 0.6F, 0.42F}, {1F, 0.82F, 0.88F}};
@@ -47,6 +47,7 @@ public final class Script {
             if (o.has("beams")) beams = o.get("beams").getAsString();
             if (o.has("eq")) eq = o.get("eq").getAsFloat();
             if (o.has("ring")) ring = o.get("ring").getAsBoolean();
+            if (o.has("swap")) swap = o.get("swap").getAsString();
             if (o.has("col") && o.get("col").isJsonArray()) {
                 JsonArray a = o.getAsJsonArray("col");
                 for (int i = 0; i < 3 && i < a.size(); i++) col[i] = hex(a.get(i).getAsString());

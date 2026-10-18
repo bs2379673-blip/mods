@@ -1,0 +1,508 @@
+{
+ "song": "static",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "cues": [
+  {
+   "t": 0.0,
+   "scene": "oscilloscope",
+   "floor": "off",
+   "eq": 0.0,
+   "beams": "off",
+   "ring": true,
+   "react": {
+    "kick": 0.3,
+    "snare": 0.1,
+    "accent": 0.5
+   },
+   "col": [
+    "#39c5bb",
+    "#ff3a5a",
+    "#e8ffff"
+   ]
+  },
+  {
+   "t": 2.031,
+   "fx": "sprite",
+   "id": "t_static",
+   "slot": "T",
+   "dur": 5.5,
+   "size": 28,
+   "pulse": 0.06
+  },
+  {
+   "t": 5.921,
+   "fx": "blackout",
+   "dur": 0.41
+  },
+  {
+   "t": 9.114,
+   "fx": "blackout",
+   "dur": 0.35
+  },
+  {
+   "t": 9.857,
+   "fx": "blackout",
+   "dur": 0.21
+  },
+  {
+   "t": 14.199,
+   "fx": "blackout",
+   "dur": 0.57
+  },
+  {
+   "t": 14.884,
+   "fx": "blackout",
+   "dur": 0.24
+  },
+  {
+   "t": 30.917,
+   "scene": "oscilloscope",
+   "floor": "off",
+   "eq": 0.0,
+   "beams": "strobe",
+   "ring": false,
+   "react": {
+    "kick": 0.5,
+    "snare": 0.5,
+    "accent": 0.8
+   },
+   "col": [
+    "#ff3a5a",
+    "#7a0f24",
+    "#ffb0b8"
+   ]
+  },
+  {
+   "t": 31.617,
+   "fx": "sprite",
+   "id": "s_cursor",
+   "slot": "C",
+   "dur": 26.22,
+   "size": 22
+  },
+  {
+   "t": 32.02,
+   "fx": "blackout",
+   "dur": 1.14
+  },
+  {
+   "t": 34.772,
+   "fx": "blackout",
+   "dur": 0.94
+  },
+  {
+   "t": 36.328,
+   "fx": "blackout",
+   "dur": 0.63
+  },
+  {
+   "t": 38.731,
+   "fx": "blackout",
+   "dur": 0.41
+  },
+  {
+   "t": 58.839,
+   "scene": "cthugha",
+   "floor": "disco",
+   "eq": 1.2,
+   "beams": "strobe",
+   "ring": true,
+   "react": {
+    "kick": 1.0,
+    "snare": 0.6,
+    "accent": 1.0
+   },
+   "col": [
+    "#39c5bb",
+    "#ff3a5a",
+    "#e8ffff"
+   ]
+  },
+  {
+   "t": 58.839,
+   "fx": "flash"
+  },
+  {
+   "t": 58.839,
+   "fx": "nova"
+  },
+  {
+   "t": 58.839,
+   "fx": "shock"
+  },
+  {
+   "t": 58.839,
+   "fx": "pyro",
+   "dur": 3.0
+  },
+  {
+   "t": 59.539,
+   "fx": "sprite",
+   "id": "u_head_smug",
+   "slot": "C",
+   "dur": 21.06
+  },
+  {
+   "t": 59.539,
+   "fx": "sprite",
+   "id": "s_bolt",
+   "slot": "LR1",
+   "dur": 21.06
+  },
+  {
+   "t": 59.539,
+   "fx": "sprite",
+   "id": "s_bolt_red",
+   "slot": "LR2",
+   "dur": 21.06
+  },
+  {
+   "t": 59.539,
+   "fx": "sprite",
+   "id": "s_cursor",
+   "slot": "LRH",
+   "dur": 21.06,
+   "size": 12
+  },
+  {
+   "t": 81.421,
+   "fx": "blackout",
+   "dur": 0.84
+  },
+  {
+   "t": 81.595,
+   "scene": "magnetosphere",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 0.85,
+    "snare": 0.5,
+    "accent": 1.0
+   },
+   "col": [
+    "#39c5bb",
+    "#ff3a5a",
+    "#e8ffff"
+   ]
+  },
+  {
+   "t": 82.295,
+   "fx": "sprite",
+   "id": "u_head_smug",
+   "slot": "C",
+   "dur": 18.52
+  },
+  {
+   "t": 82.295,
+   "fx": "sprite",
+   "id": "s_bolt",
+   "slot": "LR1",
+   "dur": 18.52
+  },
+  {
+   "t": 82.295,
+   "fx": "sprite",
+   "id": "u_01",
+   "slot": "H",
+   "dur": 18.52,
+   "size": 16
+  },
+  {
+   "t": 91.603,
+   "fx": "blackout",
+   "dur": 0.21
+  },
+  {
+   "t": 101.82,
+   "scene": "magnetosphere",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 0.85,
+    "snare": 0.5,
+    "accent": 1.0
+   },
+   "col": [
+    "#39c5bb",
+    "#ff3a5a",
+    "#e8ffff"
+   ]
+  },
+  {
+   "t": 102.52,
+   "fx": "sprite",
+   "id": "u_head_smug",
+   "slot": "C",
+   "dur": 16.11
+  },
+  {
+   "t": 102.52,
+   "fx": "sprite",
+   "id": "s_bolt",
+   "slot": "LR1",
+   "dur": 16.11
+  },
+  {
+   "t": 102.52,
+   "fx": "sprite",
+   "id": "u_01",
+   "slot": "H",
+   "dur": 16.11,
+   "size": 16
+  },
+  {
+   "t": 119.629,
+   "scene": "oscilloscope",
+   "floor": "off",
+   "eq": 0.0,
+   "beams": "strobe",
+   "ring": false,
+   "react": {
+    "kick": 0.5,
+    "snare": 0.5,
+    "accent": 0.8
+   },
+   "col": [
+    "#ff3a5a",
+    "#7a0f24",
+    "#ffb0b8"
+   ]
+  },
+  {
+   "t": 120.329,
+   "fx": "sprite",
+   "id": "s_cursor",
+   "slot": "C",
+   "dur": 8.44,
+   "size": 22
+  },
+  {
+   "t": 121.475,
+   "fx": "blackout",
+   "dur": 0.45
+  },
+  {
+   "t": 123.6,
+   "fx": "blackout",
+   "dur": 1.57
+  },
+  {
+   "t": 125.713,
+   "fx": "blackout",
+   "dur": 0.6
+  },
+  {
+   "t": 127.303,
+   "fx": "blackout",
+   "dur": 1.72
+  },
+  {
+   "t": 129.765,
+   "scene": "oscilloscope",
+   "floor": "grid",
+   "eq": 0.55,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.55,
+    "snare": 0.3,
+    "accent": 0.7
+   },
+   "col": [
+    "#39c5bb",
+    "#ff3a5a",
+    "#e8ffff"
+   ]
+  },
+  {
+   "t": 130.465,
+   "fx": "sprite",
+   "id": "s_tv",
+   "slot": "C",
+   "dur": 15.98,
+   "size": 26
+  },
+  {
+   "t": 147.447,
+   "scene": "cthugha",
+   "floor": "disco",
+   "eq": 1.2,
+   "beams": "strobe",
+   "ring": true,
+   "react": {
+    "kick": 1.0,
+    "snare": 0.6,
+    "accent": 1.0
+   },
+   "col": [
+    "#39c5bb",
+    "#ff3a5a",
+    "#e8ffff"
+   ]
+  },
+  {
+   "t": 147.447,
+   "fx": "flash"
+  },
+  {
+   "t": 147.447,
+   "fx": "nova"
+  },
+  {
+   "t": 147.447,
+   "fx": "shock"
+  },
+  {
+   "t": 147.447,
+   "fx": "pyro",
+   "dur": 3.0
+  },
+  {
+   "t": 148.147,
+   "fx": "sprite",
+   "id": "u_head_smug",
+   "slot": "C",
+   "dur": 28.65
+  },
+  {
+   "t": 148.147,
+   "fx": "sprite",
+   "id": "s_bolt",
+   "slot": "LR1",
+   "dur": 28.65
+  },
+  {
+   "t": 148.147,
+   "fx": "sprite",
+   "id": "s_bolt_red",
+   "slot": "LR2",
+   "dur": 28.65
+  },
+  {
+   "t": 148.147,
+   "fx": "sprite",
+   "id": "s_cursor",
+   "slot": "LRH",
+   "dur": 28.65,
+   "size": 12
+  },
+  {
+   "t": 177.795,
+   "scene": "oscilloscope",
+   "floor": "grid",
+   "eq": 0.55,
+   "beams": "slow",
+   "ring": true,
+   "react": {
+    "kick": 0.55,
+    "snare": 0.3,
+    "accent": 0.7
+   },
+   "col": [
+    "#39c5bb",
+    "#ff3a5a",
+    "#e8ffff"
+   ]
+  },
+  {
+   "t": 178.495,
+   "fx": "sprite",
+   "id": "s_tv",
+   "slot": "C",
+   "dur": 21.03,
+   "size": 26
+  },
+  {
+   "t": 200.528,
+   "scene": "magnetosphere",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "cross",
+   "ring": true,
+   "react": {
+    "kick": 0.85,
+    "snare": 0.5,
+    "accent": 1.0
+   },
+   "col": [
+    "#39c5bb",
+    "#ff3a5a",
+    "#e8ffff"
+   ]
+  },
+  {
+   "t": 200.528,
+   "fx": "flash"
+  },
+  {
+   "t": 200.528,
+   "fx": "nova"
+  },
+  {
+   "t": 200.528,
+   "fx": "shock"
+  },
+  {
+   "t": 201.228,
+   "fx": "sprite",
+   "id": "u_head_smug",
+   "slot": "C",
+   "dur": 33.3
+  },
+  {
+   "t": 201.228,
+   "fx": "sprite",
+   "id": "s_bolt",
+   "slot": "LR1",
+   "dur": 33.3
+  },
+  {
+   "t": 201.228,
+   "fx": "sprite",
+   "id": "u_01",
+   "slot": "H",
+   "dur": 33.3,
+   "size": 16
+  },
+  {
+   "t": 238.422,
+   "scene": "oscilloscope",
+   "floor": "grid",
+   "eq": 0.3,
+   "beams": "off",
+   "ring": true,
+   "react": {
+    "kick": 0.3,
+    "snare": 0.1,
+    "accent": 0.4
+   },
+   "col": [
+    "#39c5bb",
+    "#ff3a5a",
+    "#e8ffff"
+   ]
+  },
+  {
+   "t": 238.852,
+   "fx": "blackout",
+   "dur": 0.33
+  },
+  {
+   "t": 239.122,
+   "fx": "sprite",
+   "id": "s_tv",
+   "slot": "C",
+   "dur": 3.33,
+   "size": 24
+  },
+  {
+   "t": 240.628,
+   "fx": "blackout",
+   "dur": 1.1
+  }
+ ]
+}
