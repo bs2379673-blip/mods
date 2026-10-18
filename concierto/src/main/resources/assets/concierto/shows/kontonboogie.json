@@ -1,6 +1,6 @@
 {
  "song": "konton_boogie",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), aviso(id,ext,dur,modo=corner|center|full) -> /tacshow del mod tacui, jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -23,23 +23,15 @@
   },
   {
    "t": 0.7,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_dizzy",
-   "slot": "C",
-   "dur": 19.72
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 1.846,
    "fx": "shock"
-  },
-  {
-   "t": 2.019,
-   "fx": "sprite",
-   "id": "t_konton",
-   "slot": "T",
-   "dur": 5.5,
-   "size": 28,
-   "pulse": 0.06
   },
   {
    "t": 6.896,
@@ -153,10 +145,11 @@
   },
   {
    "t": 62.546,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_dizzy",
-   "slot": "C",
-   "dur": 18.51
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 67.524,
@@ -238,10 +231,11 @@
   },
   {
    "t": 100.453,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_dizzy",
-   "slot": "C",
-   "dur": 33.3
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 101.309,

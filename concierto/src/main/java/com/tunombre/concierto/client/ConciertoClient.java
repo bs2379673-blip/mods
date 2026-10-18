@@ -148,17 +148,13 @@ public final class ConciertoClient {
                 int rgb = ((int) (c[0] * 255) << 16) | ((int) (c[1] * 255) << 8) | (int) (c[2] * 255);
                 stage.columns.add(new Stage.Column(at, rgb, size, secs));
             }
-            case "sprite" -> { if (cue != null) sprites.spawn(cue, songT); }
+            case "sprite" -> { /* sin stickers ni GIFs */ }
             case "pyro", "pirotecnia" -> {
                 float dur = cue != null && cue.has("dur") ? cue.get("dur").getAsFloat() : 3F;
                 float[] c = cue != null && cue.has("col") ? Script.hex(cue.get("col").getAsString()) : new float[]{pal[0][0], pal[0][1], pal[0][2]};
                 stage.pyros.add(new Stage.Pyro(dur, c, (int) (songT * 100F) + stage.pyros.size()));
             }
-            case "rayo" -> {
-                float dur = cue != null && cue.has("dur") ? cue.get("dur").getAsFloat() : 6F;
-                float charge = cue != null && cue.has("carga") ? cue.get("carga").getAsFloat() : 2.5F;
-                ModelFx.startBeam(songT, dur, charge);
-            }
+            case "rayo" -> { /* sin rayo de Miku */ }
             case "fuegos" -> {
                 float dur = cue != null && cue.has("dur") ? cue.get("dur").getAsFloat() : 8F;
                 int n = cue != null && cue.has("n") ? cue.get("n").getAsInt() : Math.max(4, Math.round(dur * 1.6F));
@@ -359,6 +355,7 @@ public final class ConciertoClient {
         Matrix4f invView = view.invert();
         Matrix4f invProj = new Matrix4f(e.getProjectionMatrix()).invert();
         // hacia donde esta el escenario visto desde el publico (el publico mira hacia -F... el escenario queda del lado de -F)
+        StageFx.draw(fxAdd, cam.x, cam.y, cam.z, stage, Math.max(0F, songT), level, kickEnv, pal, alpha * Math.max(floorA, beamsA));
         float sdx = stage.set ? (float) -stage.fx() : 0F, sdz = stage.set ? (float) -stage.fz() : -1F;
 
         sky.safeGetUniform("InvProj").set(invProj);

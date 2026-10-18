@@ -1,6 +1,6 @@
 {
  "song": "looping_the_rooms",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), aviso(id,ext,dur,modo=corner|center|full) -> /tacshow del mod tacui, jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -22,20 +22,11 @@
   },
   {
    "t": 0.7,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_backroom",
-   "slot": "C",
-   "dur": 23.85,
-   "size": 30
-  },
-  {
-   "t": 3.377,
-   "fx": "sprite",
-   "id": "t_loop",
-   "slot": "T",
-   "dur": 5.5,
-   "size": 28,
-   "pulse": 0.06
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 25.554,
@@ -57,19 +48,11 @@
   },
   {
    "t": 26.254,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_backroom",
-   "slot": "C",
-   "dur": 10.15,
-   "size": 30
-  },
-  {
-   "t": 26.254,
-   "fx": "sprite",
-   "id": "u_exit",
-   "slot": "H",
-   "dur": 10.15,
-   "size": 14
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 37.407,
@@ -103,19 +86,11 @@
   },
   {
    "t": 38.107,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_backroom",
-   "slot": "C",
-   "dur": 22.0,
-   "size": 32
-  },
-  {
-   "t": 38.107,
-   "fx": "sprite",
-   "id": "u_exit",
-   "slot": "LRH",
-   "dur": 22.0,
-   "size": 12
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 40.356,
@@ -173,19 +148,11 @@
   },
   {
    "t": 61.803,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_backroom",
-   "slot": "C",
-   "dur": 13.11,
-   "size": 30
-  },
-  {
-   "t": 61.803,
-   "fx": "sprite",
-   "id": "u_exit",
-   "slot": "H",
-   "dur": 13.11,
-   "size": 14
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 75.918,
@@ -219,19 +186,11 @@
   },
   {
    "t": 76.618,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_backroom",
-   "slot": "C",
-   "dur": 30.89,
-   "size": 32
-  },
-  {
-   "t": 76.618,
-   "fx": "sprite",
-   "id": "u_exit",
-   "slot": "LRH",
-   "dur": 30.89,
-   "size": 12
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 78.135,
@@ -355,19 +314,11 @@
   },
   {
    "t": 109.207,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_backroom",
-   "slot": "C",
-   "dur": 10.15,
-   "size": 32
-  },
-  {
-   "t": 109.207,
-   "fx": "sprite",
-   "id": "u_exit",
-   "slot": "LRH",
-   "dur": 10.15,
-   "size": 12
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 109.621,
@@ -405,11 +356,11 @@
   },
   {
    "t": 121.061,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_exit",
-   "slot": "C",
-   "dur": 11.99,
-   "size": 22
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   }
  ]
 }

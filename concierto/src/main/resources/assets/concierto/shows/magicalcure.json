@@ -1,6 +1,6 @@
 {
  "song": "magical_cure",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), aviso(id,ext,dur,modo=corner|center|full) -> /tacshow del mod tacui, jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -62,53 +62,19 @@
   },
   {
    "t": 11.114,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_magical",
-   "slot": "C",
-   "dur": 23.31,
-   "size": 30
-  },
-  {
-   "t": 11.114,
-   "fx": "sprite",
-   "id": "u_wand",
-   "slot": "LR1",
-   "dur": 23.31,
-   "size": 17
-  },
-  {
-   "t": 11.114,
-   "fx": "sprite",
-   "id": "u_crystalheart",
-   "slot": "H",
-   "dur": 23.31,
-   "size": 15
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "center"
   },
   {
    "t": 15.418,
    "fx": "shock"
   },
   {
-   "t": 15.418,
-   "fx": "sprite",
-   "id": "t_loveshot",
-   "slot": "T",
-   "dur": 1.8,
-   "size": 26,
-   "pulse": 0.3
-  },
-  {
    "t": 18.704,
    "fx": "shock"
-  },
-  {
-   "t": 18.704,
-   "fx": "sprite",
-   "id": "t_loveshot",
-   "slot": "T",
-   "dur": 1.8,
-   "size": 26,
-   "pulse": 0.3
   },
   {
    "t": 22.918,
@@ -117,15 +83,6 @@
   {
    "t": 22.918,
    "fx": "nova"
-  },
-  {
-   "t": 22.918,
-   "fx": "sprite",
-   "id": "t_loveshot",
-   "slot": "T",
-   "dur": 1.8,
-   "size": 26,
-   "pulse": 0.3
   },
   {
    "t": 26.041,
@@ -142,15 +99,6 @@
   {
    "t": 35.109,
    "fx": "nova"
-  },
-  {
-   "t": 35.109,
-   "fx": "sprite",
-   "id": "t_loveshot",
-   "slot": "T",
-   "dur": 1.8,
-   "size": 26,
-   "pulse": 0.3
   },
   {
    "t": 35.422,
@@ -172,11 +120,11 @@
   },
   {
    "t": 36.122,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_wand",
-   "slot": "LR2",
-   "dur": 13.3,
-   "size": 14
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 50.422,
@@ -220,40 +168,15 @@
   },
   {
    "t": 51.122,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_magical",
-   "slot": "C",
-   "dur": 8.3,
-   "size": 30
-  },
-  {
-   "t": 51.122,
-   "fx": "sprite",
-   "id": "u_wand",
-   "slot": "LR1",
-   "dur": 8.3,
-   "size": 17
-  },
-  {
-   "t": 51.122,
-   "fx": "sprite",
-   "id": "u_crystalheart",
-   "slot": "H",
-   "dur": 8.3,
-   "size": 15
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "center"
   },
   {
    "t": 57.922,
    "fx": "shock"
-  },
-  {
-   "t": 57.922,
-   "fx": "sprite",
-   "id": "t_loveshot",
-   "slot": "T",
-   "dur": 1.8,
-   "size": 26,
-   "pulse": 0.3
   },
   {
    "t": 60.418,
@@ -283,37 +206,11 @@
   },
   {
    "t": 61.118,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_magical",
-   "slot": "C",
-   "dur": 8.31,
-   "size": 32
-  },
-  {
-   "t": 61.118,
-   "fx": "sprite",
-   "id": "u_crystalheart",
-   "slot": "LR1",
-   "dur": 8.31,
-   "size": 17
-  },
-  {
-   "t": 61.118,
-   "fx": "sprite",
-   "id": "s_sparkle_gold",
-   "slot": "LRH",
-   "dur": 8.31,
-   "spin": 35,
-   "size": 11
-  },
-  {
-   "t": 61.118,
-   "fx": "sprite",
-   "id": "s_sparkle_pink",
-   "slot": "LRU",
-   "dur": 8.31,
-   "spin": -30,
-   "size": 11
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "center"
   },
   {
    "t": 68.545,
@@ -339,27 +236,11 @@
   },
   {
    "t": 71.126,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_magical",
-   "slot": "C",
-   "dur": 10.79,
-   "size": 30
-  },
-  {
-   "t": 71.126,
-   "fx": "sprite",
-   "id": "u_wand",
-   "slot": "LR1",
-   "dur": 10.79,
-   "size": 17
-  },
-  {
-   "t": 71.126,
-   "fx": "sprite",
-   "id": "u_crystalheart",
-   "slot": "H",
-   "dur": 10.79,
-   "size": 15
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "center"
   },
   {
    "t": 71.355,
@@ -372,15 +253,6 @@
   {
    "t": 75.105,
    "fx": "shock"
-  },
-  {
-   "t": 75.105,
-   "fx": "sprite",
-   "id": "t_loveshot",
-   "slot": "T",
-   "dur": 1.8,
-   "size": 26,
-   "pulse": 0.3
   },
   {
    "t": 79.644,
@@ -423,21 +295,6 @@
    }
   },
   {
-   "t": 87.611,
-   "fx": "rayo",
-   "carga": 7.81,
-   "dur": 8.5
-  },
-  {
-   "t": 87.911,
-   "fx": "sprite",
-   "id": "t_321_1",
-   "slot": "C",
-   "dur": 2.0,
-   "size": 16,
-   "pulse": 0.3
-  },
-  {
    "t": 87.911,
    "fx": "flash"
   },
@@ -447,29 +304,11 @@
   },
   {
    "t": 90.419,
-   "fx": "sprite",
-   "id": "t_321_2",
-   "slot": "C",
-   "dur": 2.0,
-   "size": 23,
-   "pulse": 0.3
-  },
-  {
-   "t": 90.419,
    "fx": "flash"
   },
   {
    "t": 90.419,
    "fx": "shock"
-  },
-  {
-   "t": 92.915,
-   "fx": "sprite",
-   "id": "t_321_3",
-   "slot": "C",
-   "dur": 2.0,
-   "size": 30,
-   "pulse": 0.3
   },
   {
    "t": 92.915,
@@ -521,40 +360,11 @@
   },
   {
    "t": 95.42,
-   "fx": "sprite",
-   "id": "t_beam",
-   "slot": "T",
-   "dur": 5.0,
-   "size": 30,
-   "pulse": 0.2
-  },
-  {
-   "t": 95.42,
-   "fx": "sprite",
-   "id": "s_ring",
-   "slot": "C",
-   "dur": 8.5,
-   "size": 30,
-   "pulse": 0.35
-  },
-  {
-   "t": 95.42,
-   "fx": "sprite",
-   "id": "s_ring_pink",
-   "slot": "C",
-   "dur": 8.5,
-   "size": 38,
-   "pulse": 0.5
-  },
-  {
-   "t": 95.42,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_beam",
-   "slot": "H",
-   "dur": 8.5,
-   "size": 30,
-   "pulse": 0.08,
-   "bob": 0.4
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "center"
   },
   {
    "t": 95.42,
@@ -580,15 +390,6 @@
     "#39c5bb",
     "#ffe27a"
    ]
-  },
-  {
-   "t": 95.82,
-   "fx": "sprite",
-   "id": "s_sparkle_teal",
-   "slot": "LRH",
-   "dur": 7.5,
-   "spin": 40,
-   "size": 12
   },
   {
    "t": 96.62,
@@ -660,27 +461,11 @@
   },
   {
    "t": 116.115,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_magical",
-   "slot": "C",
-   "dur": 18.3,
-   "size": 30
-  },
-  {
-   "t": 116.115,
-   "fx": "sprite",
-   "id": "u_wand",
-   "slot": "LR1",
-   "dur": 18.3,
-   "size": 17
-  },
-  {
-   "t": 116.115,
-   "fx": "sprite",
-   "id": "u_crystalheart",
-   "slot": "H",
-   "dur": 18.3,
-   "size": 15
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "center"
   },
   {
    "t": 123.542,
@@ -689,15 +474,6 @@
   {
    "t": 123.542,
    "fx": "nova"
-  },
-  {
-   "t": 123.542,
-   "fx": "sprite",
-   "id": "t_loveshot",
-   "slot": "T",
-   "dur": 1.8,
-   "size": 26,
-   "pulse": 0.3
   },
   {
    "t": 132.923,
@@ -723,40 +499,15 @@
   },
   {
    "t": 136.119,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_magical",
-   "slot": "C",
-   "dur": 23.31,
-   "size": 30
-  },
-  {
-   "t": 136.119,
-   "fx": "sprite",
-   "id": "u_wand",
-   "slot": "LR1",
-   "dur": 23.31,
-   "size": 17
-  },
-  {
-   "t": 136.119,
-   "fx": "sprite",
-   "id": "u_crystalheart",
-   "slot": "H",
-   "dur": 23.31,
-   "size": 15
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "center"
   },
   {
    "t": 136.359,
    "fx": "shock"
-  },
-  {
-   "t": 136.359,
-   "fx": "sprite",
-   "id": "t_loveshot",
-   "slot": "T",
-   "dur": 1.8,
-   "size": 26,
-   "pulse": 0.3
   },
   {
    "t": 140.098,
@@ -765,15 +516,6 @@
   {
    "t": 140.098,
    "fx": "nova"
-  },
-  {
-   "t": 140.098,
-   "fx": "sprite",
-   "id": "t_loveshot",
-   "slot": "T",
-   "dur": 1.8,
-   "size": 26,
-   "pulse": 0.3
   },
   {
    "t": 160.427,
@@ -852,37 +594,11 @@
   },
   {
    "t": 171.111,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_magical",
-   "slot": "C",
-   "dur": 20.81,
-   "size": 32
-  },
-  {
-   "t": 171.111,
-   "fx": "sprite",
-   "id": "u_crystalheart",
-   "slot": "LR1",
-   "dur": 20.81,
-   "size": 17
-  },
-  {
-   "t": 171.111,
-   "fx": "sprite",
-   "id": "s_sparkle_gold",
-   "slot": "LRH",
-   "dur": 20.81,
-   "spin": 35,
-   "size": 11
-  },
-  {
-   "t": 171.111,
-   "fx": "sprite",
-   "id": "s_sparkle_pink",
-   "slot": "LRU",
-   "dur": 20.81,
-   "spin": -30,
-   "size": 11
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "center"
   },
   {
    "t": 178.538,

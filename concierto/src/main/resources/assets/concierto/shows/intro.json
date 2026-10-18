@@ -1,6 +1,6 @@
 {
  "song": "intro",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), aviso(id,ext,dur,modo=corner|center|full) -> /tacshow del mod tacui, jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -19,15 +19,6 @@
     "snare": 0.1,
     "accent": 0.3
    }
-  },
-  {
-   "t": 0.6,
-   "fx": "sprite",
-   "id": "t_obscure",
-   "slot": "T",
-   "dur": 8.0,
-   "size": 27,
-   "pulse": 0.08
   },
   {
    "t": 4.8,
@@ -49,12 +40,11 @@
   },
   {
    "t": 7.2,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u2_chibi",
-   "slot": "L2",
+   "ext": "gif",
    "dur": 4.6,
-   "size": 15,
-   "pulse": 0.2
+   "modo": "corner"
   },
   {
    "t": 7.2,
@@ -62,38 +52,11 @@
   },
   {
    "t": 8.4,
-   "fx": "sprite",
-   "id": "u2_fly",
-   "slot": "R2",
-   "dur": 3.4,
-   "size": 15,
-   "pulse": 0.2
-  },
-  {
-   "t": 8.4,
    "fx": "shock"
   },
   {
    "t": 9.6,
-   "fx": "sprite",
-   "id": "u2_swirl",
-   "slot": "L3",
-   "dur": 2.2,
-   "size": 15,
-   "pulse": 0.2
-  },
-  {
-   "t": 9.6,
    "fx": "shock"
-  },
-  {
-   "t": 10.8,
-   "fx": "sprite",
-   "id": "u2_wink",
-   "slot": "R3",
-   "dur": 1.0,
-   "size": 15,
-   "pulse": 0.2
   },
   {
    "t": 10.8,
@@ -119,15 +82,6 @@
   },
   {
    "t": 12.0,
-   "fx": "sprite",
-   "id": "t_321_1",
-   "slot": "C",
-   "dur": 2.2,
-   "size": 15,
-   "pulse": 0.3
-  },
-  {
-   "t": 12.0,
    "fx": "flash"
   },
   {
@@ -136,29 +90,11 @@
   },
   {
    "t": 14.4,
-   "fx": "sprite",
-   "id": "t_321_2",
-   "slot": "C",
-   "dur": 2.2,
-   "size": 22,
-   "pulse": 0.3
-  },
-  {
-   "t": 14.4,
    "fx": "flash"
   },
   {
    "t": 14.4,
    "fx": "shock"
-  },
-  {
-   "t": 16.8,
-   "fx": "sprite",
-   "id": "t_321_3",
-   "slot": "C",
-   "dur": 2.2,
-   "size": 29,
-   "pulse": 0.3
   },
   {
    "t": 16.8,
@@ -283,15 +219,6 @@
    "t": 21.65,
    "fx": "aparecer",
    "who": "miku"
-  },
-  {
-   "t": 21.7,
-   "fx": "sprite",
-   "id": "t_go",
-   "slot": "T",
-   "dur": 4.0,
-   "size": 24,
-   "pulse": 0.3
   },
   {
    "t": 22.4,

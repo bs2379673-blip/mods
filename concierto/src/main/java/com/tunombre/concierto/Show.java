@@ -78,7 +78,7 @@ public final class Show {
                 JsonElement root = JsonParser.parseReader(rr);
                 for (JsonElement e : root.getAsJsonObject().getAsJsonArray("cues")) {
                     JsonObject o = e.getAsJsonObject();
-                    if (o.has("fx") && (o.get("fx").getAsString().equals("jugadores") || o.get("fx").getAsString().equals("aparecer"))) srvCues.add(o);
+                    if (o.has("fx") && (o.get("fx").getAsString().equals("jugadores") || o.get("fx").getAsString().equals("aparecer") || o.get("fx").getAsString().equals("aviso"))) srvCues.add(o);
                 }
             }
             srvCues.sort((a, b) -> Float.compare(a.get("t").getAsFloat(), b.get("t").getAsFloat()));
@@ -131,6 +131,10 @@ public final class Show {
         while (srvNext < srvCues.size() && srvCues.get(srvNext).get("t").getAsFloat() <= t) {
             JsonObject o = srvCues.get(srvNext++);
             if (t - o.get("t").getAsFloat() > 2F) continue;
+            if (o.get("fx").getAsString().equals("aviso")) {
+                Avisos.show(e.getServer(), o);
+                continue;
+            }
             if (o.get("fx").getAsString().equals("aparecer")) {
                 if (o.has("who")) appearNow(e.getServer(), o.get("who").getAsString());
                 continue;

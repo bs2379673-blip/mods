@@ -1,6 +1,6 @@
 {
  "song": "despedida",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), aviso(id,ext,dur,modo=corner|center|full) -> /tacshow del mod tacui, jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -22,15 +22,6 @@
   },
   {
    "t": 0.0,
-   "fx": "sprite",
-   "id": "t_gracias",
-   "slot": "T",
-   "dur": 15.0,
-   "size": 30,
-   "pulse": 0.06
-  },
-  {
-   "t": 0.0,
    "fx": "jugadores",
    "modo": "confeti",
    "dur": 16,
@@ -38,20 +29,11 @@
   },
   {
    "t": 0.8,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u3_trio_wave",
-   "slot": "C",
-   "dur": 14.0,
-   "size": 30
-  },
-  {
-   "t": 1.4,
-   "fx": "sprite",
-   "id": "s_sparkle_gold",
-   "slot": "LRH",
-   "dur": 13.0,
-   "size": 11,
-   "spin": 30
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 1.5,

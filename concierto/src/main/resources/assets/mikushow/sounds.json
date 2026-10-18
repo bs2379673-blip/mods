@@ -1,0 +1,92 @@
+{
+ "show.static": {
+  "category": "record",
+  "sounds": [
+   {
+    "name": "mikushow:show/static",
+    "stream": true
+   }
+  ]
+ },
+ "show.konton_boogie": {
+  "category": "record",
+  "sounds": [
+   {
+    "name": "mikushow:show/konton_boogie",
+    "stream": true
+   }
+  ]
+ },
+ "show.melt": {
+  "category": "record",
+  "sounds": [
+   {
+    "name": "mikushow:show/melt",
+    "stream": true
+   }
+  ]
+ },
+ "show.magical_cure": {
+  "category": "record",
+  "sounds": [
+   {
+    "name": "mikushow:show/magical_cure",
+    "stream": true
+   }
+  ]
+ },
+ "show.looping_the_rooms": {
+  "category": "record",
+  "sounds": [
+   {
+    "name": "mikushow:show/looping_the_rooms",
+    "stream": true
+   }
+  ]
+ },
+ "show.anamanaguchi": {
+  "category": "record",
+  "sounds": [
+   {
+    "name": "mikushow:show/anamanaguchi",
+    "stream": true
+   }
+  ]
+ },
+ "show.minna_miku_miku": {
+  "category": "record",
+  "sounds": [
+   {
+    "name": "mikushow:show/minna_miku_miku",
+    "stream": true
+   }
+  ]
+ },
+ "show.intro": {
+  "category": "record",
+  "sounds": [
+   {
+    "name": "mikushow:show/intro",
+    "stream": true
+   }
+  ]
+ },
+ "show.mesmerizer": {
+  "category": "record",
+  "sounds": [
+   {
+    "name": "mikushow:show/mesmerizer",
+    "stream": true
+   }
+  ]
+ },
+ "show.triple_baka": {
+  "category": "record",
+  "sounds": [
+   {
+    "name": "mikushow:show/triple_baka",
+    "stream": true
+   }
+  ]
+ }
+}

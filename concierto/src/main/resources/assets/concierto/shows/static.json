@@ -1,6 +1,6 @@
 {
  "song": "static",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), aviso(id,ext,dur,modo=corner|center|full) -> /tacshow del mod tacui, jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -19,15 +19,6 @@
     "#ff3a5a",
     "#e8ffff"
    ]
-  },
-  {
-   "t": 2.031,
-   "fx": "sprite",
-   "id": "t_static",
-   "slot": "T",
-   "dur": 5.5,
-   "size": 28,
-   "pulse": 0.06
   },
   {
    "t": 5.921,
@@ -134,10 +125,11 @@
   },
   {
    "t": 59.539,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 21.06
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 60.116,
@@ -196,18 +188,11 @@
   },
   {
    "t": 82.295,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 18.52
-  },
-  {
-   "t": 82.295,
-   "fx": "sprite",
-   "id": "u_01",
-   "slot": "H",
-   "dur": 18.52,
-   "size": 16
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 83.0,
@@ -242,18 +227,11 @@
   },
   {
    "t": 102.52,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 16.11
-  },
-  {
-   "t": 102.52,
-   "fx": "sprite",
-   "id": "u_01",
-   "slot": "H",
-   "dur": 16.11,
-   "size": 16
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 105.442,
@@ -377,10 +355,11 @@
   },
   {
    "t": 148.147,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 28.65
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 151.266,
@@ -468,18 +447,11 @@
   },
   {
    "t": 201.228,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 33.3
-  },
-  {
-   "t": 201.228,
-   "fx": "sprite",
-   "id": "u_01",
-   "slot": "H",
-   "dur": 33.3,
-   "size": 16
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 204.312,

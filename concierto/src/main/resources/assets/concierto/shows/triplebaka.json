@@ -1,6 +1,6 @@
 {
  "song": "triple_baka",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), aviso(id,ext,dur,modo=corner|center|full) -> /tacshow del mod tacui, jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -20,15 +20,6 @@
     "#39c5bb",
     "#ff3a5a"
    ]
-  },
-  {
-   "t": 1.5,
-   "fx": "sprite",
-   "id": "t_triplebaka",
-   "slot": "T",
-   "dur": 5.5,
-   "size": 28,
-   "pulse": 0.06
   },
   {
    "t": 18.042,
@@ -51,11 +42,11 @@
   },
   {
    "t": 18.742,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 27.63,
-   "size": 24
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 47.369,
@@ -100,27 +91,11 @@
   },
   {
    "t": 48.069,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u3_trio_wave",
-   "slot": "C",
-   "dur": 22.31,
-   "size": 30
-  },
-  {
-   "t": 48.069,
-   "fx": "sprite",
-   "id": "u3_neru_phone",
-   "slot": "L1",
-   "dur": 22.31,
-   "size": 19
-  },
-  {
-   "t": 48.069,
-   "fx": "sprite",
-   "id": "u3_teto_box",
-   "slot": "R1",
-   "dur": 22.31,
-   "size": 19
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 48.367,
@@ -179,11 +154,11 @@
   },
   {
    "t": 72.078,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 19.63,
-   "size": 24
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 92.706,
@@ -206,11 +181,11 @@
   },
   {
    "t": 93.406,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 8.97,
-   "size": 24
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 103.375,
@@ -262,27 +237,11 @@
   },
   {
    "t": 104.075,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u3_trio_wink",
-   "slot": "C",
-   "dur": 33.3,
-   "size": 32
-  },
-  {
-   "t": 104.075,
-   "fx": "sprite",
-   "id": "u3_neru_phone",
-   "slot": "L1",
-   "dur": 33.3,
-   "size": 19
-  },
-  {
-   "t": 104.075,
-   "fx": "sprite",
-   "id": "u3_teto_box",
-   "slot": "R1",
-   "dur": 33.3,
-   "size": 19
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 104.362,
@@ -373,27 +332,11 @@
   },
   {
    "t": 149.412,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u3_trio_wave",
-   "slot": "C",
-   "dur": 11.63,
-   "size": 30
-  },
-  {
-   "t": 149.412,
-   "fx": "sprite",
-   "id": "u3_neru_phone",
-   "slot": "L1",
-   "dur": 11.63,
-   "size": 19
-  },
-  {
-   "t": 149.412,
-   "fx": "sprite",
-   "id": "u3_teto_box",
-   "slot": "R1",
-   "dur": 11.63,
-   "size": 19
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 152.033,
@@ -431,11 +374,11 @@
   },
   {
    "t": 162.74,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 8.9,
-   "size": 22
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   }
  ]
 }

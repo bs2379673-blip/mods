@@ -10,6 +10,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(Concierto.MODID)
 public class Concierto {
     public static final String MODID = "concierto";
+    public static final org.slf4j.Logger LOGGER = com.mojang.logging.LogUtils.getLogger();
 
     public Concierto() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();

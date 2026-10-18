@@ -44,17 +44,33 @@ class Show:
         if big:
             self.fx(t, "shock")
 
+    GIFS = set("u_magical u_beam u2_wink u2_chibi u2_fly u2_swirl u2_teary u2_magicard u3_maid_duo u3_neru_phone u3_teto_box u3_teto_sketch u3_trio_wave u3_trio_wink".split())
     BAN = {"s_spiral", "s_eye", "s_eyes", "s_heart", "s_heart_teal", "s_heartdrip", "s_sundrip", "s_synthsun", "s_note_pink", "s_note_teal", "s_eq", "s_tv",
            "s_rainbow", "s_cursor", "s_pxleek", "s_bolt", "s_bolt_red", "s_star", "s_star_pink", "s_magiccircle", "u_pxheart"}
 
     def save(self):
         # sin stickers tipo emoji: quedan el arte de Miku (u_*), los titulos (t_*) y los brillos (anillos, destellos)
-        self.cues = [c for c in self.cues if not (c.get("fx") == "sprite" and c.get("id") in self.BAN)]
+        # 1.8: sin stickers ni rayo de Miku. Solo los GIF y stickers del usuario (u_*, u2_*, u3_*) salen como aviso en pantalla (mod tacui, /tacshow)
+        cues, last = [], -99.0
+        for c in sorted(self.cues, key=lambda c: c["t"]):
+            if c.get("fx") == "rayo":
+                continue
+            if c.get("fx") == "sprite":
+                i = c.get("id", "")
+                if i.startswith("u") and i != "u_pxheart":
+                    big = i in ("u_beam", "u_magical")
+                    if big or c["t"] - last >= 8.0:
+                        ext = "gif" if i in self.GIFS else "png"
+                        cues.append(dict(t=c["t"], fx="aviso", id=i, ext=ext, dur=round(min(max(c.get("dur", 4), 3.0), 6.0), 2), modo="center" if big else "corner"))
+                        last = c["t"]
+                continue
+            cues.append(c)
+        self.cues = cues
         self.cues.sort(key=lambda c: (c["t"], 0 if "fx" not in c else 1))
         os.makedirs(DST, exist_ok=True)
         key = self.name.replace("_", "").lower()
         json.dump(dict(song=self.name, _nota="t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. "
-                       "fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
+                       "fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), aviso(id,ext,dur,modo=corner|center|full) -> /tacshow del mod tacui, jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
                        cues=self.cues), open(os.path.join(DST, key + ".json"), "w"), indent=1, ensure_ascii=False)
         print(f"{key}: {len(self.cues)} ordenes")
 

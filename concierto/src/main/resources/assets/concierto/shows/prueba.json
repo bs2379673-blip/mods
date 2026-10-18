@@ -33,10 +33,12 @@
    "n": 8
   },
   {
-   "t": 3.0,
-   "fx": "rayo",
-   "carga": 1.5,
-   "dur": 4.0
+   "t": 4.0,
+   "fx": "aviso",
+   "id": "u_head_happy",
+   "ext": "png",
+   "dur": 4,
+   "modo": "center"
   },
   {
    "t": 4.5,
@@ -44,26 +46,10 @@
    "dur": 3.0
   },
   {
-   "t": 5.0,
-   "fx": "sprite",
-   "id": "u_head_happy",
-   "slot": "C",
-   "dur": 9,
-   "size": 28
-  },
-  {
    "t": 6,
    "scene": "meltglow",
    "floor": "ripple",
    "beams": "fan"
-  },
-  {
-   "t": 6.5,
-   "fx": "sprite",
-   "id": "u3_trio_wave",
-   "slot": "LRH",
-   "dur": 7.5,
-   "size": 13
   },
   {
    "t": 8,

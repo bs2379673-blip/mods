@@ -1,6 +1,6 @@
 {
  "song": "anamanaguchi",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), aviso(id,ext,dur,modo=corner|center|full) -> /tacshow del mod tacui, jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -80,19 +80,11 @@
   },
   {
    "t": 27.821,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 17.05,
-   "size": 28
-  },
-  {
-   "t": 27.821,
-   "fx": "sprite",
-   "id": "u_leek",
-   "slot": "LRH",
-   "dur": 17.05,
-   "size": 13
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 29.002,
@@ -138,11 +130,11 @@
   },
   {
    "t": 46.571,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 13.3,
-   "size": 26
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 46.811,
@@ -188,11 +180,11 @@
   },
   {
    "t": 61.571,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 13.3,
-   "size": 26
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 65.097,
@@ -324,19 +316,11 @@
   },
   {
    "t": 121.571,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 13.3,
-   "size": 28
-  },
-  {
-   "t": 121.571,
-   "fx": "sprite",
-   "id": "u_leek",
-   "slot": "LRH",
-   "dur": 13.3,
-   "size": 13
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 124.633,
@@ -378,19 +362,11 @@
   },
   {
    "t": 136.572,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 13.3,
-   "size": 28
-  },
-  {
-   "t": 136.572,
-   "fx": "sprite",
-   "id": "u_leek",
-   "slot": "LRH",
-   "dur": 13.3,
-   "size": 13
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 140.086,
@@ -468,11 +444,11 @@
   },
   {
    "t": 166.572,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 11.43,
-   "size": 26
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 169.157,
@@ -510,11 +486,11 @@
   },
   {
    "t": 179.703,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_head_smug",
-   "slot": "C",
-   "dur": 7.68,
-   "size": 26
+   "ext": "png",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 183.693,

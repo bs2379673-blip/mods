@@ -1,6 +1,6 @@
 {
  "song": "mesmerizer",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), aviso(id,ext,dur,modo=corner|center|full) -> /tacshow del mod tacui, jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -22,12 +22,11 @@
   },
   {
    "t": 2.53,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u_mesmerizer",
-   "slot": "T",
+   "ext": "png",
    "dur": 5.5,
-   "size": 28,
-   "pulse": 0.06
+   "modo": "corner"
   },
   {
    "t": 14.06,
@@ -107,19 +106,11 @@
   },
   {
    "t": 35.518,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u3_maid_duo",
-   "slot": "L1",
-   "dur": 32.03,
-   "size": 21
-  },
-  {
-   "t": 35.518,
-   "fx": "sprite",
-   "id": "u3_teto_sketch",
-   "slot": "R1",
-   "dur": 32.03,
-   "size": 21
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 39.033,
@@ -203,19 +194,11 @@
   },
   {
    "t": 79.625,
-   "fx": "sprite",
+   "fx": "aviso",
    "id": "u3_maid_duo",
-   "slot": "L1",
-   "dur": 16.48,
-   "size": 21
-  },
-  {
-   "t": 79.625,
-   "fx": "sprite",
-   "id": "u3_teto_sketch",
-   "slot": "R1",
-   "dur": 16.48,
-   "size": 21
+   "ext": "gif",
+   "dur": 6.0,
+   "modo": "corner"
   },
   {
    "t": 85.415,
