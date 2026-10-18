@@ -1,0 +1,30 @@
+CONCIERTO - cielo de concierto reactivo a la musica (Forge 1.20.1)
+
+Poner el jar en el SERVIDOR y en todos los CLIENTES.
+
+ARCHIVOS DE AUDIO
+  Cada cliente necesita el .ogg de la cancion para analizarlo (el mod saca el espectro solo, al empezar).
+  Lo busca, en este orden, en:  config/concierto/<cancion>.ogg
+                                config/customsounds/sounds/<cancion>.ogg
+                                resource packs:  customsounds:sounds/<cancion>.ogg
+  Si no lo encuentra avisa en el chat y usa un ritmo de prueba (el cielo igual se mueve).
+
+COMANDOS (nivel 2, sirven en bloques de comandos)
+  /concierto iniciar <cancion> [escena|auto] [audio true|false]
+        Ej:  /concierto iniciar static          (auto: cambia de escena cada 16 s)
+             /concierto iniciar melt milkdrop
+        Con audio=true (por defecto) el servidor tambien lanza  playsound customsounds:<cancion>
+        (volumen 4, se escucha a 64 bloques). Si ya lanzas el sonido por otro lado usa  false.
+  /concierto escena <nombre|auto>      cambia la escena en vivo
+  /concierto intensidad <0-2>          brillo general (1 = normal)
+  /concierto estrobo <0-1>             destellos blancos con los golpes y al cambiar de escena (0 = sin destellos; defecto 0.5)
+  /concierto detener                   apaga con fundido y corta el sonido
+  /concierto lista
+
+ESCENAS
+  spectrum  oscilloscope  starfield  kaleidoscope  milkdrop  magnetosphere  cthugha  fireworks
+
+NOTAS
+  - Todos ven lo mismo a la vez: el servidor manda la hora de inicio; quien entra tarde se engancha en el punto justo.
+  - El cielo se dibuja entero (tambien bajo el horizonte) y los bloques quedan por delante.
+  - Los destellos pueden molestar con fotosensibilidad: /concierto estrobo 0 los apaga.
