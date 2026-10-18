@@ -1,6 +1,6 @@
 {
  "song": "magical_cure",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
  "cues": [
   {
    "t": 0.0,
@@ -63,6 +63,11 @@
    "t": 10.414,
    "fx": "pyro",
    "dur": 3.0
+  },
+  {
+   "t": 10.814,
+   "fx": "fuegos",
+   "dur": 14.0
   },
   {
    "t": 11.114,
@@ -193,6 +198,11 @@
    "t": 50.422,
    "fx": "pyro",
    "dur": 3.0
+  },
+  {
+   "t": 50.822,
+   "fx": "fuegos",
+   "dur": 7.0
   },
   {
    "t": 51.122,
@@ -473,20 +483,6 @@
   },
   {
    "t": 95.42,
-   "fx": "column",
-   "col": "#39c5bb",
-   "size": 9,
-   "dur": 7.499999999999986
-  },
-  {
-   "t": 95.42,
-   "fx": "column",
-   "col": "#ffffff",
-   "size": 4,
-   "dur": 7.499999999999986
-  },
-  {
-   "t": 95.42,
    "fx": "pyro",
    "dur": 4.0
   },
@@ -519,6 +515,16 @@
   },
   {
    "t": 95.42,
+   "fx": "sprite",
+   "id": "u_beam",
+   "slot": "C",
+   "dur": 8.5,
+   "size": 40,
+   "pulse": 0.08,
+   "bob": 0.4
+  },
+  {
+   "t": 95.42,
    "fx": "jugadores",
    "modo": "brillo",
    "dur": 8,
@@ -545,19 +551,16 @@
   {
    "t": 95.82,
    "fx": "sprite",
-   "id": "u_magical",
-   "slot": "C",
-   "dur": 7.5,
-   "size": 22
-  },
-  {
-   "t": 95.82,
-   "fx": "sprite",
    "id": "s_sparkle_teal",
    "slot": "LRH",
    "dur": 7.5,
    "spin": 40,
    "size": 12
+  },
+  {
+   "t": 96.62,
+   "fx": "fuegos",
+   "dur": 8.0
   },
   {
    "t": 97.82,
@@ -616,6 +619,11 @@
    "t": 115.415,
    "fx": "pyro",
    "dur": 3.0
+  },
+  {
+   "t": 115.815,
+   "fx": "fuegos",
+   "dur": 14.0
   },
   {
    "t": 116.115,
@@ -772,6 +780,11 @@
    "t": 170.411,
    "fx": "pyro",
    "dur": 3.0
+  },
+  {
+   "t": 170.811,
+   "fx": "fuegos",
+   "dur": 14.0
   },
   {
    "t": 171.0,

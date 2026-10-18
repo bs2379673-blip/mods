@@ -49,7 +49,7 @@ class Show:
         os.makedirs(DST, exist_ok=True)
         key = self.name.replace("_", "").lower()
         json.dump(dict(song=self.name, _nota="t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. "
-                       "fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+                       "fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
                        cues=self.cues), open(os.path.join(DST, key + ".json"), "w"), indent=1, ensure_ascii=False)
         print(f"{key}: {len(self.cues)} ordenes")
 
@@ -91,6 +91,8 @@ def build(name, plan, extra=None):
             sh.onset(t0)
             if role in plan.get("pyro", ()):
                 sh.fx(t0, "pyro", dur=3.0)
+                if s["t1"] - t0 > 6.0:
+                    sh.fx(t0 + 0.4, "fuegos", dur=round(min(14.0, s["t1"] - t0 - 3.0), 1))
         elif i and role == "climax" and prev == "chorus":
             sh.onset(t0, big=False)
         # stickers y GIF de esta parte, siempre en los mismos casilleros
@@ -300,14 +302,14 @@ def extra_magical(sh, d, section_at, role_look):
     sh.fx(BEAM_T, "flash")
     sh.fx(BEAM_T, "nova")
     sh.fx(BEAM_T, "shock")
-    sh.fx(BEAM_T, "column", col=TEAL, size=9, dur=BEAM_END - BEAM_T - 1)
-    sh.fx(BEAM_T, "column", col=WHITE, size=4, dur=BEAM_END - BEAM_T - 1)
     sh.fx(BEAM_T, "pyro", dur=4.0)
     sh.fx(BEAM_T + 2.4, "pyro", dur=3.0)
     sh.spr(BEAM_T, "t_beam", "T", 5.0, size=30, pulse=0.2)
     sh.spr(BEAM_T, "s_ring", "C", BEAM_END - BEAM_T, size=30, pulse=0.35)
     sh.spr(BEAM_T, "s_ring_pink", "C", BEAM_END - BEAM_T, size=38, pulse=0.5)
-    sh.spr(BEAM_T + 0.4, "u_magical", "C", BEAM_END - BEAM_T - 1.0, size=22)
+    # el GIF de Miku lanzando el rayo, grande al centro, durante todo el rayo
+    sh.spr(BEAM_T, "u_beam", "C", BEAM_END - BEAM_T, size=40, pulse=0.08, bob=0.4)
+    sh.fx(BEAM_T + 1.2, "fuegos", dur=8.0)
     sh.spr(BEAM_T + 0.4, "s_sparkle_teal", "LRH", BEAM_END - BEAM_T - 1.0, spin=40, size=12)
     sh.fx(BEAM_T, "jugadores", modo="brillo", dur=8, radio=80)
     i, s = section_at(BEAM_END + 0.01)
@@ -375,6 +377,7 @@ def intro():
     sh.fx(IMP, "nova")
     sh.fx(IMP, "shock")
     sh.fx(IMP, "pyro", dur=4.0)
+    sh.fx(IMP + 0.8, "fuegos", dur=7.0)
     sh.spr(IMP + 0.1, "t_go", "T", 4.0, size=24, pulse=0.3)
     sh.save()
 
@@ -399,7 +402,7 @@ short("pre_triple_baka", [dict(t=0.1, fx="estrella", col="#f2d21b", dur=2.9, sid
       L("baka", "ripple", 0.6, "slow", True, [GOLD, TEAL, RED], 0.6, 0.3, 0.6))
 
 # despedida de las tres: fuegos de colores a lo largo de los tiempos del datapack (2, 4.2, 7.5, 9, 10.5 y 13 s)
-FIN = [dict(t=0.0, fx="sprite", id="t_gracias", slot="T", dur=15.0, size=30, pulse=0.06),
+FIN = [dict(t=1.5, fx="fuegos", dur=12.0, n=26), dict(t=0.0, fx="sprite", id="t_gracias", slot="T", dur=15.0, size=30, pulse=0.06),
        dict(t=0.8, fx="sprite", id="u3_trio_wave", slot="C", dur=14.0, size=30),
        dict(t=1.0, fx="sprite", id="s_heart", slot="LR1", dur=13.5, size=16),
        dict(t=1.4, fx="sprite", id="s_sparkle_gold", slot="LRH", dur=13.0, size=11, spin=30),

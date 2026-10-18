@@ -645,6 +645,14 @@ vec3 sceneObscure(vec3 d, float t) {
     col += P0 * rings + P0 * exp(-r * 6.0) * (0.15 + 0.5 * beat);
     // rendija de luz vertical al fondo
     col += mix(P0, vec3(1.0), 0.4) * exp(-pow(ae.x * 14.0, 2.0)) * exp(-el * 2.2) * (0.25 + 0.5 * Level + 0.5 * beat);
+    // luna grande detras del escenario con rayos lentos
+    vec2 mq = vec2(ae.x, el - 0.52);
+    float mr = length(mq), ma = atan(mq.y, mq.x);
+    float rays = pow(0.5 + 0.5 * sin(ma * 11.0 + t * 0.15), 3.0) * exp(-mr * 2.2);
+    col += mix(P0, vec3(1.0), 0.5) * rays * (0.18 + 0.35 * Level);
+    col += mix(P0, vec3(1.0), 0.6) * smoothstep(0.17, 0.15, mr) * (0.55 + 0.5 * Level + 0.4 * beat);
+    col += P0 * exp(-mr * mr * 14.0) * (0.35 + 0.6 * Level);
+    col *= 1.5;
     col += stars(ae, el, t) * 0.9;
     return col;
 }

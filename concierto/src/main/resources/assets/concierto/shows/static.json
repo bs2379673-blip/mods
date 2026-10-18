@@ -1,6 +1,6 @@
 {
  "song": "static",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
  "cues": [
   {
    "t": 0.0,
@@ -134,6 +134,11 @@
    "t": 58.839,
    "fx": "pyro",
    "dur": 3.0
+  },
+  {
+   "t": 59.239,
+   "fx": "fuegos",
+   "dur": 14.0
   },
   {
    "t": 59.539,
@@ -360,6 +365,11 @@
    "t": 147.447,
    "fx": "pyro",
    "dur": 3.0
+  },
+  {
+   "t": 147.847,
+   "fx": "fuegos",
+   "dur": 14.0
   },
   {
    "t": 148.147,

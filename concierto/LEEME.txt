@@ -1,4 +1,4 @@
-CONCIERTO 1.3 - cielos con shaders, escenario en 3D y guiones por cancion (Forge 1.20.1, solo mod, sin CustomSkyboxes)
+CONCIERTO 1.5 - cielos con shaders, escenario en 3D y guiones por cancion (Forge 1.20.1, solo mod, sin CustomSkyboxes)
 
 QUE HACE
   Cielo con shader (10 escenas) + escenario real en el mundo: piso REDONDO que sigue la altura del terreno, dos paneles
@@ -30,4 +30,4 @@ EDITAR SIN RECOMPILAR: copiar el .json de assets/concierto/shows/ a config/conci
   flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col),
   sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo,dur,radio).
   Casilleros de sprite: C T B H L1 R1 L2 R2 L3 R3 LH RH LU RU X XL XR y pares espejados LR1 LR2 LR3 LRH LRU.
-  Escenas: spectrum oscilloscope starfield kaleidoscope milkdrop magnetosphere cthugha fireworks sunset meltglow.
+  Escenas: spectrum oscilloscope starfield kaleidoscope milkdrop magnetosphere cthugha fireworks sunset meltglow static konton magia rooms synth pop hypno baka obscure cosmos.

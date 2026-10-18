@@ -63,6 +63,39 @@ public final class Stage {
         public Pyro(float dur, float[] rgb, int seed) { this.dur = dur; this.rgb = rgb; this.seed = seed; }
     }
     public final List<Pyro> pyros = new ArrayList<>();
+
+    /** fuegos artificiales: un cohete sube desde atras del escenario y estalla en el cielo (esfera, anillo, sauce o doble) */
+    public static final class Shell {
+        public final float lat, fwd, apex, rb;
+        public final float[] c1, c2;
+        public final int kind, seed;
+        public float age;
+        public boolean burst;
+        public Shell(float lat, float fwd, float apex, float rb, float[] c1, float[] c2, int kind, int seed, float delay) {
+            this.lat = lat; this.fwd = fwd; this.apex = apex; this.rb = rb; this.c1 = c1; this.c2 = c2; this.kind = kind; this.seed = seed; this.age = -delay;
+        }
+        public float life() { return kind == 2 ? 3.6F : 2.6F; }
+    }
+    public final List<Shell> shells = new ArrayList<>();
+    public static final float RISE = 1.1F;
+
+    public void spawnShells(float dur, int count, float[][] cols, int seed) {
+        float k = Math.max(1F, scale / 4F);
+        float R = p[2] * scale * 0.75F;
+        for (int i = 0; i < count; i++) {
+            float delay = rnd(seed, i, 1) * dur;
+            float lat = (rnd(seed, i, 2) * 2F - 1F) * 0.95F * R;
+            float fwd = -(0.55F + 0.7F * rnd(seed, i, 3)) * R;
+            float apex = (42F + 34F * rnd(seed, i, 4)) * k;
+            float rb = (15F + 9F * rnd(seed, i, 5)) * k;
+            float r = rnd(seed, i, 6);
+            int kind = r < 0.4F ? 0 : r < 0.6F ? 1 : r < 0.8F ? 2 : 3;
+            float[] c1 = cols[(int) (rnd(seed, i, 7) * cols.length) % cols.length];
+            float[] c2 = cols[((int) (rnd(seed, i, 8) * cols.length) + 1) % cols.length];
+            if (kind == 2) { c1 = new float[]{1F, 0.8F, 0.35F}; c2 = new float[]{1F, 0.95F, 0.7F}; }
+            shells.add(new Shell(lat, fwd, apex, rb, c1, c2, kind, seed * 31 + i, delay));
+        }
+    }
     private float[] hts;
     private int hR, hcx, hcz;
     private long hTime;
@@ -363,5 +396,109 @@ public final class Stage {
             }
         }
         flush(bb);
+    }
+
+    /** brillo (billboard) que mira a la camara; coordenadas relativas a la camara */
+    private static void glow(V b, double hx, double hy, double hz, float[] c, double half, float a) {
+        double dist = Math.sqrt(hx * hx + hy * hy + hz * hz);
+        if (dist < 1e-3) return;
+        double nx = -hx / dist, ny = -hy / dist, nz = -hz / dist;
+        double rxv = -nz, ryv = 0, rzv = nx;
+        double rl = Math.sqrt(rxv * rxv + rzv * rzv);
+        if (rl < 1e-6) return;
+        rxv /= rl; rzv /= rl;
+        double uxv = ny * rzv - nz * ryv, uyv = nz * rxv - nx * rzv, uzv = nx * ryv - ny * rxv;
+        b.v(hx - rxv * half - uxv * half, hy - ryv * half - uyv * half, hz - rzv * half - uzv * half, c[0], c[1], c[2], a, -1F, -1F);
+        b.v(hx + rxv * half - uxv * half, hy + ryv * half - uyv * half, hz + rzv * half - uzv * half, c[0], c[1], c[2], a, 1F, -1F);
+        b.v(hx + rxv * half + uxv * half, hy + ryv * half + uyv * half, hz + rzv * half + uzv * half, c[0], c[1], c[2], a, 1F, 1F);
+        b.v(hx - rxv * half + uxv * half, hy - ryv * half + uyv * half, hz - rzv * half + uzv * half, c[0], c[1], c[2], a, -1F, 1F);
+    }
+
+    /** posicion de una chispa de la explosion: sale rapido y frena (arrastre), cae con la gravedad */
+    private static void spark(double[] out, double[] ap, double[] dir, double rb, double g, double t) {
+        double d = rb * (1.0 - Math.exp(-1.9 * t));
+        out[0] = ap[0] + dir[0] * d;
+        out[1] = ap[1] + dir[1] * d - 0.5 * g * t * t;
+        out[2] = ap[2] + dir[2] * d;
+    }
+
+    public void drawShells(ShaderInstance sh, double camX, double camY, double camZ) {
+        if (!set || shells.isEmpty()) return;
+        float k = Math.max(1F, scale / 4F);
+        double fx = fx(), fz = fz(), rx = rx(), rz = rz();
+        BufferBuilder bb = Tesselator.getInstance().getBuilder();
+        V b = new V(bb);
+        List<double[]> glows = new ArrayList<>();
+        List<float[]> glowC = new ArrayList<>();
+        set(sh, "Kind", 7F);
+        set(sh, "Alpha", 1F);
+        begin(bb);
+        double[] pa = new double[3], pb = new double[3], ap = new double[3], dir = new double[3];
+        for (Shell s : shells) {
+            if (s.age < 0F) continue;
+            double lx = x + rx * s.lat + fx * s.fwd - camX, lz = z + rz * s.lat + fz * s.fwd - camZ, ly = y - camY;
+            if (s.age < RISE) {
+                double u = s.age / RISE;
+                double hh = s.apex * (1.0 - (1.0 - u) * (1.0 - u));
+                for (int q = 0; q < 4; q++) {
+                    double u0 = Math.max(0.0, u - 0.07 * (q + 1)), u1 = Math.max(0.0, u - 0.07 * q);
+                    double h0 = s.apex * (1.0 - (1.0 - u0) * (1.0 - u0)), h1 = s.apex * (1.0 - (1.0 - u1) * (1.0 - u1));
+                    if (h1 - h0 < 1e-3) continue;
+                    strip(b, lx, ly + h0, lz, 0, 1, 0, h1 - h0, (0.05 + 0.05 * (3 - q) * 0.3) * k * 0.6, (0.08 - 0.012 * q) * k * 0.6, new float[]{1F, 0.85F, 0.55F}, 0.9F - 0.2F * q);
+                }
+                glows.add(new double[]{lx, ly + hh, lz, 0.9 * k + 0.0});
+                glowC.add(new float[]{1F, 0.9F, 0.65F, 0.9F});
+                continue;
+            }
+            double t = s.age - RISE;
+            float life = s.life();
+            if (t > life) continue;
+            ap[0] = lx; ap[1] = ly + s.apex; ap[2] = lz;
+            float fade = (float) Math.pow(Math.max(0.0, 1.0 - t / life), 1.25);
+            if (t < 0.35) { glows.add(new double[]{ap[0], ap[1], ap[2], s.rb * 0.55 * (1.0 - t / 0.35) + 1.0}); glowC.add(new float[]{s.c1[0], s.c1[1], s.c1[2], (float) (1.0 - t / 0.35)}); }
+            int n = s.kind == 1 ? 56 : s.kind == 2 ? 64 : 72;
+            double g = (s.kind == 2 ? 9.0 : 4.0) * k, tail = s.kind == 2 ? 0.34 : 0.17;
+            int layers = s.kind == 3 ? 2 : 1;
+            for (int layer = 0; layer < layers; layer++) {
+                int nn = layer == 0 ? n : 36;
+                float[] c = layer == 0 ? s.c1 : s.c2;
+                double rb = s.rb * (layer == 0 ? (s.kind == 2 ? 0.62 : 1.0) : 0.5);
+                for (int i = 0; i < nn; i++) {
+                    if (s.kind == 1) {
+                        double a = Math.PI * 2 * i / nn + rnd(s.seed, i, 21) * 0.05;
+                        dir[0] = rx * Math.cos(a); dir[1] = Math.sin(a); dir[2] = rz * Math.cos(a);
+                    } else {
+                        double yy = 1.0 - 2.0 * (i + 0.5) / nn, rr = Math.sqrt(Math.max(0.0, 1.0 - yy * yy)), ph = i * 2.399963 + layer;
+                        dir[0] = rr * Math.cos(ph); dir[1] = yy; dir[2] = rr * Math.sin(ph);
+                    }
+                    double sp = 0.88 + 0.12 * rnd(s.seed, i + layer * 100, 22);
+                    double[] dd = {dir[0] * sp, dir[1] * sp, dir[2] * sp};
+                    spark(pa, ap, dd, rb, g, t);
+                    spark(pb, ap, dd, rb, g, Math.max(0.0, t - tail));
+                    double mx = pb[0] - pa[0], my = pb[1] - pa[1], mz = pb[2] - pa[2];
+                    double len = Math.sqrt(mx * mx + my * my + mz * mz);
+                    if (len < 1e-3) continue;
+                    float tw = s.kind == 2 ? 1F : (t > 1.3 ? 0.55F + 0.45F * (float) Math.sin(t * 40.0 + i * 3.1) : 1F);
+                    float a = fade * tw;
+                    double w0 = (0.16 * k + 0.05) * (s.kind == 2 ? 0.7 : 1.0);
+                    double hx = len * 0.5;
+                    strip(b, pa[0], pa[1], pa[2], mx / len, my / len, mz / len, hx, w0, w0 * 0.7, c, a);
+                    strip(b, pa[0] + mx * 0.5, pa[1] + my * 0.5, pa[2] + mz * 0.5, mx / len, my / len, mz / len, hx, w0 * 0.7, 0.03, c, a * 0.4F);
+                    if (t < 1.2 && (i & 3) == 0) { glows.add(new double[]{pa[0], pa[1], pa[2], 0.5 * k + 0.2}); glowC.add(new float[]{1F, 0.95F, 0.8F, fade * 0.7F}); }
+                }
+            }
+        }
+        flush(bb);
+        if (!glows.isEmpty()) {
+            set(sh, "Kind", 6F);
+            set(sh, "Prog", 0F);
+            begin(bb);
+            for (int i = 0; i < glows.size(); i++) {
+                double[] gl = glows.get(i);
+                float[] gc = glowC.get(i);
+                glow(b, gl[0], gl[1], gl[2], gc, gl[3], gc[3]);
+            }
+            flush(bb);
+        }
     }
 }

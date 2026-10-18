@@ -136,7 +136,7 @@ public final class Sprites {
         if (list.isEmpty()) return;
         list.removeIf(i -> songT > i.t0 + i.dur + FADE_OUT);
         for (int pass = 0; pass < 2; pass++) {
-            boolean addPass = pass == 1;
+            boolean addPass = pass == 0; // primero los brillos aditivos (detras) y encima los stickers opacos, asi nada los lava a blanco
             ShaderInstance sh = addPass ? fxAdd : fx;
             boolean any = false;
             for (Inst i : list) if (i.add == addPass) { any = true; break; }

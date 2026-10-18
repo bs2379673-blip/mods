@@ -264,7 +264,7 @@ public final class Show {
                                 .then(Commands.argument("radio", FloatArgumentType.floatArg(5F, 400F))
                                         .executes(c -> Players.apply(c.getSource().getServer(), StringArgumentType.getString(c, "modo"), FloatArgumentType.getFloat(c, "segundos"), stageOr(c.getSource()), FloatArgumentType.getFloat(c, "radio")))))))
                 .then(Commands.literal("efecto").then(Commands.argument("nombre", StringArgumentType.word())
-                        .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("destello", "nova", "onda", "apagon", "pirotecnia"), b))
+                        .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("destello", "nova", "onda", "apagon", "pirotecnia", "fuegos"), b))
                         .executes(c -> {
                             Net.sendAll(new Net.Msg(Net.FX, StringArgumentType.getString(c, "nombre"), 0, 0F, 0F, 0F));
                             return 1;
