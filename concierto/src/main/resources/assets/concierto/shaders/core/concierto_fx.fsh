@@ -64,14 +64,18 @@ vec4 floorCell() {
     vec3 col = fill + lineC * line * (0.55 + 0.45 * Beat + 0.3 * Level);
     // onda de choque desde el centro del escenario
     if (Shock >= 0.0) {
-        float r = Shock * 18.0;
+        float r = Shock * 9.0;
         float band = exp(-pow((d - r) * 2.4, 2.0)) * (1.0 - Shock);
         col += mix(P2, vec3(1.0), 0.6) * band * 1.2;
     }
     col += vec3(Flash * 0.12);
-    col = 1.0 - exp(-col * 1.3);
-    float edgeFade = smoothstep(1.0, 0.82, abs(vColor.r)) * smoothstep(1.0, 0.86, vColor.g) * smoothstep(0.0, 0.04, vColor.g);
-    float a = clamp(0.80 + 0.2 * line, 0.0, 1.0) * edgeFade;
+    float rr = length(vColor.rg);
+    float edgeFade = smoothstep(1.0, 0.92, rr);
+    // aro luminoso en el borde de la tarima redonda y brillo suave hacia afuera
+    float rim = exp(-pow((rr - 0.955) * 28.0, 2.0));
+    col += mix(P2, vec3(1.0), 0.5) * rim * (0.7 + 0.5 * Beat);
+    col = 1.0 - exp(-col * 1.15);
+    float a = clamp(0.72 + 0.2 * line + 0.2 * rim, 0.0, 1.0) * edgeFade;
     return vec4(col, a * Alpha);
 }
 

@@ -38,7 +38,7 @@ public final class ConciertoClient {
     private static final Map<String, Track> CACHE = new ConcurrentHashMap<>();
     private static final Set<String> LOADING = ConcurrentHashMap.newKeySet();
 
-    private static ShaderInstance sky, fx;
+    private static ShaderInstance sky, fx, fxAdd;
     private static boolean failed;
 
     private static boolean active, stopping;
@@ -70,6 +70,8 @@ public final class ConciertoClient {
                         DefaultVertexFormat.POSITION), s -> sky = s);
                 e.registerShader(new ShaderInstance(e.getResourceProvider(), new ResourceLocation(Concierto.MODID, "concierto_fx"),
                         DefaultVertexFormat.POSITION_COLOR_TEX), s -> fx = s);
+                e.registerShader(new ShaderInstance(e.getResourceProvider(), new ResourceLocation(Concierto.MODID, "concierto_fxadd"),
+                        DefaultVertexFormat.POSITION_COLOR_TEX), s -> fxAdd = s);
             } catch (IOException ex) {
                 failed = true;
             }
@@ -266,7 +268,7 @@ public final class ConciertoClient {
             if (!update(dt, t) || sky == null) return;
             drawSky(e);
         } else if (st == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
-            if (fx == null || CACHE.get(key) == null) return;
+            if (fx == null || fxAdd == null || CACHE.get(key) == null) return;
             drawStage(e);
         }
     }
@@ -354,11 +356,11 @@ public final class ConciertoClient {
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
         RenderSystem.setShader(() -> fx);
-        RenderSystem.blendFunc(com.mojang.blaze3d.platform.GlStateManager.SourceFactor.SRC_ALPHA, com.mojang.blaze3d.platform.GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         stage.draw(fx, cam.x, cam.y, cam.z, ringOn, floorA * alpha, eqA * alpha, ringA * alpha);
-        RenderSystem.blendFunc(com.mojang.blaze3d.platform.GlStateManager.SourceFactor.SRC_ALPHA, com.mojang.blaze3d.platform.GlStateManager.DestFactor.ONE);
-        stage.drawBeams(fx, cam.x, cam.y, cam.z, Math.max(0F, songT), beamMode, beamsA * alpha, kickEnv, bass, level, pal);
-        stage.drawColumns(fx, cam.x, cam.y, cam.z);
+        // la mezcla la define el json de cada shader: fxadd es aditivo (rayos y columnas)
+        RenderSystem.setShader(() -> fxAdd);
+        stage.drawBeams(fxAdd, cam.x, cam.y, cam.z, Math.max(0F, songT), beamMode, beamsA * alpha, kickEnv, bass, level, pal);
+        stage.drawColumns(fxAdd, cam.x, cam.y, cam.z);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
         RenderSystem.depthMask(true);

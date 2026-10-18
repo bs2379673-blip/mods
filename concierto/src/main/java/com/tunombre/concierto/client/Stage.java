@@ -87,12 +87,12 @@ public final class Stage {
         if (floorA > 0.003F) {
             set(sh, "Kind", 0F);
             set(sh, "Alpha", floorA);
-            float z0 = p[0] * S, z1 = p[1] * S, hw = p[2] * S;
+            // piso redondo centrado en el escenario; radio = piso_ancho * escala * 0.75
+            float R = p[2] * S * 0.75F;
             begin(bb);
-            double[][] c = {{-hw, z0}, {hw, z0}, {hw, z1}, {-hw, z1}};
+            double[][] c = {{-R, -R}, {R, -R}, {R, R}, {-R, R}};
             for (double[] q : c) {
-                float lat = (float) (q[0] / hw), fwd = (float) ((q[1] - z0) / (z1 - z0));
-                b.v(ox + rx * q[0] + fx * q[1], oy, oz + rz * q[0] + fz * q[1], lat, fwd, 0F, 1F, (float) q[0] + 0.5F, (float) q[1] + 0.5F);
+                b.v(ox + rx * q[0] + fx * q[1], oy, oz + rz * q[0] + fz * q[1], (float) (q[0] / R), (float) (q[1] / R), 0F, 1F, (float) q[0] + 0.5F, (float) q[1] + 0.5F);
             }
             flush(bb);
         }
@@ -163,7 +163,7 @@ public final class Stage {
             double dxl = Math.cos(el) * Math.sin(az), dyl = Math.sin(el), dzl = Math.cos(el) * Math.cos(az);
             double dx = rx * dxl + fx * dzl, dy = dyl, dz = rz * dxl + fz * dzl;
             double ox = bx0 + rx * lat + fx * back, oy = by0, oz = bz0 + rz * lat + fz * back;
-            strip(b, ox, oy, oz, dx, dy, dz, p[10] * S, 0.6 * S, 2.6 * S, cols[i % 4], inten);
+            strip(b, ox, oy, oz, dx, dy, dz, p[10] * S, 0.22 * S, 1.1 * S, cols[i % 4], inten);
         }
         flush(bb);
     }

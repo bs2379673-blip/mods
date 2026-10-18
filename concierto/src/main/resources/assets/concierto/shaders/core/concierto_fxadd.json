@@ -1,0 +1,244 @@
+{
+ "vertex": "concierto:concierto_fx",
+ "fragment": "concierto:concierto_fx",
+ "attributes": [
+  "Position",
+  "Color",
+  "UV0"
+ ],
+ "samplers": [],
+ "uniforms": [
+  {
+   "name": "ModelViewMat",
+   "type": "matrix4x4",
+   "count": 16,
+   "values": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "name": "ProjMat",
+   "type": "matrix4x4",
+   "count": 16,
+   "values": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "name": "Kind",
+   "type": "float",
+   "count": 1,
+   "values": [
+    0
+   ]
+  },
+  {
+   "name": "Time",
+   "type": "float",
+   "count": 1,
+   "values": [
+    0
+   ]
+  },
+  {
+   "name": "Alpha",
+   "type": "float",
+   "count": 1,
+   "values": [
+    1
+   ]
+  },
+  {
+   "name": "Level",
+   "type": "float",
+   "count": 1,
+   "values": [
+    0
+   ]
+  },
+  {
+   "name": "Bass",
+   "type": "float",
+   "count": 1,
+   "values": [
+    0
+   ]
+  },
+  {
+   "name": "Mid",
+   "type": "float",
+   "count": 1,
+   "values": [
+    0
+   ]
+  },
+  {
+   "name": "High",
+   "type": "float",
+   "count": 1,
+   "values": [
+    0
+   ]
+  },
+  {
+   "name": "Beat",
+   "type": "float",
+   "count": 1,
+   "values": [
+    0
+   ]
+  },
+  {
+   "name": "Flash",
+   "type": "float",
+   "count": 1,
+   "values": [
+    0
+   ]
+  },
+  {
+   "name": "FloorMode",
+   "type": "float",
+   "count": 1,
+   "values": [
+    1
+   ]
+  },
+  {
+   "name": "PanelGain",
+   "type": "float",
+   "count": 1,
+   "values": [
+    1
+   ]
+  },
+  {
+   "name": "Shock",
+   "type": "float",
+   "count": 1,
+   "values": [
+    -1
+   ]
+  },
+  {
+   "name": "Prog",
+   "type": "float",
+   "count": 1,
+   "values": [
+    1
+   ]
+  },
+  {
+   "name": "Scale",
+   "type": "float",
+   "count": 1,
+   "values": [
+    4
+   ]
+  },
+  {
+   "name": "P0",
+   "type": "float",
+   "count": 3,
+   "values": [
+    1,
+    1,
+    1
+   ]
+  },
+  {
+   "name": "P1",
+   "type": "float",
+   "count": 3,
+   "values": [
+    1,
+    1,
+    1
+   ]
+  },
+  {
+   "name": "P2",
+   "type": "float",
+   "count": 3,
+   "values": [
+    1,
+    1,
+    1
+   ]
+  },
+  {
+   "name": "Spec",
+   "type": "float",
+   "count": 32,
+   "values": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  }
+ ],
+ "blend": {
+  "func": "add",
+  "srcrgb": "srcalpha",
+  "dstrgb": "one"
+ }
+}
