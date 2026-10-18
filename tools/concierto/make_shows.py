@@ -360,8 +360,8 @@ def intro():
         sh.spr(tc, f"t_321_{i + 1}", "C", BAR - 0.2, size=15 + 7 * i, pulse=0.3)
         sh.fx(tc, "flash")
         sh.fx(tc, "shock")
-    # la estrella de Miku sobrevuela todo el cielo y cae en el escenario justo antes del corte
-    sh.fx(CUT - 3.6, "estrella", col=TEAL, dur=3.4, side=1)
+    # la estrella de Miku sobrevuela todo el cielo (tambien durante el corte, en oscuridad) y cae en el escenario justo en el impacto
+    sh.fx(IMP - 4.0, "estrella", col=TEAL, dur=4.0, side=1)
     # redoble: destellos cada vez mas rapidos
     b8 = 8 * BAR
     tt = b8
@@ -393,9 +393,9 @@ intro()
 short("intermedio", [dict(t=0.5, fx="sprite", id="s_sparkle_teal", slot="LRH", dur=30, spin=12, size=11)],
       L("starfield", "off", 0.0, "off", True, [TEAL, "#7a5cff", "#d8fffb"], 0.15, 0.05, 0.2))
 # antes de Mesmerizer entra Teto, antes de Triple Baka entra Neru: estrella de su color
-short("pre_mesmerizer", [dict(t=0.2, fx="estrella", col="#e0324b", dur=3.0, side=-1), dict(t=3.2, fx="pyro", dur=2.5, col="#e0324b")],
+short("pre_mesmerizer", [dict(t=0.1, fx="estrella", col="#e0324b", dur=2.9, side=-1), dict(t=3.2, fx="pyro", dur=2.5, col="#e0324b")],
       L("kaleidoscope", "ripple", 0.6, "slow", True, [RED, VIO, "#ffd0d8"], 0.6, 0.3, 0.6))
-short("pre_triple_baka", [dict(t=0.2, fx="estrella", col="#f2d21b", dur=3.0, side=1), dict(t=3.2, fx="pyro", dur=2.5, col="#f2d21b")],
+short("pre_triple_baka", [dict(t=0.1, fx="estrella", col="#f2d21b", dur=2.9, side=1), dict(t=3.2, fx="pyro", dur=2.5, col="#f2d21b")],
       L("spectrum", "ripple", 0.6, "slow", True, [GOLD, TEAL, RED], 0.6, 0.3, 0.6))
 
 # despedida de las tres: fuegos de colores a lo largo de los tiempos del datapack (2, 4.2, 7.5, 9, 10.5 y 13 s)

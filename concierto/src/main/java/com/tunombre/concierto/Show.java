@@ -72,8 +72,9 @@ public final class Show {
                 if (in != null) r = new InputStreamReader(in, StandardCharsets.UTF_8);
             }
             if (r == null) return;
-            try (r) {
-                JsonElement root = JsonParser.parseReader(r);
+            final Reader rr = r;
+            try (rr) {
+                JsonElement root = JsonParser.parseReader(rr);
                 for (JsonElement e : root.getAsJsonObject().getAsJsonArray("cues")) {
                     JsonObject o = e.getAsJsonObject();
                     if (o.has("fx") && o.get("fx").getAsString().equals("jugadores")) srvCues.add(o);

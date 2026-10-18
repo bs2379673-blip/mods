@@ -386,7 +386,9 @@ public final class ConciertoClient {
         if (!any) return;
         Vec3 cam = e.getCamera().getPosition();
         float alpha = active ? fade * Math.min(1F, intensity) * darkMul() : 1F;
-        if (alpha <= 0.003F) return;
+        // en un apagon solo se ve la estrella y la luz del impacto
+        boolean dark = alpha <= 0.003F;
+        if (dark && stage.stars.isEmpty() && stage.columns.isEmpty()) return;
 
         // drawWithShader usa la matriz de RenderSystem y no la del shader: hay que ponerle la rotacion de la camara ahi
         com.mojang.blaze3d.vertex.PoseStack mvs = RenderSystem.getModelViewStack();
@@ -418,15 +420,15 @@ public final class ConciertoClient {
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
         RenderSystem.setShader(() -> fx);
-        stage.draw(fx, cam.x, cam.y, cam.z, ringOn, floorA * alpha, eqA * alpha, ringA * alpha);
+        if (!dark) stage.draw(fx, cam.x, cam.y, cam.z, ringOn, floorA * alpha, eqA * alpha, ringA * alpha);
         // la mezcla la define el json de cada shader: fxadd es aditivo (rayos y columnas)
         RenderSystem.setShader(() -> fxAdd);
-        stage.drawBeams(fxAdd, cam.x, cam.y, cam.z, Math.max(0F, songT), beamMode, beamsA * alpha, kickEnv, bass, level, pal);
+        if (!dark) stage.drawBeams(fxAdd, cam.x, cam.y, cam.z, Math.max(0F, songT), beamMode, beamsA * alpha, kickEnv, bass, level, pal);
         stage.drawColumns(fxAdd, cam.x, cam.y, cam.z);
-        stage.drawPyros(fxAdd, cam.x, cam.y, cam.z);
+        if (!dark) stage.drawPyros(fxAdd, cam.x, cam.y, cam.z);
         stage.drawStars(fxAdd, cam.x, cam.y, cam.z);
         float sdx = stage.set ? (float) -stage.fx() : 0F, sdz = stage.set ? (float) -stage.fz() : -1F;
-        sprites.draw(fx, fxAdd, sdx, sdz, Math.max(0F, songT), kickEnv, alpha);
+        if (!dark) sprites.draw(fx, fxAdd, sdx, sdz, Math.max(0F, songT), kickEnv, alpha);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
         RenderSystem.depthMask(true);
