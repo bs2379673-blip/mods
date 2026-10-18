@@ -93,12 +93,53 @@ wr("bailarina/sin_brillo.mcfunction", "# se apaga el contorno de las bailarinas\
 # entrada a mano: estrella + aparicion a los 3 s (cuando cae)
 for nm, col, fn, tag in (("miku", "miku", "aparecer", ""), ("teto", "teto", "aparece_teto", ""), ("neru", "neru", "aparece_neru", "")):
     wr(f"bailarina/entrada_{nm}.mcfunction",
-       f"# estrella de {nm} que cae al escenario y aparece\nfunction mikushow:concierto/escenario\nconcierto estrella {col} ~ ~ ~ 3\nschedule function mikushow:bailarina/{fn} 3s append\n")
+       f"# estrella de {nm} que cae al escenario y aparece\nfunction mikushow:concierto/escenario\nconcierto estrella {col} ~ ~ ~ 3\nschedule function mikushow:bailarina/{fn} 65t append\n")
     # estrella en la posicion del escenario: se usa stageOr (sin pos) -> ver abajo
 for nm in ("miku", "teto", "neru"):
     p = f"bailarina/entrada_{nm}.mcfunction"
     t = rd(p).replace(f"concierto estrella {nm} ~ ~ ~ 3", f"execute as @e[type=marker,tag=mikushow_s4,limit=1] at @s run concierto estrella {nm} ~ ~ ~ 3")
     wr(p, t)
+
+
+# 8) la aparicion llega 0.25 s DESPUES del impacto de la estrella (el destello y la columna la tapan); antes salia justo en el choque y se veia adelantada
+p = "song/intro/b2.mcfunction"
+t = rd(p)
+assert "matches 432 run function mikushow:bailarina/aparecer_auto" in t
+wr(p, t.replace("matches 432 run function mikushow:bailarina/aparecer_auto", "matches 437 run function mikushow:bailarina/aparecer_auto"))
+for nm, fn in (("mesmerizer", "mesmerizer_2"), ("triple_baka", "triple_baka_2")):
+    p = f"pre/{nm}.mcfunction"
+    t = rd(p)
+    assert f"schedule function mikushow:pre/{fn} 3s replace" in t
+    wr(p, t.replace(f"schedule function mikushow:pre/{fn} 3s replace", f"schedule function mikushow:pre/{fn} 65t replace"))
+
+
+# 9) al marcar un lugar aparece Miku de prueba ahi mismo (en reposo) para ver donde queda; se reemplaza al marcar de nuevo, y aparecer/stop/restaurar la sacan
+for fn, sc in (("marcar", 1), ("marcar_grande", 4), ("marcar_gigante", 10)):
+    p = f"bailarina/{fn}.mcfunction"
+    t = rd(p).rstrip("\n")
+    t = t.replace("tag @e[type=marker,tag=mks_new] remove mks_new",
+        "dancer vanish @e[type=dancers:dancer,tag=mks_prev]\n"
+        f"execute as @e[type=marker,tag=mks_new,limit=1] at @s rotated as @s run dancer spawn mikupd ~ ~ ~ {sc}\n"
+        "execute as @e[type=marker,tag=mks_new,limit=1] at @s run tag @e[type=dancers:dancer,distance=..0.6,tag=!mikushow] add mks_prev\n"
+        "tag @e[type=dancers:dancer,tag=mks_prev] add mikushow\n"
+        "tag @e[type=dancers:dancer,tag=mks_prev] add mks_miku\n"
+        "dancer play @e[type=dancers:dancer,tag=mks_prev] mikushow:idle true\n"
+        "tag @e[type=marker,tag=mks_new] remove mks_new")
+    wr(p, t + "\n")
+p = "bailarina/borrar_marcas.mcfunction"
+wr(p, "dancer vanish @e[type=dancers:dancer,tag=mks_prev]\n" + rd(p))
+
+
+# 10) avisos en el chat cuando algo impide que aparezcan (antes fallaba en silencio)
+NOMARK = 'execute unless entity @e[type=marker,tag=mikushow_spot] run tellraw @a {"text":"[MikuShow] NO HAY MARCA: parate donde bailan y usa /function mikushow:bailarina/marcar_grande","color":"red"}\n'
+for fn, tag, nm in (("aparecer", "mks_miku", "Miku"), ("aparece_teto", "mks_teto", "Teto"), ("aparece_neru", "mks_neru", "Neru")):
+    p = f"bailarina/{fn}.mcfunction"
+    t = rd(p).rstrip("\n")
+    wr(p, NOMARK + t + "\n"
+       f'execute unless entity @e[type=dancers:dancer,tag={tag}] run tellraw @a {{"text":"[MikuShow] no se pudo crear a {nm}: falta el mod dancers (servidor y clientes) o el comando dancer fallo","color":"red"}}\n')
+wr("bailarina/aparecer_auto.mcfunction",
+   'execute unless score #baile mikushow matches 1 run tellraw @a {"text":"[MikuShow] los bailes estan APAGADOS: usa /function mikushow:config/bailes_on","color":"red"}\n'
+   "execute if score #baile mikushow matches 1 run function mikushow:bailarina/aparecer\n")
 
 # 7) el stop tambien frena los efectos
 t = rd("stop.mcfunction")

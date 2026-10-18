@@ -118,47 +118,24 @@ public final class Stage {
         if (floorA > 0.003F) {
             set(sh, "Kind", 0F);
             set(sh, "Alpha", floorA);
-            // piso redondo centrado en el escenario; radio = piso_ancho * escala * 0.75. Cada bloque va a la altura del suelo para que el terreno no lo tape.
+            // piso redondo: una sola tarima plana (anillos y gajos) a la altura de la marca, asi el borde es un circulo perfecto
             float R = p[2] * S * 0.75F;
-            var lv = net.minecraft.client.Minecraft.getInstance().level;
-            int cx0 = (int) Math.floor(x), cz0 = (int) Math.floor(z);
-            int Ri = (int) Math.ceil(R) + 1;
-            long now = System.currentTimeMillis();
-            if (lv != null && (hts == null || hR != Ri || hcx != cx0 || hcz != cz0 || now - hTime > 1500)) {
-                int n = 2 * Ri + 1;
-                hts = new float[n * n];
-                for (int i = 0; i < n; i++) {
-                    for (int j = 0; j < n; j++) {
-                        int wx = cx0 - Ri + i, wz = cz0 - Ri + j;
-                        hts[i * n + j] = lv.hasChunk(wx >> 4, wz >> 4)
-                                ? lv.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, wx, wz) : Float.NaN;
+            int segs = 144, rings = Math.max(10, Math.min(64, (int) Math.ceil(R * 1.2F)));
+            double yy = y + 0.05 - camY;
+            begin(bb);
+            for (int i = 0; i < rings; i++) {
+                double r0 = R * i / rings, r1 = R * (i + 1) / rings;
+                for (int j = 0; j < segs; j++) {
+                    double a0 = Math.PI * 2 * j / segs, a1 = Math.PI * 2 * (j + 1) / segs;
+                    double[][] q = {{r0, a0}, {r1, a0}, {r1, a1}, {r0, a1}};
+                    for (double[] v : q) {
+                        double ql = v[0] * Math.cos(v[1]), qf = v[0] * Math.sin(v[1]);
+                        double wx = x + rx * ql + fx * qf, wz = z + rz * ql + fz * qf;
+                        b.v(wx - camX, yy, wz - camZ, (float) (ql / R), (float) (qf / R), 0F, 1F, (float) ql + 0.5F, (float) qf + 0.5F);
                     }
                 }
-                hR = Ri; hcx = cx0; hcz = cz0; hTime = now;
             }
-            if (hts != null) {
-                int n = 2 * Ri + 1;
-                begin(bb);
-                for (int i = 0; i < n; i++) {
-                    for (int j = 0; j < n; j++) {
-                        float h = hts[i * n + j];
-                        // sigue el suelo solo en escalones de 1 bloque; objetos, arboles o fosos no deforman la tarima
-                        if (Float.isNaN(h) || Math.abs(h - y) > 1.01) h = (float) y;
-                        int wx = cx0 - Ri + i, wz = cz0 - Ri + j;
-                        double dx = wx + 0.5 - x, dz = wz + 0.5 - z;
-                        double lx = rx * dx + rz * dz, lf = fx * dx + fz * dz;
-                        if (Math.sqrt(lx * lx + lf * lf) > R + 1.5) continue; // el borde exacto lo recorta el shader
-                        double yy = h + 0.03 - camY;
-                        for (int k = 0; k < 4; k++) {
-                            double qx = wx + ((k == 1 || k == 2) ? 1 : 0), qz = wz + ((k >= 2) ? 1 : 0);
-                            double ddx = qx - x, ddz = qz - z;
-                            double ql = rx * ddx + rz * ddz, qf = fx * ddx + fz * ddz;
-                            b.v(qx - camX, yy, qz - camZ, (float) (ql / R), (float) (qf / R), 0F, 1F, (float) ql + 0.5F, (float) qf + 0.5F);
-                        }
-                    }
-                }
-                flush(bb);
-            }
+            flush(bb);
         }
         if (eqA > 0.003F) {
             set(sh, "Kind", 1F);
