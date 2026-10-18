@@ -1,0 +1,41 @@
+MIKU SHOW 2.0 - concierto con el mod "concierto" (cielos y escenario con shaders)
+(Forge 1.20.1. Ya NO usa CustomSkyboxes.)
+
+QUE HAY
+  concierto-<version>.jar     -> el mod: cielos, piso redondo, paneles ecualizador, rayos, estrellas, pirotecnia, stickers y GIF
+                                 (va en mods/ del SERVIDOR y de TODOS los clientes)
+  MikuShow_datapack.zip       -> la "consola" del show (va en <mundo>/datapacks/)
+  MikuShow_A_musica.zip       -> la apertura + las 9 canciones (resource pack, clientes)
+  MikuShow_E_bailarinas.zip   -> Teto, Neru (con su celular), Miku con microfono, bailes, entradas y despedida (clientes)
+  Los packs B, C y D y el viejo MikuSkies YA NO HACEN FALTA (los stickers y GIF vienen dentro del mod).
+
+INSTALAR
+ 1. concierto en mods/ (servidor y clientes). Sacar customskyboxes y MikuShow_B/C/D.
+ 2. Datapack en <mundo>/datapacks/ y /reload.
+
+ANTES DEL EVENTO (como OP)
+  /function mikushow:preparar          noche fija, sin lluvia, sin spam en el chat
+  /function mikushow:escenario/norte   hacia donde mira el publico (norte, este, sur, oeste)
+  Marcar donde bailan (como antes): parado en el lugar y mirando al publico, /function mikushow:bailarina/marcar_grande
+  El escenario del mod se acomoda solo sobre esa marca. Medidas: /concierto escenario ajustar <medida> <valor>
+  /function mikushow:prueba            10 s de prueba de todo el escenario (sin musica)
+
+EL SHOW
+  /function mikushow:show/completo     TODO el concierto: apertura + 9 canciones + despedida
+  /function mikushow:show/<cancion>    una sola (intro, static, konton_boogie, melt, magical_cure, looping_the_rooms,
+                                       anamanaguchi, minna_miku_miku, mesmerizer, triple_baka)
+  /function mikushow:stop              corta todo
+  /function mikushow:restaurar         al final del evento
+
+ENTRADAS CON ESTRELLA
+  En la apertura una estrella celeste de Miku cruza todo el cielo, cae en el escenario y en el impacto aparece Miku.
+  Antes de Mesmerizer cae la estrella roja de Teto y antes de Triple Baka la amarilla de Neru.
+  Al aparecer cada una tiene un contorno brillante de su color unos segundos.
+  A mano: /function mikushow:bailarina/entrada_miku (o entrada_teto, entrada_neru)
+
+PARA LOS JUGADORES (comandos del mod, como OP)
+  /concierto jugadores volar 12      el publico vuela (queda en el aire y baja con caida lenta) - en Minna Miku Miku
+  /concierto jugadores brillo 18     contorno brillante - en Mesmerizer y en el Miku Beam
+  /concierto jugadores confeti 20    lluvia de confeti y petalos - en Melt, Triple Baka y la despedida
+  /concierto jugadores nada          cancela todo
+  (ya salen solos en esos momentos del show)

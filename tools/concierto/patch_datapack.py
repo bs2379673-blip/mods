@@ -104,6 +104,9 @@ for nm in ("miku", "teto", "neru"):
 t = rd("stop.mcfunction")
 wr("stop.mcfunction", t.rstrip("\n") + "\nschedule clear mikushow:bailarina/sin_brillo\nconcierto jugadores nada\n")
 
-# 8) leeme
-t = open(os.path.join(dst, "data", "mikushow", "functions", "..", "..", "..", "pack.mcmeta"), encoding="utf-8").read()
+# 8) prueba de 10 s con el mod
+wr("prueba.mcfunction", "# prueba del escenario: piso, paneles, rayos, anillo, stickers y una estrella de Miku (hace falta el mod concierto)\nfunction mikushow:concierto/escenario\nconcierto iniciar prueba auto false\n")
+
+# 9) leeme
+open(os.path.join(dst, "LEEME.txt"), "w", encoding="utf-8").write(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "LEEME_datapack.txt"), encoding="utf-8").read())
 print("listo")

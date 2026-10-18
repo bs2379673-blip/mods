@@ -1,30 +1,33 @@
-CONCIERTO - cielo de concierto reactivo a la musica (Forge 1.20.1)
+CONCIERTO 1.3 - cielos con shaders, escenario en 3D y guiones por cancion (Forge 1.20.1, solo mod, sin CustomSkyboxes)
 
-Poner el jar en el SERVIDOR y en todos los CLIENTES.
+QUE HACE
+  Cielo con shader (10 escenas) + escenario real en el mundo: piso REDONDO que sigue la altura del terreno, dos paneles
+  ecualizador de puntos LED, rayos de luz, anillo, columnas de luz, estrellas fugaces que caen al escenario, pirotecnia,
+  y stickers/GIF colgados del cielo en casilleros simetricos respecto al escenario (nunca al azar).
+  Cada cancion tiene su guion (assets/concierto/shows/<cancion>.json) hecho desde el analisis de la musica: cada parte
+  (intro, estrofa, estribillo, climax, pausa, final) tiene UN look y vuelve igual cuando vuelve la parte.
+  Los golpes de bombo/caja/platillos salen del analisis del audio (assets/concierto/tracks/*.bin), no de adivinar.
 
-ARCHIVOS DE AUDIO
-  Cada cliente necesita el .ogg de la cancion para analizarlo (el mod saca el espectro solo, al empezar).
-  Lo busca, en este orden, en:  config/concierto/<cancion>.ogg
-                                config/customsounds/sounds/<cancion>.ogg
-                                resource packs:  customsounds:sounds/<cancion>.ogg
-  Si no lo encuentra avisa en el chat y usa un ritmo de prueba (el cielo igual se mueve).
+COMANDOS (OP)
+  /concierto escenario aqui [escala]       parado donde bailan y mirando al publico (escala 4 = marcas grandes)
+  /concierto escenario ajustar <medida> <valor> | reiniciar | quitar
+        medidas: piso_inicio, piso_fin, piso_ancho (radio = ancho x escala x 0.75), panel_dist, panel_atras, panel_ancho,
+                 panel_alto, panel_giro, rayos_ancho, rayos_atras, rayos_largo, rayos_cant
+  /concierto iniciar <cancion> [escena|auto] [audio true|false]   (el datapack lo llama con audio false)
+  /concierto detener | intensidad 0-2 | estrobo 0-1 | escena <nombre> | lista
+  /concierto luz <miku|teto|neru|#hex> [pos] [tamano] [segundos]     columna de luz que cae del cielo
+  /concierto estrella <miku|teto|neru|#hex> [pos] [segundos]         estrella que cruza el cielo y cae
+  /concierto efecto <destello|nova|onda|apagon|pirotecnia>
+  /concierto jugadores <volar|brillo|confeti|nada> [segundos] [radio]
 
-COMANDOS (nivel 2, sirven en bloques de comandos)
-  /concierto iniciar <cancion> [escena|auto] [audio true|false]
-        Ej:  /concierto iniciar static          (auto: cambia de escena cada 16 s)
-             /concierto iniciar melt milkdrop
-        Con audio=true (por defecto) el servidor tambien lanza  playsound customsounds:<cancion>
-        (volumen 4, se escucha a 64 bloques). Si ya lanzas el sonido por otro lado usa  false.
-  /concierto escena <nombre|auto>      cambia la escena en vivo
-  /concierto intensidad <0-2>          brillo general (1 = normal)
-  /concierto estrobo <0-1>             destellos blancos con los golpes y al cambiar de escena (0 = sin destellos; defecto 0.5)
-  /concierto detener                   apaga con fundido y corta el sonido
-  /concierto lista
+CANCIONES CON GUION: intro (apertura), static, konton_boogie, melt, magical_cure (con el MIKU MIKU BEAM: cuenta 1-2-3,
+  portal y rayo gigante en el "beaaam"), looping_the_rooms (pausa con luz de emergencia y ojos detras del publico),
+  anamanaguchi, minna_miku_miku (el publico vuela en el climax), mesmerizer, triple_baka, despedida, intermedio,
+  pre_mesmerizer y pre_triple_baka (entradas de Teto y Neru). "prueba" muestra todo con un ritmo de prueba.
 
-ESCENAS
-  spectrum  oscilloscope  starfield  kaleidoscope  milkdrop  magnetosphere  cthugha  fireworks
-
-NOTAS
-  - Todos ven lo mismo a la vez: el servidor manda la hora de inicio; quien entra tarde se engancha en el punto justo.
-  - El cielo se dibuja entero (tambien bajo el horizonte) y los bloques quedan por delante.
-  - Los destellos pueden molestar con fotosensibilidad: /concierto estrobo 0 los apaga.
+EDITAR SIN RECOMPILAR: copiar el .json de assets/concierto/shows/ a config/concierto/shows/ y cambiarlo (el de config gana).
+  Cada orden: t (segundos) + scene/floor/eq/beams/ring/col/react/swap (quedan puestos) o fx (una vez):
+  flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col),
+  sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo,dur,radio).
+  Casilleros de sprite: C T B H L1 R1 L2 R2 L3 R3 LH RH LU RU X XL XR y pares espejados LR1 LR2 LR3 LRH LRU.
+  Escenas: spectrum oscilloscope starfield kaleidoscope milkdrop magnetosphere cthugha fireworks sunset meltglow.
