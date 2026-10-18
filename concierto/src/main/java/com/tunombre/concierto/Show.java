@@ -49,6 +49,7 @@ public final class Show {
     private static boolean playing;
 
     private static boolean stageSet;
+    private static net.minecraft.server.level.ServerLevel stageLevel;
     private static double sx, sy, sz;
     private static float stageYaw, stageScale = 4F;
     private static final float[] stageParams = DEFAULTS.clone();
@@ -89,7 +90,29 @@ public final class Show {
     private static final List<Pending> pending = new ArrayList<>();
 
     private static void runCmd(MinecraftServer srv, String cmd) {
-        srv.getCommands().performPrefixedCommand(srv.createCommandSourceStack().withSuppressedOutput(), cmd);
+        // corre en la dimension del escenario (si no, @e solo vería el mundo principal y no hallaría las marcas)
+        var src = srv.createCommandSourceStack().withSuppressedOutput();
+        if (stageLevel != null) src = src.withLevel(stageLevel);
+        srv.getCommands().performPrefixedCommand(src, cmd);
+    }
+
+    /** corre la funcion de aparicion y, si no aparecio nadie, avisa en pantalla (el chat puede estar oculto) */
+    private static void appearNow(MinecraftServer srv, String who) {
+        String fn = fnOf(who);
+        if (fn == null) return;
+        runCmd(srv, "function " + fn);
+        String tag = "mks_" + who.toLowerCase();
+        boolean ok = false;
+        for (var lv : srv.getAllLevels())
+            for (var en : lv.getAllEntities())
+                if (en.getTags().contains(tag)) { ok = true; break; }
+        if (!ok) {
+            String m = "[Concierto] " + who + " NO aparecio: revisa marca (/concierto marcar), bailes (/function mikushow:config/bailes_on) y que el mod dancers este en servidor y clientes";
+            for (var pl : srv.getPlayerList().getPlayers()) {
+                pl.sendSystemMessage(Component.literal(m).withStyle(net.minecraft.ChatFormatting.RED));
+                pl.sendSystemMessage(Component.literal(m).withStyle(net.minecraft.ChatFormatting.RED), true);
+            }
+        }
     }
 
     private static String fnOf(String who) {
@@ -108,7 +131,7 @@ public final class Show {
             long now = System.currentTimeMillis();
             for (var it = pending.iterator(); it.hasNext(); ) {
                 Pending p = it.next();
-                if (p.due() <= now) { it.remove(); runCmd(e.getServer(), p.cmd()); }
+                if (p.due() <= now) { it.remove(); if (p.cmd().startsWith("@appear ")) appearNow(e.getServer(), p.cmd().substring(8)); else runCmd(e.getServer(), p.cmd()); }
             }
         }
         if (!playing || srvNext >= srvCues.size()) return;
@@ -117,8 +140,7 @@ public final class Show {
             JsonObject o = srvCues.get(srvNext++);
             if (t - o.get("t").getAsFloat() > 2F) continue;
             if (o.get("fx").getAsString().equals("aparecer")) {
-                String fn = o.has("who") ? fnOf(o.get("who").getAsString()) : null;
-                if (fn != null) runCmd(e.getServer(), "function " + fn);
+                if (o.has("who")) appearNow(e.getServer(), o.get("who").getAsString());
                 continue;
             }
             Vec3 c = stageSet ? new Vec3(sx, sy, sz) : Vec3.ZERO;
@@ -205,9 +227,8 @@ public final class Show {
     }
 
     private static int appear(CommandSourceStack s, String who) {
-        String fn = fnOf(who);
-        if (fn == null) { say(s, "Usa miku, teto o neru"); return 0; }
-        runCmd(s.getServer(), "function " + fn);
+        if (fnOf(who) == null) { say(s, "Usa miku, teto o neru"); return 0; }
+        appearNow(s.getServer(), who);
         return 1;
     }
 
@@ -216,7 +237,7 @@ public final class Show {
         String fn = fnOf(who);
         if (fn == null) { say(s, "Usa miku, teto o neru"); return 0; }
         star(s, who, stageOr(s), secs);
-        pending.add(new Pending(System.currentTimeMillis() + (long) ((secs + 0.1F) * 1000F), "function " + fn));
+        pending.add(new Pending(System.currentTimeMillis() + (long) ((secs + 0.1F) * 1000F), "@appear " + who));
         return 1;
     }
 
@@ -366,6 +387,7 @@ public final class Show {
         stageYaw = Math.round(yaw / 90F) * 90F;
         stageScale = scale;
         stageSet = true;
+        stageLevel = s.getLevel();
         Net.sendAll(stageMsg());
         say(s, String.format("Escenario en %.0f %.0f %.0f, mirando hacia %s, escala %.2f", sx, sy, sz, switch (((int) Math.floorMod(Math.round(stageYaw), 360)) / 90) { case 0 -> "el sur (+Z)"; case 1 -> "el oeste (-X)"; case 2 -> "el norte (-Z)"; default -> "el este (+X)"; }, scale));
         return 1;
