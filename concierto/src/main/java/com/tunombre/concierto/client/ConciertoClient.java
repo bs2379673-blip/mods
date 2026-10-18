@@ -106,6 +106,7 @@ public final class ConciertoClient {
                 sprites.clear();
                 stage.pyros.clear();
                 stage.shells.clear();
+                ModelFx.clear();
                 script = Script.load(key);
                 if (script != null) {
                     for (int i = 0; i < 3; i++) System.arraycopy(script.look.col[i], 0, pal[i], 0, 3);
@@ -152,6 +153,11 @@ public final class ConciertoClient {
                 float dur = cue != null && cue.has("dur") ? cue.get("dur").getAsFloat() : 3F;
                 float[] c = cue != null && cue.has("col") ? Script.hex(cue.get("col").getAsString()) : new float[]{pal[0][0], pal[0][1], pal[0][2]};
                 stage.pyros.add(new Stage.Pyro(dur, c, (int) (songT * 100F) + stage.pyros.size()));
+            }
+            case "rayo" -> {
+                float dur = cue != null && cue.has("dur") ? cue.get("dur").getAsFloat() : 6F;
+                float charge = cue != null && cue.has("carga") ? cue.get("carga").getAsFloat() : 2.5F;
+                ModelFx.startBeam(songT, dur, charge);
             }
             case "fuegos" -> {
                 float dur = cue != null && cue.has("dur") ? cue.get("dur").getAsFloat() : 8F;
@@ -202,7 +208,7 @@ public final class ConciertoClient {
     }
 
     @SubscribeEvent
-    public static void onLogout(ClientPlayerNetworkEvent.LoggingOut e) { active = false; stopping = false; stage.columns.clear(); stage.stars.clear(); stage.pyros.clear(); stage.shells.clear(); sprites.clear(); }
+    public static void onLogout(ClientPlayerNetworkEvent.LoggingOut e) { active = false; stopping = false; stage.columns.clear(); stage.stars.clear(); stage.pyros.clear(); stage.shells.clear(); ModelFx.clear(); sprites.clear(); }
 
     private static float towards(float cur, float target, float step) { return cur < target ? Math.min(target, cur + step) : Math.max(target, cur - step); }
 
@@ -441,6 +447,7 @@ public final class ConciertoClient {
         if (!dark) stage.drawPyros(fxAdd, cam.x, cam.y, cam.z);
         stage.drawStars(fxAdd, cam.x, cam.y, cam.z);
         stage.drawShells(fxAdd, cam.x, cam.y, cam.z);
+        ModelFx.draw(fxAdd, cam.x, cam.y, cam.z, e.getPartialTick(), stage, Math.max(0F, songT), level, kickEnv, !dark);
         float sdx = stage.set ? (float) -stage.fx() : 0F, sdz = stage.set ? (float) -stage.fz() : -1F;
         if (!dark) sprites.draw(fx, fxAdd, sdx, sdz, Math.max(0F, songT), kickEnv, alpha);
         RenderSystem.defaultBlendFunc();

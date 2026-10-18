@@ -52,7 +52,7 @@ vec4 floorCell() {
         float step_ = floor(Time * 2.0);
         float h = hash21(cell + step_);
         float lit = step(1.0 - (0.18 + 0.5 * Level), h);
-        float zone = smoothstep(7.0, 4.5, d);
+        float zone = smoothstep(11.5, 6.5, d);
         vec3 disco = rainbow(fract(h * 7.0 + Time * 0.05));
         float w = 0.5 + 0.5 * sin(d * 3.0 - Time * 3.0);
         fill = mix(mix(P0, P1, w) * (0.16 + 0.25 * Level), disco * 0.8, lit * zone);
@@ -65,15 +65,15 @@ vec4 floorCell() {
     vec3 col = fill + lineC * line * (0.55 + 0.45 * Beat + 0.3 * Level);
     // onda de choque desde el centro del escenario
     if (Shock >= 0.0) {
-        float r = Shock * 9.0;
+        float r = Shock * 14.0;
         float band = exp(-pow((d - r) * 2.4, 2.0)) * (1.0 - Shock);
         col += mix(P2, vec3(1.0), 0.6) * band * 1.2;
     }
     col += vec3(Flash * 0.12);
-    float rr = length(vColor.rg);
-    float edgeFade = smoothstep(1.0, 0.92, rr);
-    // aro luminoso en el borde de la tarima redonda y brillo suave hacia afuera
-    float rim = exp(-pow((rr - 0.955) * 28.0, 2.0));
+    float rr = max(abs(vColor.r), abs(vColor.g));
+    float edgeFade = smoothstep(1.0, 0.975, rr);
+    // marco luminoso en el borde de la tarima cuadrada
+    float rim = exp(-pow((rr - 0.972) * 60.0, 2.0));
     col += mix(P2, vec3(1.0), 0.5) * rim * (0.7 + 0.5 * Beat);
     col = 1.0 - exp(-col * 1.15);
     float a = clamp(0.72 + 0.2 * line + 0.2 * rim, 0.0, 1.0) * edgeFade;
@@ -172,6 +172,29 @@ vec4 trail() {
     return vec4(col, clamp(a, 0.0, 1.0) * Alpha);
 }
 
+
+// 8: halo plano en el suelo, teñido por el color del vertice (aura de pies de cada bailarina)
+vec4 haloRing() {
+    float r = length(vUV);
+    float band = exp(-pow((r - 0.78) * 16.0, 2.0));
+    float band2 = exp(-pow((r - 0.55) * 26.0, 2.0)) * 0.5;
+    float tick = 0.6 + 0.4 * sin(atan(vUV.y, vUV.x) * 18.0 - Time * 2.0);
+    vec3 col = vColor.rgb * (band + band2 * tick) * (1.0 + 0.9 * Beat) + vec3(band * 0.35);
+    float a = clamp(band + band2 + exp(-r * r * 3.0) * 0.18, 0.0, 1.0) * smoothstep(1.0, 0.9, r) * vColor.a;
+    return vec4(col, a * Alpha);
+}
+
+// 9: rayo de energia: nucleo blanco, borde de color y pulsos que corren por el largo (vUV.y = bloques / 10)
+vec4 energyBeam() {
+    float x = abs(vUV.x);
+    float core = exp(-x * x * 3.0);
+    float hot = exp(-x * x * 16.0);
+    float flow = 0.7 + 0.3 * sin(vUV.y * 6.0 - Time * 18.0);
+    vec3 col = vColor.rgb * core * 1.6 * flow + vec3(hot * 1.2);
+    float a = (core * 0.8 + hot * 0.6) * vColor.a;
+    return vec4(col, clamp(a, 0.0, 1.0) * Alpha);
+}
+
 void main() {
     int k = int(Kind + 0.5);
     vec4 c;
@@ -182,6 +205,8 @@ void main() {
     else if (k == 4) c = column();
     else if (k == 5) c = sprite();
     else if (k == 6) c = starHead();
+    else if (k == 8) c = haloRing();
+    else if (k == 9) c = energyBeam();
     else c = trail();
     fragColor = c;
 }

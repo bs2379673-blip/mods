@@ -1,6 +1,6 @@
 {
  "song": "anamanaguchi",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -37,14 +37,6 @@
     "#00e5ff",
     "#ffd23a"
    ]
-  },
-  {
-   "t": 16.571,
-   "fx": "sprite",
-   "id": "u_pxheart",
-   "slot": "LR1",
-   "dur": 9.55,
-   "size": 14
   },
   {
    "t": 27.121,
@@ -97,18 +89,34 @@
   {
    "t": 27.821,
    "fx": "sprite",
-   "id": "s_rainbow",
-   "slot": "B",
-   "dur": 17.05,
-   "size": 34
-  },
-  {
-   "t": 27.821,
-   "fx": "sprite",
    "id": "u_leek",
    "slot": "LRH",
    "dur": 17.05,
    "size": 13
+  },
+  {
+   "t": 29.002,
+   "fx": "shock"
+  },
+  {
+   "t": 31.335,
+   "fx": "shock"
+  },
+  {
+   "t": 35.085,
+   "fx": "shock"
+  },
+  {
+   "t": 35.085,
+   "fx": "nova"
+  },
+  {
+   "t": 38.835,
+   "fx": "shock"
+  },
+  {
+   "t": 42.585,
+   "fx": "shock"
   },
   {
    "t": 45.871,
@@ -137,20 +145,20 @@
    "size": 26
   },
   {
-   "t": 46.571,
-   "fx": "sprite",
-   "id": "u_pxheart",
-   "slot": "LR1",
-   "dur": 13.3,
-   "size": 15
+   "t": 46.811,
+   "fx": "shock"
   },
   {
-   "t": 46.571,
-   "fx": "sprite",
-   "id": "s_pxleek",
-   "slot": "LR2",
-   "dur": 13.3,
-   "size": 13
+   "t": 46.811,
+   "fx": "nova"
+  },
+  {
+   "t": 50.794,
+   "fx": "shock"
+  },
+  {
+   "t": 55.705,
+   "fx": "shock"
   },
   {
    "t": 60.871,
@@ -171,6 +179,14 @@
    ]
   },
   {
+   "t": 61.347,
+   "fx": "shock"
+  },
+  {
+   "t": 61.347,
+   "fx": "nova"
+  },
+  {
    "t": 61.571,
    "fx": "sprite",
    "id": "u_head_smug",
@@ -179,20 +195,12 @@
    "size": 26
   },
   {
-   "t": 61.571,
-   "fx": "sprite",
-   "id": "u_pxheart",
-   "slot": "LR1",
-   "dur": 13.3,
-   "size": 15
+   "t": 65.097,
+   "fx": "shock"
   },
   {
-   "t": 61.571,
-   "fx": "sprite",
-   "id": "s_pxleek",
-   "slot": "LR2",
-   "dur": 13.3,
-   "size": 13
+   "t": 73.062,
+   "fx": "shock"
   },
   {
    "t": 75.871,
@@ -213,14 +221,6 @@
    ]
   },
   {
-   "t": 76.571,
-   "fx": "sprite",
-   "id": "u_pxheart",
-   "slot": "LR1",
-   "dur": 5.81,
-   "size": 14
-  },
-  {
    "t": 83.383,
    "scene": "synth",
    "floor": "grid",
@@ -237,14 +237,6 @@
     "#00e5ff",
     "#ffd23a"
    ]
-  },
-  {
-   "t": 84.083,
-   "fx": "sprite",
-   "id": "u_pxheart",
-   "slot": "LR1",
-   "dur": 5.8,
-   "size": 14
   },
   {
    "t": 90.883,
@@ -265,14 +257,6 @@
    ]
   },
   {
-   "t": 91.583,
-   "fx": "sprite",
-   "id": "u_pxheart",
-   "slot": "LR1",
-   "dur": 13.3,
-   "size": 14
-  },
-  {
    "t": 105.883,
    "scene": "synth",
    "floor": "grid",
@@ -289,14 +273,6 @@
     "#00e5ff",
     "#ffd23a"
    ]
-  },
-  {
-   "t": 106.583,
-   "fx": "sprite",
-   "id": "s_eq",
-   "slot": "C",
-   "dur": 13.29,
-   "size": 24
   },
   {
    "t": 120.871,
@@ -339,6 +315,14 @@
    "dur": 12.0
   },
   {
+   "t": 121.347,
+   "fx": "shock"
+  },
+  {
+   "t": 121.347,
+   "fx": "nova"
+  },
+  {
    "t": 121.571,
    "fx": "sprite",
    "id": "u_head_smug",
@@ -349,18 +333,26 @@
   {
    "t": 121.571,
    "fx": "sprite",
-   "id": "s_rainbow",
-   "slot": "B",
-   "dur": 13.3,
-   "size": 34
-  },
-  {
-   "t": 121.571,
-   "fx": "sprite",
    "id": "u_leek",
    "slot": "LRH",
    "dur": 13.3,
    "size": 13
+  },
+  {
+   "t": 124.633,
+   "fx": "shock"
+  },
+  {
+   "t": 128.372,
+   "fx": "shock"
+  },
+  {
+   "t": 132.122,
+   "fx": "shock"
+  },
+  {
+   "t": 132.122,
+   "fx": "nova"
   },
   {
    "t": 135.872,
@@ -381,6 +373,10 @@
    ]
   },
   {
+   "t": 135.872,
+   "fx": "shock"
+  },
+  {
    "t": 136.572,
    "fx": "sprite",
    "id": "u_head_smug",
@@ -391,18 +387,26 @@
   {
    "t": 136.572,
    "fx": "sprite",
-   "id": "s_rainbow",
-   "slot": "B",
-   "dur": 13.3,
-   "size": 34
-  },
-  {
-   "t": 136.572,
-   "fx": "sprite",
    "id": "u_leek",
    "slot": "LRH",
    "dur": 13.3,
    "size": 13
+  },
+  {
+   "t": 140.086,
+   "fx": "shock"
+  },
+  {
+   "t": 143.836,
+   "fx": "shock"
+  },
+  {
+   "t": 143.836,
+   "fx": "nova"
+  },
+  {
+   "t": 147.586,
+   "fx": "shock"
   },
   {
    "t": 150.872,
@@ -421,14 +425,6 @@
     "#00e5ff",
     "#ffd23a"
    ]
-  },
-  {
-   "t": 151.572,
-   "fx": "sprite",
-   "id": "u_pxheart",
-   "slot": "LR1",
-   "dur": 13.3,
-   "size": 14
   },
   {
    "t": 165.872,
@@ -479,20 +475,16 @@
    "size": 26
   },
   {
-   "t": 166.572,
-   "fx": "sprite",
-   "id": "u_pxheart",
-   "slot": "LR1",
-   "dur": 11.43,
-   "size": 15
+   "t": 169.157,
+   "fx": "shock"
   },
   {
-   "t": 166.572,
-   "fx": "sprite",
-   "id": "s_pxleek",
-   "slot": "LR2",
-   "dur": 11.43,
-   "size": 13
+   "t": 171.967,
+   "fx": "shock"
+  },
+  {
+   "t": 171.967,
+   "fx": "nova"
   },
   {
    "t": 179.003,
@@ -513,6 +505,10 @@
    ]
   },
   {
+   "t": 179.467,
+   "fx": "shock"
+  },
+  {
    "t": 179.703,
    "fx": "sprite",
    "id": "u_head_smug",
@@ -521,20 +517,8 @@
    "size": 26
   },
   {
-   "t": 179.703,
-   "fx": "sprite",
-   "id": "u_pxheart",
-   "slot": "LR1",
-   "dur": 7.68,
-   "size": 15
-  },
-  {
-   "t": 179.703,
-   "fx": "sprite",
-   "id": "s_pxleek",
-   "slot": "LR2",
-   "dur": 7.68,
-   "size": 13
+   "t": 183.693,
+   "fx": "shock"
   },
   {
    "t": 188.383,
@@ -553,14 +537,6 @@
     "#00e5ff",
     "#ffd23a"
    ]
-  },
-  {
-   "t": 189.083,
-   "fx": "sprite",
-   "id": "u_pxheart",
-   "slot": "LR1",
-   "dur": 5.78,
-   "size": 14
   },
   {
    "t": 195.86,

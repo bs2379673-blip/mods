@@ -77,20 +77,50 @@ public final class Show {
                 JsonElement root = JsonParser.parseReader(rr);
                 for (JsonElement e : root.getAsJsonObject().getAsJsonArray("cues")) {
                     JsonObject o = e.getAsJsonObject();
-                    if (o.has("fx") && o.get("fx").getAsString().equals("jugadores")) srvCues.add(o);
+                    if (o.has("fx") && (o.get("fx").getAsString().equals("jugadores") || o.get("fx").getAsString().equals("aparecer"))) srvCues.add(o);
                 }
             }
             srvCues.sort((a, b) -> Float.compare(a.get("t").getAsFloat(), b.get("t").getAsFloat()));
         } catch (Exception ignored) { }
     }
 
+    /** ordenes diferidas (por ejemplo: que aparezca la bailarina justo cuando la estrella toca el escenario) */
+    private record Pending(long due, String cmd) { }
+    private static final List<Pending> pending = new ArrayList<>();
+
+    private static void runCmd(MinecraftServer srv, String cmd) {
+        srv.getCommands().performPrefixedCommand(srv.createCommandSourceStack().withSuppressedOutput(), cmd);
+    }
+
+    private static String fnOf(String who) {
+        return switch (who.toLowerCase()) {
+            case "miku" -> "mikushow:bailarina/auto_miku";
+            case "teto" -> "mikushow:bailarina/auto_teto";
+            case "neru" -> "mikushow:bailarina/auto_neru";
+            default -> null;
+        };
+    }
+
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent e) {
-        if (e.phase != TickEvent.Phase.END || !playing || srvNext >= srvCues.size()) return;
+        if (e.phase != TickEvent.Phase.END) return;
+        if (!pending.isEmpty()) {
+            long now = System.currentTimeMillis();
+            for (var it = pending.iterator(); it.hasNext(); ) {
+                Pending p = it.next();
+                if (p.due() <= now) { it.remove(); runCmd(e.getServer(), p.cmd()); }
+            }
+        }
+        if (!playing || srvNext >= srvCues.size()) return;
         float t = (System.currentTimeMillis() - startMs) / 1000F;
         while (srvNext < srvCues.size() && srvCues.get(srvNext).get("t").getAsFloat() <= t) {
             JsonObject o = srvCues.get(srvNext++);
             if (t - o.get("t").getAsFloat() > 2F) continue;
+            if (o.get("fx").getAsString().equals("aparecer")) {
+                String fn = o.has("who") ? fnOf(o.get("who").getAsString()) : null;
+                if (fn != null) runCmd(e.getServer(), "function " + fn);
+                continue;
+            }
             Vec3 c = stageSet ? new Vec3(sx, sy, sz) : Vec3.ZERO;
             Players.apply(e.getServer(), o.has("modo") ? o.get("modo").getAsString() : "brillo", o.has("dur") ? o.get("dur").getAsFloat() : 8F, c, o.has("radio") ? o.get("radio").getAsFloat() : 80F);
         }
@@ -150,6 +180,43 @@ public final class Show {
         try { rgb = colorOf(color); } catch (NumberFormatException ex) { say(s, "Color invalido: " + color); return 0; }
         float side = color.equalsIgnoreCase("teto") ? -1F : 1F;
         Net.sendAll(new Net.Msg(Net.STAR, "", rgb, secs, side, 0F, at.x, at.y, at.z, new float[0]));
+        return 1;
+    }
+
+
+    /** marca (sin invocar nada) el lugar donde aparecen las bailarinas: donde estas parado y mirando hacia el publico */
+    private static int mark(CommandSourceStack s, int scale) {
+        Vec3 p = s.getPosition();
+        float yaw = s.getRotation().y;
+        var src = s.withSuppressedOutput();
+        var cm = s.getServer().getCommands();
+        cm.performPrefixedCommand(src, "kill @e[type=marker,tag=mikushow_s" + scale + "]");
+        cm.performPrefixedCommand(src, String.format(java.util.Locale.ROOT,
+                "summon marker %.3f %.3f %.3f {Tags:[\"mikushow_spot\",\"mikushow_s%d\"],Rotation:[%.1ff,0.0f]}", p.x, p.y, p.z, scale, yaw));
+        cm.performPrefixedCommand(src, String.format(java.util.Locale.ROOT, "particle minecraft:end_rod %.2f %.2f %.2f 0.2 0.8 0.2 0.01 50", p.x, p.y + 1, p.z));
+        say(s, "Marca guardada (escala " + scale + "). Las bailarinas solo aparecen cuando la estrella toca el escenario. Para probar: /concierto entrada miku");
+        return 1;
+    }
+
+    private static int unmark(CommandSourceStack s) {
+        s.getServer().getCommands().performPrefixedCommand(s.withSuppressedOutput(), "kill @e[type=marker,tag=mikushow_spot]");
+        say(s, "Marcas borradas");
+        return 1;
+    }
+
+    private static int appear(CommandSourceStack s, String who) {
+        String fn = fnOf(who);
+        if (fn == null) { say(s, "Usa miku, teto o neru"); return 0; }
+        runCmd(s.getServer(), "function " + fn);
+        return 1;
+    }
+
+    /** estrella que cae y, justo en la explosion del impacto, aparece la bailarina (todo con el mismo reloj) */
+    private static int entry(CommandSourceStack s, String who, float secs) {
+        String fn = fnOf(who);
+        if (fn == null) { say(s, "Usa miku, teto o neru"); return 0; }
+        star(s, who, stageOr(s), secs);
+        pending.add(new Pending(System.currentTimeMillis() + (long) ((secs + 0.1F) * 1000F), "function " + fn));
         return 1;
     }
 
@@ -247,6 +314,20 @@ public final class Show {
                                         .executes(c -> light(c.getSource(), StringArgumentType.getString(c, "color"), Vec3Argument.getVec3(c, "pos"), FloatArgumentType.getFloat(c, "tamano"), 4F))
                                         .then(Commands.argument("segundos", FloatArgumentType.floatArg(1F, 60F))
                                                 .executes(c -> light(c.getSource(), StringArgumentType.getString(c, "color"), Vec3Argument.getVec3(c, "pos"), FloatArgumentType.getFloat(c, "tamano"), FloatArgumentType.getFloat(c, "segundos"))))))))
+                // /concierto marcar [escala 1|4|10] | quitarmarcas | aparecer <quien> | entrada <quien> [segundos]
+                .then(Commands.literal("marcar")
+                        .executes(c -> mark(c.getSource(), 4))
+                        .then(Commands.argument("escala", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 10))
+                                .executes(c -> mark(c.getSource(), com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "escala")))))
+                .then(Commands.literal("quitarmarcas").executes(c -> unmark(c.getSource())))
+                .then(Commands.literal("aparecer").then(Commands.argument("quien", StringArgumentType.word())
+                        .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("miku", "teto", "neru"), b))
+                        .executes(c -> appear(c.getSource(), StringArgumentType.getString(c, "quien")))))
+                .then(Commands.literal("entrada").then(Commands.argument("quien", StringArgumentType.word())
+                        .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("miku", "teto", "neru"), b))
+                        .executes(c -> entry(c.getSource(), StringArgumentType.getString(c, "quien"), 3.2F))
+                        .then(Commands.argument("segundos", FloatArgumentType.floatArg(1F, 20F))
+                                .executes(c -> entry(c.getSource(), StringArgumentType.getString(c, "quien"), FloatArgumentType.getFloat(c, "segundos"))))))
                 // /concierto estrella <miku|teto|neru|#hex> [pos] [segundos]
                 .then(Commands.literal("estrella").then(Commands.argument("color", StringArgumentType.word())
                         .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("miku", "teto", "neru"), b))

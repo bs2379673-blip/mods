@@ -15,6 +15,8 @@ COMANDOS (OP)
                  panel_alto, panel_giro, rayos_ancho, rayos_atras, rayos_largo, rayos_cant
   /concierto iniciar <cancion> [escena|auto] [audio true|false]   (el datapack lo llama con audio false)
   /concierto detener | intensidad 0-2 | estrobo 0-1 | escena <nombre> | lista
+  /concierto marcar [1|4|10] | quitarmarcas        marca donde aparecen las bailarinas (parado y mirando al publico)
+  /concierto entrada <miku|teto|neru> [seg]        estrella + aparicion en la explosion | aparecer <quien>: aparece ya
   /concierto luz <miku|teto|neru|#hex> [pos] [tamano] [segundos]     columna de luz que cae del cielo
   /concierto estrella <miku|teto|neru|#hex> [pos] [segundos]         estrella que cruza el cielo y cae
   /concierto efecto <destello|nova|onda|apagon|pirotecnia>
@@ -27,7 +29,7 @@ CANCIONES CON GUION: intro (apertura), static, konton_boogie, melt, magical_cure
 
 EDITAR SIN RECOMPILAR: copiar el .json de assets/concierto/shows/ a config/concierto/shows/ y cambiarlo (el de config gana).
   Cada orden: t (segundos) + scene/floor/eq/beams/ring/col/react/swap (quedan puestos) o fx (una vez):
-  flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col),
+  flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), aparecer(who),
   sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo,dur,radio).
   Casilleros de sprite: C T B H L1 R1 L2 R2 L3 R3 LH RH LU RU X XL XR y pares espejados LR1 LR2 LR3 LRH LRU.
   Escenas: spectrum oscilloscope starfield kaleidoscope milkdrop magnetosphere cthugha fireworks sunset meltglow static konton magia rooms synth pop hypno baka obscure cosmos.

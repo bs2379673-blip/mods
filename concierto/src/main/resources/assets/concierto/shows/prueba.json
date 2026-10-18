@@ -20,68 +20,23 @@
    }
   },
   {
-   "t": 6,
-   "scene": "meltglow",
-   "floor": "ripple",
-   "beams": "fan"
-  },
-  {
-   "t": 12,
-   "scene": "spectrum",
-   "floor": "disco",
-   "beams": "cross",
-   "col": [
-    "#00e5ff",
-    "#ff3df2",
-    "#ffe23d"
-   ]
-  },
-  {
-   "t": 18,
-   "scene": "milkdrop",
-   "floor": "ripple",
-   "beams": "sweep"
-  },
-  {
-   "t": 24,
-   "scene": "starfield",
-   "beams": "strobe"
-  },
-  {
-   "t": 30,
-   "scene": "sunset",
-   "floor": "grid",
-   "beams": "slow",
-   "col": [
-    "#ff6a9a",
-    "#ff9a6a",
-    "#ffd0e0"
-   ]
-  },
-  {
-   "t": 8,
-   "fx": "nova"
-  },
-  {
-   "t": 14,
-   "fx": "flash"
-  },
-  {
-   "t": 20,
-   "fx": "shock"
-  },
-  {
-   "t": 27,
-   "fx": "column",
-   "col": "#39c5bb",
-   "dur": 5
-  },
-  {
    "t": 1.0,
    "fx": "estrella",
    "col": "#39c5bb",
    "dur": 3.2,
    "side": 1
+  },
+  {
+   "t": 1.0,
+   "fx": "fuegos",
+   "dur": 6.0,
+   "n": 8
+  },
+  {
+   "t": 3.0,
+   "fx": "rayo",
+   "carga": 1.5,
+   "dur": 4.0
   },
   {
    "t": 4.5,
@@ -97,25 +52,10 @@
    "size": 28
   },
   {
-   "t": 5.5,
-   "fx": "sprite",
-   "id": "s_heart",
-   "slot": "LR1",
-   "dur": 8.5
-  },
-  {
-   "t": 6.0,
-   "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "L2",
-   "dur": 8
-  },
-  {
-   "t": 6.0,
-   "fx": "sprite",
-   "id": "s_note_teal",
-   "slot": "R2",
-   "dur": 8
+   "t": 6,
+   "scene": "meltglow",
+   "floor": "ripple",
+   "beams": "fan"
   },
   {
    "t": 6.5,
@@ -126,6 +66,10 @@
    "size": 13
   },
   {
+   "t": 8,
+   "fx": "nova"
+  },
+  {
    "t": 9.0,
    "fx": "estrella",
    "col": "#e0324b",
@@ -133,11 +77,58 @@
    "side": -1
   },
   {
+   "t": 12,
+   "scene": "spectrum",
+   "floor": "disco",
+   "beams": "cross",
+   "col": [
+    "#00e5ff",
+    "#ff3df2",
+    "#ffe23d"
+   ]
+  },
+  {
    "t": 13.0,
    "fx": "estrella",
    "col": "#f2d21b",
    "dur": 3.2,
    "side": 1
+  },
+  {
+   "t": 14,
+   "fx": "flash"
+  },
+  {
+   "t": 18,
+   "scene": "milkdrop",
+   "floor": "ripple",
+   "beams": "sweep"
+  },
+  {
+   "t": 20,
+   "fx": "shock"
+  },
+  {
+   "t": 24,
+   "scene": "starfield",
+   "beams": "strobe"
+  },
+  {
+   "t": 27,
+   "fx": "column",
+   "col": "#39c5bb",
+   "dur": 5
+  },
+  {
+   "t": 30,
+   "scene": "sunset",
+   "floor": "grid",
+   "beams": "slow",
+   "col": [
+    "#ff6a9a",
+    "#ff9a6a",
+    "#ffd0e0"
+   ]
   }
  ]
 }

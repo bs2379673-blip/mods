@@ -1,6 +1,6 @@
 {
  "song": "static",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -73,14 +73,6 @@
    ]
   },
   {
-   "t": 31.617,
-   "fx": "sprite",
-   "id": "s_cursor",
-   "slot": "C",
-   "dur": 26.22,
-   "size": 22
-  },
-  {
    "t": 32.02,
    "fx": "blackout",
    "dur": 1.14
@@ -148,26 +140,36 @@
    "dur": 21.06
   },
   {
-   "t": 59.539,
-   "fx": "sprite",
-   "id": "s_bolt",
-   "slot": "LR1",
-   "dur": 21.06
+   "t": 60.116,
+   "fx": "shock"
   },
   {
-   "t": 59.539,
-   "fx": "sprite",
-   "id": "s_bolt_red",
-   "slot": "LR2",
-   "dur": 21.06
+   "t": 62.647,
+   "fx": "shock"
   },
   {
-   "t": 59.539,
-   "fx": "sprite",
-   "id": "s_cursor",
-   "slot": "LRH",
-   "dur": 21.06,
-   "size": 12
+   "t": 66.432,
+   "fx": "shock"
+  },
+  {
+   "t": 66.432,
+   "fx": "nova"
+  },
+  {
+   "t": 70.856,
+   "fx": "shock"
+  },
+  {
+   "t": 73.387,
+   "fx": "shock"
+  },
+  {
+   "t": 77.81,
+   "fx": "shock"
+  },
+  {
+   "t": 77.81,
+   "fx": "nova"
   },
   {
    "t": 81.421,
@@ -202,22 +204,23 @@
   {
    "t": 82.295,
    "fx": "sprite",
-   "id": "s_bolt",
-   "slot": "LR1",
-   "dur": 18.52
-  },
-  {
-   "t": 82.295,
-   "fx": "sprite",
    "id": "u_01",
    "slot": "H",
    "dur": 18.52,
    "size": 16
   },
   {
+   "t": 83.0,
+   "fx": "shock"
+  },
+  {
    "t": 91.603,
    "fx": "blackout",
    "dur": 0.21
+  },
+  {
+   "t": 91.696,
+   "fx": "shock"
   },
   {
    "t": 101.82,
@@ -247,17 +250,26 @@
   {
    "t": 102.52,
    "fx": "sprite",
-   "id": "s_bolt",
-   "slot": "LR1",
-   "dur": 16.11
-  },
-  {
-   "t": 102.52,
-   "fx": "sprite",
    "id": "u_01",
    "slot": "H",
    "dur": 16.11,
    "size": 16
+  },
+  {
+   "t": 105.442,
+   "fx": "shock"
+  },
+  {
+   "t": 105.442,
+   "fx": "nova"
+  },
+  {
+   "t": 109.552,
+   "fx": "shock"
+  },
+  {
+   "t": 113.337,
+   "fx": "shock"
   },
   {
    "t": 119.629,
@@ -276,14 +288,6 @@
     "#7a0f24",
     "#ffb0b8"
    ]
-  },
-  {
-   "t": 120.329,
-   "fx": "sprite",
-   "id": "s_cursor",
-   "slot": "C",
-   "dur": 8.44,
-   "size": 22
   },
   {
    "t": 121.475,
@@ -322,14 +326,6 @@
     "#ff3a5a",
     "#e8ffff"
    ]
-  },
-  {
-   "t": 130.465,
-   "fx": "sprite",
-   "id": "s_tv",
-   "slot": "C",
-   "dur": 15.98,
-   "size": 26
   },
   {
    "t": 147.447,
@@ -372,6 +368,14 @@
    "dur": 14.0
   },
   {
+   "t": 148.062,
+   "fx": "shock"
+  },
+  {
+   "t": 148.062,
+   "fx": "nova"
+  },
+  {
    "t": 148.147,
    "fx": "sprite",
    "id": "u_head_smug",
@@ -379,26 +383,36 @@
    "dur": 28.65
   },
   {
-   "t": 148.147,
-   "fx": "sprite",
-   "id": "s_bolt",
-   "slot": "LR1",
-   "dur": 28.65
+   "t": 151.266,
+   "fx": "shock"
   },
   {
-   "t": 148.147,
-   "fx": "sprite",
-   "id": "s_bolt_red",
-   "slot": "LR2",
-   "dur": 28.65
+   "t": 153.797,
+   "fx": "shock"
   },
   {
-   "t": 148.147,
-   "fx": "sprite",
-   "id": "s_cursor",
-   "slot": "LRH",
-   "dur": 28.65,
-   "size": 12
+   "t": 157.582,
+   "fx": "shock"
+  },
+  {
+   "t": 157.582,
+   "fx": "nova"
+  },
+  {
+   "t": 162.006,
+   "fx": "shock"
+  },
+  {
+   "t": 164.537,
+   "fx": "shock"
+  },
+  {
+   "t": 168.96,
+   "fx": "shock"
+  },
+  {
+   "t": 168.96,
+   "fx": "nova"
   },
   {
    "t": 177.795,
@@ -417,14 +431,6 @@
     "#ff3a5a",
     "#e8ffff"
    ]
-  },
-  {
-   "t": 178.495,
-   "fx": "sprite",
-   "id": "s_tv",
-   "slot": "C",
-   "dur": 21.03,
-   "size": 26
   },
   {
    "t": 200.528,
@@ -457,6 +463,10 @@
    "fx": "shock"
   },
   {
+   "t": 200.69,
+   "fx": "shock"
+  },
+  {
    "t": 201.228,
    "fx": "sprite",
    "id": "u_head_smug",
@@ -466,17 +476,62 @@
   {
    "t": 201.228,
    "fx": "sprite",
-   "id": "s_bolt",
-   "slot": "LR1",
-   "dur": 33.3
-  },
-  {
-   "t": 201.228,
-   "fx": "sprite",
    "id": "u_01",
    "slot": "H",
    "dur": 33.3,
    "size": 16
+  },
+  {
+   "t": 204.312,
+   "fx": "shock"
+  },
+  {
+   "t": 207.47,
+   "fx": "shock"
+  },
+  {
+   "t": 207.47,
+   "fx": "nova"
+  },
+  {
+   "t": 210.791,
+   "fx": "shock"
+  },
+  {
+   "t": 214.425,
+   "fx": "shock"
+  },
+  {
+   "t": 218.848,
+   "fx": "shock"
+  },
+  {
+   "t": 218.848,
+   "fx": "nova"
+  },
+  {
+   "t": 222.006,
+   "fx": "shock"
+  },
+  {
+   "t": 224.525,
+   "fx": "shock"
+  },
+  {
+   "t": 228.949,
+   "fx": "shock"
+  },
+  {
+   "t": 228.949,
+   "fx": "nova"
+  },
+  {
+   "t": 232.734,
+   "fx": "shock"
+  },
+  {
+   "t": 235.265,
+   "fx": "shock"
   },
   {
    "t": 238.422,
@@ -500,14 +555,6 @@
    "t": 238.852,
    "fx": "blackout",
    "dur": 0.33
-  },
-  {
-   "t": 239.122,
-   "fx": "sprite",
-   "id": "s_tv",
-   "slot": "C",
-   "dur": 3.33,
-   "size": 24
   },
   {
    "t": 240.628,

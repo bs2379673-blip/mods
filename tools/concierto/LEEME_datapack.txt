@@ -16,9 +16,12 @@ INSTALAR
 ANTES DEL EVENTO (como OP)
   /function mikushow:preparar          noche fija, sin lluvia, sin spam en el chat
   /function mikushow:escenario/norte   hacia donde mira el publico (norte, este, sur, oeste)
-  Marcar donde bailan (como antes): parado en el lugar y mirando al publico, /function mikushow:bailarina/marcar_grande
+  /concierto marcar [escala]           parado donde bailan y MIRANDO AL PUBLICO: deja la marca (escala 4 por defecto; 1 o 10 si queres)
+                                       No aparece nadie al marcar: las bailarinas solo aparecen cuando la estrella toca el escenario.
+  /concierto quitarmarcas              borra las marcas
   El escenario del mod se acomoda solo sobre esa marca. Medidas: /concierto escenario ajustar <medida> <valor>
-  /function mikushow:prueba            10 s de prueba de todo el escenario (sin musica)
+  /function mikushow:prueba            prueba de todo el escenario (sin musica)
+  Probar una entrada: /concierto entrada miku   (cae la estrella y en la explosion aparece Miku; tambien teto y neru)
 
 EL SHOW
   /function mikushow:show/completo     TODO el concierto: apertura + 9 canciones + despedida
@@ -27,11 +30,11 @@ EL SHOW
   /function mikushow:stop              corta todo
   /function mikushow:restaurar         al final del evento
 
-ENTRADAS CON ESTRELLA
-  En la apertura una estrella celeste de Miku cruza todo el cielo, cae en el escenario y en el impacto aparece Miku.
-  Antes de Mesmerizer cae la estrella roja de Teto y antes de Triple Baka la amarilla de Neru.
-  Al aparecer cada una tiene un contorno brillante de su color unos segundos.
-  A mano: /function mikushow:bailarina/entrada_miku (o entrada_teto, entrada_neru)
+ENTRADAS CON ESTRELLA (sincronizadas)
+  El guion del mod tira la estrella y, en el mismo instante en que toca el escenario, el servidor hace aparecer a la bailarina
+  (cue "aparecer"). Apertura: Miku. Antes de Mesmerizer: Teto (estrella roja). Antes de Triple Baka: Neru (estrella amarilla).
+  Si algo falla, el chat avisa en rojo (sin marca, bailes apagados o falta el mod dancers).
+  A mano: /concierto entrada <miku|teto|neru>  o  /concierto aparecer <miku|teto|neru> (aparece ya, sin estrella)
 
 PARA LOS JUGADORES (comandos del mod, como OP)
   /concierto jugadores volar 12      el publico vuela (queda en el aire y baja con caida lenta) - en Minna Miku Miku

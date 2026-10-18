@@ -44,12 +44,17 @@ class Show:
         if big:
             self.fx(t, "shock")
 
+    BAN = {"s_spiral", "s_eye", "s_eyes", "s_heart", "s_heart_teal", "s_heartdrip", "s_sundrip", "s_synthsun", "s_note_pink", "s_note_teal", "s_eq", "s_tv",
+           "s_rainbow", "s_cursor", "s_pxleek", "s_bolt", "s_bolt_red", "s_star", "s_star_pink", "s_magiccircle", "u_pxheart"}
+
     def save(self):
+        # sin stickers tipo emoji: quedan el arte de Miku (u_*), los titulos (t_*) y los brillos (anillos, destellos)
+        self.cues = [c for c in self.cues if not (c.get("fx") == "sprite" and c.get("id") in self.BAN)]
         self.cues.sort(key=lambda c: (c["t"], 0 if "fx" not in c else 1))
         os.makedirs(DST, exist_ok=True)
         key = self.name.replace("_", "").lower()
         json.dump(dict(song=self.name, _nota="t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. "
-                       "fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+                       "fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
                        cues=self.cues), open(os.path.join(DST, key + ".json"), "w"), indent=1, ensure_ascii=False)
         print(f"{key}: {len(self.cues)} ordenes")
 
@@ -103,6 +108,16 @@ def build(name, plan, extra=None):
             delay = item.pop("delay", 0.7)
             if dur - delay > 1.5:
                 sh.spr(t0 + delay, sid, slot, dur - delay, **item)
+    last = -9.0
+    n_acc = 0
+    for t, h in d.get("accents", []):
+        i2, s2 = section_at(t)
+        if s2["role"] in STRONG and h > 7 and t - last > 2.2 and t > 1.0:
+            sh.fx(t, "shock")
+            n_acc += 1
+            if n_acc % 3 == 0:
+                sh.fx(t, "nova")
+            last = t
     for a, b in d.get("stops", []):
         sh.fx(a, "blackout", dur=round(max(0.15, b - a + 0.05), 2))
     if plan.get("title"):
@@ -308,7 +323,9 @@ def extra_magical(sh, d, section_at, role_look):
     sh.spr(BEAM_T, "s_ring", "C", BEAM_END - BEAM_T, size=30, pulse=0.35)
     sh.spr(BEAM_T, "s_ring_pink", "C", BEAM_END - BEAM_T, size=38, pulse=0.5)
     # el GIF de Miku lanzando el rayo, grande al centro, durante todo el rayo
-    sh.spr(BEAM_T, "u_beam", "C", BEAM_END - BEAM_T, size=40, pulse=0.08, bob=0.4)
+    sh.spr(BEAM_T, "u_beam", "H", BEAM_END - BEAM_T, size=30, pulse=0.08, bob=0.4)
+    # el rayo sale de las manos de Miku: carga con la cuenta y despues el disparo
+    sh.fx(start - 0.3, "rayo", carga=round(BEAM_T - (start - 0.3), 2), dur=round(BEAM_END - BEAM_T, 2))
     sh.fx(BEAM_T + 1.2, "fuegos", dur=8.0)
     sh.spr(BEAM_T + 0.4, "s_sparkle_teal", "LRH", BEAM_END - BEAM_T - 1.0, spin=40, size=12)
     sh.fx(BEAM_T, "jugadores", modo="brillo", dur=8, radio=80)
@@ -377,6 +394,7 @@ def intro():
     sh.fx(IMP, "nova")
     sh.fx(IMP, "shock")
     sh.fx(IMP, "pyro", dur=4.0)
+    sh.fx(IMP + 0.05, "aparecer", who="miku")      # el servidor invoca a Miku en la explosion
     sh.fx(IMP + 0.8, "fuegos", dur=7.0)
     sh.spr(IMP + 0.1, "t_go", "T", 4.0, size=24, pulse=0.3)
     sh.save()
@@ -396,9 +414,9 @@ intro()
 short("intermedio", [dict(t=0.5, fx="sprite", id="s_sparkle_teal", slot="LRH", dur=30, spin=12, size=11)],
       L("cosmos", "off", 0.0, "off", True, [TEAL, "#7a5cff", "#d8fffb"], 0.15, 0.05, 0.2))
 # antes de Mesmerizer entra Teto, antes de Triple Baka entra Neru: estrella de su color
-short("pre_mesmerizer", [dict(t=0.1, fx="estrella", col="#e0324b", dur=2.9, side=-1), dict(t=3.2, fx="pyro", dur=2.5, col="#e0324b")],
+short("pre_mesmerizer", [dict(t=0.1, fx="estrella", col="#e0324b", dur=2.9, side=-1), dict(t=3.05, fx="aparecer", who="teto"), dict(t=3.2, fx="pyro", dur=2.5, col="#e0324b")],
       L("hypno", "ripple", 0.6, "slow", True, [RED, VIO, "#ffd0d8"], 0.6, 0.3, 0.6))
-short("pre_triple_baka", [dict(t=0.1, fx="estrella", col="#f2d21b", dur=2.9, side=1), dict(t=3.2, fx="pyro", dur=2.5, col="#f2d21b")],
+short("pre_triple_baka", [dict(t=0.1, fx="estrella", col="#f2d21b", dur=2.9, side=1), dict(t=3.05, fx="aparecer", who="neru"), dict(t=3.2, fx="pyro", dur=2.5, col="#f2d21b")],
       L("baka", "ripple", 0.6, "slow", True, [GOLD, TEAL, RED], 0.6, 0.3, 0.6))
 
 # despedida de las tres: fuegos de colores a lo largo de los tiempos del datapack (2, 4.2, 7.5, 9, 10.5 y 13 s)

@@ -1,6 +1,6 @@
 {
  "song": "mesmerizer",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -19,15 +19,6 @@
     "#39c5bb",
     "#ff4a6a"
    ]
-  },
-  {
-   "t": 0.7,
-   "fx": "sprite",
-   "id": "s_spiral",
-   "slot": "C",
-   "dur": 12.36,
-   "spin": 22,
-   "size": 28
   },
   {
    "t": 2.53,
@@ -55,23 +46,6 @@
     "#39c5bb",
     "#ff4a6a"
    ]
-  },
-  {
-   "t": 14.76,
-   "fx": "sprite",
-   "id": "s_spiral",
-   "slot": "C",
-   "dur": 8.67,
-   "spin": 22,
-   "size": 26
-  },
-  {
-   "t": 14.76,
-   "fx": "sprite",
-   "id": "s_eye",
-   "slot": "H",
-   "dur": 8.67,
-   "size": 12
   },
   {
    "t": 24.427,
@@ -114,31 +88,6 @@
    "dur": 7.4
   },
   {
-   "t": 25.127,
-   "fx": "sprite",
-   "id": "s_spiral",
-   "slot": "C",
-   "dur": 8.69,
-   "spin": 40,
-   "size": 30
-  },
-  {
-   "t": 25.127,
-   "fx": "sprite",
-   "id": "s_eye",
-   "slot": "LR2",
-   "dur": 8.69,
-   "size": 14
-  },
-  {
-   "t": 25.127,
-   "fx": "sprite",
-   "id": "s_heart",
-   "slot": "LRH",
-   "dur": 8.69,
-   "size": 12
-  },
-  {
    "t": 34.818,
    "scene": "hypno",
    "floor": "ripple",
@@ -173,17 +122,33 @@
    "size": 21
   },
   {
-   "t": 35.518,
-   "fx": "sprite",
-   "id": "s_eye",
-   "slot": "H",
-   "dur": 32.03,
-   "size": 14
+   "t": 39.033,
+   "fx": "shock"
   },
   {
    "t": 44.652,
    "fx": "blackout",
    "dur": 0.27
+  },
+  {
+   "t": 45.511,
+   "fx": "shock"
+  },
+  {
+   "t": 53.139,
+   "fx": "shock"
+  },
+  {
+   "t": 53.139,
+   "fx": "nova"
+  },
+  {
+   "t": 58.979,
+   "fx": "shock"
+  },
+  {
+   "t": 68.383,
+   "fx": "shock"
   },
   {
    "t": 68.545,
@@ -210,31 +175,6 @@
   {
    "t": 68.545,
    "fx": "nova"
-  },
-  {
-   "t": 69.245,
-   "fx": "sprite",
-   "id": "s_spiral",
-   "slot": "C",
-   "dur": 8.68,
-   "spin": 40,
-   "size": 30
-  },
-  {
-   "t": 69.245,
-   "fx": "sprite",
-   "id": "s_eye",
-   "slot": "LR2",
-   "dur": 8.68,
-   "size": 14
-  },
-  {
-   "t": 69.245,
-   "fx": "sprite",
-   "id": "s_heart",
-   "slot": "LRH",
-   "dur": 8.68,
-   "size": 12
   },
   {
    "t": 78.925,
@@ -278,12 +218,28 @@
    "size": 21
   },
   {
-   "t": 79.625,
-   "fx": "sprite",
-   "id": "s_eye",
-   "slot": "H",
-   "dur": 16.48,
-   "size": 14
+   "t": 85.415,
+   "fx": "shock"
+  },
+  {
+   "t": 85.415,
+   "fx": "nova"
+  },
+  {
+   "t": 88.491,
+   "fx": "shock"
+  },
+  {
+   "t": 92.218,
+   "fx": "shock"
+  },
+  {
+   "t": 94.819,
+   "fx": "shock"
+  },
+  {
+   "t": 94.819,
+   "fx": "nova"
   },
   {
    "t": 97.106,
@@ -302,23 +258,6 @@
     "#39c5bb",
     "#ff4a6a"
    ]
-  },
-  {
-   "t": 97.806,
-   "fx": "sprite",
-   "id": "s_spiral",
-   "slot": "C",
-   "dur": 11.26,
-   "spin": 22,
-   "size": 26
-  },
-  {
-   "t": 97.806,
-   "fx": "sprite",
-   "id": "s_eye",
-   "slot": "H",
-   "dur": 11.26,
-   "size": 12
   },
   {
    "t": 110.063,
@@ -356,34 +295,17 @@
    "dur": 3.0
   },
   {
+   "t": 110.388,
+   "fx": "shock"
+  },
+  {
    "t": 110.463,
    "fx": "fuegos",
    "dur": 7.4
   },
   {
-   "t": 110.763,
-   "fx": "sprite",
-   "id": "s_spiral",
-   "slot": "C",
-   "dur": 8.68,
-   "spin": 40,
-   "size": 30
-  },
-  {
-   "t": 110.763,
-   "fx": "sprite",
-   "id": "s_eye",
-   "slot": "LR2",
-   "dur": 8.68,
-   "size": 14
-  },
-  {
-   "t": 110.763,
-   "fx": "sprite",
-   "id": "s_heart",
-   "slot": "LRH",
-   "dur": 8.68,
-   "size": 12
+   "t": 114.103,
+   "fx": "shock"
   },
   {
    "t": 120.442,
@@ -402,15 +324,6 @@
     "#39c5bb",
     "#ff4a6a"
    ]
-  },
-  {
-   "t": 121.142,
-   "fx": "sprite",
-   "id": "s_spiral",
-   "slot": "C",
-   "dur": 33.3,
-   "spin": 14,
-   "size": 24
   }
  ]
 }

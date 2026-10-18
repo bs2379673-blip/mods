@@ -1,6 +1,6 @@
 {
  "song": "intro",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -116,17 +116,6 @@
     "snare": 0.5,
     "accent": 0.9
    }
-  },
-  {
-   "t": 11.95,
-   "fx": "sprite",
-   "id": "s_magiccircle",
-   "slot": "C",
-   "dur": 9.3,
-   "size": 34,
-   "grow": 0.3,
-   "spin": 35,
-   "pulse": 0.12
   },
   {
    "t": 12.0,
@@ -289,6 +278,11 @@
    "t": 21.6,
    "fx": "pyro",
    "dur": 4.0
+  },
+  {
+   "t": 21.65,
+   "fx": "aparecer",
+   "who": "miku"
   },
   {
    "t": 21.7,

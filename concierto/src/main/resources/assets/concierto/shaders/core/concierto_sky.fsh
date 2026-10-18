@@ -236,7 +236,10 @@ vec3 sceneFire2(vec3 d, float zen, float ang, float t) {
 vec2 azel(vec3 d) {
     vec3 c = normalize(vec3(StageDir.x, 0.0, StageDir.z));
     vec3 T = normalize(cross(vec3(0.0, 1.0, 0.0), c));
-    return vec2(atan(dot(d, T), dot(d, c)), asin(clamp(d.y, -1.0, 1.0)));
+    float az = atan(dot(d, T), dot(d, c));
+    // espejo en la espalda del publico: el azimut nunca salta en +-180, asi no hay costura y el cielo envuelve por completo
+    if (abs(az) > 1.5707963) az = sign(az) * (PI - abs(az));
+    return vec2(az, asin(clamp(d.y, -1.0, 1.0)));
 }
 float dot2(vec2 v) { return dot(v, v); }
 float sdHeart(vec2 p) {
@@ -265,7 +268,7 @@ vec3 stars(vec2 ae, float el, float t) {
 vec3 sceneSunset(vec3 d, float t) {
     vec2 ae = azel(d);
     float el = max(ae.y, 0.0);
-    float front = smoothstep(-0.2, 0.5, dot(normalize(vec3(StageDir.x, 0.0, StageDir.z)), vec3(d.x, 0.0, d.z)));
+    float front = 1.0;
     vec3 deep = mix(vec3(0.07, 0.01, 0.20), P0 * 0.22, 0.35);
     vec3 col = mix(mix(P1, P0, 0.30) * 1.05, deep, smoothstep(0.0, 0.95, el));
     col = mix(col, P0 * 0.95, exp(-pow((el - 0.28) * 4.0, 2.0)) * 0.5);
@@ -302,7 +305,7 @@ vec3 sceneSunset(vec3 d, float t) {
 vec3 sceneMeltGlow(vec3 d, float t) {
     vec2 ae = azel(d);
     float el = max(ae.y, 0.0);
-    float front = smoothstep(-0.3, 0.6, dot(normalize(vec3(StageDir.x, 0.0, StageDir.z)), vec3(d.x, 0.0, d.z)));
+    float front = 1.0;
     vec3 col = mix(mix(P1, P0, 0.25) * 1.1, mix(P0 * 0.30, vec3(0.12, 0.01, 0.26), 0.55), smoothstep(0.0, 0.75, el));
     // cintas de aurora rosa
     for (int k = 0; k < 3; k++) {
@@ -684,6 +687,31 @@ vec3 sceneCosmos(vec3 d, float t) {
     return col * (0.8 + 0.4 * Level);
 }
 
+// reflectores que barren el cielo desde el horizonte y destellos que titilan: se suman a cualquier escena
+vec3 searchlights(vec3 d, float t) {
+    vec3 acc = vec3(0.0);
+    float inten = (0.10 + 0.55 * Level) * (1.0 + 0.8 * Beat);
+    for (int k = 0; k < 6; k++) {
+        float fk = float(k);
+        float ph = t * (0.22 + 0.04 * fk) * (mod(fk, 2.0) < 1.0 ? 1.0 : -1.0) + fk * TAU / 6.0;
+        vec3 h = vec3(cos(ph), 0.0, sin(ph));
+        float el = 0.75 + 0.45 * sin(t * 0.5 + fk * 1.9);
+        vec3 b = normalize(vec3(cos(ph) * cos(el), sin(el), sin(ph) * cos(el)));
+        vec3 n = normalize(cross(h, b));
+        float band = exp(-pow(dot(d, n) * 22.0, 2.0)) * smoothstep(0.0, 0.25, dot(d, h)) * smoothstep(-0.02, 0.1, d.y);
+        float along = clamp(dot(d, b) * 0.5 + 0.5, 0.0, 1.0);
+        vec3 c = mod(fk, 2.0) < 1.0 ? P1 : P2;
+        acc += mix(c, vec3(1.0), 0.35) * band * (0.35 + 0.65 * along) * inten * 0.5;
+    }
+    return acc;
+}
+vec3 glitter(vec3 d, float t) {
+    vec3 q = floor(d * 240.0);
+    float h = hash21(q.xy + q.z * 17.0);
+    float on = step(0.9968, h) * (0.5 + 0.5 * sin(t * (3.0 + h * 40.0) + h * 99.0));
+    return vec3(1.0) * on * (0.15 + 0.9 * High) * smoothstep(0.0, 0.1, d.y);
+}
+
 void main() {
     vec4 v = InvProj * vec4(ndc, 1.0, 1.0);
     vec3 vd = v.xyz / v.w;
@@ -717,6 +745,9 @@ void main() {
     else if (sc == 17) col = sceneBaka(dm, t);
     else if (sc == 18) col = sceneObscure(dm, t);
     else col = sceneCosmos(dm, t);
+
+    if (sc != 13) col += searchlights(dm, t);
+    col += glitter(dm, t);
 
     if (Nova >= 0.0) {
         float ang2 = acos(clamp(dot(d, normalize(vec3(StageDir.x, 0.35, StageDir.z))), -1.0, 1.0));

@@ -1,6 +1,6 @@
 {
  "song": "melt",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -65,6 +65,10 @@
    "dur": 3.0
   },
   {
+   "t": 12.69,
+   "fx": "shock"
+  },
+  {
    "t": 13.09,
    "fx": "fuegos",
    "dur": 8.3
@@ -80,27 +84,23 @@
   {
    "t": 13.39,
    "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "L3",
-   "dur": 9.6,
-   "size": 13
-  },
-  {
-   "t": 13.39,
-   "fx": "sprite",
-   "id": "s_note_teal",
-   "slot": "R3",
-   "dur": 9.6,
-   "size": 13
-  },
-  {
-   "t": 13.39,
-   "fx": "sprite",
    "id": "s_sparkle_pink",
    "slot": "LRU",
    "dur": 9.6,
    "spin": 30,
    "size": 11
+  },
+  {
+   "t": 16.567,
+   "fx": "shock"
+  },
+  {
+   "t": 19.04,
+   "fx": "shock"
+  },
+  {
+   "t": 19.04,
+   "fx": "nova"
   },
   {
    "t": 23.986,
@@ -129,12 +129,56 @@
    "size": 20
   },
   {
-   "t": 24.686,
-   "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "LR3",
-   "dur": 32.17,
-   "size": 13
+   "t": 25.217,
+   "fx": "shock"
+  },
+  {
+   "t": 30.337,
+   "fx": "shock"
+  },
+  {
+   "t": 33.158,
+   "fx": "shock"
+  },
+  {
+   "t": 33.158,
+   "fx": "nova"
+  },
+  {
+   "t": 35.979,
+   "fx": "shock"
+  },
+  {
+   "t": 38.441,
+   "fx": "shock"
+  },
+  {
+   "t": 42.33,
+   "fx": "shock"
+  },
+  {
+   "t": 42.33,
+   "fx": "nova"
+  },
+  {
+   "t": 46.208,
+   "fx": "shock"
+  },
+  {
+   "t": 50.097,
+   "fx": "shock"
+  },
+  {
+   "t": 52.918,
+   "fx": "shock"
+  },
+  {
+   "t": 52.918,
+   "fx": "nova"
+  },
+  {
+   "t": 55.74,
+   "fx": "shock"
   },
   {
    "t": 57.853,
@@ -163,12 +207,48 @@
    "size": 20
   },
   {
-   "t": 58.553,
-   "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "LR3",
-   "dur": 29.37,
-   "size": 13
+   "t": 60.685,
+   "fx": "shock"
+  },
+  {
+   "t": 63.855,
+   "fx": "shock"
+  },
+  {
+   "t": 63.855,
+   "fx": "nova"
+  },
+  {
+   "t": 66.154,
+   "fx": "shock"
+  },
+  {
+   "t": 69.857,
+   "fx": "shock"
+  },
+  {
+   "t": 75.151,
+   "fx": "shock"
+  },
+  {
+   "t": 75.151,
+   "fx": "nova"
+  },
+  {
+   "t": 78.681,
+   "fx": "shock"
+  },
+  {
+   "t": 82.918,
+   "fx": "shock"
+  },
+  {
+   "t": 86.1,
+   "fx": "shock"
+  },
+  {
+   "t": 86.1,
+   "fx": "nova"
   },
   {
    "t": 88.921,
@@ -197,6 +277,10 @@
    "fx": "nova"
   },
   {
+   "t": 88.921,
+   "fx": "shock"
+  },
+  {
    "t": 89.621,
    "fx": "sprite",
    "id": "u_head_happy",
@@ -207,27 +291,27 @@
   {
    "t": 89.621,
    "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "L3",
-   "dur": 9.6,
-   "size": 13
-  },
-  {
-   "t": 89.621,
-   "fx": "sprite",
-   "id": "s_note_teal",
-   "slot": "R3",
-   "dur": 9.6,
-   "size": 13
-  },
-  {
-   "t": 89.621,
-   "fx": "sprite",
    "id": "s_sparkle_pink",
    "slot": "LRU",
    "dur": 9.6,
    "spin": 30,
    "size": 11
+  },
+  {
+   "t": 92.799,
+   "fx": "shock"
+  },
+  {
+   "t": 95.271,
+   "fx": "shock"
+  },
+  {
+   "t": 95.271,
+   "fx": "nova"
+  },
+  {
+   "t": 98.093,
+   "fx": "shock"
   },
   {
    "t": 100.217,
@@ -324,27 +408,43 @@
   {
    "t": 137.616,
    "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "L3",
-   "dur": 23.71,
-   "size": 13
-  },
-  {
-   "t": 137.616,
-   "fx": "sprite",
-   "id": "s_note_teal",
-   "slot": "R3",
-   "dur": 23.71,
-   "size": 13
-  },
-  {
-   "t": 137.616,
-   "fx": "sprite",
    "id": "s_sparkle_pink",
    "slot": "LRU",
    "dur": 23.71,
    "spin": 30,
    "size": 11
+  },
+  {
+   "t": 140.098,
+   "fx": "shock"
+  },
+  {
+   "t": 142.396,
+   "fx": "shock"
+  },
+  {
+   "t": 142.396,
+   "fx": "nova"
+  },
+  {
+   "t": 146.1,
+   "fx": "shock"
+  },
+  {
+   "t": 151.382,
+   "fx": "shock"
+  },
+  {
+   "t": 154.912,
+   "fx": "shock"
+  },
+  {
+   "t": 154.912,
+   "fx": "nova"
+  },
+  {
+   "t": 158.801,
+   "fx": "shock"
   },
   {
    "t": 162.331,
@@ -459,12 +559,24 @@
    "size": 20
   },
   {
-   "t": 211.026,
-   "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "LR3",
-   "dur": 26.54,
-   "size": 13
+   "t": 215.806,
+   "fx": "shock"
+  },
+  {
+   "t": 219.51,
+   "fx": "shock"
+  },
+  {
+   "t": 219.51,
+   "fx": "nova"
+  },
+  {
+   "t": 227.091,
+   "fx": "shock"
+  },
+  {
+   "t": 233.628,
+   "fx": "shock"
   },
   {
    "t": 238.562,
@@ -485,6 +597,14 @@
    ]
   },
   {
+   "t": 238.562,
+   "fx": "shock"
+  },
+  {
+   "t": 238.562,
+   "fx": "nova"
+  },
+  {
    "t": 239.262,
    "fx": "sprite",
    "id": "u_head_happy",
@@ -493,12 +613,12 @@
    "size": 20
   },
   {
-   "t": 239.262,
-   "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "LR3",
-   "dur": 12.44,
-   "size": 13
+   "t": 246.329,
+   "fx": "shock"
+  },
+  {
+   "t": 248.941,
+   "fx": "shock"
   },
   {
    "t": 252.703,

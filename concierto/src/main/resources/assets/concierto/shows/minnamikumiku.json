@@ -1,6 +1,6 @@
 {
  "song": "minna_miku_miku",
- "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio).",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con scene/floor/eq/beams/ring/col/react/swap queda puesta hasta la siguiente. fx: flash, nova, shock, blackout(dur), column(col,size,dur), estrella(col,dur,side), pyro(dur,col), fuegos(dur,n), rayo(carga,dur), sprite(id,slot,dur,size,spin,grow,pulse,tint,add,flip), jugadores(modo=volar|brillo|confeti, dur, radio), aparecer(who=miku|teto|neru).",
  "cues": [
   {
    "t": 0.0,
@@ -69,22 +69,6 @@
    "size": 22
   },
   {
-   "t": 40.894,
-   "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "L2",
-   "dur": 31.3,
-   "size": 12
-  },
-  {
-   "t": 40.894,
-   "fx": "sprite",
-   "id": "s_note_teal",
-   "slot": "R2",
-   "dur": 31.3,
-   "size": 12
-  },
-  {
    "t": 73.189,
    "scene": "pop",
    "floor": "ripple",
@@ -115,6 +99,10 @@
    "fx": "shock"
   },
   {
+   "t": 73.387,
+   "fx": "shock"
+  },
+  {
    "t": 73.889,
    "fx": "sprite",
    "id": "u_head_happy",
@@ -123,28 +111,56 @@
    "size": 28
   },
   {
-   "t": 73.889,
-   "fx": "sprite",
-   "id": "s_heart",
-   "slot": "LR1",
-   "dur": 33.3,
-   "size": 15
+   "t": 76.754,
+   "fx": "shock"
   },
   {
-   "t": 73.889,
-   "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "L2",
-   "dur": 33.3,
-   "size": 13
+   "t": 79.192,
+   "fx": "shock"
   },
   {
-   "t": 73.889,
-   "fx": "sprite",
-   "id": "s_note_teal",
-   "slot": "R2",
-   "dur": 33.3,
-   "size": 13
+   "t": 79.192,
+   "fx": "nova"
+  },
+  {
+   "t": 84.439,
+   "fx": "shock"
+  },
+  {
+   "t": 86.692,
+   "fx": "shock"
+  },
+  {
+   "t": 91.196,
+   "fx": "shock"
+  },
+  {
+   "t": 91.196,
+   "fx": "nova"
+  },
+  {
+   "t": 95.689,
+   "fx": "shock"
+  },
+  {
+   "t": 97.942,
+   "fx": "shock"
+  },
+  {
+   "t": 103.944,
+   "fx": "shock"
+  },
+  {
+   "t": 103.944,
+   "fx": "nova"
+  },
+  {
+   "t": 106.196,
+   "fx": "shock"
+  },
+  {
+   "t": 111.444,
+   "fx": "shock"
   },
   {
    "t": 112.187,
@@ -173,22 +189,6 @@
    "size": 22
   },
   {
-   "t": 112.887,
-   "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "L2",
-   "dur": 10.3,
-   "size": 12
-  },
-  {
-   "t": 112.887,
-   "fx": "sprite",
-   "id": "s_note_teal",
-   "slot": "R2",
-   "dur": 10.3,
-   "size": 12
-  },
-  {
    "t": 124.192,
    "scene": "pop",
    "floor": "grid",
@@ -213,22 +213,6 @@
    "slot": "C",
    "dur": 19.3,
    "size": 22
-  },
-  {
-   "t": 124.892,
-   "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "L2",
-   "dur": 19.3,
-   "size": 12
-  },
-  {
-   "t": 124.892,
-   "fx": "sprite",
-   "id": "s_note_teal",
-   "slot": "R2",
-   "dur": 19.3,
-   "size": 12
   },
   {
    "t": 145.194,
@@ -295,13 +279,28 @@
    "size": 19
   },
   {
-   "t": 145.894,
-   "fx": "sprite",
-   "id": "s_star_pink",
-   "slot": "LRH",
-   "dur": 25.29,
-   "spin": 30,
-   "size": 11
+   "t": 148.759,
+   "fx": "shock"
+  },
+  {
+   "t": 148.759,
+   "fx": "nova"
+  },
+  {
+   "t": 151.011,
+   "fx": "shock"
+  },
+  {
+   "t": 157.942,
+   "fx": "shock"
+  },
+  {
+   "t": 163.201,
+   "fx": "shock"
+  },
+  {
+   "t": 163.201,
+   "fx": "nova"
   },
   {
    "t": 172.188,
@@ -328,22 +327,6 @@
    "slot": "C",
    "dur": 28.32,
    "size": 22
-  },
-  {
-   "t": 172.888,
-   "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "L2",
-   "dur": 28.32,
-   "size": 12
-  },
-  {
-   "t": 172.888,
-   "fx": "sprite",
-   "id": "s_note_teal",
-   "slot": "R2",
-   "dur": 28.32,
-   "size": 12
   },
   {
    "t": 202.211,
@@ -384,28 +367,44 @@
    "size": 28
   },
   {
-   "t": 202.911,
-   "fx": "sprite",
-   "id": "s_heart",
-   "slot": "LR1",
-   "dur": 22.29,
-   "size": 15
+   "t": 205.009,
+   "fx": "shock"
   },
   {
-   "t": 202.911,
-   "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "L2",
-   "dur": 22.29,
-   "size": 13
+   "t": 207.447,
+   "fx": "shock"
   },
   {
-   "t": 202.911,
-   "fx": "sprite",
-   "id": "s_note_teal",
-   "slot": "R2",
-   "dur": 22.29,
-   "size": 13
+   "t": 211.197,
+   "fx": "shock"
+  },
+  {
+   "t": 211.197,
+   "fx": "nova"
+  },
+  {
+   "t": 214.192,
+   "fx": "shock"
+  },
+  {
+   "t": 216.445,
+   "fx": "shock"
+  },
+  {
+   "t": 218.697,
+   "fx": "shock"
+  },
+  {
+   "t": 218.697,
+   "fx": "nova"
+  },
+  {
+   "t": 221.693,
+   "fx": "shock"
+  },
+  {
+   "t": 223.945,
+   "fx": "shock"
   },
   {
    "t": 226.197,
@@ -432,22 +431,6 @@
    "slot": "C",
    "dur": 10.29,
    "size": 22
-  },
-  {
-   "t": 226.897,
-   "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "L2",
-   "dur": 10.29,
-   "size": 12
-  },
-  {
-   "t": 226.897,
-   "fx": "sprite",
-   "id": "s_note_teal",
-   "slot": "R2",
-   "dur": 10.29,
-   "size": 12
   },
   {
    "t": 238.19,
@@ -490,6 +473,14 @@
    "dur": 12.0
   },
   {
+   "t": 238.759,
+   "fx": "shock"
+  },
+  {
+   "t": 238.759,
+   "fx": "nova"
+  },
+  {
    "t": 238.89,
    "fx": "sprite",
    "id": "u_head_sparkle",
@@ -514,15 +505,6 @@
    "size": 19
   },
   {
-   "t": 238.89,
-   "fx": "sprite",
-   "id": "s_star_pink",
-   "slot": "LRH",
-   "dur": 13.3,
-   "spin": 30,
-   "size": 11
-  },
-  {
    "t": 239.0,
    "fx": "jugadores",
    "modo": "volar",
@@ -535,6 +517,10 @@
    "modo": "confeti",
    "dur": 14,
    "radio": 80
+  },
+  {
+   "t": 241.197,
+   "fx": "shock"
   },
   {
    "t": 253.19,
@@ -563,28 +549,20 @@
    "size": 28
   },
   {
-   "t": 253.89,
-   "fx": "sprite",
-   "id": "s_heart",
-   "slot": "LR1",
-   "dur": 19.3,
-   "size": 15
+   "t": 255.443,
+   "fx": "shock"
   },
   {
-   "t": 253.89,
-   "fx": "sprite",
-   "id": "s_note_pink",
-   "slot": "L2",
-   "dur": 19.3,
-   "size": 13
+   "t": 261.445,
+   "fx": "shock"
   },
   {
-   "t": 253.89,
-   "fx": "sprite",
-   "id": "s_note_teal",
-   "slot": "R2",
-   "dur": 19.3,
-   "size": 13
+   "t": 261.445,
+   "fx": "nova"
+  },
+  {
+   "t": 271.94,
+   "fx": "shock"
   },
   {
    "t": 274.193,

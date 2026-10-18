@@ -90,56 +90,45 @@ for fn, (tag, color) in GLOW.items():
            "schedule function mikushow:bailarina/sin_brillo 7s replace\n")
     wr(p, t.rstrip("\n") + "\n" + add)
 wr("bailarina/sin_brillo.mcfunction", "# se apaga el contorno de las bailarinas\ndata modify entity @e[type=dancers:dancer,tag=mikushow] Glowing set value 0b\n")
-# entrada a mano: estrella + aparicion a los 3 s (cuando cae)
-for nm, col, fn, tag in (("miku", "miku", "aparecer", ""), ("teto", "teto", "aparece_teto", ""), ("neru", "neru", "aparece_neru", "")):
-    wr(f"bailarina/entrada_{nm}.mcfunction",
-       f"# estrella de {nm} que cae al escenario y aparece\nfunction mikushow:concierto/escenario\nconcierto estrella {col} ~ ~ ~ 3\nschedule function mikushow:bailarina/{fn} 65t append\n")
-    # estrella en la posicion del escenario: se usa stageOr (sin pos) -> ver abajo
+# entrada a mano: estrella y aparicion en el impacto (todo lo hace el mod con el mismo reloj)
 for nm in ("miku", "teto", "neru"):
-    p = f"bailarina/entrada_{nm}.mcfunction"
-    t = rd(p).replace(f"concierto estrella {nm} ~ ~ ~ 3", f"execute as @e[type=marker,tag=mikushow_s4,limit=1] at @s run concierto estrella {nm} ~ ~ ~ 3")
-    wr(p, t)
+    wr(f"bailarina/entrada_{nm}.mcfunction", f"# estrella de {nm} que cae al escenario y aparece en la explosion\nfunction mikushow:concierto/escenario\nconcierto entrada {nm}\n")
 
-
-# 8) la aparicion llega 0.25 s DESPUES del impacto de la estrella (el destello y la columna la tapan); antes salia justo en el choque y se veia adelantada
+# 8) las bailarinas ya NO las invoca el datapack por su cuenta: las invoca el guion del mod en el instante exacto en que la estrella toca el escenario
+#    (cue "aparecer" en los .json del mod, o /concierto entrada <quien>). Aca se saca todo disparo viejo y se crean auto_* con avisos.
 p = "song/intro/b2.mcfunction"
 t = rd(p)
 assert "matches 432 run function mikushow:bailarina/aparecer_auto" in t
-wr(p, t.replace("matches 432 run function mikushow:bailarina/aparecer_auto", "matches 437 run function mikushow:bailarina/aparecer_auto"))
+wr(p, t.replace("execute if score #t mikushow matches 432 run function mikushow:bailarina/aparecer_auto\n", "").replace("execute if score #t mikushow matches 432 run function mikushow:bailarina/aparecer_auto", ""))
 for nm, fn in (("mesmerizer", "mesmerizer_2"), ("triple_baka", "triple_baka_2")):
-    p = f"pre/{nm}.mcfunction"
+    p = f"pre/{fn}.mcfunction"
     t = rd(p)
-    assert f"schedule function mikushow:pre/{fn} 3s replace" in t
-    wr(p, t.replace(f"schedule function mikushow:pre/{fn} 3s replace", f"schedule function mikushow:pre/{fn} 65t replace"))
-
-
-# 9) al marcar un lugar aparece Miku de prueba ahi mismo (en reposo) para ver donde queda; se reemplaza al marcar de nuevo, y aparecer/stop/restaurar la sacan
-for fn, sc in (("marcar", 1), ("marcar_grande", 4), ("marcar_gigante", 10)):
-    p = f"bailarina/{fn}.mcfunction"
-    t = rd(p).rstrip("\n")
-    t = t.replace("tag @e[type=marker,tag=mks_new] remove mks_new",
-        "dancer vanish @e[type=dancers:dancer,tag=mks_prev]\n"
-        f"execute as @e[type=marker,tag=mks_new,limit=1] at @s rotated as @s run dancer spawn mikupd ~ ~ ~ {sc}\n"
-        "execute as @e[type=marker,tag=mks_new,limit=1] at @s run tag @e[type=dancers:dancer,distance=..0.6,tag=!mikushow] add mks_prev\n"
-        "tag @e[type=dancers:dancer,tag=mks_prev] add mikushow\n"
-        "tag @e[type=dancers:dancer,tag=mks_prev] add mks_miku\n"
-        "dancer play @e[type=dancers:dancer,tag=mks_prev] mikushow:idle true\n"
-        "tag @e[type=marker,tag=mks_new] remove mks_new")
-    wr(p, t + "\n")
-p = "bailarina/borrar_marcas.mcfunction"
-wr(p, "dancer vanish @e[type=dancers:dancer,tag=mks_prev]\n" + rd(p))
-
+    wr(p, "\n".join(ln for ln in t.split("\n") if "bailarina/aparece_" not in ln))
+for nm, fn in (("miku", "aparecer"), ("teto", "aparece_teto"), ("neru", "aparece_neru")):
+    wr(f"bailarina/auto_{nm}.mcfunction",
+       'execute unless score #baile mikushow matches 1 run tellraw @a {"text":"[MikuShow] los bailes estan APAGADOS: usa /function mikushow:config/bailes_on","color":"red"}\n'
+       f"execute if score #baile mikushow matches 1 run function mikushow:bailarina/{fn}\n")
 
 # 10) avisos en el chat cuando algo impide que aparezcan (antes fallaba en silencio)
-NOMARK = 'execute unless entity @e[type=marker,tag=mikushow_spot] run tellraw @a {"text":"[MikuShow] NO HAY MARCA: parate donde bailan y usa /function mikushow:bailarina/marcar_grande","color":"red"}\n'
+NOMARK = 'execute unless entity @e[type=marker,tag=mikushow_spot] run tellraw @a {"text":"[MikuShow] NO HAY MARCA: parate donde bailan y usa /concierto marcar","color":"red"}\n'
 for fn, tag, nm in (("aparecer", "mks_miku", "Miku"), ("aparece_teto", "mks_teto", "Teto"), ("aparece_neru", "mks_neru", "Neru")):
     p = f"bailarina/{fn}.mcfunction"
     t = rd(p).rstrip("\n")
     wr(p, NOMARK + t + "\n"
        f'execute unless entity @e[type=dancers:dancer,tag={tag}] run tellraw @a {{"text":"[MikuShow] no se pudo crear a {nm}: falta el mod dancers (servidor y clientes) o el comando dancer fallo","color":"red"}}\n')
-wr("bailarina/aparecer_auto.mcfunction",
-   'execute unless score #baile mikushow matches 1 run tellraw @a {"text":"[MikuShow] los bailes estan APAGADOS: usa /function mikushow:config/bailes_on","color":"red"}\n'
-   "execute if score #baile mikushow matches 1 run function mikushow:bailarina/aparecer\n")
+
+# entrada a mano: estrella y aparicion en el impacto (todo lo hace el mod con el mismo reloj)
+for nm in ("miku", "teto", "neru"):
+    wr(f"bailarina/entrada_{nm}.mcfunction", f"# estrella de {nm} que cae al escenario y aparece en la explosion\nfunction mikushow:concierto/escenario\nconcierto entrada {nm}\n")
+
+# 11) sin simbolos raros en los avisos de pantalla
+for root, _, files in os.walk(F):
+    for fn in files:
+        if fn.endswith(".mcfunction"):
+            p = os.path.join(root, fn)
+            t = open(p, encoding="utf-8").read()
+            if "\u266a" in t:
+                open(p, "w", encoding="utf-8", newline="\n").write(t.replace("\u266a ", "").replace("\u266a", ""))
 
 # 7) el stop tambien frena los efectos
 t = rd("stop.mcfunction")
