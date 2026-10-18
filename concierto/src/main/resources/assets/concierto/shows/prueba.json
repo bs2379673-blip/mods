@@ -1,0 +1,80 @@
+{
+ "song": "prueba",
+ "cues": [
+  {
+   "t": 0,
+   "scene": "sunset",
+   "floor": "grid",
+   "eq": 1.0,
+   "beams": "slow",
+   "ring": true,
+   "col": [
+    "#ff6a9a",
+    "#ff9a6a",
+    "#ffd0e0"
+   ],
+   "react": {
+    "kick": 0.8,
+    "snare": 0.4,
+    "accent": 1.0
+   }
+  },
+  {
+   "t": 6,
+   "scene": "meltglow",
+   "floor": "ripple",
+   "beams": "fan"
+  },
+  {
+   "t": 12,
+   "scene": "spectrum",
+   "floor": "disco",
+   "beams": "cross",
+   "col": [
+    "#00e5ff",
+    "#ff3df2",
+    "#ffe23d"
+   ]
+  },
+  {
+   "t": 18,
+   "scene": "milkdrop",
+   "floor": "ripple",
+   "beams": "sweep"
+  },
+  {
+   "t": 24,
+   "scene": "starfield",
+   "beams": "strobe"
+  },
+  {
+   "t": 30,
+   "scene": "sunset",
+   "floor": "grid",
+   "beams": "slow",
+   "col": [
+    "#ff6a9a",
+    "#ff9a6a",
+    "#ffd0e0"
+   ]
+  },
+  {
+   "t": 8,
+   "fx": "nova"
+  },
+  {
+   "t": 14,
+   "fx": "flash"
+  },
+  {
+   "t": 20,
+   "fx": "shock"
+  },
+  {
+   "t": 27,
+   "fx": "column",
+   "col": "#39c5bb",
+   "dur": 5
+  }
+ ]
+}

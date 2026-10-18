@@ -2,8 +2,8 @@ package com.tunombre.concierto.client;
 
 /** analisis de una cancion: por cada cuadro (60 por segundo) 32 bandas + volumen, graves, medios, agudos y golpe */
 public final class Track {
-    public static final int BANDS = 32, STRIDE = BANDS + 5;
-    public static final int LEVEL = 32, BASS = 33, MID = 34, HIGH = 35, BEAT = 36;
+    public static final int BANDS = 32, STRIDE = BANDS + 7;
+    public static final int LEVEL = 32, BASS = 33, MID = 34, HIGH = 35, BEAT = 36, KICK = 36, SNARE = 37, ACCENT = 38;
     public static final float FPS = 60F;
 
     public final float[] data;
@@ -28,11 +28,24 @@ public final class Track {
         return data[i * STRIDE + k] * (1F - fr) + data[(i + 1) * STRIDE + k] * fr;
     }
 
-    /** la marca de golpe no se interpola: se toma el mayor de los dos cuadros vecinos */
-    public float beatAt(float t) {
+    /** los golpes no se interpolan: se toma el cuadro mas cercano */
+    public float beatAt(float t) { return hitAt(t, KICK); }
+
+    public float hitAt(float t, int k) {
         int i = (int) (t * FPS);
         if (i < 0 || i >= frames) return 0F;
-        return data[i * STRIDE + BEAT];
+        return data[i * STRIDE + k];
+    }
+
+    /** analisis empaquetado en el mod (tools/concierto/make_tracks.py): 'CTK2' | frames(int LE) | stride | bytes */
+    public static Track fromBytes(byte[] b) {
+        if (b.length < 9 || b[0] != 'C' || b[1] != 'T' || b[2] != 'K' || b[3] != '2') return null;
+        int frames = (b[4] & 0xFF) | (b[5] & 0xFF) << 8 | (b[6] & 0xFF) << 16 | (b[7] & 0xFF) << 24;
+        int stride = b[8] & 0xFF;
+        if (stride != STRIDE || b.length < 9 + (long) frames * stride) return null;
+        float[] d = new float[frames * stride];
+        for (int i = 0; i < d.length; i++) d[i] = (b[9 + i] & 0xFF) / 255F;
+        return new Track(d, frames, false);
     }
 
     /** pista inventada (128 BPM) para cuando falta el archivo de audio: asi el cielo igual se mueve */

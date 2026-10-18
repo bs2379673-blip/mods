@@ -19,6 +19,12 @@ uniform float Flash;
 uniform float Fade;
 uniform float Hue;
 uniform float Spec[32];
+uniform vec3 StageDir;
+uniform float Nova;
+uniform vec3 P0;
+uniform vec3 P1;
+uniform vec3 P2;
+uniform float Kick;
 
 const float PI = 3.14159265;
 const float TAU = 6.2831853;
@@ -225,6 +231,120 @@ vec3 sceneFire2(vec3 d, float zen, float ang, float t) {
     return c;
 }
 
+
+// ---------- escenas ancladas al eje del escenario (StageDir = hacia donde mira el publico) ----------
+vec2 azel(vec3 d) {
+    vec3 c = normalize(vec3(StageDir.x, 0.0, StageDir.z));
+    vec3 T = normalize(cross(vec3(0.0, 1.0, 0.0), c));
+    return vec2(atan(dot(d, T), dot(d, c)), asin(clamp(d.y, -1.0, 1.0)));
+}
+float dot2(vec2 v) { return dot(v, v); }
+float sdHeart(vec2 p) {
+    p.x = abs(p.x);
+    if (p.y + p.x > 1.0) return sqrt(dot2(p - vec2(0.25, 0.75))) - sqrt(2.0) / 4.0;
+    return sqrt(min(dot2(p - vec2(0.0, 1.0)), dot2(p - 0.5 * max(p.x + p.y, 0.0)))) * sign(p.x - p.y);
+}
+// corazon de tamano 'sz' (radianes) centrado en 'c' (az, el); devuelve [relleno, borde]
+vec2 heart(vec2 ae, vec2 c, float sz) {
+    vec2 p = (ae - c) / sz;
+    p.y += 0.55;
+    float d = sdHeart(p);
+    return vec2(smoothstep(0.02, -0.02, d), exp(-pow(d * 14.0, 2.0)));
+}
+vec3 stars(vec2 ae, float el, float t) {
+    vec2 g = ae * vec2(46.0, 46.0);
+    vec2 cell = floor(g);
+    float h = hash21(cell);
+    vec2 f = fract(g) - 0.5;
+    float tw = 0.5 + 0.5 * sin(t * (2.0 + h * 4.0) + h * 60.0);
+    float on = step(0.982, h) * smoothstep(0.30, 0.18, length(f)) * tw;
+    return vec3(1.0, 0.92, 0.95) * on * smoothstep(0.22, 0.6, el);
+}
+
+// 8: atardecer con el sol que se derrite
+vec3 sceneSunset(vec3 d, float t) {
+    vec2 ae = azel(d);
+    float el = max(ae.y, 0.0);
+    float front = smoothstep(-0.2, 0.5, dot(normalize(vec3(StageDir.x, 0.0, StageDir.z)), vec3(d.x, 0.0, d.z)));
+    vec3 deep = mix(vec3(0.07, 0.01, 0.20), P0 * 0.22, 0.35);
+    vec3 col = mix(mix(P1, P0, 0.30) * 1.05, deep, smoothstep(0.0, 0.95, el));
+    col = mix(col, P0 * 0.95, exp(-pow((el - 0.28) * 4.0, 2.0)) * 0.5);
+    // nubes iluminadas por el sol
+    float cl = fbm(vec3(ae.x * 1.7, el * 5.0, t * 0.025));
+    col += mix(P0, P2, cl) * pow(cl, 2.2) * smoothstep(0.02, 0.18, el) * smoothstep(0.7, 0.2, el) * 0.7 * (0.6 + 0.6 * Level) * front;
+    // sol
+    float cy = 0.30, r = 0.17 * (1.0 + 0.04 * Kick);
+    vec2 sp = vec2(ae.x, el - cy);
+    float dist = length(sp);
+    float disc = smoothstep(r, r - 0.012, dist);
+    vec3 sunC = mix(P1, P0, clamp((el - (cy - r)) / (2.0 * r), 0.0, 1.0));
+    col = mix(col, sunC * (1.25 + 0.3 * Level), disc);
+    col += mix(P1, P0, 0.4) * exp(-dist * 4.5) * (0.30 + 0.45 * Level + 0.25 * Bass);
+    // gotas que cuelgan del sol
+    float dr = 0.0;
+    for (int i = 0; i < 11; i++) {
+        float fi = float(i);
+        float x = -r * 0.82 + r * 1.64 * fi / 10.0;
+        float edge = cy - sqrt(max(r * r - x * x, 0.0));
+        float len = r * (0.30 + 0.95 * hash11(fi * 3.1)) * (0.75 + 0.45 * Bass) * (0.8 + 0.2 * sin(t * 0.8 + fi * 1.7));
+        float y = edge - el;
+        float w = 0.0065 + 0.003 * hash11(fi);
+        float line = smoothstep(w, 0.0, abs(ae.x - x)) * step(0.0, y) * smoothstep(len + 0.012, len - 0.004, y);
+        float bead = smoothstep(w * 2.1, w * 1.3, length(vec2(ae.x - x, y - len)));
+        dr += line + bead;
+    }
+    col += sunC * dr * 1.1 * front;
+    col += stars(ae, el, t) * (1.0 - disc);
+    return col;
+}
+
+// 9: version de estribillo: sol que late, ondas y corazones simetricos con gotas
+vec3 sceneMeltGlow(vec3 d, float t) {
+    vec2 ae = azel(d);
+    float el = max(ae.y, 0.0);
+    float front = smoothstep(-0.3, 0.6, dot(normalize(vec3(StageDir.x, 0.0, StageDir.z)), vec3(d.x, 0.0, d.z)));
+    vec3 col = mix(mix(P1, P0, 0.25) * 1.1, mix(P0 * 0.30, vec3(0.12, 0.01, 0.26), 0.55), smoothstep(0.0, 0.75, el));
+    // cintas de aurora rosa
+    for (int k = 0; k < 3; k++) {
+        float fk = float(k);
+        float y = 0.30 + 0.20 * fk + 0.07 * sin(ae.x * (2.5 + fk) + t * (0.5 + 0.2 * fk) + Bass * 2.0);
+        float b = exp(-pow((el - y) * (9.0 - fk), 2.0));
+        col += mix(P0, P2, fk / 2.0) * b * (0.30 + 0.5 * Level) * front;
+    }
+    // sol que late con ondas
+    float cy = 0.22, r = 0.15 * (1.0 + 0.10 * Kick);
+    vec2 sp = vec2(ae.x, el - cy);
+    float dist = length(sp);
+    col = mix(col, mix(P1, P2, 0.35 + 0.3 * Beat) * 1.5, smoothstep(r, r - 0.012, dist));
+    float wv = 0.5 + 0.5 * sin(dist * 34.0 - t * 5.0 - Bass * 3.0);
+    col += P0 * pow(wv, 4.0) * smoothstep(0.7, 0.2, dist) * smoothstep(r, r + 0.05, dist) * (0.35 + 0.8 * Level);
+    col += P2 * exp(-dist * 4.0) * (0.25 + 0.5 * Level);
+    // corazones simetricos: dos filas a cada lado, el mayor arriba al centro
+    float bob = 0.012 * sin(t * 1.4);
+    vec2 h = vec2(0.0);
+    vec3 hc = vec3(0.0);
+    float szc = 0.20 * (1.0 + 0.08 * Kick);
+    vec2 cH = heart(ae, vec2(0.0, 0.62 + bob), szc);
+    hc += P0 * 1.15 * cH.x + vec3(1.0) * cH.y * 0.8;
+    for (int i = 0; i < 2; i++) {
+        float fi = float(i);
+        float x = 0.62 + 0.45 * fi;
+        float yy = 0.42 - 0.12 * fi + bob * (1.0 + fi);
+        float sz = (0.115 - 0.02 * fi) * (1.0 + 0.10 * Kick);
+        for (int sgn = 0; sgn < 2; sgn++) {
+            float sx = sgn == 0 ? -x : x;
+            vec2 hh = heart(ae, vec2(sx, yy), sz);
+            hc += mix(P0, P1, 0.25 + 0.3 * fi) * 1.1 * hh.x + vec3(1.0) * hh.y * 0.7;
+            // gotita debajo
+            float gl = smoothstep(0.006, 0.0, abs(ae.x - sx)) * step(ae.y, yy - sz * 0.55) * smoothstep(yy - sz * 0.55 - 0.16, yy - sz * 0.55, ae.y);
+            hc += P0 * gl * 0.8;
+        }
+    }
+    col += hc * front * (0.8 + 0.5 * Level);
+    col += stars(ae, el, t) * 0.8;
+    return col;
+}
+
 void main() {
     vec4 v = InvProj * vec4(ndc, 1.0, 1.0);
     vec3 vd = v.xyz / v.w;
@@ -245,8 +365,15 @@ void main() {
     else if (sc == 4) col = sceneMilk(dm, zen, ang, t);
     else if (sc == 5) col = sceneMagneto(dm, zen, ang, t);
     else if (sc == 6) col = sceneFire(d, zen, ang, t);
-    else col = sceneFire2(dm, zen, ang, t);
+    else if (sc == 7) col = sceneFire2(dm, zen, ang, t);
+    else if (sc == 8) col = sceneSunset(dm, t);
+    else col = sceneMeltGlow(dm, t);
 
+    if (Nova >= 0.0) {
+        float ang2 = acos(clamp(dot(d, normalize(vec3(StageDir.x, 0.35, StageDir.z))), -1.0, 1.0));
+        float rg = exp(-pow((ang2 - Nova * 2.6) * 8.0, 2.0)) * (1.0 - Nova);
+        col += mix(P1, vec3(1.0), 0.55) * rg * 1.7;
+    }
     if (below) col *= 0.5;
     // golpe de graves: pulso general + destello blanco
     col *= 1.0 + 0.35 * Beat;

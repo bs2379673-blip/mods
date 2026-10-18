@@ -1,0 +1,313 @@
+{
+ "song": "melt",
+ "_nota": "t = segundos desde que arranca la musica. Cada orden con 'scene/floor/eq/beams/ring/col/react' queda puesta hasta la siguiente. 'fx': flash, nova, shock, blackout(dur), column(col,size,dur).",
+ "cues": [
+  {
+   "t": 0.0,
+   "scene": "sunset",
+   "floor": "off",
+   "eq": 0,
+   "beams": "off",
+   "ring": true,
+   "col": [
+    "#ff6a9a",
+    "#ff9a6a",
+    "#ffd0e0"
+   ],
+   "react": {
+    "kick": 0.3,
+    "snare": 0.1,
+    "accent": 0.5
+   },
+   "_parte": "intro"
+  },
+  {
+   "t": 12.69,
+   "scene": "meltglow",
+   "floor": "disco",
+   "eq": 1.2,
+   "beams": "cross",
+   "ring": true,
+   "col": [
+    "#ff4d94",
+    "#ffb04d",
+    "#fff0f5"
+   ],
+   "react": {
+    "kick": 1.0,
+    "snare": 0.6,
+    "accent": 1.0
+   },
+   "_parte": "climax"
+  },
+  {
+   "t": 12.69,
+   "fx": "flash"
+  },
+  {
+   "t": 12.69,
+   "fx": "nova"
+  },
+  {
+   "t": 12.69,
+   "fx": "shock"
+  },
+  {
+   "t": 23.99,
+   "scene": "meltglow",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "fan",
+   "ring": true,
+   "col": [
+    "#ff6a9a",
+    "#ff9a6a",
+    "#ffd0e0"
+   ],
+   "react": {
+    "kick": 0.8,
+    "snare": 0.45,
+    "accent": 1.0
+   },
+   "_parte": "chorus"
+  },
+  {
+   "t": 57.85,
+   "scene": "meltglow",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "fan",
+   "ring": true,
+   "col": [
+    "#ff6a9a",
+    "#ff9a6a",
+    "#ffd0e0"
+   ],
+   "react": {
+    "kick": 0.8,
+    "snare": 0.45,
+    "accent": 1.0
+   },
+   "_parte": "chorus"
+  },
+  {
+   "t": 88.92,
+   "scene": "meltglow",
+   "floor": "disco",
+   "eq": 1.2,
+   "beams": "cross",
+   "ring": true,
+   "col": [
+    "#ff4d94",
+    "#ffb04d",
+    "#fff0f5"
+   ],
+   "react": {
+    "kick": 1.0,
+    "snare": 0.6,
+    "accent": 1.0
+   },
+   "_parte": "climax"
+  },
+  {
+   "t": 100.22,
+   "scene": "sunset",
+   "floor": "off",
+   "eq": 0,
+   "beams": "off",
+   "ring": true,
+   "col": [
+    "#b48cff",
+    "#ff9ac8",
+    "#ffd9f0"
+   ],
+   "react": {
+    "kick": 0.25,
+    "snare": 0.1,
+    "accent": 0.4
+   },
+   "_parte": "break"
+  },
+  {
+   "t": 114.34,
+   "scene": "sunset",
+   "floor": "grid",
+   "eq": 0.55,
+   "beams": "slow",
+   "ring": true,
+   "col": [
+    "#ff6a9a",
+    "#ff9a6a",
+    "#ffd0e0"
+   ],
+   "react": {
+    "kick": 0.5,
+    "snare": 0.25,
+    "accent": 0.7
+   },
+   "_parte": "verse"
+  },
+  {
+   "t": 136.92,
+   "scene": "meltglow",
+   "floor": "disco",
+   "eq": 1.2,
+   "beams": "cross",
+   "ring": true,
+   "col": [
+    "#ff4d94",
+    "#ffb04d",
+    "#fff0f5"
+   ],
+   "react": {
+    "kick": 1.0,
+    "snare": 0.6,
+    "accent": 1.0
+   },
+   "_parte": "climax"
+  },
+  {
+   "t": 136.92,
+   "fx": "flash"
+  },
+  {
+   "t": 136.92,
+   "fx": "nova"
+  },
+  {
+   "t": 136.92,
+   "fx": "shock"
+  },
+  {
+   "t": 162.33,
+   "scene": "sunset",
+   "floor": "off",
+   "eq": 0,
+   "beams": "off",
+   "ring": true,
+   "col": [
+    "#b48cff",
+    "#ff9ac8",
+    "#ffd9f0"
+   ],
+   "react": {
+    "kick": 0.25,
+    "snare": 0.1,
+    "accent": 0.4
+   },
+   "_parte": "break"
+  },
+  {
+   "t": 173.62,
+   "scene": "sunset",
+   "floor": "grid",
+   "eq": 0.55,
+   "beams": "slow",
+   "ring": true,
+   "col": [
+    "#ff6a9a",
+    "#ff9a6a",
+    "#ffd0e0"
+   ],
+   "react": {
+    "kick": 0.5,
+    "snare": 0.25,
+    "accent": 0.7
+   },
+   "_parte": "verse"
+  },
+  {
+   "t": 199.04,
+   "scene": "sunset",
+   "floor": "off",
+   "eq": 0,
+   "beams": "off",
+   "ring": true,
+   "col": [
+    "#b48cff",
+    "#ff9ac8",
+    "#ffd9f0"
+   ],
+   "react": {
+    "kick": 0.25,
+    "snare": 0.1,
+    "accent": 0.4
+   },
+   "_parte": "break"
+  },
+  {
+   "t": 210.059,
+   "fx": "blackout",
+   "dur": 0.33
+  },
+  {
+   "t": 210.33,
+   "scene": "meltglow",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "fan",
+   "ring": true,
+   "col": [
+    "#ff6a9a",
+    "#ff9a6a",
+    "#ffd0e0"
+   ],
+   "react": {
+    "kick": 0.8,
+    "snare": 0.45,
+    "accent": 1.0
+   },
+   "_parte": "chorus"
+  },
+  {
+   "t": 210.33,
+   "fx": "flash"
+  },
+  {
+   "t": 210.33,
+   "fx": "nova"
+  },
+  {
+   "t": 210.33,
+   "fx": "shock"
+  },
+  {
+   "t": 238.56,
+   "scene": "meltglow",
+   "floor": "ripple",
+   "eq": 1.0,
+   "beams": "fan",
+   "ring": true,
+   "col": [
+    "#ff6a9a",
+    "#ff9a6a",
+    "#ffd0e0"
+   ],
+   "react": {
+    "kick": 0.8,
+    "snare": 0.45,
+    "accent": 1.0
+   },
+   "_parte": "chorus"
+  },
+  {
+   "t": 252.7,
+   "scene": "sunset",
+   "floor": "grid",
+   "eq": 0.3,
+   "beams": "off",
+   "ring": true,
+   "col": [
+    "#ff6a9a",
+    "#ff9a6a",
+    "#ffd0e0"
+   ],
+   "react": {
+    "kick": 0.3,
+    "snare": 0.1,
+    "accent": 0.4
+   },
+   "_parte": "outro"
+  }
+ ]
+}
