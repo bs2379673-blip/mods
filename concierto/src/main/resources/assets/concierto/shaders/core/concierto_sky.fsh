@@ -278,8 +278,8 @@ vec3 sceneSunset(vec3 d, float t) {
     float dist = length(sp);
     float disc = smoothstep(r, r - 0.012, dist);
     vec3 sunC = mix(P1, P0, clamp((el - (cy - r)) / (2.0 * r), 0.0, 1.0));
-    col = mix(col, sunC * (1.25 + 0.3 * Level), disc);
-    col += mix(P1, P0, 0.4) * exp(-dist * 4.5) * (0.30 + 0.45 * Level + 0.25 * Bass);
+    col = mix(col, sunC * (1.0 + 0.2 * Level), disc);
+    col += mix(P1, P0, 0.4) * exp(-dist * 6.5) * (0.14 + 0.22 * Level + 0.12 * Bass);
     // gotas que cuelgan del sol
     float dr = 0.0;
     for (int i = 0; i < 11; i++) {
@@ -315,10 +315,10 @@ vec3 sceneMeltGlow(vec3 d, float t) {
     float cy = 0.22, r = 0.15 * (1.0 + 0.10 * Kick);
     vec2 sp = vec2(ae.x, el - cy);
     float dist = length(sp);
-    col = mix(col, mix(P1, P2, 0.35 + 0.3 * Beat) * 1.5, smoothstep(r, r - 0.012, dist));
+    col = mix(col, mix(P1, P2, 0.35 + 0.3 * Beat) * 1.1, smoothstep(r, r - 0.012, dist));
     float wv = 0.5 + 0.5 * sin(dist * 34.0 - t * 5.0 - Bass * 3.0);
     col += P0 * pow(wv, 4.0) * smoothstep(0.7, 0.2, dist) * smoothstep(r, r + 0.05, dist) * (0.35 + 0.8 * Level);
-    col += P2 * exp(-dist * 4.0) * (0.25 + 0.5 * Level);
+    col += P2 * exp(-dist * 6.0) * (0.12 + 0.25 * Level);
     // corazones simetricos: dos filas a cada lado, el mayor arriba al centro
     float bob = 0.012 * sin(t * 1.4);
     vec2 h = vec2(0.0);
@@ -376,10 +376,10 @@ void main() {
     }
     if (below) col *= 0.5;
     // golpe de graves: pulso general + destello blanco
-    col *= 1.0 + 0.35 * Beat;
-    col += vec3(1.0) * Flash * 0.55;
+    col *= 0.66 * (1.0 + 0.18 * Beat);
+    col += vec3(1.0) * Flash * 0.22;
     // tonemap suave para que los brillos no se quemen
-    col = 1.0 - exp(-col * 1.35);
+    col = 1.0 - exp(-col * 1.15);
     col = pow(col, vec3(0.92));
     fragColor = vec4(col * Fade, 1.0);
 }

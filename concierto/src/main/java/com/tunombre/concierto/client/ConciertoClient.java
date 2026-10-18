@@ -324,8 +324,13 @@ public final class ConciertoClient {
         float alpha = fade * Math.min(1F, intensity) * darkMul();
         if (alpha <= 0.003F) return;
 
-        fx.MODEL_VIEW_MATRIX.set(new Matrix4f(e.getPoseStack().last().pose()));
-        fx.PROJECTION_MATRIX.set(e.getProjectionMatrix());
+        // drawWithShader usa la matriz de RenderSystem y no la del shader: hay que ponerle la rotacion de la camara ahi
+        com.mojang.blaze3d.vertex.PoseStack mvs = RenderSystem.getModelViewStack();
+        mvs.pushPose();
+        Matrix4f rot = new Matrix4f(e.getPoseStack().last().pose());
+        rot.setTranslation(0F, 0F, 0F);
+        mvs.mulPoseMatrix(rot);
+        RenderSystem.applyModelViewMatrix();
         fx.safeGetUniform("Time").set(Math.max(0F, songT));
         fx.safeGetUniform("Level").set(level);
         fx.safeGetUniform("Bass").set(bass);
@@ -358,5 +363,7 @@ public final class ConciertoClient {
         RenderSystem.disableBlend();
         RenderSystem.depthMask(true);
         RenderSystem.enableCull();
+        mvs.popPose();
+        RenderSystem.applyModelViewMatrix();
     }
 }

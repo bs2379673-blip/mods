@@ -45,7 +45,7 @@ vec4 floorCell() {
     int m = int(FloorMode + 0.5);
     if (m == 2) {
         float w = 0.5 + 0.5 * sin(d * 3.2 - Time * 3.6 - Bass * 2.0);
-        fill = mix(P0, P1, w) * (0.30 + 0.55 * Level);
+        fill = mix(P0, P1, w) * (0.16 + 0.32 * Level);
         lineC = mix(P2, vec3(1.0), 0.35 + 0.4 * w);
     } else if (m == 3) {
         float step_ = floor(Time * 2.0);
@@ -54,21 +54,22 @@ vec4 floorCell() {
         float zone = smoothstep(7.0, 4.5, d);
         vec3 disco = rainbow(fract(h * 7.0 + Time * 0.05));
         float w = 0.5 + 0.5 * sin(d * 3.0 - Time * 3.0);
-        fill = mix(mix(P0, P1, w) * (0.28 + 0.4 * Level), disco * 1.1, lit * zone);
+        fill = mix(mix(P0, P1, w) * (0.16 + 0.25 * Level), disco * 0.8, lit * zone);
         lineC = P2;
     } else {
-        fill = P0 * (0.30 + 0.35 * Level);
+        fill = P0 * (0.16 + 0.20 * Level);
         lineC = mix(P1, P2, 0.5 + 0.5 * sin(Time * 0.7));
     }
-    fill *= 1.0 + 0.7 * Beat;
-    vec3 col = fill + lineC * line * (0.9 + 0.8 * Beat + 0.5 * Level);
+    fill *= 1.0 + 0.3 * Beat;
+    vec3 col = fill + lineC * line * (0.55 + 0.45 * Beat + 0.3 * Level);
     // onda de choque desde el centro del escenario
     if (Shock >= 0.0) {
         float r = Shock * 18.0;
         float band = exp(-pow((d - r) * 2.4, 2.0)) * (1.0 - Shock);
-        col += mix(P2, vec3(1.0), 0.6) * band * 2.2;
+        col += mix(P2, vec3(1.0), 0.6) * band * 1.2;
     }
-    col += vec3(Flash * 0.35);
+    col += vec3(Flash * 0.12);
+    col = 1.0 - exp(-col * 1.3);
     float edgeFade = smoothstep(1.0, 0.82, abs(vColor.r)) * smoothstep(1.0, 0.86, vColor.g) * smoothstep(0.0, 0.04, vColor.g);
     float a = clamp(0.80 + 0.2 * line, 0.0, 1.0) * edgeFade;
     return vec4(col, a * Alpha);
@@ -87,7 +88,7 @@ vec4 panelLed() {
     float lit = step(rowN, h);
     float dot_ = smoothstep(0.46, 0.30, length(c));
     vec3 grad = mix(P0, P1, rowN);
-    vec3 on = grad * (1.3 + 0.9 * Beat) + P2 * smoothstep(0.85, 1.0, rowN) * 0.6;
+    vec3 on = grad * (0.95 + 0.5 * Beat) + P2 * smoothstep(0.85, 1.0, rowN) * 0.6;
     float cap = step(abs(rowN - h), 0.5 / ROWS) * lit;
     on = mix(on, vec3(1.0), cap * 0.7);
     vec3 off = P0 * 0.10;
@@ -106,8 +107,8 @@ vec4 beam() {
     float core = pow(edge, 1.25);
     float hot = pow(edge, 5.0);
     float along = pow(clamp(1.0 - vUV.y, 0.0, 1.0), 0.55) * smoothstep(0.0, 0.02, vUV.y);
-    vec3 col = vColor.rgb * (core * 1.35) + vec3(hot * 0.9);
-    float a = (core * 0.55 + hot * 0.45) * along * vColor.a;
+    vec3 col = vColor.rgb * (core * 0.95) + vec3(hot * 0.5);
+    float a = (core * 0.42 + hot * 0.30) * along * vColor.a;
     return vec4(col, a * Alpha);
 }
 
