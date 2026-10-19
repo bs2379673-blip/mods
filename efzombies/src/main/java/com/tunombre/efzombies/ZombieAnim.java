@@ -156,8 +156,8 @@ public final class ZombieAnim {
         if (z instanceof Trepador) return;
         if (z.isInWater() && z instanceof Drowned) return;
         St s = st(z);
-        float lsa = Mth.lerp(partial, z.animationSpeedOld, z.animationSpeed);
-        float lp = z.animationPosition - z.animationSpeed * (1F - partial);
+        float lsa = z.walkAnimation.speed(partial);
+        float lp = z.walkAnimation.position(partial);
         float moving = Mth.clamp(lsa * 2.2F, 0F, 1F);
         if (crawls(z)) {
             ps.translate(0.0D, 0.75D, 0.0D);
