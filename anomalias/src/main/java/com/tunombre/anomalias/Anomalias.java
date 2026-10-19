@@ -15,6 +15,7 @@ public class Anomalias {
     public Anomalias() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         Net.init();
+        Cfg.load();
         MinecraftForge.EVENT_BUS.register(Server.class);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.anomalias.client.AnomaliaClient.init(bus));
     }

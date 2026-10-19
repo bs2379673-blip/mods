@@ -32,7 +32,7 @@ public final class Server {
     private static float duration;   // 0 = fija
     private static float strobe = 1F;
 
-    private record Aviso(long due, String cmd) { }
+    private record Aviso(long due, String cmd, boolean raw) { }
     private static final List<Aviso> avisos = new ArrayList<>();
 
     @SubscribeEvent
@@ -73,10 +73,17 @@ public final class Server {
         Net.sendAll(new Net.Msg(Net.START, t.ordinal(), d, 0F, strobe));
         float k = d > 0 ? d / 60F : 1F;
         long now = startMs;
-        sched(now + 200, 9F, t, "ANOMALÍA DETECTADA|MIRA HACIA ARRIBA");
-        sched(now + (long) (14000 * k), 7F, t, "ANOMALÍA EN EXPANSIÓN|ESPORAS DETECTADAS EN LA ATMÓSFERA");
-        sched(now + (long) (40000 * k), 9F, t, "ANOMALÍA " + t.nombre + " ACTIVA|NIVEL DE PELIGRO: " + t.peligro);
-        if (d > 0) sched(now + (long) ((d - 6F * k) * 1000), 5F, t, "ANOMALÍA EN RETIRADA|EL CIELO VUELVE A LA NORMALIDAD");
+        Cfg.load();
+        schedCmds(now, t, "cmdInicio");
+        sched(now + 200, 9F, t, Cfg.get(t, "detectada"));
+        sched(now + (long) (14000 * k), 7F, t, Cfg.get(t, "expansion"));
+        long act = now + (long) (40000 * k);
+        sched(act, 9F, t, Cfg.get(t, "activa"));
+        schedCmds(act, t, "cmdActiva");
+        String chat = Cfg.get(t, "chat");
+        if (!chat.isBlank()) avisos.add(new Aviso(act, "tellraw @a {\"text\":" + new com.google.gson.JsonPrimitive(chat.replace('&', '\u00a7')) + ",\"color\":\"" + chatColor(t) + "\"}", true));
+        sched(act + (long) (9500 * k), 8F, t, Cfg.get(t, "extra"));
+        if (d > 0) sched(now + (long) ((d - 6F * k) * 1000), 5F, t, Cfg.get(t, "retirada"));
         say(s, "Anomalia " + t.id + " lanzada (" + (d > 0 ? (int) d + " s" : "fija, apagala con /anomalia fin") + ")");
         return 1;
     }
@@ -87,13 +94,42 @@ public final class Server {
         active = null;
         avisos.clear();
         Net.sendAll(new Net.Msg(Net.STOP, 0, 0F, 0F, 0F));
-        alert(s.getServer(), 5F, t, "ANOMALÍA NEUTRALIZADA|EL CIELO VUELVE A LA NORMALIDAD");
+        Cfg.load();
+        alert(s.getServer(), 5F, t, Cfg.get(t, "neutralizada"));
+        runCmds(s.getServer(), Cfg.own(t, "cmdFin"));
         say(s, "Anomalia apagada");
         return 1;
     }
 
     private static void sched(long due, float secs, Tipo t, String text) {
-        avisos.add(new Aviso(due, "tacalert @a " + String.format(Locale.ROOT, "%.1f", secs) + " " + t.id + " " + text));
+        if (text == null || text.isBlank()) return;
+        avisos.add(new Aviso(due, "tacalert @a " + String.format(Locale.ROOT, "%.1f", secs) + " " + t.id + " " + text, false));
+    }
+
+    private static void schedCmds(long due, Tipo t, String key) {
+        for (String c : Cfg.own(t, key).split(";")) {
+            c = c.trim();
+            if (c.startsWith("/")) c = c.substring(1);
+            if (!c.isEmpty()) avisos.add(new Aviso(due, c, true));
+        }
+    }
+
+    private static void runCmds(MinecraftServer srv, String all) {
+        for (String c : all.split(";")) {
+            c = c.trim();
+            if (c.startsWith("/")) c = c.substring(1);
+            if (!c.isEmpty()) srv.getCommands().performPrefixedCommand(srv.createCommandSourceStack().withSuppressedOutput(), c);
+        }
+    }
+
+    private static String chatColor(Tipo t) {
+        return switch (t) { case ROJO -> "red"; case AMBAR -> "gold"; case VIOLETA -> "light_purple"; case AZUL -> "aqua"; default -> "green"; };
+    }
+
+    public static String statusJson() {
+        if (active == null) return "{\"activa\":\"\",\"dur\":0,\"resta\":0,\"destellos\":" + strobe + "}";
+        float left = duration > 0 ? Math.max(0F, duration - (System.currentTimeMillis() - startMs) / 1000F) : -1F;
+        return "{\"activa\":\"" + active.id + "\",\"dur\":" + duration + ",\"resta\":" + left + ",\"destellos\":" + strobe + "}";
     }
 
     private static void alert(MinecraftServer srv, float secs, Tipo t, String text) {
@@ -110,11 +146,11 @@ public final class Server {
             Aviso a = it.next();
             if (a.due() <= now) {
                 it.remove();
-                if (ModList.get().isLoaded("tacui"))
+                if (a.raw() || ModList.get().isLoaded("tacui"))
                     e.getServer().getCommands().performPrefixedCommand(e.getServer().createCommandSourceStack().withSuppressedOutput(), a.cmd());
             }
         }
-        if (duration > 0 && now > startMs + (long) (duration * 1000F) + 1500) { active = null; avisos.clear(); }
+        if (duration > 0 && now > startMs + (long) (duration * 1000F) + 1500) { Tipo t = active; active = null; avisos.clear(); runCmds(e.getServer(), Cfg.own(t, "cmdFin")); }
     }
 
     @SubscribeEvent
