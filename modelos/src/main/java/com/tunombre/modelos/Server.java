@@ -47,6 +47,14 @@ public final class Server {
     /** jugadores con el candado de Epic Fight puesto (tienen un modelo de CPM) */
     private static final java.util.Set<java.util.UUID> LOCKED = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
+    private static volatile boolean dirty;
+
+    private static void flush() {
+        if (!dirty) return;
+        dirty = false;
+        Net.sendAll(new Net.Models(new ArrayList<>(LOCKED)));
+    }
+
     static boolean isLocked(ServerPlayer p) { return LOCKED.contains(p.getUUID()); }
 
     private static java.lang.reflect.Method cpmGet;
@@ -74,13 +82,13 @@ public final class Server {
         boolean has = d.applied.containsKey(p.getUUID()) || cpmHasModel(p);
         java.util.UUID id = p.getUUID();
         if (has) {
-            if (LOCKED.add(id)) Net.send(p, new Net.Lock(true));
+            if (LOCKED.add(id)) dirty = true;
             if (EpicSupport.isEpic(p)) {
                 EpicSupport.vanilla(p, true);
                 if (d.efOff.add(id)) d.setDirty();
             }
         } else {
-            if (LOCKED.remove(id)) Net.send(p, new Net.Lock(false));
+            if (LOCKED.remove(id)) dirty = true;
             if (d.efOff.remove(id)) {
                 d.setDirty();
                 EpicSupport.vanilla(p, false);
@@ -94,16 +102,29 @@ public final class Server {
         if (e.phase != TickEvent.Phase.END || !Modelos.EPIC || ++tick % 10 != 0) return;
         Data d = Data.get(e.getServer());
         for (ServerPlayer p : e.getServer().getPlayerList().getPlayers()) enforce(p, d);
+        flush();
     }
 
     @SubscribeEvent
-    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent e) { LOCKED.remove(e.getEntity().getUUID()); }
+    public static void onLogin(PlayerEvent.PlayerLoggedInEvent e) {
+        if (Modelos.EPIC && e.getEntity() instanceof ServerPlayer p) Net.send(p, new Net.Models(new ArrayList<>(LOCKED)));
+    }
+
+    @SubscribeEvent
+    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent e) { if (LOCKED.remove(e.getEntity().getUUID())) dirty = true; }
 
     private static void say(CommandSourceStack s, String m) { s.sendSuccess(() -> Component.literal(m), true); }
 
     private static void register(CommandDispatcher<CommandSourceStack> d) {
         d.register(Commands.literal("modelos").requires(s -> s.hasPermission(2))
                 .then(Commands.literal("gui").executes(c -> { sendMenu(c.getSource().getPlayerOrException(), true); return 1; }))
+                .then(Commands.literal("estado").executes(c -> {
+                    Data dd = Data.get(c.getSource().getServer());
+                    for (ServerPlayer p : c.getSource().getServer().getPlayerList().getPlayers())
+                        say(c.getSource(), p.getGameProfile().getName() + ": modelo CPM=" + cpmHasModel(p) + ", puesto por /modelos=" + dd.applied.getOrDefault(p.getUUID(), "-")
+                                + ", candado=" + LOCKED.contains(p.getUUID()) + (Modelos.EPIC ? ", Epic Fight=" + (EpicSupport.isEpic(p) ? "ACTIVO" : "apagado") : ""));
+                    return 1;
+                }))
                 .then(Commands.literal("recargar").executes(c -> { say(c.getSource(), "Modelos en la carpeta: " + Store.list().size() + " (" + String.join(", ", Store.list()) + ")"); return 1; }))
                 .then(Commands.literal("lista").executes(c -> {
                     Data dd = Data.get(c.getSource().getServer());

@@ -28,7 +28,7 @@ final class EpicSupport {
         if (pl == null) return;
         boolean locked;
         if (pl instanceof ServerPlayer sp) locked = Server.isLocked(sp);
-        else locked = pl.level().isClientSide && Modelos.clientLocked && pl.getUUID().equals(Modelos.clientUuid);
+        else locked = pl.level().isClientSide && Modelos.clientModels.contains(pl.getUUID());
         if (locked) e.setCanceled(true);
     }
 

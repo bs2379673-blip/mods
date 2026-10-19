@@ -24,7 +24,7 @@ public final class Net {
 
     static void init() {
         CH.registerMessage(0, Data.class, Data::write, Data::read, Data::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
-        CH.registerMessage(2, Lock.class, (m, b) -> b.writeBoolean(m.locked()), b -> new Lock(b.readBoolean()), Lock::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CH.registerMessage(2, Models.class, Models::write, Models::read, Models::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CH.registerMessage(1, Cmd.class, (m, b) -> b.writeUtf(m.line(), 300), b -> new Cmd(b.readUtf(300)), Cmd::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
 
@@ -71,15 +71,26 @@ public final class Net {
         }
     }
 
-    /** el servidor avisa al jugador si tiene el candado de Epic Fight (modelo puesto) */
-    public record Lock(boolean locked) {
+    /** los jugadores que tienen un modelo puesto (Epic Fight no puede dibujarlos ni activarse para ellos); va a todos los clientes */
+    public record Models(List<java.util.UUID> ids) {
+        void write(FriendlyByteBuf b) { b.writeVarInt(ids.size()); for (java.util.UUID u : ids) b.writeUUID(u); }
+
+        static Models read(FriendlyByteBuf b) {
+            int k = b.readVarInt();
+            List<java.util.UUID> l = new ArrayList<>(k);
+            for (int i = 0; i < k; i++) l.add(b.readUUID());
+            return new Models(l);
+        }
+
         void handle(Supplier<NetworkEvent.Context> ctx) {
-            ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT, () -> () -> com.tunombre.modelos.client.LockClient.set(locked)));
+            ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT, () -> () -> com.tunombre.modelos.client.LockClient.set(ids)));
             ctx.get().setPacketHandled(true);
         }
     }
 
-    public static void send(ServerPlayer p, Lock l) { CH.send(PacketDistributor.PLAYER.with(() -> p), l); }
+    public static void send(ServerPlayer p, Models m) { CH.send(PacketDistributor.PLAYER.with(() -> p), m); }
+
+    public static void sendAll(Models m) { CH.send(PacketDistributor.ALL.noArg(), m); }
 
     public static void send(ServerPlayer p, Data d) { CH.send(PacketDistributor.PLAYER.with(() -> p), d); }
 }
