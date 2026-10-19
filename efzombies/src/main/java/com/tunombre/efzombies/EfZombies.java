@@ -28,10 +28,9 @@ import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 /**
- * EF Zombies 3.0
- * - Animaciones propias SIN Epic Fight para zombi, husk, ahogado y zombi aldeano (andar, correr, reposo, a cuatro patas;
- *   variantes por zombi). Ver ZombieAnim. Epic Fight se desactiva en zombis y creepers con datos propios del mod
- *   (data/minecraft/epicfight_mobpatch/*.json). Epic Fight solo se usa para el trepador.
+ * EF Zombies 3.1
+ * - Ya no anima zombis: Epic Fight queda desactivado en zombi, husk, ahogado, zombi aldeano y creeper
+ *   (data/minecraft/epicfight_mobpatch/*.json) y su animacion la pone EMF / vanilla. Epic Fight solo se usa para el trepador.
  * - Nuevo mob: el TREPADOR (efzombies:trepador). Trepa paredes, se cuelga del techo y cae sobre el jugador. Ver Trepador.
  * Desde 2.0 debe estar en el SERVIDOR y en los CLIENTES (agrega un mob).
  */

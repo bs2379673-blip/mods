@@ -23,10 +23,6 @@ public final class ClientSetup {
 
     private static void onRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(EfZombies.TREPADOR.get(), TrepadorRenderer::new);
-        event.registerEntityRenderer(net.minecraft.world.entity.EntityType.ZOMBIE, ZombieAnim.ZRenderer::new);
-        event.registerEntityRenderer(net.minecraft.world.entity.EntityType.HUSK, ZombieAnim.HRenderer::new);
-        event.registerEntityRenderer(net.minecraft.world.entity.EntityType.DROWNED, ZombieAnim.DRenderer::new);
-        event.registerEntityRenderer(net.minecraft.world.entity.EntityType.ZOMBIE_VILLAGER, ZombieAnim.VRenderer::new);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
