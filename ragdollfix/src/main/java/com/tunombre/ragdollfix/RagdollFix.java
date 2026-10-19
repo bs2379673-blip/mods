@@ -7,6 +7,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -126,6 +127,13 @@ public class RagdollFix {
                 while (k.consumeClick()) { }
                 k.setDown(false);
             }
+        }
+
+        /** Oculta el icono de habilidad del arma de Epic Fight (se bugueaba en bucle con las armas de TACZ). */
+        @SubscribeEvent(priority = EventPriority.HIGHEST)
+        public void onOverlay(RenderGuiOverlayEvent.Pre e) {
+            var id = e.getOverlay().id();
+            if ("epicfight".equals(id.getNamespace()) && "weapon_innate".equals(id.getPath())) e.setCanceled(true);
         }
 
         private static KeyMapping epic;
