@@ -111,6 +111,7 @@ public final class ServerImages {
 
     private static String mode(String m) {
         String l = m.toLowerCase(Locale.ROOT);
+        if (l.startsWith("p_")) return l;
         return switch (l) {
             case "full", "screamer", "susto", "completa" -> "full";
             case "corner", "aviso", "alerta", "esquina" -> "corner";

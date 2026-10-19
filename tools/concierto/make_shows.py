@@ -61,7 +61,7 @@ class Show:
                     big = i in ("u_beam", "u_magical")
                     if big or c["t"] - last >= 8.0:
                         ext = "gif" if i in self.GIFS else "png"
-                        cues.append(dict(t=c["t"], fx="aviso", id=i, ext=ext, dur=round(min(max(c.get("dur", 4), 3.0), 6.0), 2), modo="center" if big else "corner"))
+                        cues.append(dict(t=c["t"], fx="aviso", id=i, ext=ext, dur=round(min(max(c.get("dur", 4), 3.0), 8.5 if i=="u_beam" else 6.0), 2), modo=("multi" if i=="u_beam" else "side") if big else "corner"))
                         last = c["t"]
                 continue
             cues.append(c)

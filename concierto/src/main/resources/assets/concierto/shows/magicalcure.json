@@ -49,7 +49,7 @@
    "id": "u_magical",
    "ext": "gif",
    "dur": 6.0,
-   "modo": "center"
+   "modo": "side"
   },
   {
    "t": 35.422,
@@ -106,7 +106,7 @@
    "id": "u_magical",
    "ext": "gif",
    "dur": 6.0,
-   "modo": "center"
+   "modo": "side"
   },
   {
    "t": 60.418,
@@ -132,7 +132,7 @@
    "id": "u_magical",
    "ext": "gif",
    "dur": 6.0,
-   "modo": "center"
+   "modo": "side"
   },
   {
    "t": 70.426,
@@ -158,7 +158,7 @@
    "id": "u_magical",
    "ext": "gif",
    "dur": 6.0,
-   "modo": "center"
+   "modo": "side"
   },
   {
    "t": 82.918,
@@ -224,8 +224,8 @@
    "fx": "aviso",
    "id": "u_beam",
    "ext": "gif",
-   "dur": 6.0,
-   "modo": "center"
+   "dur": 8.5,
+   "modo": "multi"
   },
   {
    "t": 95.42,
@@ -304,7 +304,7 @@
    "id": "u_magical",
    "ext": "gif",
    "dur": 6.0,
-   "modo": "center"
+   "modo": "side"
   },
   {
    "t": 135.419,
@@ -330,7 +330,7 @@
    "id": "u_magical",
    "ext": "gif",
    "dur": 6.0,
-   "modo": "center"
+   "modo": "side"
   },
   {
    "t": 160.427,
@@ -396,7 +396,7 @@
    "id": "u_magical",
    "ext": "gif",
    "dur": 6.0,
-   "modo": "center"
+   "modo": "side"
   },
   {
    "t": 192.923,

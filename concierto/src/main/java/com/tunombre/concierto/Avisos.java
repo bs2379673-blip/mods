@@ -56,7 +56,16 @@ public final class Avisos {
         String ext = o.has("ext") ? o.get("ext").getAsString() : "png";
         float dur = o.has("dur") ? o.get("dur").getAsFloat() : 4F;
         String modo = o.has("modo") ? o.get("modo").getAsString() : "corner";
-        String cmd = String.format(Locale.ROOT, "tacshow @a %s%s.%s %.2f %s none", PREFIX, id, ext.equals("gif") ? "gif" : "png", dur, modo);
-        srv.getCommands().performPrefixedCommand(srv.createCommandSourceStack().withSuppressedOutput(), cmd);
+        String file = PREFIX + id + "." + (ext.equals("gif") ? "gif" : "png");
+        // nada en el centro: "center" pasa a un costado, "multi" reparte copias chicas por los bordes
+        String[] pos;
+        if (modo.equals("multi")) pos = new String[]{"p_7_18_9", "p_7_50_9", "p_7_82_9", "p_93_18_9", "p_93_50_9", "p_93_82_9",
+                "p_27_8_8", "p_50_6_8", "p_73_8_8", "p_27_93_8", "p_50_95_8", "p_73_93_8", "p_17_34_7", "p_83_34_7", "p_17_66_7", "p_83_66_7"};
+        else if (modo.equals("center") || modo.equals("side")) pos = new String[]{"p_8_55_13"};
+        else pos = new String[]{modo};
+        for (String m : pos) {
+            String cmd = String.format(Locale.ROOT, "tacshow @a %s %.2f %s none", file, dur, m);
+            srv.getCommands().performPrefixedCommand(srv.createCommandSourceStack().withSuppressedOutput(), cmd);
+        }
     }
 }

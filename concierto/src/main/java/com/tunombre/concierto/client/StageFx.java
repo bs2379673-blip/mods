@@ -90,8 +90,8 @@ public final class StageFx {
         set(sh, "Kind", 7F);
         begin(bb);
         int strands = 3, segs = 36;
-        double R = 0.80 * HS, H = 14.0 * u;
-        double spin = songT * (0.45 + 0.5 * level) ;
+        double R = 1.0 * HS, H = 14.0 * u;
+        double spin = songT * (0.22 + 0.25 * level);
         for (int s = 0; s < strands; s++) {
             float[] c = cols[s % 3];
             double ph = spin + s * Math.PI * 2 / strands;
@@ -141,9 +141,9 @@ public final class StageFx {
         set(sh, "Kind", 8F);
         begin(bb);
         for (int i = 0; i < 5; i++) {
-            float ph = (songT * 0.22F + i / 5F) % 1F;
-            double h = ph * 16.0 * u;
-            double r = HS * (0.62 + 0.36 * ph + 0.03 * kick);
+            float ph = (songT * 0.07F + i / 5F) % 1F;
+            double h = ph * 22.0 * u;
+            double r = HS * (1.05 + 0.55 * ph + 0.02 * kick);
             float[] c = cols[i % 3];
             float a = g * (1F - ph) * 0.85F;
             double y = cy + 0.5 + h;

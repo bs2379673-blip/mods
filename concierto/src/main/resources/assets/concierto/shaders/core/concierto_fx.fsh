@@ -69,6 +69,28 @@ vec4 floorCell() {
         float band = exp(-pow((d - r) * 2.4, 2.0)) * (1.0 - Shock);
         col += mix(P2, vec3(1.0), 0.6) * band * 1.2;
     }
+    // ---- efectos extra del piso (todos los modos)
+    vec2 q = uv / max(Scale, 0.001);               // unidades de escenario
+    float ang = atan(q.y, q.x);
+    // 1) ondas concentricas que salen del centro con el bajo
+    float rip = pow(0.5 + 0.5 * sin(d * 1.1 - Time * 2.2), 8.0);
+    col += mix(P1, P2, 0.5) * rip * (0.10 + 0.30 * Bass) * smoothstep(1.5, 4.0, d);
+    // 2) barridos radiales que giran (como radar / sol)
+    float sw = pow(max(0.0, cos((ang - Time * 0.55) * 4.0)), 14.0);
+    col += P2 * sw * (0.10 + 0.35 * Level) * smoothstep(1.5, 5.0, d);
+    float sw2 = pow(max(0.0, cos((ang + Time * 0.8) * 3.0)), 20.0);
+    col += P1 * sw2 * (0.08 + 0.30 * Mid) * smoothstep(2.5, 6.0, d);
+    // 3) laser: lineas de la cuadricula que se encienden en olas diagonales
+    float wave = 0.5 + 0.5 * sin((cell.x + cell.y) * 0.55 - Time * 3.0);
+    col += lineC * line * pow(wave, 5.0) * (0.35 + 0.8 * Beat);
+    // 4) baldosas que parpadean al ritmo del espectro
+    float tile = hash21(cell + floor(Time * 3.0 + High * 2.0));
+    float on = step(1.0 - (0.04 + 0.16 * High + 0.10 * Beat), tile);
+    col += mix(P1, vec3(1.0), 0.4) * on * 0.55 * (1.0 - line);
+    // 5) pulso en forma de anillos cuadrados (Chebyshev) que viajan hacia afuera
+    float cheb = max(abs(vColor.r), abs(vColor.g));
+    float sq = fract(cheb * 3.0 - Time * 0.22);
+    col += P2 * exp(-pow((sq - 0.5) * 9.0, 2.0)) * (0.10 + 0.25 * Level);
     col += vec3(Flash * 0.12);
     float rr = max(abs(vColor.r), abs(vColor.g));
     float edgeFade = smoothstep(1.0, 0.975, rr);

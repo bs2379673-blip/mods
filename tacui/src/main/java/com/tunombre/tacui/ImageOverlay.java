@@ -33,13 +33,13 @@ public final class ImageOverlay {
 
     private static final class Parts { final byte[][] chunks; int got; Parts(int n) { chunks = new byte[n][]; } }
     private static final class Anim { ResourceLocation[] frames; int[] delays; int total, w, h; }
-    private static final class Active { String key, mode, text; float secs; long start = -1; }
+    private static final class Active { String key, mode, text; float secs; long start = -1; boolean done; }
     private static final class Decoded { List<int[]> frames = new ArrayList<>(); List<Integer> delays = new ArrayList<>(); int w, h; }
 
     private static final Map<String, Parts> PARTS = new HashMap<>();
     private static final Map<String, Anim> CACHE = new LinkedHashMap<>();
     private static final Map<String, Boolean> LOADING = new HashMap<>();
-    private static Active current;
+    private static final List<Active> LIST = new ArrayList<>();
     private static int texCounter;
 
     // ------------------------------------------------------------------ red
@@ -62,7 +62,11 @@ public final class ImageOverlay {
     public static void onShow(TacNet.ShowImage m) {
         Active a = new Active();
         a.key = m.key(); a.secs = m.seconds(); a.mode = m.mode(); a.text = m.text().replace('&', '§');
-        current = a;
+        synchronized (LIST) {
+            if (a.mode.startsWith("p_")) LIST.removeIf(o -> o.mode.equals(a.mode));
+            else LIST.removeIf(o -> !o.mode.startsWith("p_"));
+            LIST.add(a);
+        }
         if (!m.sound().isEmpty()) {
             try {
                 Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(
@@ -71,7 +75,7 @@ public final class ImageOverlay {
         }
     }
 
-    public static void onClear() { current = null; }
+    public static void onClear() { synchronized (LIST) { LIST.clear(); } }
 
     // ------------------------------------------------------------------ decodificacion
 
@@ -194,7 +198,9 @@ public final class ImageOverlay {
         // como mucho 8 imagenes en memoria
         while (CACHE.size() > 8) {
             String oldest = CACHE.keySet().iterator().next();
-            if (current != null && oldest.equals(current.key)) break;
+            boolean inUse = false;
+            synchronized (LIST) { for (Active x : LIST) if (x.key.equals(oldest)) inUse = true; }
+            if (inUse) break;
             Anim old = CACHE.remove(oldest);
             for (ResourceLocation rl : old.frames) mc.getTextureManager().release(rl);
         }
@@ -203,14 +209,19 @@ public final class ImageOverlay {
     // ------------------------------------------------------------------ dibujo
 
     public static void render(GuiGraphics g, int w, int h) {
-        Active a = current;
-        if (a == null) return;
+        List<Active> copy;
+        synchronized (LIST) { copy = new ArrayList<>(LIST); }
+        for (Active a : copy) render1(g, w, h, a);
+        synchronized (LIST) { LIST.removeIf(x -> x.done); }
+    }
+
+    private static void render1(GuiGraphics g, int w, int h, Active a) {
         Anim an = CACHE.get(a.key);
         if (an == null || an.frames.length == 0) return;   // aun cargando
         long now = System.currentTimeMillis();
         if (a.start < 0) a.start = now;
         float el = (now - a.start) / 1000f;
-        if (el > a.secs) { current = null; return; }
+        if (el > a.secs) { a.done = true; return; }
         boolean full = a.mode.equals("full");
         float fin = full ? 0.04f : 0.2f, fout = 0.4f;
         float alpha = Math.min(1f, Math.min(el / fin, (a.secs - el) / fout));
@@ -227,7 +238,20 @@ public final class ImageOverlay {
         g.pose().translate(0, 0, 800);
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1f, 1f, 1f, Math.max(0f, alpha));
-        if (full) {
+        if (a.mode.startsWith("p_")) {
+            // sticker suelto en un punto de la pantalla: p_<x%>_<y%>_<ancho%>
+            String[] sp = a.mode.split("_");
+            float px = 50, py = 50, pw = 12;
+            try { px = Float.parseFloat(sp[1]); py = Float.parseFloat(sp[2]); pw = Float.parseFloat(sp[3]); } catch (Exception ignored) { }
+            int dw = Math.max(8, Math.round(w * pw / 100f));
+            int dh = Math.round(dw * an.h / (float) an.w);
+            if (dh > h / 4) { dh = h / 4; dw = Math.round(dh * an.w / (float) an.h); }
+            float bob = (float) Math.sin(el * 3f + px * 0.3f) * 2f;
+            float pop = Math.min(1f, el / 0.25f);
+            g.pose().translate(w * px / 100f, h * py / 100f + bob, 0);
+            g.pose().scale(0.6f + 0.4f * pop, 0.6f + 0.4f * pop, 1f);
+            g.blit(tex, -dw / 2, -dh / 2, dw, dh, 0f, 0f, an.w, an.h, an.w, an.h);
+        } else if (full) {
             // pantalla completa (susto): cubre todo y tiembla al principio
             float s = Math.max(w / (float) an.w, h / (float) an.h);
             int dw = Math.round(an.w * s), dh = Math.round(an.h * s);
