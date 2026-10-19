@@ -4,7 +4,7 @@ import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.AudioStream;
-import net.minecraft.client.sounds.OggAudioStream;
+import com.mojang.blaze3d.audio.OggAudioStream;
 import net.minecraft.client.sounds.SoundBufferLibrary;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
