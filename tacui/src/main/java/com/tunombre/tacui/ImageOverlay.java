@@ -70,12 +70,42 @@ public final class ImageOverlay {
             else LIST.removeIf(o -> !o.mode.startsWith("p_"));
             LIST.add(a);
         }
-        if (!m.sound().isEmpty()) {
+        if (m.sound().startsWith("custom:")) {
+            playCustom(m.sound().substring(7), m.volume());
+        } else if (!m.sound().isEmpty()) {
             try {
                 Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(
                         SoundEvent.createVariableRangeEvent(new ResourceLocation(m.sound())), 1.0f, m.volume()));
             } catch (Exception ex) { TacUI.LOGGER.warn("tacui: sonido no valido {}", m.sound()); }
         }
+    }
+
+    private static final Map<String, byte[]> SOUNDS = new LinkedHashMap<>();
+    private static final Map<String, Parts> SPARTS = new HashMap<>();
+
+    public static void onSoundData(TacNet.SoundData m) {
+        if (SOUNDS.containsKey(m.key())) return;
+        Parts p = SPARTS.computeIfAbsent(m.key(), k -> new Parts(Math.max(1, m.total())));
+        if (m.index() < 0 || m.index() >= p.chunks.length) return;
+        if (p.chunks[m.index()] == null) { p.chunks[m.index()] = m.data(); p.got++; }
+        if (p.got < p.chunks.length) return;
+        SPARTS.remove(m.key());
+        int len = 0;
+        for (byte[] c : p.chunks) len += c.length;
+        byte[] all = new byte[len];
+        int o = 0;
+        for (byte[] c : p.chunks) { System.arraycopy(c, 0, all, o, c.length); o += c.length; }
+        if (SOUNDS.size() >= 8) SOUNDS.remove(SOUNDS.keySet().iterator().next());
+        SOUNDS.put(m.key(), all);
+    }
+
+    /** Sonido propio del servidor. El volumen de Minecraft se corta en 1.0: para "mas fuerte" se superponen copias (2.0 = el doble de amplitud). */
+    private static void playCustom(String key, float vol) {
+        byte[] d = SOUNDS.get(key);
+        if (d == null) { TacUI.LOGGER.warn("tacui: sonido propio {} no recibido", key); return; }
+        int copies = Math.max(1, (int) Math.ceil(vol));
+        float each = Math.min(1.0f, vol / copies);
+        for (int i = 0; i < copies; i++) Minecraft.getInstance().getSoundManager().play(new CustomSound(d, each));
     }
 
     public static void onClear() { synchronized (LIST) { LIST.clear(); } synchronized (ALERTS) { ALERTS.clear(); } }

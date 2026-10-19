@@ -43,6 +43,7 @@ public final class ServerImages {
 
     private static final int CHUNK = 30000, MAX_BYTES = 8 * 1024 * 1024;
     private static final Map<UUID, Set<String>> SENT = new ConcurrentHashMap<>();
+    private static final int MAX_SND = 4 * 1024 * 1024;
     private static final String[] MODES = {"center", "full", "corner"};
 
     static Path dir() {
@@ -56,6 +57,40 @@ public final class ServerImages {
                     "Sonido: cualquier id de sonido (p. ej. minecraft:entity.ghast.scream) o none. En el texto se pueden usar colores con &c, &l...\n");
         } catch (Exception ignored) { }
         return d;
+    }
+
+    static Path soundsDir() {
+        Path d = FMLPaths.CONFIGDIR.get().resolve("tacui").resolve("sounds");
+        try {
+            Files.createDirectories(d);
+            Path readme = d.resolve("LEEME.txt");
+            if (!Files.exists(readme)) Files.writeString(readme,
+                    "Pon aqui sonidos .ogg (max 4 MB; NO mp3: conviertelo con ffmpeg -i x.mp3 x.ogg) y usalos con el prefijo tacui:\n" +
+                    "Ejemplo: grito.ogg -> /tacshow @p susto.gif 3 full tacui:grito   o   /tacpalo @s susto.gif 3 tacui:grito 2\n" +
+                    "El volumen de Minecraft no pasa de 1.0: para mas fuerte usa un ogg ya fuerte y el volumen del palo (2 = el doble).\n");
+        } catch (Exception ignored) { }
+        return d;
+    }
+
+    /** nombres (sin .ogg) de los sonidos propios del servidor */
+    static List<String> customSounds() {
+        List<String> out = new ArrayList<>();
+        try (Stream<Path> s = Files.list(soundsDir())) {
+            s.map(p -> p.getFileName().toString()).filter(n -> n.toLowerCase(Locale.ROOT).endsWith(".ogg"))
+                    .map(n -> n.substring(0, n.length() - 4)).sorted().forEach(out::add);
+        } catch (Exception ignored) { }
+        return out;
+    }
+
+    /** ids para autocompletar: sonidos propios (tacui:nombre) + todos los registrados */
+    static List<ResourceLocation> soundSuggestions() {
+        List<ResourceLocation> out = new ArrayList<>();
+        for (String n : customSounds()) {
+            ResourceLocation r = ResourceLocation.tryParse(TacUI.ID + ":" + n.toLowerCase(Locale.ROOT));
+            if (r != null) out.add(r);
+        }
+        out.addAll(net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.keySet());
+        return out;
     }
 
     static List<String> files() {
@@ -127,7 +162,7 @@ public final class ServerImages {
                                                 .suggests((c, b) -> SharedSuggestionProvider.suggest(MODES, b))
                                                 .executes(c -> run(c, FloatArgumentType.getFloat(c, "seconds"), StringArgumentType.getString(c, "mode"), "", ""))
                                                 .then(Commands.argument("sound", ResourceLocationArgument.id())
-                                                        .suggests(SuggestionProviders.AVAILABLE_SOUNDS)
+                                                        .suggests((c, b) -> SharedSuggestionProvider.suggestResource(soundSuggestions(), b))
                                                         .executes(c -> run(c, FloatArgumentType.getFloat(c, "seconds"), StringArgumentType.getString(c, "mode"),
                                                                 sound(c), ""))
                                                         .then(Commands.argument("text", StringArgumentType.greedyString())
@@ -135,12 +170,12 @@ public final class ServerImages {
                                                                         sound(c), StringArgumentType.getString(c, "text"))))))))));
     }
 
-    private static String sound(CommandContext<CommandSourceStack> c) {
+    static String sound(CommandContext<CommandSourceStack> c) {
         ResourceLocation id = ResourceLocationArgument.getId(c, "sound");
         return id.getPath().equals("none") ? "" : id.toString();
     }
 
-    private static String mode(String m) {
+    static String mode(String m) {
         String l = m.toLowerCase(Locale.ROOT);
         if (l.startsWith("p_")) return l;
         return switch (l) {
@@ -150,46 +185,89 @@ public final class ServerImages {
         };
     }
 
+    private static byte[] readFile(Path file, int max) throws java.io.IOException {
+        if (Files.size(file) > max) throw new java.io.IOException("pesa mas de " + (max >> 20) + " MB");
+        return Files.readAllBytes(file);
+    }
+
+    private static String crcKey(String name, byte[] data) {
+        CRC32 crc = new CRC32();
+        crc.update(data);
+        return name.toLowerCase(Locale.ROOT) + "#" + Long.toHexString(crc.getValue());
+    }
+
+    private static void sendChunks(PacketDistributor.PacketTarget to, String key, byte[] data, boolean sound) {
+        int total = (data.length + CHUNK - 1) / CHUNK;
+        for (int i = 0; i < total; i++) {
+            int from = i * CHUNK, len = Math.min(CHUNK, data.length - from);
+            byte[] part = new byte[len];
+            System.arraycopy(data, from, part, 0, len);
+            if (sound) TacNet.CH.send(to, new TacNet.SoundData(key, i, total, part));
+            else TacNet.CH.send(to, new TacNet.ImageData(key, i, total, part));
+        }
+    }
+
+    /** nombre de archivo seguro dentro de una carpeta (sin rutas) */
+    static boolean badName(String n) { return n.contains("/") || n.contains("\\") || n.contains(".."); }
+
+    /**
+     * Manda imagen (+ sonido) a un jugador. sound: "" / id de sonido / "tacui:nombre" (archivo propio en config/tacui/sounds).
+     * Devuelve null si fue bien o el motivo del fallo.
+     */
+    static String push(ServerPlayer p, String image, float secs, String mode, String sound, float vol, String text) {
+        if (badName(image)) return "Nombre de archivo no valido";
+        Path file = dir().resolve(image);
+        byte[] img;
+        String customKey = null;
+        byte[] snd = null;
+        try {
+            if (!Files.isRegularFile(file)) return "No existe config/tacui/images/" + image + " (usa /tacshow list)";
+            img = readFile(file, MAX_BYTES);
+            if (sound.startsWith(TacUI.ID + ":")) {
+                String sn = sound.substring(TacUI.ID.length() + 1);
+                Path sf = null;
+                if (!badName(sn)) {
+                    for (String have : customSounds()) if (have.equalsIgnoreCase(sn)) sf = soundsDir().resolve(have + ".ogg");
+                }
+                if (sf != null) {
+                    snd = readFile(sf, MAX_SND);
+                    customKey = crcKey(sn, snd);
+                } else {
+                    return "No existe config/tacui/sounds/" + sn + ".ogg";
+                }
+            }
+        } catch (Exception ex) {
+            return "No se pudo leer: " + ex.getMessage();
+        }
+        if (!TacNet.CH.isRemotePresent(p.connection.connection)) return "sin tacui instalado";
+        String key = crcKey(image, img);
+        PacketDistributor.PacketTarget to = PacketDistributor.PLAYER.with(() -> p);
+        Set<String> sent = SENT.computeIfAbsent(p.getUUID(), k -> ConcurrentHashMap.newKeySet());
+        if (sent.add(key)) sendChunks(to, key, img, false);
+        String wire = sound;
+        if (customKey != null) {
+            if (sent.add("snd:" + customKey)) sendChunks(to, customKey, snd, true);
+            wire = "custom:" + customKey;
+        }
+        TacNet.CH.send(to, new TacNet.ShowImage(key, secs, mode(mode), wire, vol, text));
+        return null;
+    }
+
     private static int run(CommandContext<CommandSourceStack> c, float secs, String mode, String sound, String text) throws CommandSyntaxException {
         CommandSourceStack src = c.getSource();
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(c, "targets");
         String name = StringArgumentType.getString(c, "image");
-        if (name.contains("/") || name.contains("\\") || name.contains("..")) {
-            src.sendFailure(Component.literal("Nombre de archivo no valido"));
-            return 0;
-        }
-        Path file = dir().resolve(name);
-        byte[] data;
-        try {
-            if (!Files.isRegularFile(file)) { src.sendFailure(Component.literal("No existe config/tacui/images/" + name + " (usa /tacshow list)")); return 0; }
-            if (Files.size(file) > MAX_BYTES) { src.sendFailure(Component.literal("La imagen pesa mas de 8 MB")); return 0; }
-            data = Files.readAllBytes(file);
-        } catch (Exception ex) {
-            src.sendFailure(Component.literal("No se pudo leer la imagen: " + ex.getMessage()));
-            return 0;
-        }
-        CRC32 crc = new CRC32();
-        crc.update(data);
-        String key = name.toLowerCase(Locale.ROOT) + "#" + Long.toHexString(crc.getValue());
-        String m = mode(mode);
-        int total = (data.length + CHUNK - 1) / CHUNK, ok = 0, missing = 0;
+        int ok = 0, missing = 0;
+        String err = null;
         for (ServerPlayer p : targets) {
-            if (!TacNet.CH.isRemotePresent(p.connection.connection)) { missing++; continue; }
-            PacketDistributor.PacketTarget to = PacketDistributor.PLAYER.with(() -> p);
-            Set<String> sent = SENT.computeIfAbsent(p.getUUID(), k -> ConcurrentHashMap.newKeySet());
-            if (!sent.contains(key)) {
-                for (int i = 0; i < total; i++) {
-                    int from = i * CHUNK, len = Math.min(CHUNK, data.length - from);
-                    byte[] part = new byte[len];
-                    System.arraycopy(data, from, part, 0, len);
-                    TacNet.CH.send(to, new TacNet.ImageData(key, i, total, part));
-                }
-                sent.add(key);
-            }
-            TacNet.CH.send(to, new TacNet.ShowImage(key, secs, m, sound, 1.0f, text));
-            ok++;
+            String r = push(p, name, secs, mode, sound, 1.0f, text);
+            if (r == null) ok++;
+            else if (r.startsWith("sin tacui")) missing++;
+            else { err = r; break; }
         }
+        if (err != null) { src.sendFailure(Component.literal(err)); return 0; }
         int fok = ok, fmiss = missing;
+        String m = mode(mode);
         src.sendSuccess(() -> Component.literal("Imagen " + name + " (" + m + ", " + secs + " s) enviada a " + fok + " jugador(es)"
                 + (fmiss > 0 ? "; " + fmiss + " sin tacui instalado" : "")), true);
         return ok;

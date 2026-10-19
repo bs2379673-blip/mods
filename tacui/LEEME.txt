@@ -19,6 +19,15 @@ Novedades 0.2.0:
 
 IMPORTANTE desde 0.6.0: pon tacui TAMBIEN en el servidor (para /tacshow). Los jugadores sin el mod pueden entrar igual.
 
+Novedades 0.10.0 (palo screamer y sonidos propios):
+- Sonidos propios del servidor: pon archivos .ogg (max 4 MB) en config/tacui/sounds/ DEL SERVIDOR y usalos con el prefijo tacui:
+  Ejemplo: /tacshow @p susto.gif 3 full tacui:grito     (se envian al cliente la primera vez, no hace falta resource pack)
+- Palo screamer: /tacpalo <jugadores> <imagen> [segundos] [sonido|none] [volumen 0.1-4] [texto]
+  Da un palo; cuando un OPERADOR golpea a otro jugador con el, sin hacer dano, a la victima le sale la imagen/GIF a pantalla completa
+  con el sonido. Volumen 2 = sonido el doble de fuerte (se superponen copias; Minecraft no pasa de 1.0 por copia).
+  Ejemplo: /tacpalo @s infectado.gif 4 tacui:grito 2
+  Los jugadores sin tacui no ven nada (el palo avisa al operador).
+
 Novedades 0.6.0:
 - HUD nuevo tipo visor: vida con cifra grande, electrocardiograma (se acelera con poca vida) y barra inclinada con estela;
   ARM/HUN/H2O/O2 y resistencia de Epic Fight debajo; hotbar minimal; bloque de arma (municion grande, balas, modo,

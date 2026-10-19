@@ -29,6 +29,15 @@ public final class TacNet {
                 .encoder(ClearImage::encode).decoder(ClearImage::decode).consumerMainThread(ClearImage::handle).add();
         CH.messageBuilder(Alert.class, id++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(Alert::encode).decoder(Alert::decode).consumerMainThread(Alert::handle).add();
+        CH.messageBuilder(SoundData.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(SoundData::encode).decoder(SoundData::decode).consumerMainThread(SoundData::handle).add();
+    }
+
+    /** Un trozo de un sonido .ogg propio del servidor (config/tacui/sounds). key = nombre#crc. */
+    public record SoundData(String key, int index, int total, byte[] data) {
+        public void encode(FriendlyByteBuf b) { b.writeUtf(key); b.writeVarInt(index); b.writeVarInt(total); b.writeByteArray(data); }
+        public static SoundData decode(FriendlyByteBuf b) { return new SoundData(b.readUtf(), b.readVarInt(), b.readVarInt(), b.readByteArray(1 << 20)); }
+        public void handle(Supplier<NetworkEvent.Context> c) { DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ImageOverlay.onSoundData(this)); }
     }
 
     /** Alerta glitch de texto (sin imagen): "TITULO|subtitulo". rgb = color de la alerta. */
