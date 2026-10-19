@@ -23,7 +23,7 @@
   },
   {
    "t": 18.042,
-   "scene": "baka",
+   "scene": "prisma",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -82,7 +82,7 @@
   },
   {
    "t": 71.378,
-   "scene": "baka",
+   "scene": "prisma",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -109,7 +109,7 @@
   },
   {
    "t": 92.706,
-   "scene": "baka",
+   "scene": "prisma",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -202,7 +202,7 @@
   },
   {
    "t": 162.04,
-   "scene": "baka",
+   "scene": "tormenta",
    "floor": "grid",
    "eq": 0.3,
    "beams": "off",

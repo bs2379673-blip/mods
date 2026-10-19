@@ -131,7 +131,7 @@
   },
   {
    "t": 100.217,
-   "scene": "sunset",
+   "scene": "sakura",
    "floor": "off",
    "eq": 0.0,
    "beams": "off",
@@ -149,7 +149,7 @@
   },
   {
    "t": 114.335,
-   "scene": "sunset",
+   "scene": "olas",
    "floor": "grid",
    "eq": 0.55,
    "beams": "slow",
@@ -206,7 +206,7 @@
   },
   {
    "t": 162.331,
-   "scene": "sunset",
+   "scene": "sakura",
    "floor": "off",
    "eq": 0.0,
    "beams": "off",
@@ -224,7 +224,7 @@
   },
   {
    "t": 173.616,
-   "scene": "sunset",
+   "scene": "olas",
    "floor": "grid",
    "eq": 0.55,
    "beams": "slow",
@@ -250,7 +250,7 @@
   },
   {
    "t": 199.041,
-   "scene": "sunset",
+   "scene": "sakura",
    "floor": "off",
    "eq": 0.0,
    "beams": "off",

@@ -36,7 +36,7 @@ import java.util.List;
 /** estado del concierto en el servidor (en memoria) y comandos /concierto */
 public final class Show {
     /** orden fijo: el indice es el que usa el shader */
-    public static final List<String> SCENES = List.of("spectrum", "oscilloscope", "starfield", "kaleidoscope", "milkdrop", "magnetosphere", "cthugha", "fireworks", "sunset", "meltglow", "static", "konton", "magia", "rooms", "synth", "pop", "hypno", "baka", "obscure", "cosmos");
+    public static final List<String> SCENES = List.of("spectrum", "oscilloscope", "starfield", "kaleidoscope", "milkdrop", "magnetosphere", "cthugha", "fireworks", "sunset", "meltglow", "static", "konton", "magia", "rooms", "synth", "pop", "hypno", "baka", "obscure", "cosmos", "aurora", "nebulosa", "lluvia", "olas", "tormenta", "galaxia", "ciudad", "prisma", "sakura", "eclipse");
 
     /** medidas del escenario, en unidades de la escala (salvo el giro y la cantidad). El orden es el del paquete. */
     public static final List<String> PARAMS = List.of("piso_inicio", "piso_fin", "piso_ancho", "panel_dist", "panel_atras", "panel_ancho", "panel_alto", "panel_giro", "rayos_ancho", "rayos_atras", "rayos_largo", "rayos_cant");

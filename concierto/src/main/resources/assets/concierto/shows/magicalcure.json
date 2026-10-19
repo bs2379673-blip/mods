@@ -53,7 +53,7 @@
   },
   {
    "t": 35.422,
-   "scene": "magia",
+   "scene": "sakura",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -162,7 +162,7 @@
   },
   {
    "t": 82.918,
-   "scene": "magia",
+   "scene": "sakura",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -236,7 +236,7 @@
   },
   {
    "t": 95.422,
-   "scene": "magia",
+   "scene": "sakura",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -259,7 +259,7 @@
   },
   {
    "t": 103.92,
-   "scene": "magia",
+   "scene": "sakura",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -334,7 +334,7 @@
   },
   {
    "t": 160.427,
-   "scene": "magia",
+   "scene": "aurora",
    "floor": "off",
    "eq": 0.0,
    "beams": "off",
@@ -400,7 +400,7 @@
   },
   {
    "t": 192.923,
-   "scene": "magia",
+   "scene": "galaxia",
    "floor": "grid",
    "eq": 0.3,
    "beams": "off",

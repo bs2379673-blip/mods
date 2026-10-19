@@ -4,7 +4,7 @@
  "cues": [
   {
    "t": 0.0,
-   "scene": "synth",
+   "scene": "prisma",
    "floor": "grid",
    "eq": 0.6,
    "beams": "slow",
@@ -22,7 +22,7 @@
   },
   {
    "t": 15.871,
-   "scene": "synth",
+   "scene": "ciudad",
    "floor": "grid",
    "eq": 0.7,
    "beams": "slow",
@@ -123,7 +123,7 @@
   },
   {
    "t": 75.871,
-   "scene": "synth",
+   "scene": "ciudad",
    "floor": "grid",
    "eq": 0.7,
    "beams": "slow",
@@ -141,7 +141,7 @@
   },
   {
    "t": 83.383,
-   "scene": "synth",
+   "scene": "ciudad",
    "floor": "grid",
    "eq": 0.7,
    "beams": "slow",
@@ -159,7 +159,7 @@
   },
   {
    "t": 90.883,
-   "scene": "synth",
+   "scene": "ciudad",
    "floor": "grid",
    "eq": 0.7,
    "beams": "slow",
@@ -177,7 +177,7 @@
   },
   {
    "t": 105.883,
-   "scene": "synth",
+   "scene": "galaxia",
    "floor": "grid",
    "eq": 0.4,
    "beams": "off",
@@ -252,7 +252,7 @@
   },
   {
    "t": 150.872,
-   "scene": "synth",
+   "scene": "ciudad",
    "floor": "grid",
    "eq": 0.7,
    "beams": "slow",
@@ -327,7 +327,7 @@
   },
   {
    "t": 188.383,
-   "scene": "synth",
+   "scene": "ciudad",
    "floor": "grid",
    "eq": 0.7,
    "beams": "slow",

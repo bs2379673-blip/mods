@@ -30,7 +30,7 @@
   },
   {
    "t": 25.554,
-   "scene": "rooms",
+   "scene": "eclipse",
    "floor": "grid",
    "eq": 0.5,
    "beams": "strobe",
@@ -82,7 +82,7 @@
   },
   {
    "t": 61.103,
-   "scene": "rooms",
+   "scene": "eclipse",
    "floor": "grid",
    "eq": 0.5,
    "beams": "strobe",

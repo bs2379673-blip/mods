@@ -385,6 +385,23 @@ def extra_baka(sh, d, section_at, role_look):
     sh.fx(T, "final")
 
 
+# variaciones de cielo: cada cancion mezcla escenas nuevas en intro/estrofa/pausa/final (estribillo y climax conservan su cielo propio)
+SKY_VARIANTS = {
+    "static": {"verse": "lluvia", "outro": "nebulosa"},
+    "konton_boogie": {"verse": "prisma", "outro": "galaxia"},
+    "melt": {"verse": "olas", "break": "sakura"},
+    "magical_cure": {"verse": "sakura", "break": "aurora", "outro": "galaxia"},
+    "looping_the_rooms": {"verse": "eclipse"},
+    "anamanaguchi": {"intro": "prisma", "verse": "ciudad", "break": "galaxia"},
+    "minna_miku_miku": {"verse": "olas", "outro": "aurora"},
+    "mesmerizer": {"verse": "eclipse", "outro": "nebulosa"},
+    "triple_baka": {"verse": "prisma", "outro": "tormenta"},
+}
+for _nm, _m in SKY_VARIANTS.items():
+    for _role, _sc in _m.items():
+        if _role in PLANS[_nm]["look"]:
+            PLANS[_nm]["look"][_role]["scene"] = _sc
+
 EXTRAS = {"magical_cure": extra_magical, "looping_the_rooms": extra_rooms, "triple_baka": extra_baka}
 
 for nm, pl in PLANS.items():

@@ -35,7 +35,7 @@
   },
   {
    "t": 40.194,
-   "scene": "pop",
+   "scene": "olas",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -87,7 +87,7 @@
   },
   {
    "t": 112.187,
-   "scene": "pop",
+   "scene": "olas",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -113,7 +113,7 @@
   },
   {
    "t": 124.192,
-   "scene": "pop",
+   "scene": "olas",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -170,7 +170,7 @@
   },
   {
    "t": 172.188,
-   "scene": "pop",
+   "scene": "olas",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -222,7 +222,7 @@
   },
   {
    "t": 226.197,
-   "scene": "pop",
+   "scene": "olas",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -319,7 +319,7 @@
   },
   {
    "t": 274.193,
-   "scene": "pop",
+   "scene": "aurora",
    "floor": "grid",
    "eq": 0.3,
    "beams": "off",

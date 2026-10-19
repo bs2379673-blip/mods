@@ -233,7 +233,7 @@ public final class Dancing {
 
     /** hologramas gigantes de Miku (se pueden apagar con /concierto hologramas off) */
     public static boolean holos = true;
-    public static final float HOLO_SCALE = 34F, HOLO_BACK = 78F, HOLO_SIDE = 62F, HOLO_UP = 0F;
+    public static final float HOLO_SCALE = 30F, HOLO_BACK = 50F, HOLO_SIDE = 40F, HOLO_UP = 0F;
 
     /** final del concierto: todas las bailarinas (y hologramas) se contraen en una estrella y estallan */
     public static void vanishAll(MinecraftServer srv) {

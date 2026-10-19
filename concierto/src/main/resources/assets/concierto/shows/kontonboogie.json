@@ -31,7 +31,7 @@
   },
   {
    "t": 21.42,
-   "scene": "konton",
+   "scene": "prisma",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -50,7 +50,7 @@
   },
   {
    "t": 31.521,
-   "scene": "konton",
+   "scene": "prisma",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -69,7 +69,7 @@
   },
   {
    "t": 41.633,
-   "scene": "konton",
+   "scene": "prisma",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -120,7 +120,7 @@
   },
   {
    "t": 82.059,
-   "scene": "konton",
+   "scene": "prisma",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -181,7 +181,7 @@
   },
   {
    "t": 142.687,
-   "scene": "konton",
+   "scene": "galaxia",
    "floor": "grid",
    "eq": 0.3,
    "beams": "off",

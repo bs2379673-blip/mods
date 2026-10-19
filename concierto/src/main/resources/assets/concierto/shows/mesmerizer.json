@@ -30,7 +30,7 @@
   },
   {
    "t": 14.06,
-   "scene": "hypno",
+   "scene": "eclipse",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -153,7 +153,7 @@
   },
   {
    "t": 97.106,
-   "scene": "hypno",
+   "scene": "eclipse",
    "floor": "grid",
    "eq": 0.5,
    "beams": "slow",
@@ -194,7 +194,7 @@
   },
   {
    "t": 120.442,
-   "scene": "hypno",
+   "scene": "nebulosa",
    "floor": "grid",
    "eq": 0.3,
    "beams": "off",
