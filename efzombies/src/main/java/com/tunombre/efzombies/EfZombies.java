@@ -9,7 +9,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeSpawnEggItem;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
@@ -29,8 +28,10 @@ import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 /**
- * EF Zombies 2.0
- * - Animaciones propias para los zombis de Epic Fight (andar, perseguir, reposo; variantes por zombi). Ver ZombieClient.
+ * EF Zombies 3.0
+ * - Animaciones propias SIN Epic Fight para zombi, husk, ahogado y zombi aldeano (andar, correr, reposo, a cuatro patas;
+ *   variantes por zombi). Ver ZombieAnim. Epic Fight se desactiva en zombis y creepers con datos propios del mod
+ *   (data/minecraft/epicfight_mobpatch/*.json). Epic Fight solo se usa para el trepador.
  * - Nuevo mob: el TREPADOR (efzombies:trepador). Trepa paredes, se cuelga del techo y cae sobre el jugador. Ver Trepador.
  * Desde 2.0 debe estar en el SERVIDOR y en los CLIENTES (agrega un mob).
  */
@@ -49,12 +50,6 @@ public class EfZombies {
 
     public static final RegistryObject<Item> TREPADOR_EGG = ITEMS.register("trepador_spawn_egg",
             () -> new ForgeSpawnEggItem(TREPADOR, 0x4A0C10, 0xD88A96, new Item.Properties()));
-
-    // ---- animaciones de zombi normal ----
-    public static final AnimationManager.AnimationAccessor<MovementAnimation>[] ZW = newMove(7), ZWH = newMove(7), ZC = newMove(7), ZCH = newMove(7);
-    public static AnimationManager.AnimationAccessor<MovementAnimation> ZQW, ZQC;
-    public static AnimationManager.AnimationAccessor<StaticAnimation> ZQI;
-    public static final AnimationManager.AnimationAccessor<StaticAnimation>[] ZI = newStatic(6), ZIH = newStatic(6);
 
     // ---- animaciones del trepador ----
     /** pared: trepando / quieto. techo: gateando / quieto. suelo: gateo, carrera, reposo. caida. */
@@ -80,7 +75,6 @@ public class EfZombies {
         bus.addListener(EfZombies::onSpawnPlacement);
         bus.addListener(EfZombies::onCreativeTab);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            MinecraftForge.EVENT_BUS.register(new ZombieClient());
             ClientSetup.init(bus);
         });
     }
@@ -90,20 +84,6 @@ public class EfZombies {
     }
 
     private static void build(AnimationManager.AnimationBuilder b) {
-        for (int i = 0; i < 7; i++) {
-            ZW[i] = move(b, "zombie/zw" + (i + 1));
-            ZWH[i] = move(b, "zombie/zw" + (i + 1) + "h");
-            ZC[i] = move(b, "zombie/zc" + (i + 1));
-            ZCH[i] = move(b, "zombie/zc" + (i + 1) + "h");
-        }
-        for (int i = 0; i < 6; i++) {
-            ZI[i] = loop(b, "zombie/zi" + (i + 1), 0.25F);
-            ZIH[i] = loop(b, "zombie/zi" + (i + 1) + "h", 0.25F);
-        }
-        ZQW = move(b, "zombie/zwq");
-        ZQC = move(b, "zombie/zcq");
-        ZQI = loop(b, "zombie/ziq", 0.25F);
-
         T_WALL = loop(b, "trepador/tcw", 0.15F);
         T_WALL_IDLE = loop(b, "trepador/tcwi", 0.2F);
         T_CEIL = loop(b, "trepador/tcc", 0.15F);
