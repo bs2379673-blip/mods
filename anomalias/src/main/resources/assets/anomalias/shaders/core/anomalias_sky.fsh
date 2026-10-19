@@ -47,7 +47,7 @@ float wrapA(float a) { return a - TAU * floor((a + PI) / TAU); }
 // devuelve rgb + alfa. rho = distancia angular al cenit (rad), phi = giro
 vec4 flower(float rho, float phi, float t, float open, float app) {
     // radio total: capullo cerrado -> flor abierta
-    float R = mix(0.20, 0.60, smoothstep(0.0, 1.0, open)) * (0.55 + 0.45 * smoothstep(0.0, 0.7, app));
+    float R = mix(0.24, 0.60, smoothstep(0.0, 1.0, open)) * (0.55 + 0.45 * smoothstep(0.0, 0.7, app));
     float breathe = 1.0 + 0.012 * sin(t * 1.7);
     R *= breathe;
     vec3 col = vec3(0.0);
@@ -66,25 +66,34 @@ vec4 flower(float rho, float phi, float t, float open, float app) {
         float rot = fl * (PI / n) + 0.35 * fl + 0.03 * sin(t * 0.5 + fl);
         // el capullo se cierra: los petalos de adentro se ven primero, las capas externas se abren despues
         float lo = clamp((open - 0.12 * (2.0 - fl)) / 0.7, 0.0, 1.0);
-        float curl = mix(0.55, 1.0, smoothstep(0.0, 1.0, lo));
-        float ph2 = (phi - rot) * n / TAU;                       // petalo = tramo de 1.0
+        float curl = mix(0.50, 1.0, smoothstep(0.0, 1.0, lo));
+        float closed = 1.0 - smoothstep(0.0, 0.75, lo);
+        float pp = phi + closed * rho * 11.0 / max(R, 0.05) * 0.35;   // capullo: petalos enrollados en espiral
+        float ph2 = (pp - rot) * n / TAU;                       // petalo = tramo de 1.0
         float pidx = floor(ph2 + 0.5);
         float hv = h11(pidx * 3.7 + fl * 11.0);
-        float u = cos(n * (phi - rot) * 0.5);                   // -1..1 por petalo
-        float lobe = pow(max(0.5 + 0.5 * u, 0.0), 0.95);         // punta mas marcada
+        float u = cos(n * (pp - rot) * 0.5);                   // -1..1 por petalo
+        float lobe = mix(pow(max(0.5 + 0.5 * u, 0.0), 0.95), 0.80 + 0.20 * (0.5 + 0.5 * u), closed);         // punta mas marcada
         float lenv = 0.82 + 0.30 * hv;                           // cada petalo con su largo
         float wob = 0.018 * sin(phi * 23.0 + fl * 3.0 + t * 0.4) * (0.5 + hv);
         float rp = rl * curl * lenv * (0.34 + 0.66 * lobe) + wob * rl;
         float inside = smoothstep(rp, rp - 0.012, rho);
+        // sombra que proyecta esta capa sobre las de atras
+        float castS = smoothstep(rp * 1.22, rp, rho) * (1.0 - inside);
+        col *= 1.0 - 0.62 * castS * (fl < 2.0 ? 1.0 : 0.0) * step(0.02, alpha);
         if (inside <= 0.001) continue;
         float x = rho / max(rp, 1e-3);                           // 0 centro .. 1 borde
         float delta = (0.5 + 0.5 * u);                           // 1 = eje del petalo
-        vec3 cream = vec3(0.98, 0.95, 0.90);
+        vec3 cream = vec3(0.93, 0.84, 0.78);
         vec3 deep = mix(vec3(0.38, 0.05, 0.06), Col0 * 3.0 + vec3(0.1, 0.0, 0.0), 0.3);
-        vec3 pc = mix(deep, cream, smoothstep(0.10, 0.62, x));
+        vec3 pc = mix(deep, cream, smoothstep(0.22, 0.85, x) * (1.0 - 0.85 * closed));
+        pc = mix(pc, deep * 0.55, 0.45 * closed * (1.0 - smoothstep(0.55, 1.0, x)));
         float veins = 0.5 + 0.5 * sin((phi - rot) * n * 9.0 + rho * 40.0);
         pc *= 0.93 + 0.07 * veins * smoothstep(0.1, 0.6, x);
         pc *= 0.80 + 0.20 * delta + 0.10 * (hv - 0.5);
+        pc *= mix(0.22, 1.0, smoothstep(0.0, mix(0.55, 0.30, closed * 0.0 + (1.0 - closed) * 1.0), delta));   // valles oscuros entre petalos
+        pc *= 0.40 + 0.60 * smoothstep(0.0, 0.9, x);
+        pc *= 1.0 - 0.35 * (0.5 + 0.5 * sin((pp - rot) * n * 3.0 + 1.0)) * (1.0 - closed);   // sombra profunda hacia el centro
         pc *= 0.90 + 0.18 * fbm(vec3(phi * 3.0, rho * 14.0, fl + hv * 5.0));
         pc = mix(pc, Col2 * 1.1, 0.10 * (1.0 - x) + 0.10 * pow(x, 6.0));
         float rim = exp(-pow((x - 1.0) * 12.0, 2.0));
@@ -98,7 +107,7 @@ vec4 flower(float rho, float phi, float t, float open, float app) {
 
     // centro: nucleo rojo oscuro con estambres que terminan en esporas brillantes
     float cr = R * 0.21;
-    float core = smoothstep(cr, cr * 0.55, rho);
+    float core = smoothstep(cr, cr * 0.55, rho) * smoothstep(0.25, 0.7, open);
     vec3 coreC = mix(Col0 * 1.4 + vec3(0.10, 0.0, 0.02), Col1 * 0.8, 0.25 + 0.2 * sin(t * 2.0));
     col = mix(col, coreC, core * 0.95);
     alpha = max(alpha, core);
@@ -106,7 +115,7 @@ vec4 flower(float rho, float phi, float t, float open, float app) {
     float s = phi / TAU * sN;
     float idx = floor(s), fr = fract(s) - 0.5;
     float hh = h11(idx * 1.7 + 3.0);
-    float len = R * (0.18 + 0.36 * hh) * smoothstep(0.1, 0.9, open);
+    float len = R * (0.18 + 0.36 * hh) * smoothstep(0.5, 1.0, open);
     float wline = abs(fr) * rho * (TAU / sN);
     float st = smoothstep(0.0058, 0.0010, wline) * step(rho, len) * step(cr * 0.5, rho);
     float tip = exp(-(pow((rho - len) * 70.0, 2.0) + pow(wline * 140.0, 2.0)));

@@ -87,7 +87,7 @@ public final class AnomaliaClient {
                 // los hitos que ya pasaron (jugador que entra tarde) no se vuelven a sonar
                 if (el > 0.3F) done[0] = true;
                 if (el > 0.8F * k) done[1] = true;
-                if (el > 8.5F * k) done[2] = true;
+                if (el > 7F * k) done[2] = true;
             }
             case Net.STOP -> {
                 if (on && !stopping) {
@@ -154,8 +154,8 @@ public final class AnomaliaClient {
         curFade = fade;
 
         float appear = sm(0F, 5F, u);
-        float open = sm(4F, 12F, u);
-        float spread = sm(11F, 40F, u);
+        float open = sm(5F, 16F, u);
+        float spread = sm(14F, 42F, u);
         float flowerFade = 1F - sm(42F, 50F, u);
         if (dur == 0F && !stopping && u > 50F) { spread = 1F; flowerFade = 0F; }
         curCov = spread;
@@ -163,11 +163,11 @@ public final class AnomaliaClient {
         // sonidos del guion
         if (!done[0] && u > 0.2F) { done[0] = true; play("alarma", 1F, 1F); }
         if (!done[1] && u > 0.6F) { done[1] = true; play("mortifilia", 1F, 1F); }
-        if (!done[2] && u > 8.5F) { done[2] = true; play("mortifilia", 0.6F, 0.9F); }
-        if (!done[3] && u > 12F) { done[3] = true; play("glitch", 1F, 0.8F); }
+        if (!done[2] && u > 7F) { done[2] = true; play("mortifilia", 0.6F, 0.9F); }
+        if (!done[3] && u > 14F) { done[3] = true; play("glitch", 1F, 0.8F); }
         if (!done[4] && u > 40F) { done[4] = true; play("glitch", 0.8F, 0.9F); }
         nextAmbient -= dt;
-        if (nextAmbient <= 0F && !stopping && u > 1F) { nextAmbient = 19F; play("ambiente", 1F, 0.7F); }
+        if (nextAmbient <= 0F && !stopping && u > 1F) { nextAmbient = 174F; play("ambiente", 1F, 0.8F); }
 
         // relampagos
         float stormK = tipo.storm * (0.25F + 0.75F * Math.max(appear * 0.4F, spread));

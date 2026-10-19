@@ -74,7 +74,7 @@ public final class Server {
         float k = d > 0 ? d / 60F : 1F;
         long now = startMs;
         sched(now + 200, 9F, t, "ANOMALÍA DETECTADA|MIRA HACIA ARRIBA");
-        sched(now + (long) (12000 * k), 7F, t, "ANOMALÍA EN EXPANSIÓN|ESPORAS DETECTADAS EN LA ATMÓSFERA");
+        sched(now + (long) (14000 * k), 7F, t, "ANOMALÍA EN EXPANSIÓN|ESPORAS DETECTADAS EN LA ATMÓSFERA");
         sched(now + (long) (40000 * k), 9F, t, "ANOMALÍA " + t.nombre + " ACTIVA|NIVEL DE PELIGRO: " + t.peligro);
         if (d > 0) sched(now + (long) ((d - 6F * k) * 1000), 5F, t, "ANOMALÍA EN RETIRADA|EL CIELO VUELVE A LA NORMALIDAD");
         say(s, "Anomalia " + t.id + " lanzada (" + (d > 0 ? (int) d + " s" : "fija, apagala con /anomalia fin") + ")");
