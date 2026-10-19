@@ -165,10 +165,10 @@ public class RagdollFix {
                 }
                 if (punchySetHidden == null) return;
                 boolean want = saHandsActive();
-                if (want && !overriding) {
-                    origHidden = punchyHiddenField.getBoolean(null);
+                if (want) {
+                    // Punchy (FirstPersonModelCompat) resets the flag every tick, so reapply every frame
+                    if (!overriding) { origHidden = punchyHiddenField.getBoolean(null); overriding = true; }
                     punchySetHidden.invoke(null, true);
-                    overriding = true;
                 } else if (!want && overriding) {
                     punchySetHidden.invoke(null, origHidden);
                     overriding = false;
