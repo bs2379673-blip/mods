@@ -1,11 +1,15 @@
 package com.tunombre.anomalias.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.renderer.GameRenderer;
 import com.tunombre.anomalias.Anomalias;
 import com.tunombre.anomalias.Net;
 import com.tunombre.anomalias.Tipo;
@@ -44,7 +48,7 @@ public final class AnomaliaClient {
     private static boolean stopping;
     private static long stopNs;
     private static float stopFrom = 1F;
-    private static float curFade = 1F, curCov;
+    private static float curFade = 1F, curCov, curLight, curFlash;
 
     private static final Random R = new Random();
     private static final float[] bolts = new float[12];
@@ -130,9 +134,10 @@ public final class AnomaliaClient {
     @SubscribeEvent
     public static void onRender(RenderLevelStageEvent e) {
         if (failed || !on || sky == null) return;
-        if (e.getStage() != RenderLevelStageEvent.Stage.AFTER_SKY) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.level.dimension() != Level.OVERWORLD) return;
+        if (e.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER) { drawLight(e); return; }
+        if (e.getStage() != RenderLevelStageEvent.Stage.AFTER_SKY) return;
 
         long now = System.nanoTime();
         float dt = Math.min(0.1F, (now - lastNs) / 1e9F);
@@ -159,6 +164,7 @@ public final class AnomaliaClient {
         float flowerFade = 1F - sm(42F, 50F, u);
         if (dur == 0F && !stopping && u > 50F) { spread = 1F; flowerFade = 0F; }
         curCov = spread;
+        curLight = (0.18F * appear + 0.82F * spread) * fade;
 
         // sonidos del guion
         if (!done[0] && u > 0.2F) { done[0] = true; play("alarma", 1F, 1F); }
@@ -194,6 +200,7 @@ public final class AnomaliaClient {
             bolts[i * 4 + 2] = bAge[i];
         }
         flash = Math.max(0F, flash);
+        curFlash = flash * fade;
         for (int i = thunders.size() - 1; i >= 0; i--) {
             Thunder th = thunders.get(i);
             Thunder n = new Thunder(th.at() - dt, th.vol());
@@ -239,5 +246,58 @@ public final class AnomaliaClient {
         RenderSystem.depthMask(true);
         RenderSystem.enableCull();
         RenderSystem.enableDepthTest();
+    }
+
+    /** Ilumina el mundo con el color de la anomalia: oscurece y tine (multiplicando) solo lo que no es cielo, y los rayos encienden el paisaje. */
+    private static void drawLight(RenderLevelStageEvent e) {
+        float k = curLight;
+        if (k <= 0.003F && curFlash <= 0.003F) return;
+        float dark = 0.30F + 0.70F * (1F - 0.55F * tipo.storm * k);
+        // color de multiplicacion: mezcla de blanco y el color medio de la anomalia, mas oscuro cuanto mas cubierto
+        float pulse = 1F + 0.05F * (float) Math.sin(System.nanoTime() / 1e9 * 1.3);
+        float[] m = tipo.c1;
+        float mr = 1F - k * (1F - (0.25F + 0.75F * m[0]) * 0.80F * pulse);
+        float mg = 1F - k * (1F - (0.25F + 0.75F * m[1]) * 0.80F * pulse);
+        float mb = 1F - k * (1F - (0.25F + 0.75F * m[2]) * 0.80F * pulse);
+        float dm = 1F - k * (1F - dark) * 0.9F;
+        mr *= dm; mg *= dm; mb *= dm;
+
+        PoseStack mvs = RenderSystem.getModelViewStack();
+        mvs.pushPose();
+        mvs.setIdentity();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setProjectionMatrix(new Matrix4f(), VertexSorting.ORTHOGRAPHIC_Z);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(516);   // GL_GREATER: solo donde ya hay terreno, nunca sobre el cielo
+        RenderSystem.depthMask(false);
+        RenderSystem.disableCull();
+        RenderSystem.enableBlend();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        BufferBuilder bb = Tesselator.getInstance().getBuilder();
+        if (k > 0.003F) {
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.DST_COLOR, GlStateManager.DestFactor.ZERO, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+            quad(bb, mr, mg, mb, 1F);
+        }
+        if (curFlash > 0.003F) {
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+            quad(bb, tipo.c2[0], tipo.c2[1], tipo.c2[2], Math.min(0.35F, curFlash * 0.45F));
+        }
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableBlend();
+        RenderSystem.depthMask(true);
+        RenderSystem.depthFunc(515);
+        RenderSystem.enableCull();
+        RenderSystem.setProjectionMatrix(e.getProjectionMatrix(), VertexSorting.DISTANCE_TO_ORIGIN);
+        mvs.popPose();
+        RenderSystem.applyModelViewMatrix();
+    }
+
+    private static void quad(BufferBuilder bb, float r, float g, float b, float a) {
+        bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        bb.vertex(-1.0, -1.0, 0.99999).color(r, g, b, a).endVertex();
+        bb.vertex(1.0, -1.0, 0.99999).color(r, g, b, a).endVertex();
+        bb.vertex(1.0, 1.0, 0.99999).color(r, g, b, a).endVertex();
+        bb.vertex(-1.0, 1.0, 0.99999).color(r, g, b, a).endVertex();
+        BufferUploader.drawWithShader(bb.end());
     }
 }
