@@ -199,12 +199,47 @@ public final class Dancing {
                 ids.add(de.getUUID());
             }
         }
+        // hologramas gigantes de Miku al fondo: repiten su baile al mismo tiempo (mismos tags, asi danceFor las maneja igual)
+        if (who.equalsIgnoreCase("miku") && holos && lv != null) {
+            Mark c0 = fallback != null ? fallback : m;
+            float hy = Math.round(c0.yaw() / 90F) * 90F;
+            double yr = Math.toRadians(hy);
+            double fxv = -Math.sin(yr), fzv = Math.cos(yr), rxv = Math.cos(yr), rzv = Math.sin(yr);
+            ServerLevel hl = srv.getLevel(c0.dim());
+            if (hl != null) for (int sgn = -1; sgn <= 1; sgn += 2) {
+                DancerEntity h = Dancers.DANCER.get().create(hl);
+                if (h == null) continue;
+                double back = -HOLO_BACK, lat = sgn * HOLO_SIDE;
+                h.moveTo(c0.x() + fxv * back + rxv * lat, c0.y() + HOLO_UP, c0.z() + fzv * back + rzv * lat, hy + sgn * 14F, 0F);
+                h.setYBodyRot(hy + sgn * 14F); h.setYHeadRot(hy + sgn * 14F);
+                h.setModelName(lk.model());
+                h.setDancerScale(HOLO_SCALE);
+                h.setTravel(1F);
+                h.setHolo(true);
+                h.appear();
+                h.addTag(tag); h.addTag("mikushow"); h.addTag("mks_holo");
+                h.play(lk.anim(), false);
+                hl.addFreshEntity(h);
+                ids.add(h.getUUID());
+            }
+        }
         if (ids.isEmpty()) { warn(srv, who + " NO aparecio: " + (err == null ? "sin marcas validas" : err)); return 0; }
 
         // a los 5 s queda bailando en reposo; a los 7 s se apaga el contorno
         later(5F, () -> forEach(srv, ids, de -> { if (lk.anim().equals(de.getAnim())) de.play("mikushow:idle", true); }));
         later(7F, () -> forEach(srv, ids, de -> de.setGlowingTag(false)));
         return ids.size();
+    }
+
+    /** hologramas gigantes de Miku (se pueden apagar con /concierto hologramas off) */
+    public static boolean holos = true;
+    public static final float HOLO_SCALE = 34F, HOLO_BACK = 78F, HOLO_SIDE = 62F, HOLO_UP = 0F;
+
+    /** final del concierto: todas las bailarinas (y hologramas) se contraen en una estrella y estallan */
+    public static void vanishAll(MinecraftServer srv) {
+        for (ServerLevel lv : srv.getAllLevels())
+            for (Entity en : lv.getAllEntities())
+                if (en instanceof DancerEntity de) de.vanish();
     }
 
     private record Dance(String miku, String teto, String neru, boolean mic) { }

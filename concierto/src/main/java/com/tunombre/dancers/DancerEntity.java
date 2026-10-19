@@ -26,6 +26,8 @@ public class DancerEntity extends PathfinderMob {
     /** Tick de juego en que empezo la entrada / la salida (0 = ninguna). */
     public static final EntityDataAccessor<Long> APPEAR = SynchedEntityData.defineId(DancerEntity.class, EntityDataSerializers.LONG);
     public static final EntityDataAccessor<Long> VANISH = SynchedEntityData.defineId(DancerEntity.class, EntityDataSerializers.LONG);
+    /** holograma: copia translucida (gigante) que solo se ve, sin chispas ni aura */
+    public static final EntityDataAccessor<Boolean> HOLO = SynchedEntityData.defineId(DancerEntity.class, EntityDataSerializers.BOOLEAN);
     public static final int APPEAR_TICKS = 60, VANISH_TICKS = 50;
     private static final DustParticleOptions TEAL = new DustParticleOptions(new Vector3f(0.25f, 0.95f, 0.85f), 1.6f);
     private static final DustParticleOptions WHITE = new DustParticleOptions(new Vector3f(1f, 1f, 1f), 1.2f);
@@ -53,8 +55,11 @@ public class DancerEntity extends PathfinderMob {
         this.entityData.define(TRAVEL, 0.0f);
         this.entityData.define(APPEAR, 0L);
         this.entityData.define(VANISH, 0L);
+        this.entityData.define(HOLO, false);
     }
 
+    public boolean isHolo() { return this.entityData.get(HOLO); }
+    public void setHolo(boolean b) { this.entityData.set(HOLO, b); }
     public String getModelName() { return this.entityData.get(MODEL); }
     public void setModelName(String s) { this.entityData.set(MODEL, s); }
     public float getDancerScale() { return this.entityData.get(SCALE); }
@@ -109,6 +114,7 @@ public class DancerEntity extends PathfinderMob {
             if (v > 0 && now >= v + VANISH_TICKS) this.discard();
             return;
         }
+        if (this.isHolo()) return;
         double s = this.getDancerScale(), cx = this.getX(), cy = this.getY() + 0.95 * s, cz = this.getZ();
         var rnd = this.getRandom();
         long a = this.entityData.get(APPEAR);
@@ -185,6 +191,7 @@ public class DancerEntity extends PathfinderMob {
         tag.putString("DancerModel", this.getModelName());
         tag.putFloat("DancerScale", this.getDancerScale());
         tag.putFloat("DancerTravel", this.getTravel());
+        tag.putBoolean("DancerHolo", this.isHolo());
     }
 
     @Override
@@ -192,6 +199,7 @@ public class DancerEntity extends PathfinderMob {
         super.readAdditionalSaveData(tag);
         if (tag.contains("DancerModel")) this.setModelName(tag.getString("DancerModel"));
         if (tag.contains("DancerScale")) this.setDancerScale(tag.getFloat("DancerScale"));
+        if (tag.getBoolean("DancerHolo")) this.setHolo(true);
         if (tag.contains("DancerTravel")) this.setTravel(tag.getFloat("DancerTravel"));
     }
 }

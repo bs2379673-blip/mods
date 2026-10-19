@@ -32,7 +32,7 @@ public class DancerRenderer extends EntityRenderer<DancerEntity> {
 
     @Override
     public void render(DancerEntity e, float yaw, float pt, PoseStack ps, MultiBufferSource buf, int light) {
-        DancerFx.render(e, pt, ps, buf, this.entityRenderDispatcher);
+        if (!e.isHolo()) DancerFx.render(e, pt, ps, buf, this.entityRenderDispatcher);
         float k = e.fxScale(pt);
         if (k <= 0.001f) return;
         ps.pushPose();
@@ -106,20 +106,27 @@ public class DancerRenderer extends EntityRenderer<DancerEntity> {
             int n = m.skin.count();
             if (h.pos == null || h.pos.length != n * 3) { h.pos = new float[n * 3]; h.nrm = new float[n * 3]; }
             Rig.skin(m.skin, R, T, h.pos, h.nrm);
-            emitSkin(m.skin, h.pos, h.nrm, tex, pm, nm, buf, light);
+            emitSkin(m.skin, h.pos, h.nrm, tex, pm, nm, buf, light, false, 0L);
         }
         ps.popPose();
     }
 
-    private static void emitSkin(Rig.Skin k, float[] pp, float[] nn, ResourceLocation[] tex, Matrix4f pm, Matrix3f nm, MultiBufferSource buf, int light) {
+    private static void emitSkin(Rig.Skin k, float[] pp, float[] nn, ResourceLocation[] tex, Matrix4f pm, Matrix3f nm, MultiBufferSource buf, int light, boolean holo, long gt) {
+        // holograma: celeste translucente, siempre iluminado, con un parpadeo suave
+        int cr = 255, cg = 255, cb = 255, ca = 255;
+        if (holo) {
+            light = 15728880;
+            cr = 120; cg = 255; cb = 240;
+            ca = (int) (92 + 22 * Math.sin(gt * 0.35) + 10 * Math.sin(gt * 1.7));
+        }
         for (int g = 0; g < k.groupTex.length; g++) {
-            VertexConsumer vc = buf.getBuffer(RenderType.entityCutoutNoCull(tex[k.groupTex[g]]));
+            VertexConsumer vc = buf.getBuffer(holo ? RenderType.entityTranslucentEmissive(tex[k.groupTex[g]]) : RenderType.entityCutoutNoCull(tex[k.groupTex[g]]));
             int end = (k.groupStart[g] + k.groupCount[g]) * 3;
             for (int ti = k.groupStart[g] * 3; ti < end; ti += 3) {
                 for (int c = 0; c < 4; c++) {
                     int vi = k.tris[ti + (c < 3 ? c : 2)];
                     // Epic Fight (X derecha, Y frente, Z arriba) -> Minecraft (X izquierda, Y arriba, Z frente)
-                    vc.vertex(pm, -pp[vi * 3], pp[vi * 3 + 2], pp[vi * 3 + 1]).color(255, 255, 255, 255).uv(k.v[vi * 8 + 3], k.v[vi * 8 + 4])
+                    vc.vertex(pm, -pp[vi * 3], pp[vi * 3 + 2], pp[vi * 3 + 1]).color(cr, cg, cb, ca).uv(k.v[vi * 8 + 3], k.v[vi * 8 + 4])
                             .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(nm, -nn[vi * 3], nn[vi * 3 + 2], nn[vi * 3 + 1]).endVertex();
                 }
             }
@@ -155,7 +162,7 @@ public class DancerRenderer extends EntityRenderer<DancerEntity> {
         ps.mulPose(Axis.YP.rotationDegrees(-Mth.rotLerp(pt, e.yBodyRotO, e.yBodyRot)));
         ps.scale(scale, scale, scale);
         PoseStack.Pose pose = ps.last();
-        emitSkin(m.skin, h.pos, h.nrm, (ResourceLocation[]) m.userData, pose.pose(), pose.normal(), buf, light);
+        emitSkin(m.skin, h.pos, h.nrm, (ResourceLocation[]) m.userData, pose.pose(), pose.normal(), buf, light, e.isHolo(), e.level().getGameTime());
         ps.popPose();
     }
 }

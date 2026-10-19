@@ -14,11 +14,11 @@ import net.minecraft.client.renderer.ShaderInstance;
 public final class StageFx {
     private StageFx() { }
 
-    private static void v(BufferBuilder bb, double x, double y, double z, float[] c, float a, float u, float w) {
+    static void v(BufferBuilder bb, double x, double y, double z, float[] c, float a, float u, float w) {
         bb.vertex(x, y, z).color(c[0], c[1], c[2], a).uv(u, w).endVertex();
     }
 
-    private static void strip(BufferBuilder bb, double ox, double oy, double oz, double ex, double ey, double ez, double w0, double w1, float[] c, float a0, float a1) {
+    static void strip(BufferBuilder bb, double ox, double oy, double oz, double ex, double ey, double ez, double w0, double w1, float[] c, float a0, float a1) {
         double dx = ex - ox, dy = ey - oy, dz = ez - oz;
         double len = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (len < 1e-4) return;
@@ -35,7 +35,7 @@ public final class StageFx {
         v(bb, ex - sx * w1, ey - sy * w1, ez - sz * w1, c, a1, -1F, 1F);
     }
 
-    private static void glow(BufferBuilder bb, double hx, double hy, double hz, float[] c, double half, float a) {
+    static void glow(BufferBuilder bb, double hx, double hy, double hz, float[] c, double half, float a) {
         double dist = Math.sqrt(hx * hx + hy * hy + hz * hz);
         if (dist < 1e-3) return;
         double nx = -hx / dist, ny = -hy / dist, nz = -hz / dist;
@@ -50,11 +50,11 @@ public final class StageFx {
         v(bb, hx - rxv * half + uxv * half, hy + uyv * half, hz - rzv * half + uzv * half, c, a, -1F, 1F);
     }
 
-    private static float hash(float n) { float s = (float) Math.sin(n * 127.1F) * 43758.5453F; return s - (float) Math.floor(s); }
+    static float hash(float n) { float s = (float) Math.sin(n * 127.1F) * 43758.5453F; return s - (float) Math.floor(s); }
 
-    private static void set(ShaderInstance sh, String n, float v) { sh.safeGetUniform(n).set(v); }
+    static void set(ShaderInstance sh, String n, float v) { sh.safeGetUniform(n).set(v); }
 
-    private static void begin(BufferBuilder bb) { bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX); }
+    static void begin(BufferBuilder bb) { bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX); }
 
     private static final float[] WHITE = {1F, 1F, 1F}, GOLD = {1F, 0.82F, 0.3F};
 
@@ -140,12 +140,12 @@ public final class StageFx {
         // ---- anillos de luz que suben desde el escenario y se abren
         set(sh, "Kind", 8F);
         begin(bb);
-        for (int i = 0; i < 5; i++) {
-            float ph = (songT * 0.07F + i / 5F) % 1F;
-            double h = ph * 22.0 * u;
-            double r = HS * (1.05 + 0.55 * ph + 0.02 * kick);
+        for (int i = 0; i < 3; i++) {
+            float ph = (songT * 0.045F + i / 3F) % 1F;
+            double h = ph * 30.0 * u;
+            double r = HS * (1.9 + 0.9 * ph + 0.02 * kick);
             float[] c = cols[i % 3];
-            float a = g * (1F - ph) * 0.85F;
+            float a = g * (1F - ph) * Math.min(1F, ph * 5F) * 0.55F;
             double y = cy + 0.5 + h;
             v(bb, cx - r, y, cz - r, c, a, -1F, -1F);
             v(bb, cx + r, y, cz - r, c, a, 1F, -1F);

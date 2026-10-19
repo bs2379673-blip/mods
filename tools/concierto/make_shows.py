@@ -377,7 +377,15 @@ def extra_rooms(sh, d, section_at, role_look):
     sh.fx(97.6, "shock")
 
 
-EXTRAS = {"magical_cure": extra_magical, "looping_the_rooms": extra_rooms}
+def extra_baka(sh, d, section_at, role_look):
+    """FINAL DEL CONCIERTO: un segundo antes de que termine el tema las tres estallan (servidor: vanish; cliente: explosion de shaders de sus colores)"""
+    T = 173.667 - 1.0
+    sh.cues = [c for c in sh.cues if not (c.get("fx") == "sprite" and c["t"] > T - 6)]
+    sh.look(T - 0.3, dict(scene="cosmos", floor="grid", eq=0.0, beams="off", ring=False, col=[TEAL, RED, GOLD], react=dict(kick=0.2, snare=0.1, accent=0.2)))
+    sh.fx(T, "final")
+
+
+EXTRAS = {"magical_cure": extra_magical, "looping_the_rooms": extra_rooms, "triple_baka": extra_baka}
 
 for nm, pl in PLANS.items():
     build(nm, pl, EXTRAS.get(nm))
@@ -443,12 +451,10 @@ short("pre_mesmerizer", [dict(t=0.1, fx="estrella", col="#e0324b", dur=2.9, side
 short("pre_triple_baka", [dict(t=0.1, fx="estrella", col="#f2d21b", dur=2.9, side=1), dict(t=3.05, fx="aparecer", who="neru"), dict(t=3.2, fx="pyro", dur=2.5, col="#f2d21b")],
       L("baka", "ripple", 0.6, "slow", True, [GOLD, TEAL, RED], 0.6, 0.3, 0.6))
 
-# despedida de las tres: fuegos de colores a lo largo de los tiempos del datapack (2, 4.2, 7.5, 9, 10.5 y 13 s)
-FIN = [dict(t=1.5, fx="fuegos", dur=12.0, n=26), dict(t=0.0, fx="sprite", id="t_gracias", slot="T", dur=15.0, size=30, pulse=0.06),
-       dict(t=0.8, fx="sprite", id="u3_trio_wave", slot="C", dur=14.0, size=30),
-       dict(t=1.0, fx="sprite", id="s_heart", slot="LR1", dur=13.5, size=16),
-       dict(t=1.4, fx="sprite", id="s_sparkle_gold", slot="LRH", dur=13.0, size=11, spin=30),
-       dict(t=0.0, fx="jugadores", modo="confeti", dur=16, radio=80)]
-for t, c in [(2.0, GOLD), (4.2, TEAL), (7.5, RED), (9.0, PINK), (10.5, TEAL), (13.0, WHITE)]:
-    FIN += [dict(t=t, fx="pyro", dur=2.4, col=c), dict(t=t, fx="flash"), dict(t=t, fx="nova")]
-short("despedida", FIN, L("cosmos", "ripple", 1.0, "fan", True, [PINK, TEAL, GOLD], 0.8, 0.4, 0.8))
+# despedida: el cielo oscuro del juego de luces (la explosion gigante llega ~18.5 s despues de empezar) y luego todo vuelve a la normalidad
+FIN = [dict(t=18.4, fx="fuegos", dur=9.0, n=34), dict(t=18.4, fx="pyro", dur=3.0, col=WHITE),
+       dict(t=21.0, fx="sprite", id="t_gracias", slot="T", dur=9.0, size=30, pulse=0.06),
+       dict(t=22.0, fx="sprite", id="u3_trio_wave", slot="C", dur=6.0, size=30),
+       dict(t=18.4, fx="jugadores", modo="confeti", dur=14, radio=80),
+       dict(t=24.5, scene="cosmos", floor="off", eq=0.0, beams="off", ring=False, col=[TEAL, "#7a5cff", "#d8fffb"], react=dict(kick=0.15, snare=0.05, accent=0.2))]
+short("despedida", FIN, L("cosmos", "grid", 0.0, "off", False, [TEAL, RED, GOLD], 0.1, 0.05, 0.1))

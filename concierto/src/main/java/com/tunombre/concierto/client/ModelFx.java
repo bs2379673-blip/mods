@@ -76,7 +76,7 @@ public final class ModelFx {
             if (e instanceof com.tunombre.dancers.DancerEntity de) {
                 long st = de.getAppearStart();
                 float age = mc.level.getGameTime() + partial - st;
-                d.fade = st <= 0L ? 0F : Math.max(0F, Math.min(1F, 1F - age / 160F));
+                d.fade = (st <= 0L || de.isHolo()) ? 0F : Math.max(0F, Math.min(1F, 1F - age / 160F));
             }
             out.add(d);
         }

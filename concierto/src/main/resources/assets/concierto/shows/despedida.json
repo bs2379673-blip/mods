@@ -5,30 +5,36 @@
   {
    "t": 0.0,
    "scene": "cosmos",
-   "floor": "ripple",
-   "eq": 1.0,
-   "beams": "fan",
-   "ring": true,
+   "floor": "grid",
+   "eq": 0.0,
+   "beams": "off",
+   "ring": false,
    "react": {
-    "kick": 0.8,
-    "snare": 0.4,
-    "accent": 0.8
+    "kick": 0.1,
+    "snare": 0.05,
+    "accent": 0.1
    },
    "col": [
-    "#ff6aa8",
     "#39c5bb",
+    "#ff3a5a",
     "#ffd23a"
    ]
   },
   {
-   "t": 0.0,
+   "t": 18.4,
+   "fx": "fuegos",
+   "dur": 9.0,
+   "n": 34
+  },
+  {
+   "t": 18.4,
    "fx": "jugadores",
    "modo": "confeti",
-   "dur": 16,
+   "dur": 14,
    "radio": 80
   },
   {
-   "t": 0.8,
+   "t": 22.0,
    "fx": "aviso",
    "id": "u3_trio_wave",
    "ext": "gif",
@@ -36,10 +42,22 @@
    "modo": "corner"
   },
   {
-   "t": 1.5,
-   "fx": "fuegos",
-   "dur": 12.0,
-   "n": 26
+   "t": 24.5,
+   "scene": "cosmos",
+   "floor": "off",
+   "eq": 0.0,
+   "beams": "off",
+   "ring": false,
+   "col": [
+    "#39c5bb",
+    "#7a5cff",
+    "#d8fffb"
+   ],
+   "react": {
+    "kick": 0.15,
+    "snare": 0.05,
+    "accent": 0.2
+   }
   }
  ]
 }

@@ -78,7 +78,7 @@ public final class Show {
                 JsonElement root = JsonParser.parseReader(rr);
                 for (JsonElement e : root.getAsJsonObject().getAsJsonArray("cues")) {
                     JsonObject o = e.getAsJsonObject();
-                    if (o.has("fx") && (o.get("fx").getAsString().equals("jugadores") || o.get("fx").getAsString().equals("aparecer") || o.get("fx").getAsString().equals("aviso"))) srvCues.add(o);
+                    if (o.has("fx") && (o.get("fx").getAsString().equals("jugadores") || o.get("fx").getAsString().equals("aparecer") || o.get("fx").getAsString().equals("aviso") || o.get("fx").getAsString().equals("final"))) srvCues.add(o);
                 }
             }
             srvCues.sort((a, b) -> Float.compare(a.get("t").getAsFloat(), b.get("t").getAsFloat()));
@@ -133,6 +133,10 @@ public final class Show {
             if (t - o.get("t").getAsFloat() > 2F) continue;
             if (o.get("fx").getAsString().equals("aviso")) {
                 Avisos.show(e.getServer(), o);
+                continue;
+            }
+            if (o.get("fx").getAsString().equals("final")) {
+                Dancing.vanishAll(e.getServer());
                 continue;
             }
             if (o.get("fx").getAsString().equals("aparecer")) {
@@ -330,6 +334,19 @@ public final class Show {
                         .executes(c -> mark(c.getSource(), 4))
                         .then(Commands.argument("escala", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 10))
                                 .executes(c -> mark(c.getSource(), com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "escala")))))
+                .then(Commands.literal("hologramas").then(Commands.argument("estado", StringArgumentType.word())
+                        .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("on", "off"), b))
+                        .executes(c -> {
+                            Dancing.holos = !StringArgumentType.getString(c, "estado").equalsIgnoreCase("off");
+                            say(c.getSource(), "Hologramas de Miku: " + (Dancing.holos ? "ENCENDIDOS (salen cuando aparece Miku)" : "APAGADOS"));
+                            return 1;
+                        })))
+                .then(Commands.literal("final").executes(c -> {   // prueba del final: las bailarinas estallan y arranca el juego de luces
+                    Dancing.vanishAll(c.getSource().getServer());
+                    Net.sendAll(new Net.Msg(Net.FX, "final", 0, 0F, 0F, 0F));
+                    say(c.getSource(), "Final de prueba lanzado");
+                    return 1;
+                }))
                 .then(Commands.literal("vermarcas").executes(c -> { say(c.getSource(), Dancing.listMarks(c.getSource().getServer())); return 1; }))
                 .then(Commands.literal("quitarmarcas").executes(c -> unmark(c.getSource())))
                 .then(Commands.literal("aparecer").then(Commands.argument("quien", StringArgumentType.word())

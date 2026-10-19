@@ -225,6 +225,28 @@
    "ext": "png",
    "dur": 6.0,
    "modo": "corner"
+  },
+  {
+   "t": 172.367,
+   "scene": "cosmos",
+   "floor": "grid",
+   "eq": 0.0,
+   "beams": "off",
+   "ring": false,
+   "col": [
+    "#39c5bb",
+    "#ff3a5a",
+    "#ffd23a"
+   ],
+   "react": {
+    "kick": 0.2,
+    "snare": 0.1,
+    "accent": 0.2
+   }
+  },
+  {
+   "t": 172.667,
+   "fx": "final"
   }
  ]
 }

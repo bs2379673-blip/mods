@@ -149,6 +149,7 @@ public final class ConciertoClient {
                 stage.columns.add(new Stage.Column(at, rgb, size, secs));
             }
             case "sprite" -> { /* sin stickers ni GIFs */ }
+            case "final" -> Finale.start(stage);
             case "pyro", "pirotecnia" -> {
                 float dur = cue != null && cue.has("dur") ? cue.get("dur").getAsFloat() : 3F;
                 float[] c = cue != null && cue.has("col") ? Script.hex(cue.get("col").getAsString()) : new float[]{pal[0][0], pal[0][1], pal[0][2]};
@@ -204,7 +205,7 @@ public final class ConciertoClient {
     }
 
     @SubscribeEvent
-    public static void onLogout(ClientPlayerNetworkEvent.LoggingOut e) { active = false; stopping = false; stage.columns.clear(); stage.stars.clear(); stage.pyros.clear(); stage.shells.clear(); ModelFx.clear(); sprites.clear(); }
+    public static void onLogout(ClientPlayerNetworkEvent.LoggingOut e) { active = false; stopping = false; stage.columns.clear(); stage.stars.clear(); stage.pyros.clear(); stage.shells.clear(); ModelFx.clear(); sprites.clear(); Finale.clear(); }
 
     private static float towards(float cur, float target, float step) { return cur < target ? Math.min(target, cur + step) : Math.max(target, cur - step); }
 
@@ -215,7 +216,7 @@ public final class ConciertoClient {
         Track tr = CACHE.get(key);
         if (stopping) {
             fade -= dt;
-            if (fade <= 0F) { active = false; stopping = false; floorA = eqA = beamsA = ringA = 0F; sprites.clear(); return false; }
+            if (fade <= 0F) { active = false; stopping = false; floorA = eqA = beamsA = ringA = 0F; sprites.clear(); Finale.clear(); return false; }
         } else {
             fade = Math.min(1F, fade + dt / 1.5F);
         }
@@ -233,6 +234,7 @@ public final class ConciertoClient {
             kickEnv = Math.max(tr.hitAt(t, Track.KICK), kickEnv * pow(0.80F, d60));
             snareEnv = Math.max(tr.hitAt(t, Track.SNARE), snareEnv * pow(0.78F, d60));
         }
+        if (Finale.takeFlash()) flash = Math.max(flash, 1F);
         flash *= pow(0.8F, d60);
 
         // guion
@@ -441,6 +443,7 @@ public final class ConciertoClient {
         stage.drawShells(fxAdd, cam.x, cam.y, cam.z);
         ModelFx.draw(fxAdd, cam.x, cam.y, cam.z, e.getPartialTick(), stage, Math.max(0F, songT), level, kickEnv, !dark);
         StageFx.draw(fxAdd, cam.x, cam.y, cam.z, stage, Math.max(0F, songT), level, kickEnv, pal, alpha * Math.max(floorA, beamsA));
+        Finale.draw(fxAdd, cam.x, cam.y, cam.z, stage, alpha);
         float sdx = stage.set ? (float) -stage.fx() : 0F, sdz = stage.set ? (float) -stage.fz() : -1F;
         if (!dark) sprites.draw(fx, fxAdd, sdx, sdz, Math.max(0F, songT), kickEnv, alpha);
         RenderSystem.defaultBlendFunc();
