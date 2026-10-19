@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="nieblafx"
+version="${mod_version}"
+displayName="NieblaFX"
+description='''Niebla volumetrica para el servidor: global y por zonas, con ruido, viento y niebla baja. Comando /niebla.'''
+
+[[dependencies.nieblafx]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.nieblafx]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
