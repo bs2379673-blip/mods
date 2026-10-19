@@ -65,6 +65,14 @@ class Show:
                         last = c["t"]
                 continue
             cues.append(c)
+        # 1.8.1: los destellos (flash, nova, onda, pirotecnia) solo acompanan la aparicion de las bailarinas; ya presentes, nada tapa el baile
+        BRIGHT = ("flash", "nova", "shock", "pyro")
+        if self.name in ("intro", "pre_mesmerizer", "pre_triple_baka"):
+            ap = [c["t"] for c in cues if c.get("fx") == "aparecer"]
+            lim = (min(ap) + 0.6) if ap else 1e9
+            cues = [c for c in cues if c.get("fx") not in BRIGHT or c["t"] <= lim]
+        else:
+            cues = [c for c in cues if c.get("fx") not in BRIGHT]
         self.cues = cues
         self.cues.sort(key=lambda c: (c["t"], 0 if "fx" not in c else 1))
         os.makedirs(DST, exist_ok=True)

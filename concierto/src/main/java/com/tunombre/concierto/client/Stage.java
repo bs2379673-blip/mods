@@ -185,7 +185,7 @@ public final class Stage {
         if (ring && ringA > 0.003F) {
             set(sh, "Kind", 3F);
             set(sh, "Alpha", ringA);
-            float R = 3.2F * S;
+            float R = p[2] * S * 1.05F * 1.06F;  // aro grande inscrito en el piso, rodeando el escenario
             begin(bb);
             b.v(ox - R, oy + 0.04, oz - R, 1F, 1F, 1F, 1F, -1F, -1F);
             b.v(ox + R, oy + 0.04, oz - R, 1F, 1F, 1F, 1F, 1F, -1F);

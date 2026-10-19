@@ -252,15 +252,11 @@ public final class ConciertoClient {
             floorMode = "off"; beamMode = "off"; ringOn = false; eqGain = 0F;
         }
         float rKick = look != null ? look.kick : 0.6F, rSnare = look != null ? look.snare : 0.3F, rAcc = look != null ? look.accent : 0.8F;
-        flash = Math.max(flash, snareEnv * rSnare * strobe * 0.6F);
+        // sin destellos automaticos: los destellos solo vienen de las ordenes del guion (aparicion de las bailarinas)
         float acc = tr.hitAt(t, Track.ACCENT);
         if (acc > 0.6F && t - lastAccent > 0.4F && t >= 0F) {
             lastAccent = t;
-            if (rAcc > 0F) {
-                nova = 0F;
-                shock = 0F;
-                flash = Math.max(flash, strobe * rAcc * 0.7F);
-            }
+            // (antes: nova, onda y destello en cada acento; ahora no tapan a las bailarinas)
         }
         if (look != null && !look.swap.equals("off")) {
             float env = look.swap.equals("kick") ? kickEnv : snareEnv;
@@ -279,7 +275,7 @@ public final class ConciertoClient {
         }
         if (nova >= 0F) { nova += dt / 1.6F; if (nova > 1F) nova = -1F; }
         if (shock >= 0F) { shock += dt / 2.4F; if (shock > 1F) shock = -1F; }
-        if (darkUntil >= 0F && t >= darkUntil) { darkUntil = -1F; flash = Math.max(flash, strobe); }
+        if (darkUntil >= 0F && t >= darkUntil) { darkUntil = -1F; }
 
         floorA = towards(floorA, floorMode.equals("off") ? 0F : 1F, dt * 0.8F);
         eqA = towards(eqA, eqGain > 0F ? 1F : 0F, dt * 0.8F);
@@ -315,7 +311,7 @@ public final class ConciertoClient {
         for (var it = stage.shells.iterator(); it.hasNext(); ) {
             Stage.Shell sh = it.next();
             sh.age += dt;
-            if (!sh.burst && sh.age >= Stage.RISE) { sh.burst = true; flash = Math.max(flash, 0.3F); }
+            if (!sh.burst && sh.age >= Stage.RISE) { sh.burst = true; }
             if (sh.age > Stage.RISE + sh.life() + 0.2F) it.remove();
         }
         for (var it = stage.pyros.iterator(); it.hasNext(); ) {

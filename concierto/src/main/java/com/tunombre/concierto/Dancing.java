@@ -173,35 +173,74 @@ public final class Dancing {
 
         List<UUID> ids = new ArrayList<>();
         String err = null;
-        for (var en : marks.entrySet()) {
-            int scale = en.getKey();
-            Mark m = en.getValue();
-            ServerLevel lv = srv.getLevel(m.dim());
-            if (lv == null) { err = "la dimension de la marca " + m.dim().location() + " no existe"; continue; }
+        // siempre a escala 10, en la marca de escala 10 (o, si no hay, en la primera que exista)
+        final int scale = 10;
+        Mark m = marks.containsKey(10) ? marks.get(10) : marks.containsKey(4) ? marks.get(4) : marks.firstEntry().getValue();
+        ServerLevel lv = srv.getLevel(m.dim());
+        if (lv == null) err = "la dimension de la marca " + m.dim().location() + " no existe";
+        else {
             DancerEntity de = Dancers.DANCER.get().create(lv);
-            if (de == null) { err = "no se pudo crear la entidad dancers:dancer"; continue; }
-            double yr = Math.toRadians(m.yaw());
-            double off = lk.side() * scale;
-            double px = m.x() + Math.cos(yr) * off, pz = m.z() + Math.sin(yr) * off;
-            de.moveTo(px, m.y(), pz, m.yaw(), 0F);
-            de.setYBodyRot(m.yaw()); de.setYHeadRot(m.yaw());
-            de.setModelName(lk.model());
-            de.setDancerScale(scale);
-            de.setTravel(1F);
-            de.appear();
-            de.addTag(tag); de.addTag("mikushow");
-            de.play(lk.anim(), false);
-            de.setGlowingTag(true);
-            lv.addFreshEntity(de);
-            sb.addPlayerToTeam(de.getStringUUID(), team);
-            ids.add(de.getUUID());
+            if (de == null) err = "no se pudo crear la entidad dancers:dancer";
+            else {
+                double yr = Math.toRadians(m.yaw());
+                double off = lk.side() * scale;
+                double px = m.x() + Math.cos(yr) * off, pz = m.z() + Math.sin(yr) * off;
+                de.moveTo(px, m.y(), pz, m.yaw(), 0F);
+                de.setYBodyRot(m.yaw()); de.setYHeadRot(m.yaw());
+                de.setModelName(lk.model());
+                de.setDancerScale(scale);
+                de.setTravel(1F);
+                de.appear();
+                de.addTag(tag); de.addTag("mikushow");
+                de.play(lk.anim(), false);
+                de.setGlowingTag(true);
+                lv.addFreshEntity(de);
+                sb.addPlayerToTeam(de.getStringUUID(), team);
+                ids.add(de.getUUID());
+            }
         }
         if (ids.isEmpty()) { warn(srv, who + " NO aparecio: " + (err == null ? "sin marcas validas" : err)); return 0; }
 
         // a los 5 s queda bailando en reposo; a los 7 s se apaga el contorno
-        later(5F, () -> forEach(srv, ids, de -> de.play("mikushow:idle", true)));
+        later(5F, () -> forEach(srv, ids, de -> { if (lk.anim().equals(de.getAnim())) de.play("mikushow:idle", true); }));
         later(7F, () -> forEach(srv, ids, de -> de.setGlowingTag(false)));
         return ids.size();
+    }
+
+    private record Dance(String miku, String teto, String neru, boolean mic) { }
+
+    private static Dance danceOf(String name) {
+        return switch (name.toLowerCase(Locale.ROOT).replace("_", "")) {
+            case "static" -> new Dance("static", null, null, false);
+            case "kontonboogie" -> new Dance("konton_boogie", null, null, false);
+            case "loopingtherooms" -> new Dance("looping_the_rooms", null, null, false);
+            case "magicalcure" -> new Dance("magical_cure_love_shot", null, null, false);
+            case "melt" -> new Dance("melt", null, null, true);
+            case "mesmerizer" -> new Dance("mesmerizer", "mesmerizer", null, false);
+            case "minnamikumiku" -> new Dance("minna_miku_miku", null, null, false);
+            case "anamanaguchi" -> new Dance("anamanaguchi_miku", null, null, false);
+            case "triplebaka" -> new Dance("triple_baka", "triple_baka", "triple_baka", false);
+            default -> null;
+        };
+    }
+
+    /** al empezar cada cancion cada bailarina arranca su baile (las que no bailan quedan en reposo); el modelo de Miku vuelve a mikupd salvo en Melt */
+    public static void danceFor(MinecraftServer srv, String song) {
+        Dance d = danceOf(song);
+        if (d == null || !bailesOn(srv)) return;
+        for (ServerLevel lv : srv.getAllLevels())
+            for (Entity en : lv.getAllEntities()) {
+                if (!(en instanceof DancerEntity de)) continue;
+                String a, model = null;
+                boolean loop = false;
+                if (de.getTags().contains("mks_teto")) { a = d.teto(); }
+                else if (de.getTags().contains("mks_neru")) { a = d.neru(); }
+                else { a = d.miku(); model = d.mic() ? "mikupd_mic" : "mikupd"; }
+                if (a == null) { a = "idle"; loop = true; }
+                if (model != null) de.setModelName(model);
+                de.setTravel(1F);
+                de.play("mikushow:" + a, loop);
+            }
     }
 
     private static void forEach(MinecraftServer srv, List<UUID> ids, java.util.function.Consumer<DancerEntity> f) {

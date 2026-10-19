@@ -4,8 +4,4 @@ schedule clear mikushow:baile/idle
 schedule clear mikushow:bailarina/reposo_miku
 schedule clear mikushow:bailarina/reposo_teto
 schedule clear mikushow:bailarina/reposo_neru
-dancer model @e[type=dancers:dancer,tag=!mks_teto,tag=!mks_neru] mikupd_mic
-dancer play @e[type=dancers:dancer,tag=!mks_teto,tag=!mks_neru] mikushow:melt
-dancer play @e[type=dancers:dancer,tag=mks_teto] mikushow:idle true
-dancer play @e[type=dancers:dancer,tag=mks_neru] mikushow:idle true
-dancer travel @e[type=dancers:dancer] 1
+# el baile lo arranca el mod concierto (Dancing.danceFor) al iniciar la cancion

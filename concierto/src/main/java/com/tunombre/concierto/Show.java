@@ -176,6 +176,7 @@ public final class Show {
         startMs = System.currentTimeMillis();
         playing = true;
         loadServerCues(name);
+        Dancing.danceFor(s.getServer(), name);
         Net.sendAll(new Net.Msg(Net.PLAY, song, scene, 0F, 0F, 0F));
         if (withAudio) audio(s, "execute as @a at @s run playsound customsounds:" + song + " master @s ~ ~ ~ 4 1");
         say(s, "Concierto: " + song + " (escena " + (idx < 0 ? "segun el guion" : SCENES.get(idx)) + ")" + (withAudio ? "" : " [sin audio]"));

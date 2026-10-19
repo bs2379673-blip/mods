@@ -26,7 +26,7 @@ public final class ModelFx {
 
     private static final class D {
         double x, y, z;
-        float yaw, scale;
+        float yaw, scale, fade;
         String model = "";
     }
 
@@ -71,6 +71,12 @@ public final class ModelFx {
                 }
             } catch (Throwable t) {
                 reflectFailed = true;
+            }
+            // los destellos solo acompanan la aparicion (unos 8 s): despues la bailarina queda limpia
+            if (e instanceof com.tunombre.dancers.DancerEntity de) {
+                long st = de.getAppearStart();
+                float age = mc.level.getGameTime() + partial - st;
+                d.fade = st <= 0L ? 0F : Math.max(0F, Math.min(1F, 1F - age / 160F));
             }
             out.add(d);
         }
@@ -129,6 +135,7 @@ public final class ModelFx {
         boolean beam = beamActive(songT);
         if (!aura && !beam) return;
         List<D> ds = find(partial, stage);
+        ds.removeIf(d -> d.fade < 0.02F);
         if (ds.isEmpty() && !beam) return;
         BufferBuilder bb = Tesselator.getInstance().getBuilder();
 
@@ -139,9 +146,9 @@ public final class ModelFx {
             begin(bb);
             for (D d : ds) {
                 float[] c = colorOf(d.model);
-                double R = 1.5 * d.scale * (1.0 + 0.10 * kick);
+                double R = 0.9 * d.scale * (1.0 + 0.10 * kick);
                 double ox = d.x - camX, oy = d.y - camY + 0.04, oz = d.z - camZ;
-                float a = 0.55F + 0.4F * level;
+                float a = (0.55F + 0.4F * level) * d.fade;
                 v(bb, ox - R, oy, oz - R, c, a, -1F, -1F);
                 v(bb, ox + R, oy, oz - R, c, a, 1F, -1F);
                 v(bb, ox + R, oy, oz + R, c, a, 1F, 1F);
@@ -154,8 +161,8 @@ public final class ModelFx {
             for (D d : ds) {
                 float[] c = colorOf(d.model);
                 double ox = d.x - camX, oy = d.y - camY, oz = d.z - camZ;
-                float a = 0.22F + 0.35F * level + 0.2F * kick;
-                strip(bb, ox, oy, oz, 0, 1, 0, 60.0 * Math.max(1F, d.scale / 2F), 0.30 * d.scale, 0.55 * d.scale, c, a, a * 0.1F, 0);
+                float a = (0.18F + 0.25F * level + 0.15F * kick) * d.fade;
+                strip(bb, ox, oy, oz, 0, 1, 0, 60.0 * Math.max(1F, d.scale / 2F), 0.10 * d.scale, 0.18 * d.scale, c, a, a * 0.1F, 0);
             }
             BufferUploader.drawWithShader(bb.end());
 
@@ -164,12 +171,12 @@ public final class ModelFx {
             begin(bb);
             for (D d : ds) {
                 float[] c = colorOf(d.model);
-                glow(bb, d.x - camX, d.y - camY + 0.95 * d.scale, d.z - camZ, c, 1.15 * d.scale * (1.0 + 0.12 * kick), 0.16F + 0.22F * level);
+                glow(bb, d.x - camX, d.y - camY + 0.95 * d.scale, d.z - camZ, c, 0.55 * d.scale * (1.0 + 0.12 * kick), (0.12F + 0.15F * level) * d.fade);
                 // chispas que suben alrededor del cuerpo
                 for (int i = 0; i < 10; i++) {
                     float ph = (songT * (0.35F + 0.1F * hash(i)) + hash(i * 3.7F)) % 1F;
                     double ang = hash(i * 5.3F) * Math.PI * 2 + songT * 0.8, rad = (0.55 + 0.35 * hash(i * 9.1F)) * d.scale;
-                    glow(bb, d.x - camX + Math.cos(ang) * rad, d.y - camY + ph * 2.2 * d.scale, d.z - camZ + Math.sin(ang) * rad, c, 0.07 * d.scale + 0.03, (1F - ph) * 0.9F);
+                    glow(bb, d.x - camX + Math.cos(ang) * rad, d.y - camY + ph * 2.2 * d.scale, d.z - camZ + Math.sin(ang) * rad, c, 0.04 * d.scale + 0.03, (1F - ph) * 0.9F * d.fade);
                 }
             }
             BufferUploader.drawWithShader(bb.end());

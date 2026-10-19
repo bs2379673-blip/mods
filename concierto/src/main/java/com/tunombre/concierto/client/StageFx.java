@@ -90,7 +90,7 @@ public final class StageFx {
         set(sh, "Kind", 7F);
         begin(bb);
         int strands = 3, segs = 36;
-        double R = 2.4 * u, H = 15.0 * u;
+        double R = 0.80 * HS, H = 14.0 * u;
         double spin = songT * (0.45 + 0.5 * level) ;
         for (int s = 0; s < strands; s++) {
             float[] c = cols[s % 3];
@@ -99,7 +99,7 @@ public final class StageFx {
             for (int i = 0; i <= segs; i++) {
                 double h = (double) i / segs;
                 double ang = ph + h * Math.PI * 7.0;
-                double rad = R * (0.55 + 0.45 * Math.sin(h * Math.PI)) * (1.0 + 0.10 * kick);
+                double rad = R * (0.92 + 0.08 * Math.sin(h * Math.PI * 2.0)) * (1.0 + 0.04 * kick);
                 double wx = cx + Math.cos(ang) * rad, wz = cz + Math.sin(ang) * rad, wy = cy + 0.3 + h * H;
                 if (i > 0) {
                     float a = g * 0.55F * (1F - (float) h * 0.75F);
@@ -143,7 +143,7 @@ public final class StageFx {
         for (int i = 0; i < 5; i++) {
             float ph = (songT * 0.22F + i / 5F) % 1F;
             double h = ph * 16.0 * u;
-            double r = (1.8 + ph * 5.5 + 0.6 * kick) * u;
+            double r = HS * (0.62 + 0.36 * ph + 0.03 * kick);
             float[] c = cols[i % 3];
             float a = g * (1F - ph) * 0.85F;
             double y = cy + 0.5 + h;
