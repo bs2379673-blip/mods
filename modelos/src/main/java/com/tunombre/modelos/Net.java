@@ -24,6 +24,7 @@ public final class Net {
 
     static void init() {
         CH.registerMessage(0, Data.class, Data::write, Data::read, Data::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CH.registerMessage(2, Lock.class, (m, b) -> b.writeBoolean(m.locked()), b -> new Lock(b.readBoolean()), Lock::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CH.registerMessage(1, Cmd.class, (m, b) -> b.writeUtf(m.line(), 300), b -> new Cmd(b.readUtf(300)), Cmd::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
 
@@ -69,6 +70,16 @@ public final class Net {
             ctx.get().setPacketHandled(true);
         }
     }
+
+    /** el servidor avisa al jugador si tiene el candado de Epic Fight (modelo puesto) */
+    public record Lock(boolean locked) {
+        void handle(Supplier<NetworkEvent.Context> ctx) {
+            ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT, () -> () -> com.tunombre.modelos.client.LockClient.set(locked)));
+            ctx.get().setPacketHandled(true);
+        }
+    }
+
+    public static void send(ServerPlayer p, Lock l) { CH.send(PacketDistributor.PLAYER.with(() -> p), l); }
 
     public static void send(ServerPlayer p, Data d) { CH.send(PacketDistributor.PLAYER.with(() -> p), d); }
 }

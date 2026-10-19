@@ -44,17 +44,60 @@ public final class Server {
     @SubscribeEvent
     public static void onCommands(RegisterCommandsEvent e) { register(e.getDispatcher()); }
 
-    /** cada segundo: a quien tiene un modelo puesto se le mantiene Epic Fight apagado (si lo prende con su tecla, se vuelve a apagar) */
+    /** jugadores con el candado de Epic Fight puesto (tienen un modelo de CPM) */
+    private static final java.util.Set<java.util.UUID> LOCKED = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    static boolean isLocked(ServerPlayer p) { return LOCKED.contains(p.getUUID()); }
+
+    private static java.lang.reflect.Method cpmGet;
+    private static java.lang.reflect.Field cpmData;
+
+    /** true si CPM tiene un modelo cargado para el jugador, lo haya puesto este mod, el comando /cpm o el propio jugador */
+    static boolean cpmHasModel(ServerPlayer p) {
+        try {
+            Object conn = p.connection;
+            if (conn == null) return false;
+            if (cpmGet == null) cpmGet = Class.forName("com.tom.cpm.shared.network.NetH$ServerNetH").getMethod("cpm$getEncodedModelData");
+            if (!cpmGet.getDeclaringClass().isInstance(conn)) return false;
+            Object pd = cpmGet.invoke(conn);
+            if (pd == null) return false;
+            if (cpmData == null) cpmData = pd.getClass().getField("data");
+            byte[] b = (byte[]) cpmData.get(pd);
+            return b != null && b.length > 0;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /** fuerza el estado de Epic Fight de un jugador segun tenga o no modelo; avisa a su cliente del candado */
+    static void enforce(ServerPlayer p, Data d) {
+        boolean has = d.applied.containsKey(p.getUUID()) || cpmHasModel(p);
+        java.util.UUID id = p.getUUID();
+        if (has) {
+            if (LOCKED.add(id)) Net.send(p, new Net.Lock(true));
+            if (EpicSupport.isEpic(p)) {
+                EpicSupport.vanilla(p, true);
+                if (d.efOff.add(id)) d.setDirty();
+            }
+        } else {
+            if (LOCKED.remove(id)) Net.send(p, new Net.Lock(false));
+            if (d.efOff.remove(id)) {
+                d.setDirty();
+                EpicSupport.vanilla(p, false);
+            }
+        }
+    }
+
+    /** cada medio segundo: se fuerza el estado de todos (modelo puesto = Epic Fight apagado y bloqueado; sin modelo = se devuelve) */
     @SubscribeEvent
     public static void onTick(TickEvent.ServerTickEvent e) {
-        if (e.phase != TickEvent.Phase.END || !Modelos.EPIC || ++tick % 20 != 0) return;
+        if (e.phase != TickEvent.Phase.END || !Modelos.EPIC || ++tick % 10 != 0) return;
         Data d = Data.get(e.getServer());
-        if (d.applied.isEmpty()) return;
-        for (ServerPlayer p : e.getServer().getPlayerList().getPlayers()) if (d.applied.containsKey(p.getUUID())) EpicSupport.vanilla(p, true);
+        for (ServerPlayer p : e.getServer().getPlayerList().getPlayers()) enforce(p, d);
     }
 
     @SubscribeEvent
-    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent e) { /* el estado queda guardado; al volver el tick lo reaplica */ }
+    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent e) { LOCKED.remove(e.getEntity().getUUID()); }
 
     private static void say(CommandSourceStack s, String m) { s.sendSuccess(() -> Component.literal(m), true); }
 
@@ -106,7 +149,7 @@ public final class Server {
             }
             if (!done) { src.sendFailure(Component.literal("CPM no acepto el modelo para " + name + ": " + err)); continue; }
             d.applied.put(p.getUUID(), model);
-            if (Modelos.EPIC) EpicSupport.vanilla(p, true);
+            if (Modelos.EPIC) enforce(p, d);
             ok++;
         }
         d.setDirty();
@@ -125,7 +168,7 @@ public final class Server {
                 continue;
             }
             d.applied.remove(p.getUUID());
-            if (Modelos.EPIC) EpicSupport.vanilla(p, false);
+            if (Modelos.EPIC) enforce(p, d);
             ok++;
         }
         d.setDirty();

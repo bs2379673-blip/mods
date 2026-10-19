@@ -11,8 +11,13 @@ public class Modelos {
     /** Epic Fight es opcional: sus clases solo se tocan desde EpicSupport y solo si esto es true */
     public static final boolean EPIC = ModList.get().isLoaded("epicfight");
 
+    /** solo cliente: el servidor le avisa que tiene un modelo puesto y no puede usar Epic Fight */
+    public static volatile boolean clientLocked;
+    public static volatile java.util.UUID clientUuid;
+
     public Modelos() {
         Net.init();
         MinecraftForge.EVENT_BUS.register(Server.class);
+        if (EPIC) MinecraftForge.EVENT_BUS.register(EpicSupport.class);
     }
 }
