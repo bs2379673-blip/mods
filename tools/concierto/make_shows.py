@@ -379,7 +379,7 @@ def extra_rooms(sh, d, section_at, role_look):
 
 def extra_baka(sh, d, section_at, role_look):
     """FINAL DEL CONCIERTO: un segundo antes de que termine el tema las tres estallan (servidor: vanish; cliente: explosion de shaders de sus colores)"""
-    T = 173.667 - 1.0
+    T = 173.667 - 2.0
     sh.cues = [c for c in sh.cues if not (c.get("fx") == "sprite" and c["t"] > T - 6)]
     sh.look(T - 0.3, dict(scene="cosmos", floor="grid", eq=0.0, beams="off", ring=False, col=[TEAL, RED, GOLD], react=dict(kick=0.2, snare=0.1, accent=0.2)))
     sh.fx(T, "final")
@@ -469,9 +469,9 @@ short("pre_triple_baka", [dict(t=0.1, fx="estrella", col="#f2d21b", dur=2.9, sid
       L("baka", "ripple", 0.6, "slow", True, [GOLD, TEAL, RED], 0.6, 0.3, 0.6))
 
 # despedida: el cielo oscuro del juego de luces (la explosion gigante llega ~18.5 s despues de empezar) y luego todo vuelve a la normalidad
-FIN = [dict(t=18.4, fx="fuegos", dur=9.0, n=34), dict(t=18.4, fx="pyro", dur=3.0, col=WHITE),
-       dict(t=21.0, fx="sprite", id="t_gracias", slot="T", dur=9.0, size=30, pulse=0.06),
-       dict(t=22.0, fx="sprite", id="u3_trio_wave", slot="C", dur=6.0, size=30),
-       dict(t=18.4, fx="jugadores", modo="confeti", dur=14, radio=80),
-       dict(t=24.5, scene="cosmos", floor="off", eq=0.0, beams="off", ring=False, col=[TEAL, "#7a5cff", "#d8fffb"], react=dict(kick=0.15, snare=0.05, accent=0.2))]
+FIN = [dict(t=16.4, fx="fuegos", dur=9.0, n=34), dict(t=16.4, fx="pyro", dur=3.0, col=WHITE),
+       dict(t=19.0, fx="sprite", id="t_gracias", slot="T", dur=9.0, size=30, pulse=0.06),
+       dict(t=20.0, fx="sprite", id="u3_trio_wave", slot="C", dur=6.0, size=30),
+       dict(t=16.4, fx="jugadores", modo="confeti", dur=14, radio=80),
+       dict(t=22.5, scene="cosmos", floor="off", eq=0.0, beams="off", ring=False, col=[TEAL, "#7a5cff", "#d8fffb"], react=dict(kick=0.15, snare=0.05, accent=0.2))]
 short("despedida", FIN, L("cosmos", "grid", 0.0, "off", False, [TEAL, RED, GOLD], 0.1, 0.05, 0.1))

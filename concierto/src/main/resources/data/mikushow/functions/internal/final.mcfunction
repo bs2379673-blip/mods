@@ -4,5 +4,5 @@ schedule clear mikushow:baile/idle
 schedule clear mikushow:bailarina/reposo_miku
 schedule clear mikushow:bailarina/reposo_teto
 schedule clear mikushow:bailarina/reposo_neru
-schedule function mikushow:final/f7 22s replace
+schedule function mikushow:final/f7 20s replace
 scoreboard players set #full mikushow 0

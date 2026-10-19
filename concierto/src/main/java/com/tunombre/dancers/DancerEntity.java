@@ -80,7 +80,7 @@ public class DancerEntity extends PathfinderMob {
     /** Entrada: las particulas convergen en una estrella y de ella nace la figura. */
     public long getAppearStart() { return this.entityData.get(APPEAR); }
     public long getVanishStart() { return this.entityData.get(VANISH); }
-    public void appear() { this.entityData.set(VANISH, 0L); this.entityData.set(APPEAR, this.level().getGameTime()); }
+    public void appear() { if (this.entityData.get(VANISH) > 0L) return; this.entityData.set(VANISH, 0L); this.entityData.set(APPEAR, this.level().getGameTime()); }
     /** Salida: la figura se contrae en una estrella que estalla en particulas; despues la entidad desaparece. */
     public void vanish() { if (this.entityData.get(VANISH) == 0L) this.entityData.set(VANISH, this.level().getGameTime()); }
 

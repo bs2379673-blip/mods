@@ -21,20 +21,20 @@
    ]
   },
   {
-   "t": 18.4,
+   "t": 16.4,
    "fx": "fuegos",
    "dur": 9.0,
    "n": 34
   },
   {
-   "t": 18.4,
+   "t": 16.4,
    "fx": "jugadores",
    "modo": "confeti",
    "dur": 14,
    "radio": 80
   },
   {
-   "t": 22.0,
+   "t": 20.0,
    "fx": "aviso",
    "id": "u3_trio_wave",
    "ext": "gif",
@@ -42,7 +42,7 @@
    "modo": "corner"
   },
   {
-   "t": 24.5,
+   "t": 22.5,
    "scene": "cosmos",
    "floor": "off",
    "eq": 0.0,
