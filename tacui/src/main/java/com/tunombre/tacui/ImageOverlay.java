@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -40,6 +41,8 @@ public final class ImageOverlay {
     private static final Map<String, Anim> CACHE = new LinkedHashMap<>();
     private static final Map<String, Boolean> LOADING = new HashMap<>();
     private static final List<Active> LIST = new ArrayList<>();
+    private static final class AlertA { String text; float secs; int rgb; long start = -1; boolean done; }
+    private static final List<AlertA> ALERTS = new ArrayList<>();
     private static int texCounter;
 
     // ------------------------------------------------------------------ red
@@ -75,7 +78,13 @@ public final class ImageOverlay {
         }
     }
 
-    public static void onClear() { synchronized (LIST) { LIST.clear(); } }
+    public static void onClear() { synchronized (LIST) { LIST.clear(); } synchronized (ALERTS) { ALERTS.clear(); } }
+
+    public static void onAlert(TacNet.Alert m) {
+        AlertA a = new AlertA();
+        a.text = m.text().replace('&', '\u00a7'); a.secs = m.seconds(); a.rgb = m.rgb() & 0xFFFFFF;
+        synchronized (ALERTS) { ALERTS.clear(); ALERTS.add(a); }
+    }
 
     // ------------------------------------------------------------------ decodificacion
 
@@ -213,6 +222,73 @@ public final class ImageOverlay {
         synchronized (LIST) { copy = new ArrayList<>(LIST); }
         for (Active a : copy) render1(g, w, h, a);
         synchronized (LIST) { LIST.removeIf(x -> x.done); }
+        renderAlerts(g, w, h);
+    }
+
+    private static int argb(int a, int r, int gr, int b) { return (Math.max(0, Math.min(255, a)) << 24) | (r << 16) | (gr << 8) | b; }
+
+    private static void glitchText(GuiGraphics g, Font font, String s, int cx, int y, float sc, int rgb, float al, int dx) {
+        int w = Math.round(font.width(s) * sc);
+        g.pose().pushPose();
+        g.pose().translate(cx - w / 2f + dx, y, 0);
+        g.pose().scale(sc, sc, 1f);
+        g.drawString(font, s, 0, 0, (Math.max(0, Math.min(255, (int) (al * 255))) << 24) | (rgb & 0xFFFFFF), false);
+        g.pose().popPose();
+    }
+
+    /** alerta glitch: viñeta pulsante, lineas de barrido, franja con titulo que se desfasa en rojo/cian y subtitulo parpadeante */
+    private static void renderAlerts(GuiGraphics g, int w, int h) {
+        List<AlertA> copy;
+        synchronized (ALERTS) { copy = new ArrayList<>(ALERTS); }
+        if (copy.isEmpty()) return;
+        long now = System.currentTimeMillis();
+        Font font = Minecraft.getInstance().font;
+        for (AlertA a : copy) {
+            if (a.start < 0) a.start = now;
+            float el = (now - a.start) / 1000f;
+            if (el > a.secs) { a.done = true; continue; }
+            float al = Math.max(0f, Math.min(Math.min(1f, el / 0.2f), Math.min(1f, (a.secs - el) / 0.7f)));
+            int r = (a.rgb >> 16) & 255, gc = (a.rgb >> 8) & 255, b = a.rgb & 255;
+            java.util.Random rnd = new java.util.Random(now / 70);
+            g.pose().pushPose();
+            g.pose().translate(0, 0, 900);
+            if (el < 1.0f) g.pose().translate((rnd.nextFloat() - 0.5f) * 6f * (1f - el), (rnd.nextFloat() - 0.5f) * 6f * (1f - el), 0);
+            float pulse = 0.55f + 0.45f * (float) Math.sin(el * 7f);
+            int edge = (int) (h * 0.22f), ca = (int) (120 * al * pulse);
+            g.fillGradient(0, 0, w, edge, argb(ca, r, gc, b), argb(0, r, gc, b));
+            g.fillGradient(0, h - edge, w, h, argb(0, r, gc, b), argb(ca, r, gc, b));
+            for (int i = 0; i < 18; i++) {
+                int sa = (int) (ca * (1f - i / 18f));
+                g.fill(i * 5, 0, i * 5 + 5, h, argb(sa / 2, r, gc, b));
+                g.fill(w - i * 5 - 5, 0, w - i * 5, h, argb(sa / 2, r, gc, b));
+            }
+            for (int y = (int) (el * 40) % 4; y < h; y += 4) g.fill(0, y, w, y + 1, argb((int) (30 * al), 0, 0, 0));
+            if (rnd.nextFloat() < 0.4f) for (int k = 0; k < 2; k++) {
+                int y0 = rnd.nextInt(Math.max(1, h - 12)), hh = 2 + rnd.nextInt(10), off = rnd.nextInt(40) - 20;
+                g.fill(Math.max(0, off), y0, Math.min(w, w + off), y0 + hh, argb((int) (55 * al), r, gc, b));
+            }
+            String[] parts = a.text.split("\\|", 2);
+            String title = parts[0].toUpperCase(Locale.ROOT);
+            int bh = (int) (h * 0.17f), by = (int) (h * 0.10f);
+            g.fill(0, by, w, by + bh, argb((int) (175 * al), 0, 0, 0));
+            g.fill(0, by, w, by + 2, argb((int) (255 * al), r, gc, b));
+            g.fill(0, by + bh - 2, w, by + bh, argb((int) (255 * al), r, gc, b));
+            if ((now / 350) % 2 == 0) g.fill(14, by + 10, 30, by + 26, argb((int) (255 * al), r, gc, b));
+            float sc = Math.max(1.2f, Math.min(3.4f, (w * 0.78f) / Math.max(1, font.width(title))));
+            int ty = by + (int) (bh * 0.22f);
+            boolean glitch = rnd.nextFloat() < 0.18f;
+            int jx = glitch ? rnd.nextInt(21) - 10 : 0;
+            glitchText(g, font, title, w / 2, ty, sc, 0x00FFFF, al * 0.7f, jx - 3);
+            glitchText(g, font, title, w / 2, ty, sc, 0xFF2020, al * 0.7f, jx + 3);
+            glitchText(g, font, title, w / 2, ty, sc, 0xFFFFFF, al, jx);
+            if (parts.length > 1 && (now / 450) % 4 != 3) {
+                String sub = parts[1].toUpperCase(Locale.ROOT);
+                float ss = Math.max(1f, Math.min(1.8f, (w * 0.6f) / Math.max(1, font.width(sub))));
+                glitchText(g, font, sub, w / 2, by + bh - (int) (13 * ss) - 6, ss, a.rgb, al, glitch ? rnd.nextInt(7) - 3 : 0);
+            }
+            g.pose().popPose();
+        }
+        synchronized (ALERTS) { ALERTS.removeIf(x -> x.done); }
     }
 
     private static void render1(GuiGraphics g, int w, int h, Active a) {

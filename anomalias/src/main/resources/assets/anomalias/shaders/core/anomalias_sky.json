@@ -1,0 +1,182 @@
+{
+ "blend": {
+  "func": "add",
+  "srcrgb": "srcalpha",
+  "dstrgb": "1-srcalpha"
+ },
+ "vertex": "anomalias:anomalias_sky",
+ "fragment": "anomalias:anomalias_sky",
+ "attributes": [
+  "Position"
+ ],
+ "samplers": [],
+ "uniforms": [
+  {
+   "name": "InvProj",
+   "type": "matrix4x4",
+   "count": 16,
+   "values": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "name": "InvView",
+   "type": "matrix4x4",
+   "count": 16,
+   "values": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "name": "Time",
+   "type": "float",
+   "count": 1,
+   "values": [
+    0
+   ]
+  },
+  {
+   "name": "Appear",
+   "type": "float",
+   "count": 1,
+   "values": [
+    0
+   ]
+  },
+  {
+   "name": "Open",
+   "type": "float",
+   "count": 1,
+   "values": [
+    0
+   ]
+  },
+  {
+   "name": "Spread",
+   "type": "float",
+   "count": 1,
+   "values": [
+    0
+   ]
+  },
+  {
+   "name": "FlowerFade",
+   "type": "float",
+   "count": 1,
+   "values": [
+    1
+   ]
+  },
+  {
+   "name": "Fade",
+   "type": "float",
+   "count": 1,
+   "values": [
+    1
+   ]
+  },
+  {
+   "name": "StormK",
+   "type": "float",
+   "count": 1,
+   "values": [
+    1
+   ]
+  },
+  {
+   "name": "Flash",
+   "type": "float",
+   "count": 1,
+   "values": [
+    0
+   ]
+  },
+  {
+   "name": "Strobe",
+   "type": "float",
+   "count": 1,
+   "values": [
+    1
+   ]
+  },
+  {
+   "name": "Col0",
+   "type": "float",
+   "count": 3,
+   "values": [
+    0.1,
+    0,
+    0.02
+   ]
+  },
+  {
+   "name": "Col1",
+   "type": "float",
+   "count": 3,
+   "values": [
+    0.7,
+    0.05,
+    0.05
+   ]
+  },
+  {
+   "name": "Col2",
+   "type": "float",
+   "count": 3,
+   "values": [
+    1,
+    0.45,
+    0.35
+   ]
+  },
+  {
+   "name": "Bolts",
+   "type": "float",
+   "count": 12,
+   "values": [
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    -1,
+    0
+   ]
+  }
+ ]
+}

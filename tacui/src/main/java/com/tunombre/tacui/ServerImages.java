@@ -72,8 +72,39 @@ public final class ServerImages {
     @SubscribeEvent
     public static void onLogout(PlayerEvent.PlayerLoggedOutEvent e) { SENT.remove(e.getEntity().getUUID()); }
 
+    private static int alertColor(String c) {
+        return switch (c.toLowerCase(Locale.ROOT)) {
+            case "rojo", "red" -> 0xFF2A2A;
+            case "violeta", "morado", "purple" -> 0xB05CFF;
+            case "verde", "green" -> 0x3CFF6A;
+            case "azul", "blue" -> 0x3C8CFF;
+            case "ambar", "amarillo", "naranja", "amber" -> 0xFFA020;
+            case "blanco", "white" -> 0xFFFFFF;
+            default -> {
+                try { yield Integer.parseInt(c.startsWith("#") ? c.substring(1) : c, 16) & 0xFFFFFF; } catch (NumberFormatException ex) { yield 0xFF2A2A; }
+            }
+        };
+    }
+
     @SubscribeEvent
     public static void onCommands(RegisterCommandsEvent e) {
+        // /tacalert <jugadores> <segundos> <color> <TITULO|subtitulo>: alerta glitch de texto, sin imagen
+        e.getDispatcher().register(Commands.literal("tacalert").requires(s -> s.hasPermission(2))
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .then(Commands.argument("seconds", FloatArgumentType.floatArg(0.5f, 120f))
+                                .then(Commands.argument("color", StringArgumentType.word())
+                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("rojo", "violeta", "verde", "azul", "ambar", "blanco"), b))
+                                        .then(Commands.argument("text", StringArgumentType.greedyString()).executes(c -> {
+                                            int rgb = alertColor(StringArgumentType.getString(c, "color"));
+                                            TacNet.Alert al = new TacNet.Alert(StringArgumentType.getString(c, "text"), FloatArgumentType.getFloat(c, "seconds"), rgb);
+                                            int n = 0;
+                                            for (ServerPlayer p : EntityArgument.getPlayers(c, "targets")) {
+                                                if (!TacNet.CH.isRemotePresent(p.connection.connection)) continue;
+                                                TacNet.CH.send(PacketDistributor.PLAYER.with(() -> p), al);
+                                                n++;
+                                            }
+                                            return n;
+                                        }))))));
         e.getDispatcher().register(Commands.literal("tacshow").requires(s -> s.hasPermission(2))
                 .then(Commands.literal("list").executes(c -> {
                     List<String> f = files();

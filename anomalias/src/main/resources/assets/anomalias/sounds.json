@@ -1,0 +1,8 @@
+{
+ "mortifilia": {"sounds": ["anomalias:mortifilia"], "subtitle": "anomalias.mortifilia"},
+ "alarma": {"sounds": ["anomalias:alarma"], "subtitle": "anomalias.alarma"},
+ "ambiente": {"sounds": [{"name": "anomalias:ambiente", "stream": true}], "subtitle": "anomalias.ambiente"},
+ "trueno": {"sounds": ["anomalias:trueno1", "anomalias:trueno2", "anomalias:trueno3"], "subtitle": "anomalias.trueno"},
+ "glitch": {"sounds": ["anomalias:glitch"], "subtitle": "anomalias.glitch"},
+ "fin": {"sounds": ["anomalias:fin"], "subtitle": "anomalias.fin"}
+}

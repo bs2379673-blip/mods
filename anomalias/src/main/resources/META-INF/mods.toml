@@ -1,0 +1,23 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="anomalias"
+version="${mod_version}"
+displayName="Anomalias"
+description='''Anomalias de cielo para el servidor: aparece la flor Mortifilia en el cenit, se abre, suelta esporas que tiñen todo el cielo de un color (rojo = la mas peligrosa) y queda una tormenta electrica. Comando /anomalia. Usa tacui (opcional) para los avisos de pantalla.'''
+
+[[dependencies.anomalias]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.anomalias]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"

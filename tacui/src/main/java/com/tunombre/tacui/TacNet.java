@@ -27,6 +27,15 @@ public final class TacNet {
                 .encoder(ShowImage::encode).decoder(ShowImage::decode).consumerMainThread(ShowImage::handle).add();
         CH.messageBuilder(ClearImage.class, id++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(ClearImage::encode).decoder(ClearImage::decode).consumerMainThread(ClearImage::handle).add();
+        CH.messageBuilder(Alert.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(Alert::encode).decoder(Alert::decode).consumerMainThread(Alert::handle).add();
+    }
+
+    /** Alerta glitch de texto (sin imagen): "TITULO|subtitulo". rgb = color de la alerta. */
+    public record Alert(String text, float seconds, int rgb) {
+        public void encode(FriendlyByteBuf b) { b.writeUtf(text, 256); b.writeFloat(seconds); b.writeInt(rgb); }
+        public static Alert decode(FriendlyByteBuf b) { return new Alert(b.readUtf(256), b.readFloat(), b.readInt()); }
+        public void handle(Supplier<NetworkEvent.Context> c) { DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ImageOverlay.onAlert(this)); }
     }
 
     /** Un trozo del archivo de imagen. key = nombre#crc. */

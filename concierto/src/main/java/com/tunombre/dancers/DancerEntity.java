@@ -182,6 +182,18 @@ public class DancerEntity extends PathfinderMob {
         return this.getBoundingBox().inflate(h, 0.6 * s, h);
     }
 
+    // invulnerables: ninguna bala, golpe o efecto las lastima (solo /kill y el vacio, para poder retirarlas)
+    @Override
+    public boolean hurt(net.minecraft.world.damagesource.DamageSource src, float amount) {
+        return src.is(net.minecraft.world.damagesource.DamageTypes.GENERIC_KILL) || src.is(net.minecraft.world.damagesource.DamageTypes.FELL_OUT_OF_WORLD) ? super.hurt(src, amount) : false;
+    }
+    @Override public boolean isInvulnerableTo(net.minecraft.world.damagesource.DamageSource src) {
+        return !(src.is(net.minecraft.world.damagesource.DamageTypes.GENERIC_KILL) || src.is(net.minecraft.world.damagesource.DamageTypes.FELL_OUT_OF_WORLD));
+    }
+    @Override public void setHealth(float h) { super.setHealth(Math.max(h, this.getMaxHealth())); }
+    @Override public boolean isAttackable() { return false; }
+    @Override public boolean isPickable() { return false; }
+    @Override public boolean canBeAffected(net.minecraft.world.effect.MobEffectInstance e) { return false; }
     @Override public boolean isPushable() { return false; }
     @Override public boolean removeWhenFarAway(double d) { return false; }
 
