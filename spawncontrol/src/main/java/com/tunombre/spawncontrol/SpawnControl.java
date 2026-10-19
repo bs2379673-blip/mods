@@ -88,7 +88,18 @@ public class SpawnControl {
 
     static void onJoin(EntityJoinLevelEvent e) {
         if (e.getLevel().isClientSide) return;
-        if (!(e.getEntity() instanceof Mob m)) return;
+        if (!(e.getEntity() instanceof Mob m)) {
+            // cualquier otra entidad (no jugador/objeto) cuyo tipo este apagado tampoco entra
+            Entity en = e.getEntity();
+            if (en instanceof net.minecraft.world.entity.LivingEntity && !(en instanceof net.minecraft.world.entity.player.Player)
+                && Rules.isOff(en.getType())) {
+                e.setCanceled(true);
+                en.discard();
+            }
+            return;
+        }
+        // apagado: no entra, venga de donde venga (disco, spawner, huevo, comando, otro mod), tenga nombre o no
+        if (Rules.isOff(m.getType())) { DENIED.remove(m); APPROVED.remove(m); kill(e, m, "apagado"); return; }
         if (!DENIED.isEmpty() && DENIED.remove(m)) { kill(e, m, "denegado en finalize"); return; }
         if (e.loadedFromDisk()) {
             // un mob guardado en el chunk (de antes de apagar el spawn): se borra al cargarse, salvo que sea persistente o tenga nombre
@@ -131,6 +142,7 @@ public class SpawnControl {
         tick++;
         if (tick % 20 == 0) checkReleases(s);
         if (tick % 40 == 0) countAlive(s);
+        if (tick % 60 == 0) sweepOff(s);
         if (tick % 5 == 0 && !VIEWERS.isEmpty()) showZones(s);
     }
 
@@ -149,6 +161,21 @@ public class SpawnControl {
             }
         }
         if (changed) Rules.save();
+    }
+
+    /** barrido: borra los que ya estaban vivos de un tipo apagado */
+    private static void sweepOff(MinecraftServer s) {
+        boolean any = false;
+        for (Rule r : Rules.all().values()) if (!r.enabled) { any = true; break; }
+        if (!any) return;
+        for (ServerLevel lv : s.getAllLevels()) {
+            java.util.List<Entity> del = new java.util.ArrayList<>();
+            for (Entity en : lv.getAllEntities()) {
+                if (!(en instanceof net.minecraft.world.entity.LivingEntity) || en instanceof net.minecraft.world.entity.player.Player || en instanceof net.minecraft.world.entity.decoration.ArmorStand) continue;
+                if (Rules.isOff(en.getType())) del.add(en);
+            }
+            for (Entity en : del) en.discard();
+        }
     }
 
     private static void countAlive(MinecraftServer s) {

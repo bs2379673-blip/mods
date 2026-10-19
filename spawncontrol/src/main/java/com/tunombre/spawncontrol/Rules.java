@@ -126,6 +126,9 @@ public final class Rules {
         return id != null && ForgeRegistries.ENTITY_TYPES.containsKey(id);
     }
 
+    /** true si el tipo tiene una regla que lo apaga del todo */
+    public static boolean isOff(EntityType<?> t) { Rule r = find(t); return r != null && !r.enabled; }
+
     /** decide si un spawn de este tipo, en este punto, esta permitido */
     public static boolean allowed(EntityType<?> type, String spawnType, String dim, Vec3 pos) { return allowed(type, spawnType, dim, pos, true); }
 
@@ -134,8 +137,9 @@ public final class Rules {
         Rule r = find(type);
         if (r == null) return !isNaturalType(spawnType) || defaultAllows(type);
         // "DIRECT": un mod puso el mob en el mundo sin pasar por el spawn normal; se trata como spawn natural
-        if (!r.types.contains(spawnType.equals("DIRECT") ? "NATURAL" : spawnType)) return true;
+        // apagado = no aparece por NADA (huevo, comando, spawner, cria, conversion, otro mod...)
         if (!r.enabled) return false;
+        if (!r.types.contains(spawnType.equals("DIRECT") ? "NATURAL" : spawnType)) return true;
         boolean inAllow = false;
         for (Zone z : r.zones) {
             if (!z.contains(dim, pos)) continue;
