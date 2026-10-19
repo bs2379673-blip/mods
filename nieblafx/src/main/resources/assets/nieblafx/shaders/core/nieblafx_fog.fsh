@@ -17,6 +17,10 @@ uniform float NoiseAmt;
 uniform float Wind;
 uniform float SkyFog;
 uniform float Steps;
+uniform float Scale;      // tamano de las nubes de niebla en bloques
+uniform vec3 SunDir;      // direccion hacia el sol/luna (mundo)
+uniform vec3 SunCol;      // luz directa (ya con dia/noche)
+uniform vec3 Amb;         // luz ambiente
 uniform float ZN;
 uniform vec3 GCol;
 uniform vec3 CamN;        // posicion de la camara (modulo) para que el ruido sea del mundo
@@ -41,7 +45,26 @@ float vnoise(vec3 x) {
 }
 
 float fbm(vec3 p) {
-    return vnoise(p) * 0.6 + vnoise(p * 2.07 + 11.3) * 0.4;
+    return vnoise(p) * 0.55 + vnoise(p * 2.03 + 11.3) * 0.3 + vnoise(p * 4.11 + 3.7) * 0.15;
+}
+
+float fbm2(vec3 p) {
+    return vnoise(p) * 0.65 + vnoise(p * 2.03 + 11.3) * 0.35;
+}
+
+// nubes de niebla: grumos con huecos claros
+float cloudy(vec3 p, float tm) {
+    vec3 q = p / max(Scale, 1.0);
+    q += vec3(Wind * tm * 0.02, tm * 0.004, Wind * tm * 0.012);
+    vec3 w = vec3(vnoise(q * 0.7 + 5.0), vnoise(q * 0.7 + 9.0), vnoise(q * 0.7 + 2.0)) - 0.5;
+    float f = fbm(q + w * 1.2);
+    return smoothstep(0.28, 0.72, f) * 1.9;
+}
+
+float cloudy2(vec3 p, float tm) {
+    vec3 q = p / max(Scale, 1.0);
+    q += vec3(Wind * tm * 0.02, tm * 0.004, Wind * tm * 0.012);
+    return smoothstep(0.28, 0.72, fbm2(q)) * 1.9;
 }
 
 void main() {
@@ -70,15 +93,14 @@ void main() {
         if (float(i) >= n || tau > 6.0) break;
         vec3 p = dir * t;
         float nm = 1.0;
-        if (NoiseAmt > 0.001) {
-            vec3 q = (p + CamN) * 0.06 + vec3(Wind * Time * 0.05, Time * 0.01, Wind * Time * 0.03);
-            nm = mix(1.0, clamp(fbm(q) * 2.2 - 0.1, 0.0, 2.0), NoiseAmt);
-        }
+        vec3 wp = p + CamN;
+        if (NoiseAmt > 0.001) nm = mix(1.0, cloudy(wp, Time), NoiseAmt);
         float g = GDens;
         if (GFall > 0.0001) g *= exp(-max(p.y - GBase, 0.0) * GFall);
         g *= nm;
         float sum = g;
         vec3 col = GCol * g;
+        vec3 zsum = vec3(0.0);
         for (int k = 0; k < 8; k++) {
             if (k >= zn) break;
             vec3 zc = vec3(ZA[k * 4], ZA[k * 4 + 1], ZA[k * 4 + 2]);
@@ -94,8 +116,17 @@ void main() {
                 col += vec3(ZC[k * 3], ZC[k * 3 + 1], ZC[k * 3 + 2]) * zd;
             }
         }
+        // luz: ambiente + sol disperso con autosombra (el centro de las nubes queda mas oscuro, los bordes brillan)
+        float sh = 1.0;
+        if (NoiseAmt > 0.001 && sum > 0.0005) {
+            vec3 wq = wp + SunDir * 10.0;
+            float nd = mix(1.0, cloudy2(wq, Time), NoiseAmt);
+            sh = exp(-sum * nd * 10.0 * 0.8);
+        }
+        float ph = 0.45 + 0.55 * pow(max(dot(dir, SunDir), 0.0), 3.0);
+        vec3 lit = Amb + SunCol * sh * ph;
         tau += sum * dt;
-        cw += col * dt;
+        cw += col * lit * dt;
         t += dt;
     }
     float a = 1.0 - exp(-tau);

@@ -41,8 +41,8 @@ public final class Server {
         var root = Commands.literal("niebla").requires(s -> s.hasPermission(2));
         root.then(Commands.literal("estado").executes(c -> {
             Fog.State f = Fog.S;
-            say(c.getSource(), String.format(Locale.ROOT, "Niebla global %s | color %s | densidad %.4f | distancia %.0f | base Y %.0f caida %.3f | ruido %.2f | viento %.2f | cielo %.2f | fundido %.1f s | zonas: %d",
-                    f.on ? "ACTIVA" : "apagada", f.color, f.density, f.maxDist, f.baseY, f.falloff, f.noise, f.wind, f.sky, f.fade, f.zones.size()));
+            say(c.getSource(), String.format(Locale.ROOT, "Niebla global %s | color %s | densidad %.4f | distancia %.0f | base Y %.0f caida %.3f | ruido %.2f | escala %.0f | viento %.2f | cielo %.2f | fundido %.1f s | zonas: %d",
+                    f.on ? "ACTIVA" : "apagada", f.color, f.density, f.maxDist, f.baseY, f.falloff, f.noise, f.scale, f.wind, f.sky, f.fade, f.zones.size()));
             return 1;
         }));
         root.then(Commands.literal("on").executes(c -> setv(c.getSource(), "on", "true"))
@@ -66,7 +66,7 @@ public final class Server {
         }));
         root.then(Commands.literal("color").then(Commands.argument("hex", StringArgumentType.word()).executes(c -> setv(c.getSource(), "color", StringArgumentType.getString(c, "hex")))));
         root.then(num("densidad", "densidad")).then(num("distancia", "distancia")).then(num("ruido", "ruido"))
-                .then(num("viento", "viento")).then(num("cielo", "cielo")).then(num("transicion", "transicion"))
+                .then(num("viento", "viento")).then(num("escala", "escala")).then(num("cielo", "cielo")).then(num("transicion", "transicion"))
                 .then(num("base", "base")).then(num("caida", "caida"));
 
         var zona = Commands.literal("zona");

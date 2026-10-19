@@ -38,7 +38,9 @@ public final class Fog {
         /** adelgazamiento por bloque sobre baseY (0 = uniforme) */
         public float falloff = 0F;
         /** cuanto se nota el ruido (0 = niebla lisa, 1 = muy irregular) */
-        public float noise = 0.5F;
+        public float noise = 0.85F;
+        /** tamano de las nubes de niebla en bloques */
+        public float scale = 24F;
         public float wind = 0.3F;
         /** cuanta niebla se ve sobre el cielo/horizonte (0..1) */
         public float sky = 0.35F;
@@ -120,6 +122,7 @@ public final class Fog {
                 case "distancia" -> S.maxDist = Math.max(8F, Math.min(512F, Float.parseFloat(v)));
                 case "base" -> S.baseY = Float.parseFloat(v);
                 case "caida" -> S.falloff = Math.max(0F, Float.parseFloat(v));
+                case "escala" -> S.scale = Math.max(2F, Math.min(200F, Float.parseFloat(v)));
                 case "ruido" -> S.noise = Math.max(0F, Math.min(1F, Float.parseFloat(v)));
                 case "viento" -> S.wind = Float.parseFloat(v);
                 case "cielo" -> S.sky = Math.max(0F, Math.min(1F, Float.parseFloat(v)));

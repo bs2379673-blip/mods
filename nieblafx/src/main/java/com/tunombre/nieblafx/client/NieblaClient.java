@@ -42,7 +42,8 @@ public final class NieblaClient {
 
     // valores actuales (se acercan al objetivo con el fundido)
     private static float presence;      // 0..1 niebla global
-    private static float cDens = -1F, cMax, cBase, cFall, cNoise, cWind, cSky;
+    private static float cDens = -1F, cMax, cBase, cFall, cNoise, cWind, cSky, cScale = 24F;
+    private static float lSky = 1F, lBlock = 0F;   // luz local suavizada en la camara
     private static float cR, cG, cB;
     private static final Map<String, Float> zk = new HashMap<>();   // presencia de cada zona
     private static final Map<String, Fog.Zone> zcur = new HashMap<>();  // ultima definicion conocida (para desvanecer las borradas)
@@ -114,6 +115,11 @@ public final class NieblaClient {
         try { Files.writeString(qfile(), String.valueOf(steps)); } catch (Exception ignored) { }
     }
 
+    private static float smooth(float a, float b, float x) {
+        float t = Math.max(0F, Math.min(1F, (x - a) / (b - a)));
+        return t * t * (3F - 2F * t);
+    }
+
     private static float approach(float cur, float tgt, float step) {
         return cur < tgt ? Math.min(tgt, cur + step) : Math.max(tgt, cur - step);
     }
@@ -134,7 +140,7 @@ public final class NieblaClient {
         float sp = dt / fade;
         presence = approach(presence, t.on ? 1F : 0F, sp);
         float[] col = rgb(t.color);
-        if (cDens < 0F) { cMax = t.maxDist; cBase = t.baseY; cFall = t.falloff; cNoise = t.noise; cWind = t.wind; cSky = t.sky; cR = col[0]; cG = col[1]; cB = col[2]; cDens = t.density; }
+        if (cDens < 0F) { cMax = t.maxDist; cBase = t.baseY; cFall = t.falloff; cNoise = t.noise; cWind = t.wind; cSky = t.sky; cScale = t.scale; cR = col[0]; cG = col[1]; cB = col[2]; cDens = t.density; }
         float k = 1F - (float) Math.exp(-dt * 3F / fade);
         cDens += (t.density - cDens) * k;
         cMax += (t.maxDist - cMax) * k;
@@ -143,6 +149,7 @@ public final class NieblaClient {
         cNoise += (t.noise - cNoise) * k;
         cWind += (t.wind - cWind) * k;
         cSky += (t.sky - cSky) * k;
+        cScale += (t.scale - cScale) * k;
         cR += (col[0] - cR) * k; cG += (col[1] - cG) * k; cB += (col[2] - cB) * k;
 
         // zonas: presencia de cada una (las borradas se desvanecen)
@@ -196,6 +203,29 @@ public final class NieblaClient {
         shader.safeGetUniform("NoiseAmt").set(cNoise);
         shader.safeGetUniform("Wind").set(cWind);
         shader.safeGetUniform("SkyFog").set(cSky);
+        // luz: sol/luna segun la hora, clima y luz local (cuevas, antorchas)
+        float ang = mc.level.getSunAngle(1F);
+        float sx = -(float) Math.sin(ang), sy = (float) Math.cos(ang);
+        float day = smooth(-0.15F, 0.25F, sy);
+        float rain = mc.level.getRainLevel(1F) * 0.6F + mc.level.getThunderLevel(1F) * 0.2F;
+        net.minecraft.core.BlockPos bp = net.minecraft.core.BlockPos.containing(cam);
+        float ls = mc.level.getBrightness(net.minecraft.world.level.LightLayer.SKY, bp) / 15F;
+        float lb = mc.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, bp) / 15F;
+        float lk = 1F - (float) Math.exp(-dt * 2.5F);
+        lSky += (ls - lSky) * lk; lBlock += (lb - lBlock) * lk;
+        float dl = 1F - rain;
+        float nightAmb = 0.06F;
+        float amb = (nightAmb + (0.55F - nightAmb) * day) * dl;
+        amb = nightAmb + (amb - nightAmb) * lSky;
+        float aR = amb * 0.95F + lBlock * 0.45F, aG = amb * 1.0F + lBlock * 0.30F, aB = amb * 1.08F + lBlock * 0.12F;
+        float sun = day * dl * lSky;
+        float moon = (1F - day) * 0.10F * lSky * dl;
+        float dx = day > 0.02F ? sx : -sx, dy = day > 0.02F ? sy : -sy;
+        float inv = (float) (1.0 / Math.sqrt(dx * dx + dy * dy));
+        shader.safeGetUniform("SunDir").set(dx * inv, dy * inv, 0.1F);
+        shader.safeGetUniform("SunCol").set(sun * 0.95F + moon * 0.6F, sun * 0.88F + moon * 0.7F, sun * 0.72F + moon * 1.0F);
+        shader.safeGetUniform("Amb").set(aR, aG, aB);
+        shader.safeGetUniform("Scale").set(cScale);
         shader.safeGetUniform("Steps").set((float) steps);
         shader.safeGetUniform("ZN").set((float) zn);
         shader.safeGetUniform("GCol").set(cR, cG, cB);
