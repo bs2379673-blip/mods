@@ -136,6 +136,46 @@ public class RagdollFix {
             if ("epicfight".equals(id.getNamespace()) && "weapon_innate".equals(id.getPath())) e.setCanceled(true);
         }
 
+        // ---- Punchy + Survivors Arsenal: con las manos falsas de SA (lootear) Punchy dibujaba un tercer brazo ----
+        private static java.lang.reflect.Method saShouldRender, punchySetHidden;
+        private static Field saVisibility, punchyHiddenField;
+        private static boolean punchyTried, overriding, origHidden;
+
+        private static boolean saHandsActive() {
+            try {
+                if (saShouldRender == null) {
+                    saShouldRender = Class.forName("com.ogaba.sa_decor.client.event.LootSearchClientHandler").getMethod("shouldRenderFakeHands");
+                    saVisibility = Class.forName("com.ogaba.sa_decor.client.event.FakeHandsRenderHandler").getDeclaredField("visibility");
+                    saVisibility.setAccessible(true);
+                }
+                return (boolean) saShouldRender.invoke(null) || saVisibility.getFloat(null) > 0.01F;
+            } catch (Throwable t) { return false; }
+        }
+
+        @SubscribeEvent(priority = EventPriority.HIGHEST)
+        public void onRenderTick(TickEvent.RenderTickEvent e) {
+            if (e.phase != TickEvent.Phase.START) return;
+            try {
+                if (!punchyTried) {
+                    punchyTried = true;
+                    Class<?> c = Class.forName("punchy.client.render.PunchyArmRenderer");
+                    punchySetHidden = c.getMethod("setFirstPersonHidden", boolean.class);
+                    punchyHiddenField = c.getDeclaredField("FIRSTPERSON_HIDE");
+                    punchyHiddenField.setAccessible(true);
+                }
+                if (punchySetHidden == null) return;
+                boolean want = saHandsActive();
+                if (want && !overriding) {
+                    origHidden = punchyHiddenField.getBoolean(null);
+                    punchySetHidden.invoke(null, true);
+                    overriding = true;
+                } else if (!want && overriding) {
+                    punchySetHidden.invoke(null, origHidden);
+                    overriding = false;
+                }
+            } catch (Throwable t) { punchySetHidden = null; overriding = false; }
+        }
+
         private static KeyMapping epic;
         private static boolean epicTried;
 
