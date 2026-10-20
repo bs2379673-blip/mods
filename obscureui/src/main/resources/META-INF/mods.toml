@@ -21,3 +21,10 @@ mandatory=true
 versionRange="[1.20.1,1.21)"
 ordering="NONE"
 side="BOTH"
+
+[[dependencies.obscureui]]
+modId="cotiiui"
+mandatory=false
+versionRange="[1.0.8,)"
+ordering="AFTER"
+side="CLIENT"

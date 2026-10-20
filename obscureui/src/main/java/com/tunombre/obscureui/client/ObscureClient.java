@@ -30,7 +30,20 @@ public final class ObscureClient {
             mc.player.displayClientMessage(Component.literal("Obscure UI: hace falta ser operador"), true);
             return;
         }
+        if (net.minecraftforge.fml.ModList.get().isLoaded("cotiiui")) {
+            try {
+                openCotii();
+                return;
+            } catch (Throwable t) {
+                // si falla CotiiUI se usa el panel propio
+            }
+        }
         mc.setScreen(new ObscureScreen());
+    }
+
+    /** panel hecho con CotiiUI (clase aparte: solo se carga si el mod esta instalado) */
+    private static void openCotii() {
+        com.cotii.ui.CotiiUI.openPanel(Component.literal("Obscure"), new ObscurePanel());
     }
 
     @SubscribeEvent
@@ -50,6 +63,8 @@ public final class ObscureClient {
     }
 
     public static void onData(Net.Data d) {
-        if (Minecraft.getInstance().screen instanceof ObscureScreen s) s.onData(d.key(), d.json());
+        var scr = Minecraft.getInstance().screen;
+        if (scr instanceof ObscureScreen s) { s.onData(d.key(), d.json()); return; }
+        if (net.minecraftforge.fml.ModList.get().isLoaded("cotiiui") && scr instanceof com.cotii.ui.PanelScreen ps && ps.panel() instanceof ObscurePanel p) p.onData(d.key(), d.json());
     }
 }
