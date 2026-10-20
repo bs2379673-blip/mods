@@ -4,7 +4,7 @@ license="All Rights Reserved"
 
 [[mods]]
 modId="bestialago"
-version="1.0.0"
+version="1.1.0"
 displayName="Bestia del Lago"
 description='''Un monstruo gigante e inmortal que vigila un lago: persigue botes y nadadores, rompe botes desde abajo y te atrapa en su boca (quick time event).'''
 

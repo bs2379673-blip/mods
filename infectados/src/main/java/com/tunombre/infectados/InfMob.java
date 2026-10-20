@@ -41,6 +41,8 @@ public abstract class InfMob extends Monster {
     // ---- agarre ----
     protected float grip;
     protected int grabTicks;
+    /** el agarre usa un quick time del mod QuickTime Events (el cliente lo juega) en vez de la barra propia */
+    private boolean extQte;
     protected boolean releasing;
     protected int qteKind;
     private AnimationManager.AnimationAccessor<StaticAnimation> grabPlayerAnim;
@@ -158,11 +160,19 @@ public abstract class InfMob extends Monster {
         play(myAnim);
         ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(sp, ServerPlayerPatch.class);
         if (pp != null && playerAnim != null) pp.playAnimationSynchronized(playerAnim, 0.1F);
+        extQte = QteBridge.start(sp, Infectados.cfgExternalQte(kind), ok -> onExternalQte(sp, ok));
         return true;
     }
 
+    /** resultado del quick time externo: ganado = se suelta; perdido = el agarre termina mal */
+    private void onExternalQte(ServerPlayer p, boolean won) {
+        if (!extQte || !hasPassenger(p)) return;
+        extQte = false;
+        if (won) endGrab(p, true); else failGrab(p);
+    }
+
     public void struggle(ServerPlayer p) {
-        if (!hasPassenger(p)) return;
+        if (!hasPassenger(p) || extQte) return;
         grip = Math.min(100F, grip + Infectados.cfgPress(qteKind));
         if (grip >= 99.5F && grabTicks > 0) endGrab(p, true);
     }
@@ -177,6 +187,12 @@ public abstract class InfMob extends Monster {
             ServerPlayerPatch pp0 = EpicFightCapabilities.getEntityPatch(sp0, ServerPlayerPatch.class);
             if (pp0 != null) pp0.playAnimationSynchronized(grabPlayerAnim, 0.05F);
         }
+        if (extQte) {
+            getNavigation().stop();
+            getLookControl().setLookAt(p, 30, 30);
+            if (grabTicks > 1200 && p instanceof ServerPlayer sx) { extQte = false; QteBridge.stop(sx); failGrab(p); return false; }   // por si el cliente nunca responde
+            return true;
+        }
         if (grip >= 99.5F) { endGrab(p, true); return false; }   // gano (se mira antes de restar la caida)
         grip -= Infectados.cfgDecay(qteKind);
         getNavigation().stop();
@@ -189,6 +205,8 @@ public abstract class InfMob extends Monster {
     protected abstract void failGrab(Player p);
 
     protected void endGrab(Player p, boolean escaped) {
+        if (extQte && p instanceof ServerPlayer sq) QteBridge.stop(sq);
+        extQte = false;
         if (p instanceof ServerPlayer sp) InfNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new InfNet.Qte(escaped ? 100 : 0, false, qteKind));   // antes de bajarlo
         releasing = true;
         p.stopRiding();
@@ -243,6 +261,8 @@ public abstract class InfMob extends Monster {
 
     /** suelta al jugador y limpia el estado (el jugador murio por otra causa, se desconecto...) */
     public void forceRelease(Player p) {
+        if (extQte && p instanceof ServerPlayer sq) QteBridge.stop(sq);
+        extQte = false;
         if (p instanceof ServerPlayer sp) InfNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new InfNet.Qte(0, false, qteKind));
         releasing = true;
         p.stopRiding();

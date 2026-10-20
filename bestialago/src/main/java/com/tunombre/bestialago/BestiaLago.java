@@ -79,7 +79,9 @@ public class BestiaLago {
     private static final ForgeConfigSpec.Builder B = new ForgeConfigSpec.Builder();
     private static final ForgeConfigSpec.DoubleValue PRESS = B.comment("Cuanto suma cada pulsacion del quick time event (0-100)").defineInRange("qte_pulsacion_v2", 8.0, 0.5, 50.0);
     private static final ForgeConfigSpec.DoubleValue DECAY = B.comment("Cuanto baja la barra por tick (20 ticks = 1 s). Mas alto = mas dificil").defineInRange("qte_caida_por_tick_v2", 0.7, 0.05, 10.0);
+    private static final ForgeConfigSpec.ConfigValue<String> EXT = B.comment("Nombre del quick time guardado (mod QuickTime Events) para el agarre de la bestia. Si existe y el jugador tiene ese mod, reemplaza al quick time propio. Vacio = siempre el propio.").define("qte_externo", "agarre_bestia");
     private static final ForgeConfigSpec SPEC = B.build();
+    public static String cfgExternalQte() { return EXT.get(); }
     public static float cfgPress = 8F, cfgDecay = 0.7F;
 
     private static RegistryObject<SoundEvent> sound(String name, float range) {

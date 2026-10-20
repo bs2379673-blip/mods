@@ -97,6 +97,8 @@ public class Infectados {
     private static final ForgeConfigSpec.DoubleValue IMPALE = B.comment("Dano del empalamiento con la horca").defineInRange("dano_empalar", 14.0, 1, 100);
     private static final ForgeConfigSpec.IntValue ZONE_TICKS = B.comment("Cada cuantos ticks se intenta poblar las zonas (20 = 1 s)").defineInRange("zonas_intervalo", 100, 20, 6000);
     private static final ForgeConfigSpec.IntValue BOSS = B.comment("Rareza de la motosierra en zonas con motosierra: 1 de cada N intentos").defineInRange("motosierra_rareza", 30, 1, 10000);
+    private static final ForgeConfigSpec.ConfigValue<String> EXT_G = B.comment("Nombre del quick time guardado (mod QuickTime Events) para el agarre del aldeano. Si existe y el jugador tiene ese mod, reemplaza al quick time propio. Vacio = siempre el propio.").define("qte_externo_aldeano", "agarre_aldeano");
+    private static final ForgeConfigSpec.ConfigValue<String> EXT_M = B.comment("Igual, para el agarre de la motosierra").define("qte_externo_motosierra", "agarre_motosierra");
     private static final ForgeConfigSpec SPEC = B.build();
     private static float pressG = 7, decayG = 0.9F, pressM = 5, decayM = 1.2F, plaga = 0.4F;
     private static int zoneTicks = 100, boss = 30, dodge = 11;
@@ -104,6 +106,7 @@ public class Infectados {
 
     public static float cfgPress(int kind) { return kind == 1 ? pressM : pressG; }
     public static float cfgDecay(int kind) { return kind == 1 ? decayM : decayG; }
+    public static String cfgExternalQte(int kind) { return (kind == 1 ? EXT_M : EXT_G).get(); }
     public static float cfgPlagaChance() { return plaga; }
     public static int cfgBossRarity() { return boss; }
     public static int cfgDodgeTicks() { return dodge; }
