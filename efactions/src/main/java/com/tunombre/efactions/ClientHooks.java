@@ -64,6 +64,7 @@ public class ClientHooks {
      * Ajustes de Epic Fight pensados para un servidor, reaplicados cada segundo (el jugador puede tocarlos en su menu):
      * - Puños: con la mano vacia Epic Fight cancelaba el picado de bloques. Se fuerza el modo "Adaptive" y la mano vacia fuera de la
      *   lista de combate: con un bloque en la mira se pica, y con el aire o un enemigo se pega.
+     * - Camara en tercera persona: la camara propia de Epic Fight (sobre el hombro) calcula el giro a partir de donde apunta la mira y se descontrola al mirar muy abajo/arriba (sobre todo en salto); se deja la camara normal de Minecraft (ALWAYS_BACK).
      * - Camara: las "acciones en primera persona" de Epic Fight giran la camara sola al mirar casi vertical (arriba o abajo).
      */
     @SubscribeEvent
@@ -71,6 +72,7 @@ public class ClientHooks {
         if (e.phase != TickEvent.Phase.END || ++tick % 20 != 0) return;
         try {
             ClientConfig.enablePovAction = false;
+            ClientConfig.cameraMode = ClientConfig.TPSType.ALWAYS_BACK;
             ClientConfig.preferenceWork = ClientConfig.PreferenceWork.ADAPTIVE;
             if (ClientConfig.combatPreferredItems != null) ClientConfig.combatPreferredItems.remove(Items.AIR);
             if (!logged) { logged = true; LOG.info("efactions: ajustes de Epic Fight aplicados (puños pican, camara sin giros)"); }
