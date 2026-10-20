@@ -76,6 +76,7 @@ public class ServerHooks {
     private Method mSearching;
     private boolean searchInit;
     // ---- reflexion Cuffed ----
+    private Method mMyEscort;
     private Method mCuffCap, mArmsRestrained, mArmId, mArmFlag, mIsRestraintItem, mHeadId;
     // ---- reflexion sa_decor ganzuas ----
     private java.lang.reflect.Field fSessions;
@@ -162,6 +163,7 @@ public class ServerHooks {
             mArmFlag = rapi.getMethod("getArmAnimationFlagByKey", ResourceLocation.class);
             mHeadId = iface.getMethod("getHeadRestraintId");
             mIsRestraintItem = rapi.getMethod("isRestraintItem", ItemStack.class);
+            try { mMyEscort = iface.getMethod("getMyEscort"); } catch (Throwable t2) { mMyEscort = null; }
         } catch (Throwable t) {
             mCuffCap = null;
             mIsRestraintItem = null;
@@ -430,6 +432,18 @@ public class ServerHooks {
 
     private void tickPlayer(ServerPlayer sp, ServerPlayerPatch pp, long now) {
         St st = states.computeIfAbsent(sp.getUUID(), k -> new St());
+
+        // --- 0) esposado al que arrastran (Cuffed): Cuffed lo teletransporta cada tick junto a quien lo lleva, pero con Epic Fight
+        // los demas clientes (sobre todo el de quien lo lleva) lo veian quieto donde empezo la accion. Se les manda la posicion
+        // absoluta cada tick para que lo vean seguir a su escolta.
+        if (!cuffInit) initCuffed();
+        if (mCuffCap != null && mMyEscort != null) {
+            try {
+                Object cap = mCuffCap.invoke(null, sp);
+                if (cap != null && mMyEscort.invoke(cap) != null)
+                    sp.serverLevel().getChunkSource().broadcast(sp, new net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket(sp));
+            } catch (Throwable t) { mMyEscort = null; }
+        }
 
         // --- 1) uso de items (inyeccion, venda, botiquin, spray, granada)
         Action cur = sp.isUsingItem() ? classify(sp.getUseItem()) : Action.NONE;
