@@ -26,6 +26,9 @@ public class FlipModel extends BakedModelWrapper<BakedModel> {
     /** la misma transformacion como matriz (es su propia inversa) */
     public static final Matrix4f FLIP = new Matrix4f().translate(0, PY, 0).rotateX((float) Math.PI).translate(0, -PY, 0);
 
+    /** cuanto se adelanta la linterna en la mano (bloques) */
+    private static final float FORWARD = 0.12f;
+
     private final ItemOverrides overrides;
 
     public FlipModel(BakedModel original) {
@@ -51,6 +54,8 @@ public class FlipModel extends BakedModelWrapper<BakedModel> {
             pose.translate(0, PY, 0);
             pose.mulPose(com.mojang.math.Axis.XP.rotationDegrees(180f));
             pose.translate(0, -PY, 0);
+            // un poco mas adelante en la mano (el lente mira hacia -Z del modelo)
+            pose.translate(0, 0, -FORWARD);
         }
         return this;
     }
