@@ -6,6 +6,11 @@ uniform float Desaturate;
 uniform float Brightness;
 uniform float Chromatic;
 uniform float Vignette;
+uniform float Saturation;
+uniform float Gamma;
+uniform float ToneAmt;
+uniform vec3 ShadowCol;
+uniform vec3 HighCol;
 
 in vec2 texCoord;
 out vec4 fragColor;
@@ -31,6 +36,13 @@ void main() {
     // desaturacion hacia gris
     float gray = dot(col, vec3(0.299, 0.587, 0.114));
     col = mix(col, vec3(gray), Desaturate);
+
+    col = mix(vec3(gray), col, Saturation);
+
+    // gamma y division de tonos (sombras / luces)
+    col = pow(max(col, vec3(0.0)), vec3(1.0 / max(Gamma, 0.05)));
+    float lum = clamp(dot(col, vec3(0.299, 0.587, 0.114)), 0.0, 1.0);
+    col += ToneAmt * ((ShadowCol - 0.5) * (1.0 - lum) + (HighCol - 0.5) * lum) * 2.0;
 
     col *= Brightness;
     col *= max(1.0 - d * Vignette, 0.0);

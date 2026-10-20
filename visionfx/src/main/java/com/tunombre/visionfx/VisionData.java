@@ -16,6 +16,8 @@ public class VisionData extends SavedData {
     public final Map<UUID, Boolean> overrides = new HashMap<>();
     /** anulaciones por jugador de la vision PS1 */
     public final Map<UUID, Boolean> ps1Over = new HashMap<>();
+    /** modo de evento por jugador (anula el global; 0 = ninguno, sin entrada = el global) */
+    public final Map<UUID, Integer> modeOver = new HashMap<>();
 
     public static VisionData get(MinecraftServer s) {
         return s.overworld().getDataStorage().computeIfAbsent(VisionData::load, VisionData::new, "visionfx");
@@ -34,6 +36,11 @@ public class VisionData extends SavedData {
             CompoundTag o = l2.getCompound(i);
             d.ps1Over.put(o.getUUID("id"), o.getBoolean("on"));
         }
+        ListTag l3 = t.getList("modeOver", Tag.TAG_COMPOUND);
+        for (int i = 0; i < l3.size(); i++) {
+            CompoundTag o = l3.getCompound(i);
+            d.modeOver.put(o.getUUID("id"), o.getInt("mode"));
+        }
         return d;
     }
 
@@ -46,6 +53,9 @@ public class VisionData extends SavedData {
         ListTag l2 = new ListTag();
         ps1Over.forEach((id, on) -> { CompoundTag o = new CompoundTag(); o.putUUID("id", id); o.putBoolean("on", on); l2.add(o); });
         t.put("ps1Over", l2);
+        ListTag l3 = new ListTag();
+        modeOver.forEach((id, m) -> { CompoundTag o = new CompoundTag(); o.putUUID("id", id); o.putInt("mode", m); l3.add(o); });
+        t.put("modeOver", l3);
         return t;
     }
 }

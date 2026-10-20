@@ -10,6 +10,11 @@
     { "name": "Desaturate", "type": "float", "count": 1, "values": [ 0 ] },
     { "name": "Brightness", "type": "float", "count": 1, "values": [ 1 ] },
     { "name": "Chromatic", "type": "float", "count": 1, "values": [ 0 ] },
-    { "name": "Vignette", "type": "float", "count": 1, "values": [ 0 ] }
+    { "name": "Vignette", "type": "float", "count": 1, "values": [ 0 ] },
+    { "name": "Saturation", "type": "float", "count": 1, "values": [ 1 ] },
+    { "name": "Gamma", "type": "float", "count": 1, "values": [ 1 ] },
+    { "name": "ToneAmt", "type": "float", "count": 1, "values": [ 0 ] },
+    { "name": "ShadowCol", "type": "float", "count": 3, "values": [ 0.5, 0.5, 0.5 ] },
+    { "name": "HighCol", "type": "float", "count": 3, "values": [ 0.5, 0.5, 0.5 ] }
   ]
 }

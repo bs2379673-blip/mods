@@ -1,69 +1,55 @@
 package com.tunombre.visionfx.client;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.tunombre.visionfx.Params;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostPass;
-import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.joml.Matrix4f;
-import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
 
 /** lado cliente: guarda lo que manda el servidor y dibuja el filtro como un pase de pantalla completa (un solo shader + copia de vuelta) */
 public final class FxClient {
-    public static final KeyMapping TOGGLE = new KeyMapping("key.visionfx.toggle", KeyConflictContext.IN_GAME,
-            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, "key.categories.visionfx");
-
     /** lo ultimo que mando el servidor (null = sin servidor con el mod: apagado) */
     private static volatile Params server;
-    /** interruptor local para comparar (no cambia nada en el servidor ni en los demas) */
-    private static boolean local = true;
     /** intensidad actual 0..1, suavizada para que no haya saltos */
     private static float cur;
     private static float darkSmooth = 1F;
 
-    private static float ps1Cur;
+    private static float ps1Cur, modeCur;
+    private static int modeId;
+    private static final long T0 = System.nanoTime();
 
     private static RenderTarget swap;
-    private static PostPass fx, blit, ps1Pass;
+    private static PostPass fx, blit, ps1Pass, modePass;
     private static int w, h;
 
     private FxClient() { }
 
     public static void init(IEventBus bus) {
-        bus.addListener((RegisterKeyMappingsEvent e) -> e.register(TOGGLE));
         MinecraftForge.EVENT_BUS.register(FxClient.class);
     }
 
     public static void setServer(Params p) { server = p; }
 
     @SubscribeEvent
-    public static void onLogout(ClientPlayerNetworkEvent.LoggingOut e) { server = null; cur = 0F; ps1Cur = 0F; }
+    public static void onLogout(ClientPlayerNetworkEvent.LoggingOut e) { server = null; cur = 0F; ps1Cur = 0F; modeCur = 0F; modeId = 0; }
 
     @SubscribeEvent
     public static void onTick(TickEvent.ClientTickEvent e) {
         if (e.phase != TickEvent.Phase.END) return;
         Minecraft mc = Minecraft.getInstance();
-        while (TOGGLE.consumeClick()) {
-            local = !local;
-            if (mc.player != null) mc.player.displayClientMessage(Component.literal("VisionFX (solo para vos): " + (local ? "ENCENDIDO" : "APAGADO")), true);
-        }
         Params p = server;
         float target = 0F;
-        if (p != null && p.enabled && local && mc.player != null && mc.level != null) {
+        if (p != null && p.enabled && mc.player != null && mc.level != null) {
             target = p.strength;
             if (p.dark) {
                 float light = mc.level.getMaxLocalRawBrightness(mc.player.blockPosition()) / 15F;
@@ -74,6 +60,10 @@ public final class FxClient {
         cur += Mth_clamp(target - cur, -0.04F, 0.04F);
         float t1 = (p != null && p.ps1 && mc.player != null && mc.level != null) ? 1F : 0F;
         ps1Cur += Mth_clamp(t1 - ps1Cur, -0.2F, 0.2F);
+        int wantMode = (p != null && mc.player != null && mc.level != null) ? p.mode : 0;
+        if (wantMode != 0) modeId = wantMode;
+        modeCur += Mth_clamp((wantMode != 0 ? 1F : 0F) - modeCur, -0.08F, 0.08F);
+        if (modeCur <= 0F && wantMode == 0) modeId = 0;
     }
 
     private static float Mth_clamp(float v, float lo, float hi) { return v < lo ? lo : Math.min(v, hi); }
@@ -85,7 +75,8 @@ public final class FxClient {
         Params p = server;
         boolean doFx = p != null && cur >= 0.003F;
         boolean doPs1 = p != null && ps1Cur >= 0.01F;
-        if (!doFx && !doPs1) return;
+        boolean doMode = p != null && modeId != 0 && modeCur >= 0.01F;
+        if (!doFx && !doPs1 && !doMode) return;
         Minecraft mc = Minecraft.getInstance();
         RenderTarget main = mc.getMainRenderTarget();
         try {
@@ -106,6 +97,11 @@ public final class FxClient {
             u.safeGetUniform("Brightness").set(1F + (p.brightness - 1F) * k);
             u.safeGetUniform("Chromatic").set(p.chromatic * k);
             u.safeGetUniform("Vignette").set(p.vignette * k);
+            u.safeGetUniform("Saturation").set(1F + (p.saturation - 1F) * k);
+            u.safeGetUniform("Gamma").set(1F + (p.gamma - 1F) * k);
+            u.safeGetUniform("ToneAmt").set(p.toneAmt * k);
+            u.safeGetUniform("ShadowCol").set(p.shR, p.shG, p.shB);
+            u.safeGetUniform("HighCol").set(p.hiR, p.hiG, p.hiB);
             fx.process(pt);
             blit.process(pt);
         }
@@ -121,12 +117,20 @@ public final class FxClient {
             ps1Pass.process(pt);
             blit.process(pt);
         }
+        if (doMode) {
+            var u = modePass.getEffect();
+            u.safeGetUniform("Mode").set((float) modeId);
+            u.safeGetUniform("Amount").set(Math.min(1F, modeCur));
+            u.safeGetUniform("Clock").set(((System.nanoTime() - T0) / 1.0e9F) % 3600F);
+            modePass.process(pt);
+            blit.process(pt);
+        }
         main.bindWrite(false);
         RenderSystem.enableDepthTest();
     }
 
     private static void ensure(Minecraft mc, RenderTarget main) throws IOException {
-        if (swap != null && w == main.width && h == main.height && fx != null && ps1Pass != null) return;
+        if (swap != null && w == main.width && h == main.height && fx != null && ps1Pass != null && modePass != null) return;
         free();
         w = main.width; h = main.height;
         swap = new TextureTarget(w, h, false, Minecraft.ON_OSX);
@@ -137,6 +141,8 @@ public final class FxClient {
         ps1Pass = new PostPass(mc.getResourceManager(), "visionfx_ps1", main, swap);
         ps1Pass.setOrthoMatrix(ortho);
         ps1Pass.addAuxAsset("DepthSampler", () -> mc.getMainRenderTarget().getDepthTextureId(), w, h);
+        modePass = new PostPass(mc.getResourceManager(), "visionfx_modes", main, swap);
+        modePass.setOrthoMatrix(ortho);
         blit = new PostPass(mc.getResourceManager(), "blit", swap, main);
         blit.setOrthoMatrix(ortho);
     }
@@ -145,7 +151,8 @@ public final class FxClient {
         if (fx != null) fx.close();
         if (blit != null) blit.close();
         if (ps1Pass != null) ps1Pass.close();
+        if (modePass != null) modePass.close();
         if (swap != null) swap.destroyBuffers();
-        fx = null; blit = null; ps1Pass = null; swap = null;
+        fx = null; blit = null; ps1Pass = null; modePass = null; swap = null;
     }
 }
