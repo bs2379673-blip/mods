@@ -66,6 +66,7 @@ public class ServerHooks {
         long rHoldAt = 0;            // ultimo tick en que se (re)impuso la postura del arma a distancia
         int flash = 0;               // 0 nada, 1 brazo derecho, 2 brazo izquierdo
         String cuffPlaying = null;   // "front" | "back" | null
+        long cuffAt = 0, pilAt = 0, trapAt = 0;   // ultimo tick en que se (re)envio la animacion de esposas / pillory / trampa
     }
 
     private final Map<UUID, St> states = new HashMap<>();
@@ -81,6 +82,7 @@ public class ServerHooks {
     private boolean lockInit;
     private final Map<Class<?>, Boolean> flashCache = new ConcurrentHashMap<>();
     private boolean cuffInit;
+    private int cuffFails;
     private java.lang.reflect.Field fShootTs;
 
     // ============================================================ utilidades de animacion
@@ -183,8 +185,8 @@ public class ServerHooks {
             if (n.contains("FRONT")) return "front";
             return null;
         } catch (Throwable t) {
-            mCuffCap = null;
-            LOG.warn("Fallo al consultar Cuffed, desactivo las animaciones de esposas", t);
+            if (++cuffFails >= 20) { mCuffCap = null; LOG.warn("Cuffed falla de forma repetida, desactivo las animaciones de esposas", t); }
+            else if (cuffFails == 1) LOG.warn("Fallo al consultar Cuffed (se reintenta)", t);
             return null;
         }
     }
@@ -480,6 +482,11 @@ public class ServerHooks {
             } else stop(pp, EfActions.PILLORY);
         }
 
+        // Las animaciones en bucle se mandan una sola vez a quien esta cerca en ese momento: quien entra al servidor o se acerca despues
+        // (y el propio jugador tras morir o cambiar de dimension) no las recibe. Se reenvian cada 3 s mientras sigan vigentes.
+        if (st.pillory && now - st.pilAt >= 60) { st.pilAt = now; play(pp, EfActions.PILLORY); }
+        if (st.trapped && now - st.trapAt >= 60) { st.trapAt = now; play(pp, EfActions.TRAPPED); }
+
         // --- 2d) ganzuas (minijuego de sa_decor)
         boolean lp = lockpicking(sp);
         if (lp != st.lockpicking) {
@@ -601,6 +608,10 @@ public class ServerHooks {
             if (st.cuffPlaying != null) stop(pp, "front".equals(st.cuffPlaying) ? EfActions.CUFFED_FRONT : EfActions.CUFFED_BACK);
             if (want != null) play(pp, "front".equals(want) ? EfActions.CUFFED_FRONT : EfActions.CUFFED_BACK);
             st.cuffPlaying = want;
+            st.cuffAt = now;
+        } else if (!busy && st.cuffPlaying != null && now - st.cuffAt >= 60) {
+            st.cuffAt = now;
+            play(pp, "front".equals(st.cuffPlaying) ? EfActions.CUFFED_FRONT : EfActions.CUFFED_BACK);
         }
     }
 
