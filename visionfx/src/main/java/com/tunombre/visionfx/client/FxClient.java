@@ -68,8 +68,8 @@ public final class FxClient {
 
     private static float Mth_clamp(float v, float lo, float hi) { return v < lo ? lo : Math.min(v, hi); }
 
-    /** HIGHEST: corre antes que otros mods que tambien usan AFTER_WEATHER (ej: la linterna de Survivors Arsenal). Asi el filtro se aplica al mundo y la luz de la linterna se dibuja despues, sin que le subamos el contraste. */
-    @SubscribeEvent(priority = net.minecraftforge.eventbus.api.EventPriority.HIGHEST)
+    /** prioridad normal y alfa 1, igual que en 1.0.0: asi no interfiere con la niebla (nieblafx) */
+    @SubscribeEvent
     public static void onRender(RenderLevelStageEvent e) {
         if (e.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) return;
         Params p = server;
