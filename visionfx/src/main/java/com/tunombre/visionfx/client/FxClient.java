@@ -35,8 +35,10 @@ public final class FxClient {
     private static float cur;
     private static float darkSmooth = 1F;
 
+    private static float ps1Cur;
+
     private static RenderTarget swap;
-    private static PostPass fx, blit;
+    private static PostPass fx, blit, ps1Pass;
     private static int w, h;
 
     private FxClient() { }
@@ -49,7 +51,7 @@ public final class FxClient {
     public static void setServer(Params p) { server = p; }
 
     @SubscribeEvent
-    public static void onLogout(ClientPlayerNetworkEvent.LoggingOut e) { server = null; cur = 0F; }
+    public static void onLogout(ClientPlayerNetworkEvent.LoggingOut e) { server = null; cur = 0F; ps1Cur = 0F; }
 
     @SubscribeEvent
     public static void onTick(TickEvent.ClientTickEvent e) {
@@ -70,6 +72,8 @@ public final class FxClient {
             }
         }
         cur += Mth_clamp(target - cur, -0.04F, 0.04F);
+        float t1 = (p != null && p.ps1 && mc.player != null && mc.level != null) ? 1F : 0F;
+        ps1Cur += Mth_clamp(t1 - ps1Cur, -0.2F, 0.2F);
     }
 
     private static float Mth_clamp(float v, float lo, float hi) { return v < lo ? lo : Math.min(v, hi); }
@@ -79,7 +83,9 @@ public final class FxClient {
     public static void onRender(RenderLevelStageEvent e) {
         if (e.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) return;
         Params p = server;
-        if (p == null || cur < 0.003F) return;
+        boolean doFx = p != null && cur >= 0.003F;
+        boolean doPs1 = p != null && ps1Cur >= 0.01F;
+        if (!doFx && !doPs1) return;
         Minecraft mc = Minecraft.getInstance();
         RenderTarget main = mc.getMainRenderTarget();
         try {
@@ -88,25 +94,39 @@ public final class FxClient {
             server = null;
             return;
         }
-        float k = cur;
-        var u = fx.getEffect();
-        u.safeGetUniform("Contrast").set(p.contrast * k);
-        u.safeGetUniform("Desaturate").set(Math.min(1F, p.desaturate * k));
-        u.safeGetUniform("Brightness").set(1F + (p.brightness - 1F) * k);
-        u.safeGetUniform("Chromatic").set(p.chromatic * k);
-        u.safeGetUniform("Vignette").set(p.vignette * k);
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
         RenderSystem.resetTextureMatrix();
         float pt = e.getPartialTick();
-        fx.process(pt);
-        blit.process(pt);
+        if (doFx) {
+            float k = cur;
+            var u = fx.getEffect();
+            u.safeGetUniform("Contrast").set(p.contrast * k);
+            u.safeGetUniform("Desaturate").set(Math.min(1F, p.desaturate * k));
+            u.safeGetUniform("Brightness").set(1F + (p.brightness - 1F) * k);
+            u.safeGetUniform("Chromatic").set(p.chromatic * k);
+            u.safeGetUniform("Vignette").set(p.vignette * k);
+            fx.process(pt);
+            blit.process(pt);
+        }
+        if (doPs1) {
+            var u = ps1Pass.getEffect();
+            u.safeGetUniform("Res").set(Math.max(60F, p.ps1Res));
+            u.safeGetUniform("Dither").set(Math.max(0F, Math.min(1F, p.ps1Dither)));
+            u.safeGetUniform("Amount").set(Math.min(1F, ps1Cur));
+            u.safeGetUniform("FarPlane").set(mc.gameRenderer.getDepthFar());
+            u.safeGetUniform("FogRange").set(p.ps1Fog * 0.45F, p.ps1Fog);
+            float[] fc = RenderSystem.getShaderFogColor();
+            u.safeGetUniform("FogCol").set(fc[0], fc[1], fc[2]);
+            ps1Pass.process(pt);
+            blit.process(pt);
+        }
         main.bindWrite(false);
         RenderSystem.enableDepthTest();
     }
 
     private static void ensure(Minecraft mc, RenderTarget main) throws IOException {
-        if (swap != null && w == main.width && h == main.height && fx != null) return;
+        if (swap != null && w == main.width && h == main.height && fx != null && ps1Pass != null) return;
         free();
         w = main.width; h = main.height;
         swap = new TextureTarget(w, h, false, Minecraft.ON_OSX);
@@ -114,6 +134,9 @@ public final class FxClient {
         Matrix4f ortho = new Matrix4f().setOrtho(0F, w, 0F, h, 0.1F, 1000F);
         fx = new PostPass(mc.getResourceManager(), "visionfx", main, swap);
         fx.setOrthoMatrix(ortho);
+        ps1Pass = new PostPass(mc.getResourceManager(), "visionfx_ps1", main, swap);
+        ps1Pass.setOrthoMatrix(ortho);
+        ps1Pass.addAuxAsset("DepthSampler", () -> mc.getMainRenderTarget().getDepthTextureId(), w, h);
         blit = new PostPass(mc.getResourceManager(), "blit", swap, main);
         blit.setOrthoMatrix(ortho);
     }
@@ -121,7 +144,8 @@ public final class FxClient {
     private static void free() {
         if (fx != null) fx.close();
         if (blit != null) blit.close();
+        if (ps1Pass != null) ps1Pass.close();
         if (swap != null) swap.destroyBuffers();
-        fx = null; blit = null; swap = null;
+        fx = null; blit = null; ps1Pass = null; swap = null;
     }
 }

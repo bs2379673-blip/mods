@@ -24,6 +24,8 @@ public final class Server {
         Params e = d.global.copy();
         Boolean o = d.overrides.get(p.getUUID());
         if (o != null) e.enabled = o;
+        Boolean q = d.ps1Over.get(p.getUUID());
+        if (q != null) e.ps1 = q;
         return e;
     }
 
@@ -69,13 +71,13 @@ public final class Server {
             var s = c.getSource().getServer(); VisionData.get(s).global.enabled = false; pushAll(s); say(c.getSource(), "VisionFX apagado para todos"); return 1;
         }));
         root.then(Commands.literal("reset").executes(c -> {
-            var s = c.getSource().getServer(); var d = VisionData.get(s); d.global = new Params(); d.overrides.clear(); pushAll(s);
+            var s = c.getSource().getServer(); var d = VisionData.get(s); d.global = new Params(); d.overrides.clear(); d.ps1Over.clear(); pushAll(s);
             say(c.getSource(), "VisionFX: valores por defecto y sin anulaciones por jugador"); return 1;
         }));
         root.then(Commands.literal("status").executes(c -> {
             var s = c.getSource().getServer(); var d = VisionData.get(s); Params g = d.global;
-            say(c.getSource(), String.format("VisionFX %s | fuerza %.2f | contraste %.2f | desaturar %.2f | brillo %.2f | cromatica %.3f | vineta %.2f | oscuridad %s | anulaciones: %d",
-                    g.enabled ? "ENCENDIDO" : "APAGADO", g.strength, g.contrast, g.desaturate, g.brightness, g.chromatic, g.vignette, g.dark ? "si" : "no", d.overrides.size()));
+            say(c.getSource(), String.format("VisionFX %s | fuerza %.2f | contraste %.2f | desaturar %.2f | brillo %.2f | cromatica %.3f | vineta %.2f | oscuridad %s | anulaciones: %d | PS1 %s (res %.0f, niebla %.0f, dither %.2f, anulaciones %d)",
+                    g.enabled ? "ENCENDIDO" : "APAGADO", g.strength, g.contrast, g.desaturate, g.brightness, g.chromatic, g.vignette, g.dark ? "si" : "no", d.overrides.size(), g.ps1 ? "ENCENDIDO" : "apagado", g.ps1Res, g.ps1Fog, g.ps1Dither, d.ps1Over.size()));
             return 1;
         }));
         var set = Commands.literal("set");
@@ -95,6 +97,24 @@ public final class Server {
                 .then(Commands.literal("on").executes(c -> over(c.getSource(), EntityArgument.getPlayers(c, "jugadores"), Boolean.TRUE)))
                 .then(Commands.literal("off").executes(c -> over(c.getSource(), EntityArgument.getPlayers(c, "jugadores"), Boolean.FALSE)))
                 .then(Commands.literal("default").executes(c -> over(c.getSource(), EntityArgument.getPlayers(c, "jugadores"), null)))));
+        // ---- vision PlayStation 1: /visionfx ps1 on|off | player <jugadores> on|off|default | set resolucion|niebla|dither <valor>
+        var ps1 = Commands.literal("ps1");
+        ps1.then(Commands.literal("on").executes(c -> {
+            var s = c.getSource().getServer(); VisionData.get(s).global.ps1 = true; pushAll(s); say(c.getSource(), "Vision PS1 encendida para todos"); return 1;
+        }));
+        ps1.then(Commands.literal("off").executes(c -> {
+            var s = c.getSource().getServer(); VisionData.get(s).global.ps1 = false; pushAll(s); say(c.getSource(), "Vision PS1 apagada para todos"); return 1;
+        }));
+        ps1.then(Commands.literal("player").then(Commands.argument("jugadores", EntityArgument.players())
+                .then(Commands.literal("on").executes(c -> overPs1(c.getSource(), EntityArgument.getPlayers(c, "jugadores"), Boolean.TRUE)))
+                .then(Commands.literal("off").executes(c -> overPs1(c.getSource(), EntityArgument.getPlayers(c, "jugadores"), Boolean.FALSE)))
+                .then(Commands.literal("default").executes(c -> overPs1(c.getSource(), EntityArgument.getPlayers(c, "jugadores"), null)))));
+        var ps1set = Commands.literal("set");
+        ps1set.then(num("resolucion", (p, v) -> p.ps1Res = Math.max(60F, v), 1080F));
+        ps1set.then(num("niebla", (p, v) -> p.ps1Fog = v, 512F));
+        ps1set.then(num("dither", (p, v) -> p.ps1Dither = Math.min(1F, v), 1F));
+        ps1.then(ps1set);
+        root.then(ps1);
         disp.register(root);
     }
 
@@ -103,6 +123,14 @@ public final class Server {
         for (ServerPlayer p : ps) { if (v == null) d.overrides.remove(p.getUUID()); else d.overrides.put(p.getUUID(), v); }
         pushAll(s);
         say(src, "VisionFX: " + ps.size() + " jugador(es) -> " + (v == null ? "segun el valor global" : v ? "forzado ENCENDIDO" : "forzado APAGADO"));
+        return ps.size();
+    }
+
+    private static int overPs1(CommandSourceStack src, Collection<ServerPlayer> ps, Boolean v) {
+        var s = src.getServer(); var d = VisionData.get(s);
+        for (ServerPlayer p : ps) { if (v == null) d.ps1Over.remove(p.getUUID()); else d.ps1Over.put(p.getUUID(), v); }
+        pushAll(s);
+        say(src, "Vision PS1: " + ps.size() + " jugador(es) -> " + (v == null ? "segun el valor global" : v ? "forzada ENCENDIDA" : "forzada APAGADA"));
         return ps.size();
     }
 }

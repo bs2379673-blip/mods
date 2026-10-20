@@ -6,7 +6,7 @@ license="All Rights Reserved"
 modId="visionfx"
 version="${mod_version}"
 displayName="VisionFX"
-description='''Filtro de pantalla sincronizado por el servidor: contraste, desaturacion, aberracion cromatica y vineta. Encendido por defecto, configurable con /visionfx.'''
+description='''Filtro de pantalla sincronizado por el servidor: contraste, desaturacion, aberracion cromatica y vineta (configurable con /visionfx), y vision PlayStation 1 para eventos (/visionfx ps1 on|off).'''
 
 [[dependencies.visionfx]]
 modId="forge"
