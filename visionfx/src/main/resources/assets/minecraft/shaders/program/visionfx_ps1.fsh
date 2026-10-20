@@ -63,5 +63,5 @@ void main() {
     float b = (bayer4(cell) - 0.5) * Dither;
     c = floor(clamp(c, 0.0, 1.0) * 31.0 + 0.5 + b) / 31.0;
 
-    fragColor = vec4(mix(orig.rgb, c, Amount), orig.a);
+    fragColor = vec4(mix(orig.rgb, c, Amount), 1.0);
 }
