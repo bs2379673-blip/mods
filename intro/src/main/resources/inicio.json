@@ -1,0 +1,54 @@
+{
+  "nota": "Escena de inicio de Obscure. Cambia las coordenadas (usa /intro pos donde quieras la camara) y los comandos 'cmd' a tu gusto. Cada paso: esperar, fundido, barras, camara, subtitulo, sonido, tp, tumbar, bloqueo_servidor, temblor, cmd, bloquear, camara_fin.",
+  "pasos": [
+    { "op": "bloqueo_servidor", "on": true },
+    { "op": "bloquear", "on": true },
+    { "op": "fundido", "a": "negro", "ticks": 1, "suave": false, "espera": false },
+    { "op": "barras", "on": true, "ticks": 20 },
+    { "op": "camara", "espera": false, "puntos": [
+        { "x": 0.5, "y": 66, "z": 0.5, "yaw": 0, "pitch": 10, "ticks": 0 },
+        { "x": 0.5, "y": 66, "z": 4.5, "yaw": 20, "pitch": 5, "ticks": 400 } ] },
+    { "op": "fundido", "a": "claro", "ticks": 40 },
+    { "op": "subtitulo", "quien": "Soldado", "texto": "¿Son compatibles?", "ticks": 60, "color": "9FB3C8", "sonido": "minecraft:ui.button.click" },
+    { "op": "subtitulo", "quien": "Soldado 2", "texto": "Sí, señor.", "ticks": 50, "color": "C8B39F", "sonido": "minecraft:ui.button.click" },
+    { "op": "subtitulo", "quien": "Soldado", "texto": "No perdamos más tiempo. Tenemos que llevarlos a esa isla.", "ticks": 90, "color": "9FB3C8", "sonido": "minecraft:ui.button.click" },
+    { "op": "subtitulo", "quien": "Soldado 2", "texto": "¿Soportarán las anomalías y todo?", "ticks": 70, "color": "C8B39F", "sonido": "minecraft:ui.button.click" },
+    { "op": "subtitulo", "quien": "Soldado", "texto": "Ellos soportarán las anomalías y todo. No son conscientes de lo que son... perderán la cabeza.", "ticks": 130, "color": "9FB3C8", "sonido": "minecraft:ui.button.click" },
+    { "op": "esperar", "ticks": 20 },
+    { "op": "fundido", "a": "negro", "ticks": 12 },
+    { "op": "esperar", "ticks": 10 },
+
+    { "nota": "HELICOPTERO: coloca el Bell 206 y a tus dos soldados en el cielo y ajusta estas coordenadas", "op": "camara_fin" },
+    { "op": "camara", "espera": false, "puntos": [
+        { "x": 200.5, "y": 140, "z": 200.5, "yaw": 180, "pitch": 0, "ticks": 0 },
+        { "x": 200.5, "y": 140, "z": 203.5, "yaw": 180, "pitch": 4, "ticks": 300 } ] },
+    { "op": "fundido", "a": "claro", "ticks": 12 },
+    { "op": "esperar", "ticks": 80 },
+    { "op": "cmd", "cmd": "anomalia rojo fijo" },
+    { "op": "temblor", "fuerza": 0.5, "ticks": 60 },
+    { "op": "subtitulo", "quien": "Piloto", "texto": "No... ahora no.", "ticks": 50, "color": "E06060" },
+    { "op": "temblor", "fuerza": 1.2, "ticks": 80 },
+    { "op": "subtitulo", "quien": "Piloto", "texto": "¡Pierdo los controles! ¡Están dejando de funcionar!", "ticks": 70, "color": "E06060" },
+    { "op": "subtitulo", "quien": "Piloto", "texto": "Rápido... ¡la anomalía nos alcanzó!", "ticks": 60, "color": "E06060" },
+    { "op": "temblor", "fuerza": 2.2, "ticks": 120 },
+    { "op": "subtitulo", "quien": "Piloto", "texto": "Oh, mierda... no, no, ¡caemos!", "ticks": 60, "color": "E06060" },
+    { "op": "subtitulo", "quien": "Piloto", "texto": "Perdona mis pecados...", "ticks": 50, "color": "E06060" },
+    { "op": "fundido", "a": "negro", "ticks": 3, "suave": false },
+    { "op": "sonido", "id": "minecraft:entity.generic.explode", "volumen": 1.5, "tono": 0.6 },
+    { "op": "esperar", "ticks": 50 },
+
+    { "nota": "ESTRELLA: el helicoptero estrellado y los jugadores tumbados alrededor", "op": "camara_fin" },
+    { "op": "tp", "x": 300.5, "y": 70, "z": 300.5, "radio": 5, "yaw": 0, "pitch": 0 },
+    { "op": "tumbar", "on": true },
+    { "op": "camara", "espera": false, "puntos": [
+        { "x": 300.5, "y": 74, "z": 308.5, "yaw": 180, "pitch": 25, "ticks": 0 },
+        { "x": 300.5, "y": 72, "z": 306.5, "yaw": 180, "pitch": 18, "ticks": 160 } ] },
+    { "op": "fundido", "a": "claro", "ticks": 50 },
+    { "op": "esperar", "ticks": 130 },
+    { "op": "camara_fin" },
+    { "op": "barras", "on": false, "ticks": 30 },
+    { "op": "tumbar", "on": false },
+    { "op": "bloquear", "on": false },
+    { "op": "bloqueo_servidor", "on": false }
+  ]
+}

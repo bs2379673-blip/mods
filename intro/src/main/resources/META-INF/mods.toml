@@ -1,0 +1,23 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="intro"
+version="${mod_version}"
+displayName="Intro (director de escenas)"
+description='''Director de escenas para eventos del servidor: cinematicas in-game con camara, fundidos, barras de cine, subtitulos, temblores, jugadores tumbados y comandos, definidas en config/intro/*.json. /intro play <escena> [jugadores].'''
+
+[[dependencies.intro]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.intro]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
