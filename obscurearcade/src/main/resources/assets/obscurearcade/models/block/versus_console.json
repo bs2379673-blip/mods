@@ -1,0 +1,1 @@
+{"parent": "minecraft:block/orientable", "textures": {"top": "obscurearcade:block/versus_console_top", "front": "obscurearcade:block/versus_console_front", "side": "obscurearcade:block/versus_console_side"}}

@@ -1,0 +1,29 @@
+{
+  "nota": "Estilo de pelea. Cada acierto lanza un golpe y el rival lo recibe; cada fallo da el golpe al otro. Los nombres de animacion pueden ser de Epic Fight (FIST_AUTO1, BIPED_HIT_SHORT...), propias (stance, taunt, win, slump) o de otro mod (espacio:ruta). Copia este archivo con otro nombre para crear estilos nuevos y escribelo en la consola de duelo.",
+  "ganancia": { "perfect": 0.018, "great": 0.012, "good": 0.006 },
+  "perdida_fallo": 0.03,
+  "ko": true,
+  "combo_final": 20,
+  "bonus_final": 0.03,
+  "espera_ms": 220,
+  "avance": 0.25,
+  "retroceso": 0.30,
+  "desplazamiento_ring": 1.6,
+  "distancia_reanclar": 1.6,
+  "ataques": {
+    "0": ["FIST_AUTO1", "FIST_AUTO2"],
+    "1": ["FIST_AUTO2", "FIST_AUTO3"],
+    "2": ["FIST_AUTO3", "FIST_DASH"],
+    "3": ["FIST_AUTO3", "FIST_AUTO1"]
+  },
+  "ataque_bueno": ["FIST_AUTO1"],
+  "ataque_final": ["FIST_DASH"],
+  "golpe_leve": ["BIPED_HIT_SHORT"],
+  "golpe_fuerte": ["BIPED_HIT_LONG"],
+  "esquiva": ["BIPED_STEP_BACKWARD"],
+  "contragolpe": ["FIST_AUTO1", "FIST_AUTO2", "FIST_AUTO3"],
+  "postura": "stance",
+  "victoria": "win",
+  "derrota": "BIPED_KNOCKDOWN",
+  "burla": "taunt"
+}

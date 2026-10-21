@@ -1,0 +1,1 @@
+{"parent": "minecraft:block/orientable", "textures": {"top": "obscurearcade:block/arcade_machine_top", "front": "obscurearcade:block/arcade_machine_front", "side": "obscurearcade:block/arcade_machine_side"}}

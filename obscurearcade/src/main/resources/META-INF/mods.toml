@@ -1,0 +1,40 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="obscurearcade"
+version="${mod_version}"
+displayName="Obscure Arcade"
+description='''Maquina recreativa y consola de duelo para CubOsu!: osu!mania en el servidor, con ranking y premios, y duelos entre dos jugadores que pelean con animaciones de Epic Fight segun las teclas que aciertan. Incluye un conversor de canciones de Friday Night Funkin a .osz (/fnf).'''
+
+[[dependencies.obscurearcade]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.obscurearcade]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.obscurearcade]]
+modId="epicfight"
+mandatory=true
+versionRange="[20.14,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.obscurearcade]]
+modId="cubosu"
+mandatory=true
+versionRange="[1.0,)"
+ordering="AFTER"
+side="BOTH"
+
+[[mixins]]
+config="obscurearcade.mixins.json"

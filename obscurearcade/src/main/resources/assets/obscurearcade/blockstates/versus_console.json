@@ -1,0 +1,1 @@
+{"variants": {"facing=north": {"model": "obscurearcade:block/versus_console", "y": 0}, "facing=east": {"model": "obscurearcade:block/versus_console", "y": 90}, "facing=south": {"model": "obscurearcade:block/versus_console", "y": 180}, "facing=west": {"model": "obscurearcade:block/versus_console", "y": 270}}}
