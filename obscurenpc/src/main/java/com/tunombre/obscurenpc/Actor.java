@@ -182,7 +182,7 @@ public class Actor extends PathfinderMob {
         setInvulnerable(false);
         if (!d.fijar_giro || d.quieto) { /* nada */ }
         // la postura "durmiendo" tumba al modelo normal; Epic Fight lo hace con su animacion
-        if (!isEf()) setForcedPose(d.postura == 2 ? Pose.SLEEPING : null);
+        forceSleep = !isEf() && d.postura == 2;
         applyEquipment();
         if (appliedScale != scale()) { appliedScale = scale(); refreshDimensions(); }
     }
@@ -293,10 +293,12 @@ public class Actor extends PathfinderMob {
     }
 
     public boolean isTalking() { return tickCount < talkUntil; }
+    private boolean forceSleep;
 
     @Override
     public void tick() {
-        super.tick();
+        if (forceSleep) setPose(Pose.SLEEPING);
+        if (level().isClientSide) return;
         if (level().isClientSide) return;
         if (tickCount % 20 == 0 && d.regeneracion > 0 && getHealth() < getMaxHealth()) heal((float) d.regeneracion);
         if (bubbleLeft > 0 && --bubbleLeft == 0) entityData.set(BUBBLE, "");
@@ -461,7 +463,7 @@ public class Actor extends PathfinderMob {
     public void setStance(int s) {
         d.postura = s;
         entityData.set(STANCE, s);
-        if (!isEf()) setForcedPose(s == 2 ? Pose.SLEEPING : null);
+        forceSleep = !isEf() && s == 2;
     }
 
     public void goTo(double x, double y, double z, double speed) {
