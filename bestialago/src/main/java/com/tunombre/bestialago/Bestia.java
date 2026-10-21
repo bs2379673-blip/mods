@@ -52,7 +52,6 @@ public class Bestia extends PathfinderMob {
 
     private static final EntityDataAccessor<Byte> STATE = SynchedEntityData.defineId(Bestia.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Byte> JAW = SynchedEntityData.defineId(Bestia.class, EntityDataSerializers.BYTE);
-    private static final EntityDataAccessor<Byte> GRIP = SynchedEntityData.defineId(Bestia.class, EntityDataSerializers.BYTE);
 
     // ---- servidor ----
     private BlockPos home;
@@ -65,11 +64,9 @@ public class Bestia extends PathfinderMob {
     private int stateTicks;
     private int cooldown;
     private int ramPhase;
-    private float grip;
-    private int struggleTick, strugglesThisTick;
     private boolean releasing;
-    /** el agarre usa un quick time del mod QuickTime Events (lo juega el cliente) en vez de la barra propia */
-    private boolean extQte;
+    /** hay una cadena de quick time events (mod QuickTime Events) en curso; el cliente la dibuja y la juega */
+    private boolean qteOn;
     private int presses;
     private double speed;
     private float turnBias;
@@ -108,11 +105,9 @@ public class Bestia extends PathfinderMob {
         super.defineSynchedData();
         entityData.define(STATE, PATROL);
         entityData.define(JAW, (byte) 0);
-        entityData.define(GRIP, (byte) 50);
     }
 
     public byte getState() { return entityData.get(STATE); }
-    public float getGrip() { return entityData.get(GRIP); }
 
     private void setState(byte s) {
         if (getState() != s) {
@@ -253,16 +248,6 @@ public class Bestia extends PathfinderMob {
     public boolean mayDismount(Entity e) { return releasing || !e.isAlive() || e.isRemoved() || isRemoved(); }
 
     public boolean isHolding(Player p) { return getState() == GRAB && hasPassenger(p); }
-
-    /** una pulsacion del quick time event (como maximo 3 por tick: nada de macros absurdas) */
-    public void struggle(ServerPlayer p) {
-        if (!isHolding(p) || extQte) return;
-        if (struggleTick != tickCount) { struggleTick = tickCount; strugglesThisTick = 0; }
-        if (++strugglesThisTick > 3) return;
-        grip = Math.min(100F, grip + BestiaLago.cfgPress);
-        presses++;
-        if (grip >= 99.5F) endGrab(p, true);   // se suelta en el acto, sin esperar al tick
-    }
 
     // ------------------------------------------------------------------ IA (servidor) ----
     @Override
@@ -480,27 +465,62 @@ public class Bestia extends PathfinderMob {
 
     private void startGrab(Player t) {
         if (t.isPassenger() && !(t.getVehicle() instanceof Boat)) { setState(RETREAT); return; }
+        // sin el mod de quick time en el jugador no hay agarre (se va y vuelve a intentarlo)
+        if (!(t instanceof ServerPlayer sp) || !Qte.available(sp, QteDefs.BESTIA)) { cooldown = 60; setState(RETREAT); return; }
         if (!t.startRiding(this, true)) { setState(RETREAT); return; }
-        grip = 55F;
         presses = 0;
         releasing = false;
         setState(GRAB);
         BestiaLago.LOG.info("[Bestia] agarre iniciado sobre {}", t.getName().getString());
         playLoud(BestiaLago.BITE.get(), 1.0F);
         splash(mouth(), 60);
-        if (t instanceof ServerPlayer sp) {
-            ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(sp, ServerPlayerPatch.class);
-            if (pp != null && BestiaLago.JAW_HOLD != null) pp.playAnimationSynchronized(BestiaLago.JAW_HOLD, 0.1F);
-            extQte = QteBridge.start(sp, BestiaLago.cfgExternalQte(), ok -> onExternalQte(sp, ok));
+        ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(sp, ServerPlayerPatch.class);
+        if (pp != null && BestiaLago.JAW_HOLD != null) pp.playAnimationSynchronized(BestiaLago.JAW_HOLD, 0.1F);
+        BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Hold(true));
+        qteOn = Qte.start(sp, QteDefs.BESTIA, new Qte.Run() {
+            @Override
+            public void press(int phase, int presses, int required) { onQtePress(sp, phase, presses, required); }
+
+            @Override
+            public void phaseWon(int phase) { onQtePhase(sp, phase); }
+
+            @Override
+            public void end(boolean won, String reason) { onQteEnd(sp, won, reason); }
+        });
+        if (!qteOn) endGrab(t, true);
+    }
+
+    /** cada pulsacion valida: las mandibulas ceden poco a poco */
+    private void onQtePress(ServerPlayer p, int phase, int n, int required) {
+        if (!qteOn || !isHolding(p)) return;
+        presses++;
+        float k = Mth.clamp(n / (float) Math.max(1, required), 0F, 1F);
+        setJaw(phase == 0 ? 0.58F + 0.12F * k : 0.70F - 0.10F * k);
+        if (n % 4 == 0) {
+            playLoud(BestiaLago.GROWL.get(), 0.9F + 0.3F * k);
+            splash(mouth(), 12);
         }
     }
 
-    /** resultado del quick time externo: ganado = escapa; perdido = se lo traga */
-    private void onExternalQte(ServerPlayer p, boolean won) {
-        if (!extQte || !isHolding(p) || getState() != GRAB) return;
-        extQte = false;
-        if (won) endGrab(p, true);
-        else { BestiaLago.LOG.info("[Bestia] el jugador perdio el quick time externo"); setState(SWALLOW); setJaw(0F); }
+    /** una fase ganada y quedan mas: la bestia vuelve a apretar */
+    private void onQtePhase(ServerPlayer p, int phase) {
+        if (!qteOn || !isHolding(p)) return;
+        playLoud(BestiaLago.ROAR.get(), 0.8F);
+        splash(mouth(), 40);
+        setJaw(0.9F - 0.2F * phase);
+    }
+
+    /** fin de la cadena: ganada = escapa; perdida = se lo traga */
+    private void onQteEnd(ServerPlayer p, boolean won, String reason) {
+        if (!qteOn || !isHolding(p) || getState() != GRAB) return;
+        qteOn = false;
+        if (won) {
+            endGrab(p, true);
+        } else {
+            BestiaLago.LOG.info("[Bestia] el jugador perdio el quick time ({})", reason);
+            setState(SWALLOW);
+            setJaw(0F);
+        }
     }
 
     private void grab(Player t) {
@@ -511,36 +531,15 @@ public class Bestia extends PathfinderMob {
             Vec3 f = Vec3.directionFromRotation(0, getYRot() + (random.nextFloat() - 0.5F) * 120F);
             goal = underwater(position().add(f.scale(8)), 0.9);
         }
-        if (extQte) {
-            setJaw(0.58F);
-            if (stateTicks % 30 == 0) playLoud(BestiaLago.GROWL.get(), 1.2F);
-            if (t instanceof ServerPlayer sp) {
-                t.setAirSupply(t.getMaxAirSupply());
-                if (stateTicks % 12 == 2 && BestiaLago.JAW_HOLD != null) {
-                    ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(sp, ServerPlayerPatch.class);
-                    if (pp != null) pp.playAnimationSynchronized(BestiaLago.JAW_HOLD, 0.05F);
-                }
-                if (stateTicks > 1200) { extQte = false; QteBridge.stop(sp); setState(SWALLOW); setJaw(0F); }   // por si el cliente nunca responde
-            }
-            return;
-        }
-        if (grip >= 99.5F) { endGrab(t, true); return; }   // gano el QTE (se mira antes de restar la caida)
-        grip -= BestiaLago.cfgDecay;
-        entityData.set(GRIP, (byte) Mth.clamp(Math.round(grip), 0, 100));
-        setJaw(0.58F + 0.10F * grip / 100F);
         if (stateTicks % 30 == 0) playLoud(BestiaLago.GROWL.get(), 1.2F);
-        if (t instanceof ServerPlayer sp && stateTicks % 12 == 2 && BestiaLago.JAW_HOLD != null) {
-            ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(sp, ServerPlayerPatch.class);
-            if (pp != null) pp.playAnimationSynchronized(BestiaLago.JAW_HOLD, 0.05F);
-        }
         if (t instanceof ServerPlayer sp) {
             t.setAirSupply(t.getMaxAirSupply());
-            BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Qte(Math.round(grip), true));
-        }
-        if (grip <= 0F) {
-            BestiaLago.LOG.info("[Bestia] el jugador no completo el QTE (pulsaciones recibidas={})", presses);
-            setState(SWALLOW);
-            setJaw(0F);
+            if (stateTicks % 12 == 2 && BestiaLago.JAW_HOLD != null) {
+                ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(sp, ServerPlayerPatch.class);
+                if (pp != null) pp.playAnimationSynchronized(BestiaLago.JAW_HOLD, 0.05F);
+            }
+            // por si el cliente nunca responde (se colgo, perdio la conexion...): se da por perdido
+            if (qteOn && stateTicks > 1500) { qteOn = false; Qte.cancel(sp); setState(SWALLOW); setJaw(0F); }
         }
     }
 
@@ -551,9 +550,9 @@ public class Bestia extends PathfinderMob {
 
     /** suelta al jugador y deja a la bestia en un estado limpio (muerte del jugador, desconexion...) */
     public void forceRelease(Player p) {
-        if (extQte && p instanceof ServerPlayer sq) QteBridge.stop(sq);
-        extQte = false;
-        if (p instanceof ServerPlayer sp) BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Qte(0, false));
+        if (p instanceof ServerPlayer sq) Qte.cancel(sq);
+        qteOn = false;
+        if (p instanceof ServerPlayer sp) BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Hold(false));
         releasing = true;
         p.stopRiding();
         releasing = false;
@@ -562,7 +561,6 @@ public class Bestia extends PathfinderMob {
             if (pp != null && BestiaLago.JAW_HOLD != null) pp.stopPlaying(BestiaLago.JAW_HOLD);
         }
         targetId = null;
-        grip = 55F;
         cooldown = 120;
         setState(RETREAT);
     }
@@ -573,7 +571,7 @@ public class Bestia extends PathfinderMob {
         if (stateTicks == 20 && e instanceof Player p) {
             playLoud(BestiaLago.SWALLOW.get(), 1.0F);
             releasing = true;
-            if (p instanceof ServerPlayer sp) BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Qte(0, false));
+            if (p instanceof ServerPlayer sp) BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Hold(false));
             p.hurt(new DamageSource(level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(BestiaLago.SWALLOWED), this), Float.MAX_VALUE);
             if (p.isAlive()) p.stopRiding();   // totem de la inmortalidad: lo escupe
         }
@@ -587,12 +585,12 @@ public class Bestia extends PathfinderMob {
     }
 
     private void endGrab(Player t, boolean escaped) {
-        if (extQte && t instanceof ServerPlayer sq) QteBridge.stop(sq);
-        extQte = false;
+        if (t instanceof ServerPlayer sq) Qte.cancel(sq);
+        qteOn = false;
         BestiaLago.LOG.info("[Bestia] agarre terminado (escapo={}, pulsaciones recibidas={})", escaped, presses);
         if (t instanceof ServerPlayer sp) {
             // primero se avisa al cliente (los paquetes llegan en orden) y recien despues se lo baja
-            BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Qte(100, false));
+            BestiaNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new BestiaNet.Hold(false));
         }
         releasing = true;
         if (t != null) {

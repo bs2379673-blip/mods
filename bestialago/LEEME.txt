@@ -13,10 +13,14 @@ Comportamiento
 - A veces asoma la cabeza y ruge antes de cazar. Acecha justo bajo la superficie (se le ve el lomo).
 - Bote: se pone debajo, sube en vertical, ROMPE EL BOTE (suelta el item) y tira al jugador al agua.
 - Nadando: abre la boca y se lanza. Si te alcanza te ATRAPA: quedas dentro de la boca sujetando las mandibulas.
-- Quick time event: spamear la tecla de SALTAR. La barra baja sola; si llega a 0 te TRAGA (mueres);
-  si la llenas te escupe, ruge y se aleja un rato antes de volver a cazarte.
+- Quick time events (mod QuickTime Events, OBLIGATORIO en servidor y clientes), tres fases seguidas: forzarle las mandibulas
+  (cualquier tecla), sacudirte (IZQUIERDA/DERECHA) y patada al hocico (a tiempo). Las mandibulas ceden mientras avanzas.
+  Si fallas cualquier fase te TRAGA (mueres); si las superas te escupe, ruge y se aleja un rato antes de volver a cazarte.
 - No se puede salir de la boca con shift. Es mas rapida que un bote.
-Dificultad del QTE en config/bestialago-common.toml (qte_pulsacion, qte_caida_por_tick).
+Dificultad del QTE en config/bestialago-common.toml (qte_tiempo, qte_pulsaciones, qte_segundos).
+Los quick times los escribe el propio mod en config/quicktime_server/saved/ob_bestia_* en cada arranque del servidor. Para
+cambiarles el aspecto: editor de QuickTime Events y "Save on server" (desde ese momento el archivo es tuyo y el mod no lo pisa;
+para volver al original, borralo).
 
 Sonidos: assets/bestialago/sounds/*.ogg son propios (sintetizados). Para cambiarlos, un resource pack con los mismos
 nombres (roar, roar2, growl, splash, bite, swallow); deben ser .ogg MONO para que se oigan con distancia.

@@ -37,6 +37,7 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -170,6 +171,7 @@ public class Ganado extends InfMob {
     protected void onForceRelease() {
         stop(Anims.G_GRAB);
         entityData.set(IMPALE_START, -1000);
+        closePrompt();
         dodgeState = 0;
     }
 
@@ -182,40 +184,43 @@ public class Ganado extends InfMob {
 
     // ------------------------------------------------------------------ estocada con la horca (esquiva con una tecla) ----
     private ServerPlayer dodgePlayer;
-    private int dodgeKey, dodgeDeadline;
+    private int dodgeKey;
     private byte dodgeState;        // 0 nada, 1 esperando tecla, 2 esquivo, 3 fallo
 
     private void startThrust(ServerPlayer p) {
+        dodgeKey = random.nextInt(2);
+        // sin el mod de quick time en el jugador no hay aviso de esquiva: el ataque se vuelve un golpe normal
+        List<String> ph = List.of(dodgeKey == 0 ? QteDefs.HORCA_IZQ : QteDefs.HORCA_DER);
+        if (!Qte.available(p, ph)) {
+            startMove(new Move(Anims.G_SWIPE, 8, 16, 2.9, 6F, 130F), p);
+            attackCd = 30;
+            return;
+        }
         startMove(new Move(Anims.G_THRUST, 15, 26, 3.7, 0F, 50F), p);
         dodgePlayer = p;
-        dodgeKey = random.nextInt(2);
-        int window = Infectados.cfgDodgeTicks();
-        dodgeDeadline = tickCount + Math.min(window, 14);
         dodgeState = 1;
-        InfNet.CH.send(PacketDistributor.PLAYER.with(() -> p), new InfNet.Prompt(dodgeKey, Math.min(window, 14), true));
+        Qte.start(p, ph, (won, reason) -> onDodge(p, won));
         Voice.pick(random, Voice.MUERETE, Voice.PICADILLO, Voice.TE_VOY_A_MATAR).say(this, false);
         attackCd = 40 + random.nextInt(30);
     }
 
-    /** llamado por el paquete de esquiva; true si este aldeano estaba esperando a ese jugador */
-    public boolean tryDodge(ServerPlayer p, int key) {
-        if (dodgeState != 1 || dodgePlayer != p) return false;
-        if (key == dodgeKey && tickCount <= dodgeDeadline) {
+    /** resultado del quick time de esquiva: si llega antes de la estocada, se esquiva */
+    private void onDodge(ServerPlayer p, boolean won) {
+        if (dodgeState != 1 || dodgePlayer != p) return;
+        if (won) {
             dodgeState = 2;
             Vec3 f = p.getLookAngle().multiply(1, 0, 1).normalize();
             Vec3 right = new Vec3(-f.z, 0, f.x);
-            Vec3 side = key == 1 ? right : right.scale(-1);
+            Vec3 side = dodgeKey == 1 ? right : right.scale(-1);
             p.setDeltaMovement(side.x * 0.95, 0.28, side.z * 0.95);
             p.hurtMarked = true;
         } else {
             dodgeState = 3;
         }
-        closePrompt();
-        return true;
     }
 
     private void closePrompt() {
-        if (dodgePlayer != null) InfNet.CH.send(PacketDistributor.PLAYER.with(() -> dodgePlayer), new InfNet.Prompt(dodgeKey, 0, false));
+        if (dodgePlayer != null) Qte.cancel(dodgePlayer);
     }
 
     @Override

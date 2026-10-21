@@ -1,21 +1,15 @@
 package com.tunombre.infectados.client;
 
 import com.tunombre.infectados.Infectados;
-import com.tunombre.infectados.InfNet;
 import com.tunombre.infectados.mob.Ganado;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
-import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
-import org.lwjgl.glfw.GLFW;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
 import yesman.epicfight.api.client.model.Meshes;
@@ -23,7 +17,7 @@ import yesman.epicfight.client.mesh.HumanoidMesh;
 
 import java.util.function.Function;
 
-/** Solo cliente: mallas 3D propias, renderers, capas (plaga, pelo de la Witch), lengua, motor, QTE. */
+/** Solo cliente: mallas 3D propias, renderers, capas (plaga, pelo de la Witch), lengua, motor,  */
 public final class ClientSetup {
     public static final ModelLayerLocation PLAGA_LAYER = new ModelLayerLocation(new ResourceLocation(Infectados.MODID, "plaga"), "main");
     private static AssetAccessor<HumanoidMesh>[] GANADO;
@@ -45,16 +39,9 @@ public final class ClientSetup {
         bus.addListener((EntityRenderersEvent.RegisterLayerDefinitions e) -> e.registerLayerDefinition(PLAGA_LAYER, PlagaModel::create));
         bus.addListener(ClientSetup::onRenderers);
         bus.addListener(ClientSetup::onPatched);
-        bus.addListener((RegisterGuiOverlaysEvent e) -> e.registerAboveAll("qte", (gui, g, pt, w, h) -> {
-            QteHud.render(g, pt);
-            QteHud.renderPrompt(g, pt);
-        }));
-        MinecraftForge.EVENT_BUS.addListener(ClientSetup::onKey);
-        MinecraftForge.EVENT_BUS.addListener(ClientSetup::onMouse);
         MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.client.event.ClientPlayerNetworkEvent.Clone e) -> { Infectados.clientHeld = false; });
         MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggingIn e) -> { Infectados.clientHeld = false; });
-        MinecraftForge.EVENT_BUS.addListener(ClientSetup::onTick);
-        MinecraftForge.EVENT_BUS.addListener(ClientSetup::onCamera);
+        MinecraftForge.EVENT_BUS.addListener(HoldFx::onCamera);
         MinecraftForge.EVENT_BUS.addListener(ClientFx::renderStage);
         MinecraftForge.EVENT_BUS.addListener(ClientFx::clientTick);
     }
@@ -85,65 +72,5 @@ public final class ClientSetup {
             if (hair) r.addCustomLayer(new WitchHairLayer());
             return r;
         });
-    }
-
-    private static void onKey(InputEvent.Key e) {
-        if (e.getAction() != GLFW.GLFW_PRESS) return;
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != null) return;
-        if (QteHud.promptActive()) {
-            // esquiva: UNA pulsacion; si es la tecla equivocada, se falla
-            int k = mc.options.keyLeft.matches(e.getKey(), e.getScanCode()) ? 0 : mc.options.keyRight.matches(e.getKey(), e.getScanCode()) ? 1 : -1;
-            boolean other = mc.options.keyUp.matches(e.getKey(), e.getScanCode()) || mc.options.keyDown.matches(e.getKey(), e.getScanCode());
-            if (k >= 0 || other) {
-                InfNet.CH.sendToServer(new InfNet.Dodge(k < 0 ? 9 : k));
-                QteHud.promptPressed(k == QteHud.promptKey);
-            }
-            return;
-        }
-        if (!held(mc)) return;
-        if (mc.options.keyJump.matches(e.getKey(), e.getScanCode())) { raw++; press(); }
-    }
-
-    private static int raw;
-    private static boolean wasDown;
-
-    /** el cliente cree estar agarrado por un infectado (no depende del paquete del QTE) */
-    private static boolean held(Minecraft mc) {
-        return mc.player != null && mc.screen == null && !QteHud.promptActive() && mc.player.getVehicle() instanceof com.tunombre.infectados.InfMob;
-    }
-
-    private static void press() {
-        InfNet.CH.sendToServer(new InfNet.Struggle());
-        QteHud.pressed();
-    }
-
-    private static void onMouse(InputEvent.MouseButton.Pre e) {
-        if (e.getAction() != GLFW.GLFW_PRESS) return;
-        if (held(Minecraft.getInstance())) { raw++; press(); }
-    }
-
-    /** red de seguridad por estado de la tecla, por si no llega el evento de teclado */
-    private static void onTick(net.minecraftforge.event.TickEvent.ClientTickEvent e) {
-        if (e.phase != net.minecraftforge.event.TickEvent.Phase.END) return;
-        Minecraft mc = Minecraft.getInstance();
-        boolean down = false;
-        if (held(mc)) {
-            com.mojang.blaze3d.platform.InputConstants.Key k = mc.options.keyJump.getKey();
-            if (k.getType() == com.mojang.blaze3d.platform.InputConstants.Type.KEYSYM)
-                down = com.mojang.blaze3d.platform.InputConstants.isKeyDown(mc.getWindow().getWindow(), k.getValue());
-            if (down && !wasDown && raw == 0) press();
-        }
-        wasDown = down;
-        raw = 0;
-    }
-
-    private static void onCamera(ViewportEvent.ComputeCameraAngles e) {
-        float k = QteHud.shake();
-        if (k <= 0) return;
-        double t = e.getPartialTick() + (Minecraft.getInstance().player != null ? Minecraft.getInstance().player.tickCount : 0);
-        e.setRoll(e.getRoll() + (float) Math.sin(t * 1.9) * 4F * k);
-        e.setPitch(e.getPitch() + (float) Math.sin(t * 2.7 + 1) * 1.5F * k);
-        e.setYaw(e.getYaw() + (float) Math.sin(t * 2.3 + 2) * 1.5F * k);
     }
 }

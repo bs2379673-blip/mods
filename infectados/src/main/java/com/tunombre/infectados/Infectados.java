@@ -88,25 +88,26 @@ public class Infectados {
 
     // ---- configuracion (config/infectados-common.toml) ----
     private static final ForgeConfigSpec.Builder B = new ForgeConfigSpec.Builder();
-    private static final ForgeConfigSpec.DoubleValue PRESS_G = B.comment("QTE aldeano: cuanto suma cada pulsacion (0-100)").defineInRange("qte_aldeano_pulsacion", 7.0, 0.5, 50);
-    private static final ForgeConfigSpec.DoubleValue DECAY_G = B.comment("QTE aldeano: cuanto baja por tick").defineInRange("qte_aldeano_caida", 0.9, 0.05, 10);
-    private static final ForgeConfigSpec.DoubleValue PRESS_M = B.comment("QTE motosierra: cuanto suma cada pulsacion").defineInRange("qte_motosierra_pulsacion", 5.0, 0.5, 50);
-    private static final ForgeConfigSpec.DoubleValue DECAY_M = B.comment("QTE motosierra: cuanto baja por tick (si llega a 0 te decapita)").defineInRange("qte_motosierra_caida", 1.2, 0.05, 10);
+    private static final ForgeConfigSpec.DoubleValue QTE_TIME = B.comment("Multiplicador del tiempo de TODOS los quick time events (1.0 = normal, 2.0 = el doble de tiempo)").defineInRange("qte_tiempo", 1.0, 0.3, 4.0);
+    private static final ForgeConfigSpec.IntValue QTE_ALD_P = B.comment("Aldeano, fase 1 (sacudirselo con izquierda/derecha): pulsaciones necesarias").defineInRange("qte_aldeano_pulsaciones", 14, 3, 80);
+    private static final ForgeConfigSpec.DoubleValue QTE_ALD_S = B.comment("Aldeano, fase 1: segundos para lograrlo").defineInRange("qte_aldeano_segundos", 6.0, 1.0, 30.0);
+    private static final ForgeConfigSpec.IntValue QTE_SAW_P = B.comment("Motosierra, fase 1 (aguantar la sierra): pulsaciones necesarias").defineInRange("qte_motosierra_pulsaciones", 18, 3, 80);
+    private static final ForgeConfigSpec.DoubleValue QTE_SAW_S = B.comment("Motosierra, fase 1: segundos para lograrlo (las demas fases son proporcionales). Si fallas cualquiera te decapita").defineInRange("qte_motosierra_segundos", 4.5, 1.0, 30.0);
     private static final ForgeConfigSpec.DoubleValue PLAGA = B.comment("Probabilidad de que salga la plaga al reventar la cabeza (0-1)").defineInRange("probabilidad_plaga", 0.4, 0, 1);
     private static final ForgeConfigSpec.IntValue DODGE = B.comment("Estocada de la horca: ticks para pulsar la tecla de esquiva (20 = 1 s, maximo 14)").defineInRange("esquiva_ticks", 11, 3, 14);
     private static final ForgeConfigSpec.DoubleValue IMPALE = B.comment("Dano del empalamiento con la horca").defineInRange("dano_empalar", 14.0, 1, 100);
     private static final ForgeConfigSpec.IntValue ZONE_TICKS = B.comment("Cada cuantos ticks se intenta poblar las zonas (20 = 1 s)").defineInRange("zonas_intervalo", 100, 20, 6000);
     private static final ForgeConfigSpec.IntValue BOSS = B.comment("Rareza de la motosierra en zonas con motosierra: 1 de cada N intentos").defineInRange("motosierra_rareza", 30, 1, 10000);
-    private static final ForgeConfigSpec.ConfigValue<String> EXT_G = B.comment("Nombre del quick time guardado (mod QuickTime Events) para el agarre del aldeano. Si existe y el jugador tiene ese mod, reemplaza al quick time propio. Vacio = siempre el propio.").define("qte_externo_aldeano", "agarre_aldeano");
-    private static final ForgeConfigSpec.ConfigValue<String> EXT_M = B.comment("Igual, para el agarre de la motosierra").define("qte_externo_motosierra", "agarre_motosierra");
     private static final ForgeConfigSpec SPEC = B.build();
-    private static float pressG = 7, decayG = 0.9F, pressM = 5, decayM = 1.2F, plaga = 0.4F;
+    private static float plaga = 0.4F;
     private static int zoneTicks = 100, boss = 30, dodge = 11;
     private static float impale = 14;
 
-    public static float cfgPress(int kind) { return kind == 1 ? pressM : pressG; }
-    public static float cfgDecay(int kind) { return kind == 1 ? decayM : decayG; }
-    public static String cfgExternalQte(int kind) { return (kind == 1 ? EXT_M : EXT_G).get(); }
+    public static double cfgQteTime() { return QTE_TIME.get(); }
+    public static int cfgQteAldeanoPresses() { return QTE_ALD_P.get(); }
+    public static double cfgQteAldeanoSeconds() { return QTE_ALD_S.get(); }
+    public static int cfgQteSawPresses() { return QTE_SAW_P.get(); }
+    public static double cfgQteSawSeconds() { return QTE_SAW_S.get(); }
     public static float cfgPlagaChance() { return plaga; }
     public static int cfgBossRarity() { return boss; }
     public static int cfgDodgeTicks() { return dodge; }
@@ -155,15 +156,13 @@ public class Infectados {
         MinecraftForge.EVENT_BUS.addListener(Infectados::onPlayerTick);
         MinecraftForge.EVENT_BUS.addListener(Infectados::onGameEvent);
         InfNet.init();
+        Qte.init();
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.server.ServerAboutToStartEvent e) -> QteDefs.install());
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.infectados.client.ClientSetup.init(bus));
     }
 
     private static void onConfig(ModConfigEvent e) {
         if (e.getConfig().getSpec() != SPEC) return;
-        pressG = PRESS_G.get().floatValue();
-        decayG = DECAY_G.get().floatValue();
-        pressM = PRESS_M.get().floatValue();
-        decayM = DECAY_M.get().floatValue();
         plaga = PLAGA.get().floatValue();
         zoneTicks = ZONE_TICKS.get();
         boss = BOSS.get();

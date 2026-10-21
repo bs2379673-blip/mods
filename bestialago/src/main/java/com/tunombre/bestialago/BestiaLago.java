@@ -28,7 +28,6 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -77,12 +76,13 @@ public class BestiaLago {
 
     // ---- configuracion (config/bestialago-common.toml) ----
     private static final ForgeConfigSpec.Builder B = new ForgeConfigSpec.Builder();
-    private static final ForgeConfigSpec.DoubleValue PRESS = B.comment("Cuanto suma cada pulsacion del quick time event (0-100)").defineInRange("qte_pulsacion_v2", 8.0, 0.5, 50.0);
-    private static final ForgeConfigSpec.DoubleValue DECAY = B.comment("Cuanto baja la barra por tick (20 ticks = 1 s). Mas alto = mas dificil").defineInRange("qte_caida_por_tick_v2", 0.7, 0.05, 10.0);
-    private static final ForgeConfigSpec.ConfigValue<String> EXT = B.comment("Nombre del quick time guardado (mod QuickTime Events) para el agarre de la bestia. Si existe y el jugador tiene ese mod, reemplaza al quick time propio. Vacio = siempre el propio.").define("qte_externo", "agarre_bestia");
+    private static final ForgeConfigSpec.DoubleValue QTE_TIME = B.comment("Multiplicador del tiempo de los quick time events de la bestia (1.0 = normal, 2.0 = el doble de tiempo)").defineInRange("qte_tiempo", 1.0, 0.3, 4.0);
+    private static final ForgeConfigSpec.IntValue QTE_PRESSES = B.comment("Fase 1 (forzar las mandibulas): pulsaciones necesarias (la fase 2 pide la mitad)").defineInRange("qte_pulsaciones", 26, 4, 120);
+    private static final ForgeConfigSpec.DoubleValue QTE_SECONDS = B.comment("Fase 1: segundos para lograrlo (la fase 2 es proporcional). Si fallas cualquier fase, te traga").defineInRange("qte_segundos", 5.5, 1.0, 30.0);
     private static final ForgeConfigSpec SPEC = B.build();
-    public static String cfgExternalQte() { return EXT.get(); }
-    public static float cfgPress = 8F, cfgDecay = 0.7F;
+    public static double cfgQteTime() { return QTE_TIME.get(); }
+    public static int cfgQtePresses() { return QTE_PRESSES.get(); }
+    public static double cfgQteSeconds() { return QTE_SECONDS.get(); }
 
     private static RegistryObject<SoundEvent> sound(String name, float range) {
         return SOUNDS.register(name, () -> SoundEvent.createFixedRangeEvent(new ResourceLocation(MODID, name), range));
@@ -94,7 +94,6 @@ public class BestiaLago {
         ITEMS.register(bus);
         SOUNDS.register(bus);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SPEC);
-        bus.addListener(BestiaLago::onConfig);
         bus.addListener(BestiaLago::onAnimations);
         bus.addListener(BestiaLago::onAttributes);
         bus.addListener(BestiaLago::onCreativeTab);
@@ -107,14 +106,9 @@ public class BestiaLago {
         });
         MinecraftForge.EVENT_BUS.addListener(BestiaLago::onCommands);
         BestiaNet.init();
+        Qte.init();
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.server.ServerAboutToStartEvent e) -> QteDefs.install());
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.bestialago.client.ClientSetup.init(bus));
-    }
-
-    private static void onConfig(ModConfigEvent e) {
-        if (e.getConfig().getSpec() == SPEC) {
-            cfgPress = PRESS.get().floatValue();
-            cfgDecay = DECAY.get().floatValue();
-        }
     }
 
     private static void onAnimations(AnimationManager.AnimationRegistryEvent event) {

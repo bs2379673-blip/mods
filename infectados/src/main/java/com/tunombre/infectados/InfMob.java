@@ -1,6 +1,10 @@
 package com.tunombre.infectados;
 
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -20,6 +24,7 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,10 +44,9 @@ public abstract class InfMob extends Monster {
     protected int attackCd;
 
     // ---- agarre ----
-    protected float grip;
     protected int grabTicks;
-    /** el agarre usa un quick time del mod QuickTime Events (el cliente lo juega) en vez de la barra propia */
-    private boolean extQte;
+    /** hay una cadena de quick time events (mod QuickTime Events) en curso; el cliente la dibuja y la juega */
+    private boolean qteOn;
     protected boolean releasing;
     protected int qteKind;
     private AnimationManager.AnimationAccessor<StaticAnimation> grabPlayerAnim;
@@ -149,9 +153,10 @@ public abstract class InfMob extends Monster {
     /** kind: 0 aldeano, 1 motosierra */
     protected boolean startGrab(Player p, int kind, AnimationManager.AnimationAccessor<StaticAnimation> myAnim, AnimationManager.AnimationAccessor<StaticAnimation> playerAnim) {
         if (Grabs.recentlyGrabbed(p) || p.isPassenger() || !(p instanceof ServerPlayer sp)) return false;
+        List<String> phases = kind == 1 ? QteDefs.MOTOSIERRA : QteDefs.ALDEANO;
+        if (!Qte.available(sp, phases)) return false;     // sin el mod de quick time en el jugador no hay agarre
         if (!p.startRiding(this, true)) return false;
         Grabs.mark(p);
-        grip = 50F;
         grabTicks = 0;
         releasing = false;
         qteKind = kind;
@@ -160,21 +165,49 @@ public abstract class InfMob extends Monster {
         play(myAnim);
         ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(sp, ServerPlayerPatch.class);
         if (pp != null && playerAnim != null) pp.playAnimationSynchronized(playerAnim, 0.1F);
-        extQte = QteBridge.start(sp, Infectados.cfgExternalQte(kind), ok -> onExternalQte(sp, ok));
+        InfNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new InfNet.Hold(true, kind));
+        qteOn = Qte.start(sp, phases, new Qte.Run() {
+            @Override
+            public void press(int phase, int presses, int required) { onQtePress(sp, phase, presses, required); }
+
+            @Override
+            public void phaseWon(int phase) { onQtePhase(sp, phase); }
+
+            @Override
+            public void end(boolean won, String reason) { onQteEnd(sp, won); }
+        });
+        if (!qteOn) endGrab(p, true);
         return true;
     }
 
-    /** resultado del quick time externo: ganado = se suelta; perdido = el agarre termina mal */
-    private void onExternalQte(ServerPlayer p, boolean won) {
-        if (!extQte || !hasPassenger(p)) return;
-        extQte = false;
-        if (won) endGrab(p, true); else failGrab(p);
+    /** cada pulsacion valida: el infectado se resiente */
+    private void onQtePress(ServerPlayer p, int phase, int presses, int required) {
+        if (!qteOn || !hasPassenger(p) || !(level() instanceof ServerLevel lv)) return;
+        double y = getY() + 1.2;
+        if (qteKind == 1) {
+            lv.sendParticles(ParticleTypes.ELECTRIC_SPARK, p.getX(), p.getY() + 1.3, p.getZ(), 6, 0.2, 0.15, 0.2, 0.25);
+            if (presses % 3 == 0) lv.playSound(null, getX(), y, getZ(), SoundEvents.CHAIN_HIT, SoundSource.HOSTILE, 0.9F, 0.6F + 0.8F * presses / Math.max(1, required));
+        } else {
+            lv.sendParticles(ParticleTypes.CRIT, getX(), y, getZ(), 4, 0.25, 0.25, 0.25, 0.15);
+            if (presses % 3 == 0) lv.playSound(null, getX(), y, getZ(), SoundEvents.ZOMBIE_HURT, SoundSource.HOSTILE, 0.7F, 0.9F + 0.4F * presses / Math.max(1, required));
+        }
     }
 
-    public void struggle(ServerPlayer p) {
-        if (!hasPassenger(p) || extQte) return;
-        grip = Math.min(100F, grip + Infectados.cfgPress(qteKind));
-        if (grip >= 99.5F && grabTicks > 0) endGrab(p, true);
+    /** una fase ganada y quedan mas: la sierra o el agarre aprietan de nuevo */
+    private void onQtePhase(ServerPlayer p, int phase) {
+        if (!qteOn || !hasPassenger(p)) return;
+        level().playSound(null, getX(), getY() + 1.2, getZ(), qteKind == 1 ? SoundEvents.IRON_GOLEM_DAMAGE : SoundEvents.ZOMBIE_ATTACK_IRON_DOOR, SoundSource.HOSTILE, 1F, 0.8F);
+        if (grabPlayerAnim != null) {
+            ServerPlayerPatch pp = EpicFightCapabilities.getEntityPatch(p, ServerPlayerPatch.class);
+            if (pp != null) pp.playAnimationSynchronized(grabPlayerAnim, 0.05F);
+        }
+    }
+
+    /** fin de la cadena: ganada = se suelta; perdida = el agarre termina mal */
+    private void onQteEnd(ServerPlayer p, boolean won) {
+        if (!qteOn || !hasPassenger(p)) return;
+        qteOn = false;
+        if (won) endGrab(p, true); else failGrab(p);
     }
 
     /** llamado cada tick mientras agarra; devuelve true si sigue */
@@ -187,27 +220,19 @@ public abstract class InfMob extends Monster {
             ServerPlayerPatch pp0 = EpicFightCapabilities.getEntityPatch(sp0, ServerPlayerPatch.class);
             if (pp0 != null) pp0.playAnimationSynchronized(grabPlayerAnim, 0.05F);
         }
-        if (extQte) {
-            getNavigation().stop();
-            getLookControl().setLookAt(p, 30, 30);
-            if (grabTicks > 1200 && p instanceof ServerPlayer sx) { extQte = false; QteBridge.stop(sx); failGrab(p); return false; }   // por si el cliente nunca responde
-            return true;
-        }
-        if (grip >= 99.5F) { endGrab(p, true); return false; }   // gano (se mira antes de restar la caida)
-        grip -= Infectados.cfgDecay(qteKind);
         getNavigation().stop();
         getLookControl().setLookAt(p, 30, 30);
-        if (p instanceof ServerPlayer sp) InfNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new InfNet.Qte(Math.round(grip), true, qteKind));
-        if (grip <= 0F) { failGrab(p); return false; }
+        // por si el cliente nunca responde (se colgo, perdio la conexion...): se da por perdido
+        if (qteOn && grabTicks > 1200 && p instanceof ServerPlayer sx) { qteOn = false; Qte.cancel(sx); failGrab(p); return false; }
         return true;
     }
 
     protected abstract void failGrab(Player p);
 
     protected void endGrab(Player p, boolean escaped) {
-        if (extQte && p instanceof ServerPlayer sq) QteBridge.stop(sq);
-        extQte = false;
-        if (p instanceof ServerPlayer sp) InfNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new InfNet.Qte(escaped ? 100 : 0, false, qteKind));   // antes de bajarlo
+        if (p instanceof ServerPlayer sq) Qte.cancel(sq);
+        qteOn = false;
+        if (p instanceof ServerPlayer sp) InfNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new InfNet.Hold(false, qteKind));   // antes de bajarlo
         releasing = true;
         p.stopRiding();
         releasing = false;
@@ -261,13 +286,12 @@ public abstract class InfMob extends Monster {
 
     /** suelta al jugador y limpia el estado (el jugador murio por otra causa, se desconecto...) */
     public void forceRelease(Player p) {
-        if (extQte && p instanceof ServerPlayer sq) QteBridge.stop(sq);
-        extQte = false;
-        if (p instanceof ServerPlayer sp) InfNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new InfNet.Qte(0, false, qteKind));
+        if (p instanceof ServerPlayer sq) Qte.cancel(sq);
+        qteOn = false;
+        if (p instanceof ServerPlayer sp) InfNet.CH.send(PacketDistributor.PLAYER.with(() -> sp), new InfNet.Hold(false, qteKind));
         releasing = true;
         p.stopRiding();
         releasing = false;
-        grip = 50F;
         grabTicks = 0;
         move = null;
         attackCd = 100;

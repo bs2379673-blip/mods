@@ -1,4 +1,4 @@
-INFECTADOS 1.0.0 (Forge 1.20.1, Epic Fight 20.14) - SERVIDOR y CLIENTES
+INFECTADOS 2.0.0 (Forge 1.20.1, Epic Fight 20.14) - SERVIDOR y CLIENTES
 =======================================================================
 Modelos 3D propios (mallas sobre el esqueleto de Epic Fight) con texturas estilo skin, animaciones propias.
 
@@ -6,11 +6,13 @@ RESIDENT EVIL 4 - LAS PLAGAS (solo aparecen en las zonas que crees)
 - Aldeanos (4 variantes): horca, hoz, hacha, y el que va sin arma, que te AGARRA.
   Gritan: ¡Ahi esta! / ¡Un forastero! al verte, avisan a los demas (¡Cogedlo! ¡Agarradlo!), ¡Matalo!, ¡Te voy a hacer
   picadillo!, ¡Detras de ti, imbecil! (si les das la espalda de cerca), ¡Se esta escapando!, ¡Lo tengo!, etc.
-- Agarre: quick time event, spamear la tecla de SALTAR. Si fallas te muerde y te tira. Los demas te pegan mientras.
+- Agarre: dos quick time events seguidos (mod QuickTime Events, OBLIGATORIO en servidor y clientes): sacudirselo con IZQUIERDA/DERECHA
+  y soltarse con un golpe a tiempo. Si fallas te muerde y te tira. Los demas te pegan mientras.
+- Estocada de la horca: un quick time de una tecla (izquierda o derecha) con medio segundo para esquivar.
 - Disparos a la cabeza (balas/flechas a la altura de la cabeza): al 2o tiro o si muere de un tiro en la cabeza, la cabeza
   revienta. 40% de las veces sale la PLAGA guillotina: tajo de 360 grados, ~3.4 bloques de radio, 13 de dano.
 - Dr. Salvador (motosierra): jefe, 300 vida, barra de jefe, motor sonando en bucle, barridos y golpes de arriba abajo.
-  Su agarre: quick time event mas dificil; si fallas TE DECAPITA.
+  Su agarre: tres quick times seguidos (aguantar la sierra, combo de direcciones, empujon a tiempo); si fallas cualquiera TE DECAPITA.
 
 LEFT 4 DEAD
 - Smoker (aparece solo, de noche): te atrapa con la lengua desde hasta 22 bloques y te arrastra. Sin QTE: dispárale
@@ -35,3 +37,7 @@ La motosierra y la Witch no (la Witch se va sola despues de atacar). La Bestia d
 VOCES PROPIAS: infectados_voces_plantilla.zip (resource pack). Lista de archivos y frases en su LEEME.
 Hasta que pongas las tuyas suenan sonidos de Minecraft. Con subtitulos activados se lee la frase.
 Config: config/infectados-common.toml (dificultad de los QTE, probabilidad de plaga, ritmo de las zonas).
+
+QUICK TIME EVENTS: los define el propio mod y los escribe en config/quicktime_server/saved/ (ob_aldeano_*, ob_motosierra_*,
+ob_horca_*) en cada arranque del servidor. Para cambiarles el aspecto: /quicktime editor, abrir uno y "Save on server" (desde ese
+momento el archivo es tuyo y el mod ya no lo pisa; para volver al original, borralo).
