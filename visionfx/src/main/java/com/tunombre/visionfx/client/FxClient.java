@@ -29,7 +29,7 @@ public final class FxClient {
     private static final long T0 = System.nanoTime();
 
     private static RenderTarget swap;
-    private static PostPass fx, blit, ps1Pass, modePass;
+    private static PostPass fx, ps1Pass, modePass;
     private static int w, h;
 
     private FxClient() { }
@@ -103,7 +103,7 @@ public final class FxClient {
             u.safeGetUniform("ShadowCol").set(p.shR, p.shG, p.shB);
             u.safeGetUniform("HighCol").set(p.hiR, p.hiG, p.hiB);
             fx.process(pt);
-            blit.process(pt);
+            copyBack(main);
         }
         if (doPs1) {
             var u = ps1Pass.getEffect();
@@ -115,7 +115,7 @@ public final class FxClient {
             float[] fc = RenderSystem.getShaderFogColor();
             u.safeGetUniform("FogCol").set(fc[0], fc[1], fc[2]);
             ps1Pass.process(pt);
-            blit.process(pt);
+            copyBack(main);
         }
         if (doMode) {
             var u = modePass.getEffect();
@@ -123,7 +123,7 @@ public final class FxClient {
             u.safeGetUniform("Amount").set(Math.min(1F, modeCur));
             u.safeGetUniform("Clock").set(((System.nanoTime() - T0) / 1.0e9F) % 3600F);
             modePass.process(pt);
-            blit.process(pt);
+            copyBack(main);
         }
         main.bindWrite(false);
         RenderSystem.enableDepthTest();
@@ -143,16 +143,33 @@ public final class FxClient {
         ps1Pass.addAuxAsset("DepthSampler", () -> mc.getMainRenderTarget().getDepthTextureId(), w, h);
         modePass = new PostPass(mc.getResourceManager(), "visionfx_modes", main, swap);
         modePass.setOrthoMatrix(ortho);
-        blit = new PostPass(mc.getResourceManager(), "blit", swap, main);
-        blit.setOrthoMatrix(ortho);
+    }
+
+    /**
+     * Copia el resultado de vuelta al buffer principal SIN borrarlo: el pase "blit" de vanilla limpia su destino, y eso borraba el buffer de
+     * profundidad (los mods de niebla que corren despues veian todo lejos y la niebla se dibujaba por encima de bloques y personajes).
+     * Aqui se dibuja solo el color; la profundidad queda intacta.
+     */
+    private static void copyBack(RenderTarget main) {
+        main.bindWrite(false);
+        com.mojang.blaze3d.vertex.PoseStack mv = RenderSystem.getModelViewStack();
+        mv.pushPose();
+        mv.setIdentity();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.backupProjectionMatrix();
+        swap.blitToScreen(main.width, main.height, true);
+        RenderSystem.restoreProjectionMatrix();
+        mv.popPose();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.disableBlend();
+        RenderSystem.disableDepthTest();
     }
 
     private static void free() {
         if (fx != null) fx.close();
-        if (blit != null) blit.close();
         if (ps1Pass != null) ps1Pass.close();
         if (modePass != null) modePass.close();
         if (swap != null) swap.destroyBuffers();
-        fx = null; blit = null; ps1Pass = null; modePass = null; swap = null;
+        fx = null; ps1Pass = null; modePass = null; swap = null;
     }
 }
