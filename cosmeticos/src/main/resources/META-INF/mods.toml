@@ -18,3 +18,9 @@ mandatory=true
 versionRange="[1.20.1,1.21)"
 ordering="NONE"
 side="BOTH"
+[[dependencies.cosmeticos]]
+modId="epicfight"
+mandatory=false
+versionRange="[20.14,)"
+ordering="AFTER"
+side="BOTH"

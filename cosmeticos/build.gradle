@@ -142,6 +142,8 @@ dependencies {
     // The group id is ignored when searching -- in this case, it is "blank"
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
 
+    compileOnly fg.deobf("blank:epicfight-1.20.1:20.14.17")
+
     // Easy NPC: dependencia opcional (solo en tiempo de compilacion) para poder interactuar con sus NPCs.
     // No hace falta en runtime: todo el codigo que la usa esta aislado y solo se llama si el mod esta cargado.
 
