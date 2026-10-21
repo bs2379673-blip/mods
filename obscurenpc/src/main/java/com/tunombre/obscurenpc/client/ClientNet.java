@@ -10,11 +10,12 @@ public final class ClientNet {
     public static void handle(String kind, String json) {
         Minecraft mc = Minecraft.getInstance();
         switch (kind) {
-            case "editor" -> mc.tell(() -> NpcPanel.open(json));
+            case "editor" -> mc.tell(() -> NpcScreen.open(json));
             case "msg" -> {
                 if (mc.player != null) mc.player.displayClientMessage(Component.literal(json), true);
-                NpcPanel.notice(json);
+                NpcScreen.notice(json);
             }
+            case "ctx" -> mc.tell(() -> NpcScreen.onCtx(json));
             default -> { }
         }
     }

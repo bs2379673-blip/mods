@@ -53,6 +53,7 @@ public final class Editor {
         o.addProperty("motor", a.isEf() ? "ef" : "normal");
         o.add("data", JsonParser.parseString(a.data().toJson()));
         o.add("cat", catalog());
+        addCtx(o, a.data().key());
         o.addProperty("vida_actual", a.getHealth());
         Net.toClient(p, "editor", o.toString());
     }
@@ -73,7 +74,37 @@ public final class Editor {
         o.addProperty("rango", be.rango);
         o.add("data", JsonParser.parseString(be.template.toJson()));
         o.add("cat", catalog());
+        addCtx(o, be.template.key());
         Net.toClient(p, "editor", o.toString());
+    }
+
+    private static void addCtx(JsonObject o, String key) {
+        o.addProperty("ctx_key", Ctx.safe(key));
+        o.addProperty("ctx_npc", Ctx.read(key, false));
+        o.addProperty("ctx_mundo", Ctx.read(key, true));
+    }
+
+    private static final java.util.Map<UUID, StringBuilder> CTX_BUF = new java.util.HashMap<>();
+
+    private static void ctxOp(ServerPlayer p, String op, JsonObject o, Actor a, SpawnerEntity be) {
+        String key = a != null ? a.data().key() : be.template.key();
+        if (op.equals("ctx_get")) {
+            JsonObject r = new JsonObject();
+            r.addProperty("key", Ctx.safe(key));
+            r.addProperty("npc", Ctx.read(key, false));
+            Net.toClient(p, "ctx", r.toString());
+            return;
+        }
+        int i = o.has("i") ? o.get("i").getAsInt() : 0, n = o.has("n") ? o.get("n").getAsInt() : 1;
+        if (i == 0) CTX_BUF.put(p.getUUID(), new StringBuilder());
+        StringBuilder sb = CTX_BUF.get(p.getUUID());
+        if (sb == null) return;
+        if (sb.length() < Ctx.MAX_CHARS + 10000) sb.append(str(o, "texto"));
+        if (i >= n - 1) {
+            CTX_BUF.remove(p.getUUID());
+            boolean shared = str(o, "dest").equals("mundo");
+            msg(p, Ctx.write(key, shared, sb.toString()));
+        }
     }
 
     private static void msg(ServerPlayer p, String s) { Net.toClient(p, "msg", s); }
@@ -101,7 +132,14 @@ public final class Editor {
         if (a == null && be == null && !op.equals("recargar")) { msg(p, "No encuentro ese NPC (¿se alejó o murió?)"); return; }
         switch (op) {
             case "set" -> set(p, a, be, str(o, "k"), o.get("v").getAsString());
-            case "recargar" -> { Dialogs.reload(); msg(p, "Diálogos, conocimiento y rutinas recargados"); }
+            case "ctx_get", "ctx_save" -> ctxOp(p, op, o, a, be);
+            case "preguntar" -> {
+                if (a != null) {
+                    Brain.Reply r = Brain.reply(a, p, null, str(o, "texto"));
+                    a.speak((r.gesture() != null ? "[gesto:" + r.gesture() + "]" : "") + r.text(), p, true);
+                }
+            }
+            case "recargar" -> { Dialogs.reload(); msg(p, "Diálogos, contexto y rutinas recargados"); }
             case "equipo" -> equipo(p, a, be, str(o, "que"));
             case "vaciar_equipo" -> {
                 NpcData d = a != null ? a.data() : be.template;

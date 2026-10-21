@@ -20,7 +20,7 @@ HABLAR
 
 ARCHIVOS (config/obscurenpc/)
 - dialogos/<id>.json     diálogos con nodos y opciones (ver ejemplo.json). Recarga: /onpc recargar
-- conocimiento/<id>.json base de conocimiento de la IA (temas con claves y respuestas). _mundo.json lo comparten todos.
+- contexto/<clave>.txt     texto libre con todo lo que el NPC sabe y cómo habla (se edita en la pestaña "IA / Contexto"); contexto/_mundo.txt lo comparten todos
 - rutinas/<id>.json      objetivos/rutinas del NPC (ir, esperar, decir, gestos, comandos...). Sirve para actores de escenas.
 - estado.json            banderas globales (las usan los diálogos con "g:bandera").
 
@@ -40,3 +40,13 @@ TACZ: ponle un arma de TACZ en la mano (Editor > Copiar mi mano) y ataca con ell
 Gestos: talk_a..e, point, wave, think, salute, shrug, nod, shake_head, look_around, facepalm, beckon, stop; posturas fijas:
 cross_arms, hands_back, hands_hip, think_pose, guard. También sirve cualquier animación de Epic Fight (comer, beber, cavar,
 sentarse...) o de otro mod escribiendo "espacio:ruta" (p. ej. las de EpicFight-Dancing).
+
+CONTEXTO DE LA IA (pestaña "IA / Contexto" del editor)
+- Pega todo lo que el NPC debe saber y cómo habla, en texto normal. Cada frase es un dato; responde con la que más se parece a la pregunta.
+- Escribe en segunda persona ("Eres una científica...", "Tienes miedo de...") y él lo dirá en primera ("Soy...", "Tengo...").
+- "# Título" agrupa datos. "# Título (si afinidad>=4)" solo se usan si se cumple la condición (igual que los diálogos).
+- Líneas especiales: Personalidad: / Saludo: / Despedida: / Gracias: / Insulto: / No entiendo: / Muletillas: (varias con |).
+- Pares exactos: "P: pregunta" y "R: respuesta".
+- Frases tipo "Nunca reveles..." se toman como estilo, no como dato. Líneas con // al inicio se ignoran.
+- "Compartido (todos)" edita contexto/_mundo.txt, que se suma al de cada NPC.
+- Se guarda en config/obscurenpc/contexto/<clave>.txt (la clave es el campo "Clave interna" o el nombre).

@@ -170,7 +170,7 @@ public class ObscureNpc {
     private static void installDefaults() {
         try {
             Path base = State.dir();
-            for (String f : new String[]{"dialogos/ejemplo.json", "conocimiento/ejemplo.json", "conocimiento/_mundo.json", "rutinas/ejemplo.json", "LEEME.txt"}) {
+            for (String f : new String[]{"dialogos/ejemplo.json", "contexto/ejemplo.txt", "rutinas/ejemplo.json", "LEEME.txt"}) {
                 Path dst = base.resolve(f);
                 if (Files.exists(dst)) continue;
                 Files.createDirectories(dst.getParent());

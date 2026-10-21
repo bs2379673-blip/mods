@@ -29,9 +29,3 @@ versionRange="[20.14,)"
 ordering="AFTER"
 side="BOTH"
 
-[[dependencies.obscurenpc]]
-modId="cotiiui"
-mandatory=true
-versionRange="[1.0.8,)"
-ordering="AFTER"
-side="CLIENT"

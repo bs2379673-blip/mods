@@ -144,7 +144,6 @@ dependencies {
 
     implementation fg.deobf("blank:epicfight-1.20.1:20.14.17")
     compileOnly "org.spongepowered:mixin:0.8.5"
-    compileOnly fg.deobf("blank:cotiiui:1.0.8")
 
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

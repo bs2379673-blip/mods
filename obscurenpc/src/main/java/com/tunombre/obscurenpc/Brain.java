@@ -41,7 +41,7 @@ public final class Brain {
 
     private Brain() { }
 
-    public static void reload() { CACHE.clear(); }
+    public static void reload() { CACHE.clear(); Ctx.reload(); }
 
     public static List<String> fileIds() {
         List<String> l = new ArrayList<>();
@@ -167,7 +167,27 @@ public final class Brain {
         }
         String lastTopic = npc.mem(who).getString("ultimo_tema");
         boolean followUp = isFollowUp(toks);
+
+        Ctx.Data ctx = Ctx.get(d.key());
+        String intent = intent(text, toks);
+        String ultima = npc.mem(who).getString("ultima");
+
+        // 2) charla social (hola, gracias, adios, insultos): lineas propias del contexto o del conocimiento
+        if (intent != null && (intent.equals("saludos") || intent.equals("despedidas") || intent.equals("gracias") || intent.equals("insultos"))) {
+            String custom = Ctx.line(ctx, intent, ultima);
+            for (JsonObject s : srcs) { if (custom != null) break; custom = pick(arr(s, intent), ultima); }
+            if (intent.equals("gracias")) npc.addCounter(who, "afinidad", 1);
+            if (intent.equals("insultos")) npc.addCounter(who, "afinidad", -2);
+            String line = custom != null ? custom : builtin(npc, intent, who, ctx);
+            npc.mem(who).putString("ultima", line);
+            return new Reply(line, null);
+        }
+
+        // 3) contexto en texto libre (lo que se pega en el editor)
+        Reply fromCtx = Ctx.answer(ctx, npc, speaker, who, text, followUp, intent);
+        if (fromCtx != null) return fromCtx;
         if (best != null && bs >= 2.0) return answerTopic(npc, speaker, who, best);
+
         if (followUp && !lastTopic.isEmpty()) {
             for (JsonObject s : srcs) for (JsonElement e : arr(s, "temas")) {
                 JsonObject t = e.getAsJsonObject();
@@ -175,22 +195,19 @@ public final class Brain {
             }
         }
 
-        // 2) intenciones basicas (con la personalidad del NPC)
-        String intent = intent(text, toks);
+        // 4) intenciones basicas (con la personalidad del NPC)
         if (intent != null) {
             String custom = null;
-            for (JsonObject s : srcs) { custom = pick(arr(s, intent), npc.mem(who).getString("ultima")); if (custom != null) break; }
-            if (intent.equals("gracias")) npc.addCounter(who, "afinidad", 1);
-            if (intent.equals("insultos")) npc.addCounter(who, "afinidad", -2);
-            String line = custom != null ? custom : builtin(npc, intent, who);
+            for (JsonObject s : srcs) { custom = pick(arr(s, intent), ultima); if (custom != null) break; }
+            String line = custom != null ? custom : builtin(npc, intent, who, ctx);
             npc.mem(who).putString("ultima", line);
             return new Reply(line, null);
         }
 
-        // 3) nada claro: respuestas de "no entiendo" del NPC
-        String none = null;
-        for (JsonObject s : srcs) { none = pick(arr(s, "no_entiendo"), npc.mem(who).getString("ultima")); if (none != null) break; }
-        if (none == null) none = pick(personalityLines(d.personalidad, "no_entiendo"));
+        // 5) nada claro: respuestas de "no entiendo" del NPC
+        String none = Ctx.line(ctx, "no_entiendo", ultima);
+        for (JsonObject s : srcs) { if (none != null) break; none = pick(arr(s, "no_entiendo"), ultima); }
+        if (none == null) none = pick(personalityLines(Ctx.personality(ctx, npc), "no_entiendo"));
         npc.mem(who).putString("ultima", none);
         return new Reply(none, null);
     }
@@ -299,9 +316,9 @@ public final class Brain {
         }
     }
 
-    private static String builtin(Actor npc, String intent, UUID who) {
+    private static String builtin(Actor npc, String intent, UUID who, Ctx.Data ctx) {
         NpcData d = npc.data();
-        String per = d.personalidad;
+        String per = Ctx.personality(ctx, npc);
         String last = npc.mem(who).getString("ultima");
         switch (intent) {
             case "saludos": case "despedidas": case "gracias": case "insultos":
@@ -328,7 +345,7 @@ public final class Brain {
             case "consejo":
                 return "Mantente con vida y no te separes del grupo. Lo demás ya se verá.";
             case "miedo":
-                return d.personalidad.equals("burlona") ? "¿Miedo yo? Bueno... un poquito." : "Todos lo tenemos. Lo importante es seguir.";
+                return per.equals("burlona") ? "¿Miedo yo? Bueno... un poquito." : "Todos lo tenemos. Lo importante es seguir.";
             default:
                 return "...";
         }
@@ -342,9 +359,13 @@ public final class Brain {
             String g = pick(arr(s, "saludos"), npc.mem(who).getString("ultima"));
             if (g != null) return g;
         }
-        String[] l = personalityLines(d.personalidad, "saludos");
+        Ctx.Data ctx = Ctx.get(d.key());
+        String own = Ctx.line(ctx, "saludos", npc.mem(who).getString("ultima"));
+        if (own != null) return own;
+        String per = Ctx.personality(ctx, npc);
+        String[] l = personalityLines(per, "saludos");
         String line = pick(l);
-        if (visits >= 3 && !d.personalidad.equals("fria")) line = line + " Ya van " + visits + " veces que hablamos.";
+        if (visits >= 3 && !per.equals("fria")) line = line + " Ya van " + visits + " veces que hablamos.";
         return line;
     }
 

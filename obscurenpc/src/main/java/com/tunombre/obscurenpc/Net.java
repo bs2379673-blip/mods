@@ -27,9 +27,9 @@ public final class Net {
     }
 
     public record ToClient(String kind, String json) {
-        void write(FriendlyByteBuf b) { b.writeUtf(kind, 64); b.writeUtf(json, 32000); }
+        void write(FriendlyByteBuf b) { b.writeUtf(kind, 64); b.writeUtf(json, 900000); }
 
-        static ToClient read(FriendlyByteBuf b) { return new ToClient(b.readUtf(64), b.readUtf(32000)); }
+        static ToClient read(FriendlyByteBuf b) { return new ToClient(b.readUtf(64), b.readUtf(900000)); }
 
         void handle(Supplier<NetworkEvent.Context> c) {
             c.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.obscurenpc.client.ClientNet.handle(kind, json)));
