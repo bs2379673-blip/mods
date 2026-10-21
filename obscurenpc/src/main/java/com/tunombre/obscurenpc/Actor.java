@@ -297,8 +297,8 @@ public class Actor extends PathfinderMob {
 
     @Override
     public void tick() {
+        super.tick();
         if (forceSleep) setPose(Pose.SLEEPING);
-        if (level().isClientSide) return;
         if (level().isClientSide) return;
         if (tickCount % 20 == 0 && d.regeneracion > 0 && getHealth() < getMaxHealth()) heal((float) d.regeneracion);
         if (bubbleLeft > 0 && --bubbleLeft == 0) entityData.set(BUBBLE, "");
