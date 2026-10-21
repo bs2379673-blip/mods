@@ -1,0 +1,94 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:look_around]Shh... te estaba esperando. [pone:conocido]",
+    "Me llamo Alba. Aunque ya no recuerdo quién me puso el nombre."
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:think_pose]¿Qué quieres saber?"
+   ],
+   "opciones": [
+    {
+     "texto": "¿Quién eres?",
+     "ir": "quien"
+    },
+    {
+     "texto": "¿Qué es la flor?",
+     "ir": "flor"
+    },
+    {
+     "texto": "¿Qué fuiste antes?",
+     "ir": "antes",
+     "si": [
+      "afinidad>=3"
+     ]
+    },
+    {
+     "texto": "¿Qué ves en mí?",
+     "ir": "hilo",
+     "si": [
+      "afinidad>=5"
+     ]
+    },
+    {
+     "texto": "Adiós.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "quien": {
+   "decir": [
+    "...Una niña. O una flor. O una voz. Depende de a quién preguntes."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "flor": {
+   "decir": [
+    "La flor no es mala. Solo tiene hambre.",
+    "Se alimenta de lo que más quieres. Y te lo devuelve cambiado."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "antes": {
+   "decir": [
+    "Era una niña de la isla. Mi madre me llevó a ver las flores un día de verano.",
+    "Toqué una. Y la flor me tocó a mí."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "hilo": {
+   "decir": [
+    "[gesto:point]Veo un hilo dorado que sale de ti. Muy fino. Está atado a algo que te espera.",
+    "Cuando mueres, se tensa. Y te devuelve."
+   ],
+   "afinidad": 1,
+   "pone": [
+    "alba_hilo"
+   ],
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:wave]No te vayas muy lejos."
+   ]
+  }
+ }
+}

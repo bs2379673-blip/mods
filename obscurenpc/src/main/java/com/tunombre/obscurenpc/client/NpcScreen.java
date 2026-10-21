@@ -665,6 +665,11 @@ public final class NpcScreen extends Screen {
             data.addProperty("postura", st.indexOf(v));
             sendSet("postura", String.valueOf(st.indexOf(v)));
         }, true);
+        header("ÓRDENES POR CHAT");
+        tog("acepta_ordenes", "Obedece órdenes (sígueme, quédate, protégeme, defiende esto)", false);
+        text("ordenes_si", "Condición para obedecer (vacía = siempre; ej. afinidad>=3, g:bandera)", false);
+        sld("zona_radio", "Radio al defender una zona", " bl", 4, 40, 1, 14, true);
+        note("Requiere además que 'ordenes_por_chat' esté en true en config/obscurenpc-common.toml.");
         btn("Fijar giro hacia donde miro", 0xFFE59A1F, true, () -> act("fijar_giro"));
         tog("fijar_giro", "Cuerpo con ángulo fijo", true);
         header("COMBATE Y DEFENSA");
@@ -687,12 +692,23 @@ public final class NpcScreen extends Screen {
     }
 
     private void tabEquipment() {
-        header("EQUIPO");
-        btn("Copiar lo que tengo en la mano", 0xFFB45BE0, true, () -> equip("mano"));
-        btn("Copiar mi mano izquierda", 0xFFB45BE0, true, () -> equip("mano2"));
-        btn("Copiar mi armadura", 0xFFB45BE0, true, () -> equip("armadura"));
-        btn("Vaciar equipo", 0xFFD42A3A, true, () -> act("vaciar_equipo"));
+        header("EQUIPO POR RANURA (sostén el objeto y pulsa)");
+        String[][] sl = {{"cabeza", "Casco"}, {"pecho", "Peto"}, {"piernas", "Pantalón"}, {"pies", "Botas"}, {"mano", "Mano derecha"}, {"mano2", "Mano izquierda"}};
+        for (String[] s : sl) {
+            btn(s[1] + " ← lo que sostengo", 0xFFB45BE0, true, () -> slot(s[0], "mano"));
+            btn(s[1] + ": quitar", 0xFFD42A3A, true, () -> slot(s[0], "nada"));
+        }
+        header("ATAJOS");
+        btn("Copiar mi armadura puesta", 0xFFB45BE0, true, () -> equip("armadura"));
+        btn("Vaciar todo el equipo", 0xFFD42A3A, true, () -> act("vaciar_equipo"));
         tog("suelta_equipo", "Suelta el equipo al morir", false);
+        header("DROPS AL MORIR");
+        btn("Añadir lo que sostengo", 0xFF2EBB55, true, () -> act("drop_mano"));
+        btn("Borrar todos los drops", 0xFFD42A3A, true, () -> act("drops_vaciar"));
+        note("Separa los drops con ;  Formato: objeto | probabilidad % | cantidad (o mín-máx).  Ej:  minecraft:golden_apple | 25 | 1-2 ; minecraft:bone | 80 | 1-3");
+        textRaw("Lista de drops", () -> gs("drops_txt"), v -> setS("drops_txt", v), false, false);
+        tog("drops_solo_jugador", "Solo suelta si lo mata un jugador", true);
+        num("xp", "Experiencia al morir", true, true);
         header("ARMAS (TACZ)");
         boolean tacz = cat.has("tacz") && cat.get("tacz").getAsBoolean();
         note(tacz ? "TACZ detectado: copia un arma de TACZ en la mano y el NPC la usará para disparar." : "TACZ no está instalado: las armas de TACZ no dispararán.");
@@ -700,6 +716,14 @@ public final class NpcScreen extends Screen {
         sld("arma_cadencia", "Ticks entre disparos", "", 2, 40, 1, 6, true);
         sld("arma_dispersion", "Error de puntería", "°", 0, 10, 0.5, 2, false);
         tog("arma_infinita", "Munición infinita", false);
+    }
+
+    private void slot(String slot, String modo) {
+        JsonObject o = new JsonObject();
+        o.addProperty("op", "slot");
+        o.addProperty("slot", slot);
+        o.addProperty("modo", modo);
+        send(o);
     }
 
     private void equip(String que) {

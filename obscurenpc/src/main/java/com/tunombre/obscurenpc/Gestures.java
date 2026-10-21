@@ -12,7 +12,7 @@ import java.util.Map;
 public final class Gestures {
     /** gestos de un solo golpe (terminan en reposo) */
     public static final String[] ONESHOT = {"talk_a", "talk_b", "talk_c", "talk_d", "talk_e", "point", "wave", "think", "salute", "shrug",
-            "nod", "shake_head", "look_around", "facepalm", "beckon", "stop"};
+            "nod", "shake_head", "look_around", "facepalm", "beckon", "stop", "scan", "plead", "nervous", "grieve", "defiant", "command", "listen"};
     /** posturas que se mantienen (bucle) */
     public static final String[] LOOPS = {"cross_arms", "hands_back", "hands_hip", "think_pose", "guard"};
 

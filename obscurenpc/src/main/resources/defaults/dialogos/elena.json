@@ -1,0 +1,92 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:wave]Oh... no te esperaba. Disculpa el desorden.",
+    "Soy la doctora Elena Vargas. Investigo la Mortifilia, la flor de la isla. [pone:conocido]"
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:talk_b]¿En qué puedo ayudarte, {jugador}?"
+   ],
+   "opciones": [
+    {
+     "texto": "¿Qué es la Mortifilia?",
+     "ir": "flor"
+    },
+    {
+     "texto": "¿Qué hacen los infectados?",
+     "ir": "infectados"
+    },
+    {
+     "texto": "¿Puedo ayudarte en algo?",
+     "ir": "ayuda"
+    },
+    {
+     "texto": "¿Qué ocultas?",
+     "ir": "oculta",
+     "si": [
+      "afinidad>=3"
+     ]
+    },
+    {
+     "texto": "Hasta luego.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "flor": {
+   "decir": [
+    "[gesto:think]Es una planta de regeneración casi infinita. Cura... y consume.",
+    "Tiene cuatro variantes conocidas. Cada color, un efecto distinto.",
+    "[gesto:shake_head]Lo que me asusta es que no sabemos por qué a unos los cura y a otros los destruye."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "infectados": {
+   "decir": [
+    "[gesto:talk_c]Son personas en las que la flor ganó la partida. El cuerpo sigue vivo, pero la mente se apagó.",
+    "Cada día son más fuertes. Como si la cepa aprendiera."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "ayuda": {
+   "decir": [
+    "[gesto:nod]Sí... necesito muestras de flor intacta. Tráeme una en un frasco, sin tocarla con la piel.",
+    "Te lo agradeceré. Y quizá te cuente más. [pone:muestra_pedida]"
+   ],
+   "ir": "inicio"
+  },
+  "oculta": {
+   "decir": [
+    "[gesto:look_around]Hay cosas que prefiero no decir en voz alta.",
+    "El proyecto era del gobierno. Querían crear soldados que no murieran. Y salió... muy mal."
+   ],
+   "afinidad": 1,
+   "pone": [
+    "sabe_proyecto"
+   ],
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:salute]Cuídate, {jugador}. No toques ninguna flor."
+   ]
+  }
+ }
+}

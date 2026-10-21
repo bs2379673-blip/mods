@@ -1,0 +1,82 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:wave]¡Ey! Una cara nueva. Qué detalle. [pone:conocido]",
+    "Me llamo Dante. Este es mi palacio. Pasa, si puedes."
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:talk_e]¿Quieres hablar, o solo me miras?"
+   ],
+   "opciones": [
+    {
+     "texto": "¿Qué te hicieron?",
+     "ir": "hicieron"
+    },
+    {
+     "texto": "¿Había más presos?",
+     "ir": "otros",
+     "si": [
+      "afinidad>=2"
+     ]
+    },
+    {
+     "texto": "¿Sabes por qué estoy aquí?",
+     "ir": "porque",
+     "si": [
+      "afinidad>=4"
+     ]
+    },
+    {
+     "texto": "Adiós.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "hicieron": {
+   "decir": [
+    "[gesto:look_around]Una inyección en el cuello mientras dormía. Desperté sano, lúcido... y con algo moviéndose dentro.",
+    "Cada vez que me hacen daño, vuelvo a estar bien. Y eso me da miedo."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "otros": {
+   "decir": [
+    "[gesto:point]Sí. Los llevaron en helicóptero. No volví a verlos. A veces oigo sus pasos de noche."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "porque": {
+   "decir": [
+    "[gesto:think]Porque eres parte de algo. Una prueba, un experimento... lo que quieras llamar.",
+    "No me creas. Todos dicen que estoy loco. Pero el único que lo recuerda soy yo."
+   ],
+   "afinidad": 1,
+   "pone": [
+    "dante_porque"
+   ],
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:wave]Adiós. Nos veremos más de lo que crees."
+   ]
+  }
+ }
+}

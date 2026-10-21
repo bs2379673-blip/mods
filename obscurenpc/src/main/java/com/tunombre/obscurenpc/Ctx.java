@@ -279,6 +279,13 @@ public final class Ctx {
             case "gracias", "agradecimiento" -> { addLines(d, "gracias", val); return true; }
             case "insulto", "insultos", "si te insultan" -> { addLines(d, "insultos", val); return true; }
             case "no entiendo", "desconocido", "no se", "no sabe", "si no sabes" -> { addLines(d, "no_entiendo", val); return true; }
+            case "obedece", "acepta seguir", "sigue", "al seguir" -> { addLines(d, "o_seguir", val); return true; }
+            case "espera", "se queda", "al quedarse" -> { addLines(d, "o_quieto", val); return true; }
+            case "protege", "al proteger" -> { addLines(d, "o_proteger", val); return true; }
+            case "guardia", "zona", "al defender" -> { addLines(d, "o_zona", val); return true; }
+            case "libre", "al soltarlo" -> { addLines(d, "o_libre", val); return true; }
+            case "rechaza", "no obedece", "rechazo" -> { addLines(d, "o_rechazo", val); addLines(d, "o_condicion", val); return true; }
+            case "chiste", "chistes" -> { addLines(d, "chistes", val); return true; }
             case "muletilla", "muletillas", "frase tipica", "frases tipicas", "coletilla" -> { addLines(d, "muletillas", val); return true; }
             case "p", "pregunta", "pregunta frecuente", "r", "respuesta" -> { return true; }
             case "nombre" -> { return true; }

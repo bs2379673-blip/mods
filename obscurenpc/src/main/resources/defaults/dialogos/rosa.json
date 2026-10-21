@@ -1,0 +1,81 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:wave]¡Mi niño! Ven, siéntate. [pone:conocido]",
+    "Soy Rosa, la cocinera. ¿Cuándo comiste por última vez?"
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:talk_b]¿Qué necesitas, {jugador}?"
+   ],
+   "opciones": [
+    {
+     "texto": "Tengo hambre.",
+     "ir": "comer",
+     "si": [
+      "!comida_rosa"
+     ]
+    },
+    {
+     "texto": "¿Cómo está la gente?",
+     "ir": "gente"
+    },
+    {
+     "texto": "¿Necesitas algo?",
+     "ir": "ayuda"
+    },
+    {
+     "texto": "Hasta luego.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "comer": {
+   "decir": [
+    "[gesto:beckon]Toma, mi niño. Come despacio."
+   ],
+   "dar": [
+    "minecraft:cooked_beef 2",
+    "minecraft:bread 2"
+   ],
+   "pone": [
+    "comida_rosa"
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "gente": {
+   "decir": [
+    "[gesto:shake_head]Asustada. Cansada. Pero seguimos.",
+    "Mientras haya comida caliente, hay esperanza."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "ayuda": {
+   "decir": [
+    "[gesto:talk_c]Pan, carne, verduras, sal, lo que encuentres. Y si ves a un soldado joven con una cicatriz en la ceja, dile que su madre lo espera."
+   ],
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:wave]Cuídate mucho, mi niño."
+   ]
+  }
+ }
+}

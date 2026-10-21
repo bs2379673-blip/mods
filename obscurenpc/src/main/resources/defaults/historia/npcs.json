@@ -1,0 +1,527 @@
+[
+ {
+  "motor": "ef",
+  "data": {
+   "id": "elena",
+   "nombre": "Dra. Elena Vargas",
+   "color_nombre": "7FE0C8",
+   "personalidad": "amable",
+   "dialogo": "elena",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 8,
+   "quieto": true,
+   "acepta_ordenes": true,
+   "zona_radio": 14,
+   "saludo_auto": true,
+   "gestos": "talk_a,talk_b,talk_c,think,nod",
+   "eq_cabeza": "",
+   "eq_pecho": "{id:\"minecraft:leather_chestplate\",Count:1b}",
+   "vida": 20,
+   "ordenes_si": "afinidad>=2",
+   "charla_npc": true,
+   "saludo_rango": 5
+  }
+ },
+ {
+  "motor": "ef",
+  "data": {
+   "id": "ibarra",
+   "nombre": "Sgto. Ibarra",
+   "color_nombre": "9CC77A",
+   "personalidad": "seria",
+   "dialogo": "ibarra",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 8,
+   "quieto": true,
+   "acepta_ordenes": true,
+   "zona_radio": 18,
+   "saludo_auto": false,
+   "gestos": "talk_a,talk_b,talk_d,point,nod",
+   "postura": 8,
+   "eq_cabeza": "{id:\"minecraft:iron_helmet\",Count:1b}",
+   "eq_pecho": "{id:\"minecraft:iron_chestplate\",Count:1b}",
+   "eq_piernas": "{id:\"minecraft:iron_leggings\",Count:1b}",
+   "eq_pies": "{id:\"minecraft:iron_boots\",Count:1b}",
+   "eq_mano": "{id:\"minecraft:iron_sword\",Count:1b}",
+   "vida": 40,
+   "dano": 6,
+   "armadura": 4,
+   "hostil": "mobs",
+   "rango_vision": 28,
+   "represalia": true,
+   "ordenes_si": "afinidad>=2",
+   "faccion": "puesto",
+   "drops": [
+    {
+     "item": "minecraft:iron_ingot",
+     "prob": 60,
+     "min": 1,
+     "max": 3
+    },
+    {
+     "item": "minecraft:bread",
+     "prob": 80,
+     "min": 1,
+     "max": 3
+    }
+   ],
+   "xp": 20
+  }
+ },
+ {
+  "motor": "ef",
+  "data": {
+   "id": "tomas",
+   "nombre": "Tomás",
+   "color_nombre": "F2C94C",
+   "personalidad": "amable",
+   "dialogo": "tomas",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 8,
+   "quieto": true,
+   "acepta_ordenes": true,
+   "zona_radio": 14,
+   "saludo_auto": true,
+   "gestos": "talk_a,talk_c,talk_e,wave,shrug",
+   "eq_pecho": "{id:\"minecraft:leather_chestplate\",Count:1b}",
+   "vida": 20,
+   "ordenes_si": "afinidad>=2",
+   "charla_npc": true,
+   "saludo_rango": 6
+  }
+ },
+ {
+  "motor": "ef",
+  "data": {
+   "id": "anselmo",
+   "nombre": "Don Anselmo",
+   "color_nombre": "C9A66B",
+   "personalidad": "burlona",
+   "dialogo": "anselmo",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 8,
+   "quieto": false,
+   "acepta_ordenes": true,
+   "zona_radio": 14,
+   "saludo_auto": false,
+   "gestos": "talk_a,talk_b,talk_d,shrug,point",
+   "eq_pecho": "{id:\"minecraft:leather_chestplate\",Count:1b}",
+   "eq_mano": "{id:\"minecraft:stick\",Count:1b}",
+   "vida": 24,
+   "ordenes_si": "afinidad>=3",
+   "charla_npc": true,
+   "vagar": true,
+   "vagar_radio": 4,
+   "drops": [
+    {
+     "item": "minecraft:map",
+     "prob": 40,
+     "min": 1,
+     "max": 1
+    },
+    {
+     "item": "minecraft:cod",
+     "prob": 70,
+     "min": 1,
+     "max": 3
+    }
+   ]
+  }
+ },
+ {
+  "motor": "ef",
+  "data": {
+   "id": "lia",
+   "nombre": "Lía Montenegro",
+   "color_nombre": "E58A3A",
+   "personalidad": "burlona",
+   "dialogo": "lia",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 8,
+   "quieto": true,
+   "acepta_ordenes": true,
+   "zona_radio": 14,
+   "saludo_auto": false,
+   "gestos": "talk_b,talk_d,point,facepalm,shrug",
+   "eq_pecho": "{id:\"minecraft:leather_chestplate\",Count:1b}",
+   "eq_mano": "{id:\"minecraft:iron_pickaxe\",Count:1b}",
+   "vida": 26,
+   "dano": 4,
+   "ordenes_si": "afinidad>=2",
+   "charla_npc": true,
+   "hostil": "mobs",
+   "drops": [
+    {
+     "item": "minecraft:iron_ingot",
+     "prob": 70,
+     "min": 1,
+     "max": 4
+    },
+    {
+     "item": "minecraft:redstone",
+     "prob": 50,
+     "min": 1,
+     "max": 4
+    }
+   ]
+  }
+ },
+ {
+  "motor": "ef",
+  "data": {
+   "id": "reyes",
+   "nombre": "Coronel Reyes",
+   "color_nombre": "C73B3B",
+   "personalidad": "fria",
+   "dialogo": "reyes",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 10,
+   "quieto": true,
+   "acepta_ordenes": false,
+   "zona_radio": 14,
+   "saludo_auto": false,
+   "gestos": "talk_a,talk_b,hands_back,cross_arms",
+   "postura": 5,
+   "eq_cabeza": "{id:\"minecraft:iron_helmet\",Count:1b}",
+   "eq_pecho": "{id:\"minecraft:netherite_chestplate\",Count:1b}",
+   "eq_piernas": "{id:\"minecraft:iron_leggings\",Count:1b}",
+   "eq_pies": "{id:\"minecraft:iron_boots\",Count:1b}",
+   "vida": 60,
+   "dano": 8,
+   "armadura": 8,
+   "empuje_res": 0.6,
+   "faccion": "mando",
+   "hostil": "ninguno",
+   "drops_solo_jugador": true,
+   "xp": 60,
+   "drops": [
+    {
+     "item": "minecraft:netherite_scrap",
+     "prob": 15,
+     "min": 1,
+     "max": 1
+    },
+    {
+     "item": "minecraft:gold_ingot",
+     "prob": 80,
+     "min": 2,
+     "max": 5
+    },
+    {
+     "item": "minecraft:diamond",
+     "prob": 30,
+     "min": 1,
+     "max": 2
+    }
+   ]
+  }
+ },
+ {
+  "motor": "ef",
+  "data": {
+   "id": "silas",
+   "nombre": "Silas",
+   "color_nombre": "8C6BD1",
+   "personalidad": "burlona",
+   "dialogo": "silas",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 8,
+   "quieto": true,
+   "acepta_ordenes": true,
+   "zona_radio": 14,
+   "saludo_auto": true,
+   "gestos": "talk_a,talk_c,point,shrug,wave",
+   "eq_pecho": "{id:\"minecraft:leather_chestplate\",Count:1b}",
+   "vida": 18,
+   "ordenes_si": "afinidad>=3",
+   "charla_npc": true,
+   "saludo_rango": 5,
+   "drops": [
+    {
+     "item": "minecraft:emerald",
+     "prob": 70,
+     "min": 1,
+     "max": 4
+    },
+    {
+     "item": "minecraft:gold_nugget",
+     "prob": 70,
+     "min": 2,
+     "max": 8
+    }
+   ]
+  }
+ },
+ {
+  "motor": "ef",
+  "data": {
+   "id": "mika",
+   "nombre": "Mika",
+   "color_nombre": "FF7AC6",
+   "personalidad": "amable",
+   "dialogo": "mika",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 8,
+   "quieto": true,
+   "acepta_ordenes": true,
+   "zona_radio": 14,
+   "saludo_auto": true,
+   "gestos": "talk_a,talk_c,talk_e,wave,point",
+   "eq_pecho": "{id:\"minecraft:leather_chestplate\",Count:1b}",
+   "vida": 20,
+   "ordenes_si": "afinidad>=2",
+   "charla_npc": true,
+   "saludo_rango": 6,
+   "brazos_finos": true
+  }
+ },
+ {
+  "motor": "ef",
+  "data": {
+   "id": "nico",
+   "nombre": "Dr. Nico",
+   "color_nombre": "62C58F",
+   "personalidad": "amable",
+   "dialogo": "nico",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 8,
+   "quieto": true,
+   "acepta_ordenes": true,
+   "zona_radio": 14,
+   "saludo_auto": true,
+   "gestos": "talk_a,talk_b,nod,think,shake_head",
+   "eq_pecho": "{id:\"minecraft:leather_chestplate\",Count:1b}",
+   "vida": 22,
+   "ordenes_si": "afinidad>=2",
+   "charla_npc": true,
+   "saludo_rango": 5,
+   "drops": [
+    {
+     "item": "minecraft:golden_apple",
+     "prob": 20,
+     "min": 1,
+     "max": 1
+    },
+    {
+     "item": "minecraft:glistering_melon_slice",
+     "prob": 40,
+     "min": 1,
+     "max": 3
+    }
+   ]
+  }
+ },
+ {
+  "motor": "ef",
+  "data": {
+   "id": "voss",
+   "nombre": "Guardia Voss",
+   "color_nombre": "A9B2BD",
+   "personalidad": "fria",
+   "dialogo": "voss",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 8,
+   "quieto": true,
+   "acepta_ordenes": false,
+   "zona_radio": 14,
+   "saludo_auto": false,
+   "gestos": "talk_d,point,stop,cross_arms",
+   "postura": 4,
+   "eq_cabeza": "{id:\"minecraft:iron_helmet\",Count:1b}",
+   "eq_pecho": "{id:\"minecraft:chainmail_chestplate\",Count:1b}",
+   "eq_piernas": "{id:\"minecraft:chainmail_leggings\",Count:1b}",
+   "eq_pies": "{id:\"minecraft:chainmail_boots\",Count:1b}",
+   "eq_mano": "{id:\"minecraft:stone_sword\",Count:1b}",
+   "vida": 40,
+   "dano": 6,
+   "armadura": 5,
+   "hostil": "ninguno",
+   "faccion": "mando",
+   "xp": 15,
+   "drops": [
+    {
+     "item": "minecraft:iron_nugget",
+     "prob": 80,
+     "min": 2,
+     "max": 6
+    },
+    {
+     "item": "minecraft:tripwire_hook",
+     "prob": 100,
+     "min": 1,
+     "max": 1
+    }
+   ]
+  }
+ },
+ {
+  "motor": "ef",
+  "data": {
+   "id": "dante",
+   "nombre": "Dante",
+   "color_nombre": "B0A0D8",
+   "personalidad": "burlona",
+   "dialogo": "dante",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 6,
+   "quieto": true,
+   "acepta_ordenes": true,
+   "zona_radio": 14,
+   "saludo_auto": false,
+   "gestos": "talk_a,talk_e,look_around,point,shrug",
+   "postura": 4,
+   "vida": 20,
+   "invulnerable": false,
+   "eq_pecho": "{id:\"minecraft:leather_chestplate\",Count:1b}",
+   "snd_idle": "",
+   "ordenes_si": "afinidad>=3"
+  }
+ },
+ {
+  "motor": "ef",
+  "data": {
+   "id": "soria",
+   "nombre": "Capitán Soria",
+   "color_nombre": "7AA6D9",
+   "personalidad": "seria",
+   "dialogo": "soria",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 8,
+   "quieto": true,
+   "acepta_ordenes": false,
+   "zona_radio": 14,
+   "saludo_auto": false,
+   "gestos": "talk_a,talk_b,nod,shake_head,facepalm",
+   "postura": 1,
+   "vida": 14,
+   "empujable": false,
+   "eq_pecho": "{id:\"minecraft:leather_chestplate\",Count:1b}"
+  }
+ },
+ {
+  "motor": "ef",
+  "data": {
+   "id": "alba",
+   "nombre": "Alba",
+   "color_nombre": "F5F5F5",
+   "personalidad": "fria",
+   "dialogo": "alba",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 12,
+   "quieto": true,
+   "acepta_ordenes": true,
+   "zona_radio": 14,
+   "saludo_auto": false,
+   "gestos": "think_pose,look_around,point,wave",
+   "invulnerable": true,
+   "empujable": false,
+   "brazos_finos": true,
+   "tamano": 0.85,
+   "vida": 10,
+   "ordenes_si": "afinidad>=5",
+   "charla_npc": false,
+   "snd_idle": ""
+  }
+ },
+ {
+  "motor": "ef",
+  "data": {
+   "id": "rosa",
+   "nombre": "Rosa",
+   "color_nombre": "E6B7A0",
+   "personalidad": "amable",
+   "dialogo": "rosa",
+   "mostrar_nombre": true,
+   "charla_ia": true,
+   "persistente": true,
+   "chat": true,
+   "burbuja": true,
+   "mirar": "jugadores",
+   "mirar_rango": 8,
+   "quieto": true,
+   "acepta_ordenes": true,
+   "zona_radio": 14,
+   "saludo_auto": true,
+   "gestos": "talk_a,talk_b,talk_c,beckon,wave",
+   "eq_pecho": "{id:\"minecraft:leather_chestplate\",Count:1b}",
+   "eq_mano": "{id:\"minecraft:wooden_shovel\",Count:1b}",
+   "vida": 22,
+   "ordenes_si": "afinidad>=2",
+   "charla_npc": true,
+   "saludo_rango": 5,
+   "drops": [
+    {
+     "item": "minecraft:bread",
+     "prob": 80,
+     "min": 1,
+     "max": 3
+    }
+   ]
+  }
+ }
+]

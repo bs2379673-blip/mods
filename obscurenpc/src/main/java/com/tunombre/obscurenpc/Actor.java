@@ -81,6 +81,10 @@ public class Actor extends PathfinderMob {
     private int shootCooldown;
     private final Routine routine = new Routine();
     private float appliedScale = -1F;
+    /** orden activa dada por un jugador por chat: "", seguir, quieto, proteger, zona */
+    public String orden = "";
+    public UUID ordenDueno;
+    public BlockPos ordenPos;
 
     public Actor(EntityType<? extends Actor> type, Level level) {
         super(type, level);
@@ -170,6 +174,7 @@ public class Actor extends PathfinderMob {
         setCustomName(Component.literal(d.nombre == null ? "" : d.nombre));
         setCustomNameVisible(false);          // el nombre lo dibuja el mod (sirve igual con Epic Fight)
         setPersistenceRequired();
+        xpReward = Math.max(0, d.xp);
         setBase(Attributes.MAX_HEALTH, Math.max(1, d.vida));
         setBase(Attributes.MOVEMENT_SPEED, Math.max(0.0, d.velocidad));
         setBase(Attributes.ATTACK_DAMAGE, Math.max(0.0, d.dano));
@@ -204,6 +209,11 @@ public class Actor extends PathfinderMob {
         } catch (Exception ignored) { }
     }
 
+    public static ItemStack snbtToStack(String snbt) {
+        if (snbt == null || snbt.isBlank()) return ItemStack.EMPTY;
+        try { return ItemStack.of(net.minecraft.nbt.TagParser.parseTag(snbt)); } catch (Exception e) { return ItemStack.EMPTY; }
+    }
+
     public static String stackToSnbt(ItemStack st) { return st.isEmpty() ? "" : st.save(new CompoundTag()).toString(); }
 
     private void setBase(net.minecraft.world.entity.ai.attributes.Attribute a, double v) {
@@ -217,6 +227,7 @@ public class Actor extends PathfinderMob {
         this.goalSelector.addGoal(-1, new GunGoal(this));
         this.goalSelector.addGoal(0, new FloatGoal(this));
         if (!isEf()) this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.15D, true));
+        this.goalSelector.addGoal(3, new OrderGoal(this));
         this.goalSelector.addGoal(6, new WanderGoal(this));
     }
 
@@ -232,7 +243,7 @@ public class Actor extends PathfinderMob {
         @Override
         public boolean canUse() {
             NpcData d = a.d;
-            return d.vagar && !d.quieto && a.getTarget() == null && !a.isTalking() && !a.routine.active() && a.getRandom().nextInt(90) == 0;
+            return d.vagar && !d.quieto && a.orden.isEmpty() && a.getTarget() == null && !a.isTalking() && !a.routine.active() && a.getRandom().nextInt(90) == 0;
         }
 
         @Override
@@ -246,6 +257,49 @@ public class Actor extends PathfinderMob {
                 if (Math.sqrt(a.home().distSqr(BlockPos.containing(p))) > a.d.vagar_radio) continue;
                 a.getNavigation().moveTo(p.x, p.y, p.z, 0.8D);
                 return;
+            }
+        }
+    }
+
+    /** cumple la orden que le dio un jugador por chat */
+    private static final class OrderGoal extends Goal {
+        private final Actor a;
+        private int repath;
+
+        OrderGoal(Actor a) {
+            this.a = a;
+            setFlags(EnumSet.of(Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() { return !a.orden.isEmpty() && !a.routine.active() && a.getTarget() == null && !(a.isTalking() && a.talkingTo != null); }
+
+        @Override
+        public boolean canContinueToUse() { return canUse(); }
+
+        @Override
+        public void tick() {
+            Player owner = a.ordenDueno != null && a.level() instanceof ServerLevel sl ? sl.getPlayerByUUID(a.ordenDueno) : null;
+            switch (a.orden) {
+                case "seguir", "proteger" -> {
+                    if (owner == null || owner.isSpectator()) { a.getNavigation().stop(); return; }
+                    double dist = a.distanceTo(owner);
+                    if (dist > 36 && owner.onGround() && a.level().dimension() == owner.level().dimension()) {
+                        a.teleportTo(owner.getX() + (a.getRandom().nextDouble() - 0.5) * 3, owner.getY(), owner.getZ() + (a.getRandom().nextDouble() - 0.5) * 3);
+                        a.getNavigation().stop();
+                        return;
+                    }
+                    if (dist > 3.6) {
+                        if (repath-- <= 0) { repath = 8; a.getNavigation().moveTo(owner, dist > 10 ? 1.3D : 1.05D); }
+                    } else { a.getNavigation().stop(); }
+                }
+                case "quieto", "zona" -> {
+                    BlockPos c = a.ordenPos != null ? a.ordenPos : a.blockPosition();
+                    if (a.blockPosition().distSqr(c) > 9) {
+                        if (repath-- <= 0) { repath = 15; a.getNavigation().moveTo(c.getX() + 0.5, c.getY(), c.getZ() + 0.5, 1.0D); }
+                    } else a.getNavigation().stop();
+                }
+                default -> { }
             }
         }
     }
@@ -319,7 +373,7 @@ public class Actor extends PathfinderMob {
     @Override
     public void aiStep() {
         super.aiStep();
-        if (!level().isClientSide && (d.quieto || isTalking() && talkingTo != null) && !routine.moving()) {
+        if (!level().isClientSide && ((d.quieto && orden.isEmpty()) || isTalking() && talkingTo != null) && !routine.moving()) {
             getNavigation().stop();
             Vec3 m = getDeltaMovement();
             setDeltaMovement(0, m.y, 0);
@@ -358,6 +412,7 @@ public class Actor extends PathfinderMob {
     private void targetTick() {
         LivingEntity t = getTarget();
         if (t != null && (!t.isAlive() || distanceToSqr(t) > Math.pow(d.rango_vision * 1.6, 2) || (t instanceof Player p && (p.isCreative() || p.isSpectator())))) setTarget(null);
+        if (getTarget() == null && !orden.isEmpty() && targetScan-- <= 0) { targetScan = 10; orderTarget(); }
         if (d.hostil.equals("ninguno") || getTarget() != null || targetScan-- > 0) return;
         targetScan = 12;
         boolean pl = d.hostil.equals("jugadores") || d.hostil.equals("ambos");
@@ -371,6 +426,25 @@ public class Actor extends PathfinderMob {
             if (!ok || sameFaction(le) || !hasLineOfSight(le)) continue;
             double dd = distanceToSqr(le);
             if (dd < bd) { bd = dd; best = le; }
+        }
+        if (best != null) setTarget(best);
+    }
+
+    /** con la orden proteger/zona ataca a los monstruos cercanos y a quien lastime a su protegido */
+    private void orderTarget() {
+        if (!orden.equals("proteger") && !orden.equals("zona")) return;
+        Player owner = ordenDueno != null && level() instanceof ServerLevel sl ? sl.getPlayerByUUID(ordenDueno) : null;
+        Vec3 c = orden.equals("zona") ? Vec3.atCenterOf(ordenPos != null ? ordenPos : blockPosition()) : owner != null ? owner.position() : position();
+        double r = orden.equals("zona") ? Math.max(4, d.zona_radio) : 16;
+        if (owner != null && orden.equals("proteger")) {
+            LivingEntity hurtBy = owner.getLastHurtByMob();
+            if (hurtBy != null && hurtBy.isAlive() && !(hurtBy instanceof Actor) && hurtBy != this && !(hurtBy instanceof Player)) { setTarget(hurtBy); return; }
+        }
+        LivingEntity best = null;
+        double bd = r * r;
+        for (Entity e : level().getEntities(this, new net.minecraft.world.phys.AABB(c, c).inflate(r), x -> x instanceof Enemy && x.isAlive() && !(x instanceof Actor))) {
+            double dd = e.position().distanceToSqr(c);
+            if (dd < bd && hasLineOfSight(e)) { bd = dd; best = (LivingEntity) e; }
         }
         if (best != null) setTarget(best);
     }
@@ -515,6 +589,29 @@ public class Actor extends PathfinderMob {
     public boolean canPickUpLoot() { return false; }
 
     @Override
+    protected void dropCustomDeathLoot(DamageSource src, int looting, boolean recentlyHit) {
+        super.dropCustomDeathLoot(src, looting, recentlyHit);
+        if (d.drops_solo_jugador && !(src.getEntity() instanceof Player)) return;
+        for (NpcData.Drop dr : d.drops) {
+            if (dr.item == null || dr.item.isBlank()) continue;
+            if (RND.nextFloat() * 100F >= dr.prob * (1F + 0.12F * looting)) continue;
+            try {
+                String it = dr.item.trim();
+                ItemStack st;
+                if (it.startsWith("{")) st = ItemStack.of(net.minecraft.nbt.TagParser.parseTag(it));
+                else {
+                    var item = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(new net.minecraft.resources.ResourceLocation(it.contains(":") ? it : "minecraft:" + it));
+                    st = item == null ? ItemStack.EMPTY : new ItemStack(item);
+                }
+                if (st.isEmpty()) continue;
+                int lo = Math.max(1, dr.min), hi = Math.max(lo, dr.max);
+                st.setCount(Math.min(st.getMaxStackSize(), lo + RND.nextInt(hi - lo + 1)));
+                spawnAtLocation(st);
+            } catch (Exception ignored) { }
+        }
+    }
+
+    @Override
     public void die(DamageSource s) {
         super.die(s);
         if (!level().isClientSide) {
@@ -567,6 +664,9 @@ public class Actor extends PathfinderMob {
         if (home != null) tag.putLong("ObscureHome", home.asLong());
         if (spawner != null) tag.putLong("ObscureSpawner", spawner.asLong());
         tag.put("ObscureRoutine", routine.save());
+        tag.putString("ObscureOrden", orden);
+        if (ordenDueno != null) tag.putUUID("ObscureOrdenDueno", ordenDueno);
+        if (ordenPos != null) tag.putLong("ObscureOrdenPos", ordenPos.asLong());
     }
 
     @Override
@@ -577,6 +677,9 @@ public class Actor extends PathfinderMob {
         if (tag.contains("ObscureHome")) home = BlockPos.of(tag.getLong("ObscureHome"));
         if (tag.contains("ObscureSpawner")) spawner = BlockPos.of(tag.getLong("ObscureSpawner"));
         if (tag.contains("ObscureRoutine")) routine.load(tag.getCompound("ObscureRoutine"));
+        orden = tag.getString("ObscureOrden");
+        ordenDueno = tag.hasUUID("ObscureOrdenDueno") ? tag.getUUID("ObscureOrdenDueno") : null;
+        ordenPos = tag.contains("ObscureOrdenPos") ? BlockPos.of(tag.getLong("ObscureOrdenPos")) : null;
         applyData();
     }
 

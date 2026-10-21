@@ -147,6 +147,10 @@ public final class Brain {
     public static Reply reply(Actor npc, ServerPlayer speaker, UUID fromId, String message) {
         NpcData d = npc.data();
         UUID who = speaker != null ? speaker.getUUID() : fromId;
+        if (speaker != null) {
+            Orders.Kind ord = Orders.detect(message);
+            if (ord != null) return Orders.apply(npc, speaker, ord);
+        }
         String text = norm(message);
         // quitar el nombre del NPC si le hablan por su nombre
         String nm = norm(d.nombre);
@@ -203,6 +207,10 @@ public final class Brain {
             npc.mem(who).putString("ultima", line);
             return new Reply(line, null);
         }
+
+        // 4b) conversacion general dentro del mundo de Obscure (bromas, vida personal, cosas de otro mundo...)
+        Reply ex = Extra.answer(npc, speaker, who, text, toks, Ctx.personality(ctx, npc));
+        if (ex != null) { npc.mem(who).putString("ultima", ex.text()); return ex; }
 
         // 5) nada claro: respuestas de "no entiendo" del NPC
         String none = Ctx.line(ctx, "no_entiendo", ultima);

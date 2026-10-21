@@ -89,6 +89,7 @@ public class ObscureNpc {
         bus.addListener(ObscureNpc::onPatches);
         bus.addListener(ObscureNpc::onAnimations);
         bus.addListener((FMLCommonSetupEvent e) -> e.enqueueWork(() -> Armatures.registerEntityTypeArmature(NPC_EF.get(), Armatures.BIPED)));
+        net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, Orders.SPEC);
         Net.init();
         MinecraftForge.EVENT_BUS.register(Cmd.class);
         MinecraftForge.EVENT_BUS.register(ObscureNpc.class);

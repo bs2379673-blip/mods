@@ -153,6 +153,17 @@ public final class Cmd {
                 .then(Commands.literal("poner").then(Commands.argument("f", StringArgumentType.word()).executes(c -> { State.set(StringArgumentType.getString(c, "f")); return 1; })))
                 .then(Commands.literal("quitar").then(Commands.argument("f", StringArgumentType.word()).executes(c -> { State.clear(StringArgumentType.getString(c, "f")); return 1; })))
                 .then(Commands.literal("lista").executes(c -> ok(c, "Banderas globales: " + State.all(), State.all().size()))));
+        root.then(Commands.literal("historia").requires(s -> s.hasPermission(2))
+                .executes(c -> ok(c, "NPCs de la historia: " + Historia.describe() + ". Usa /onpc historia instalar | todos | <id> | reinstalar", 1))
+                .then(Commands.literal("instalar").executes(c -> ok(c, "Archivos nuevos instalados: " + Historia.install(false), 1)))
+                .then(Commands.literal("reinstalar").executes(c -> ok(c, "Archivos reescritos (se pierden tus cambios en ellos): " + Historia.install(true), 1)))
+                .then(Commands.argument("quien", StringArgumentType.word())
+                        .suggests((cc, b) -> { List<String> l = new ArrayList<>(Historia.ids()); l.add("todos"); return SharedSuggestionProvider.suggest(l, b); })
+                        .executes(c -> {
+                            Historia.install(false);
+                            int n = Historia.spawn(c.getSource().getLevel(), c.getSource().getPosition(), StringArgumentType.getString(c, "quien"));
+                            return ok(c, n == 0 ? "No existe ese personaje (usa /onpc historia)" : n + " NPC de la historia colocados", n);
+                        })));
         root.then(Commands.literal("recargar").requires(s -> s.hasPermission(2)).executes(c -> {
             Dialogs.reload();
             return ok(c, "Diálogos, conocimiento y rutinas recargados", 1);

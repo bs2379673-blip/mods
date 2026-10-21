@@ -50,3 +50,16 @@ CONTEXTO DE LA IA (pestaña "IA / Contexto" del editor)
 - Frases tipo "Nunca reveles..." se toman como estilo, no como dato. Líneas con // al inicio se ignoran.
 - "Compartido (todos)" edita contexto/_mundo.txt, que se suma al de cada NPC.
 - Se guarda en config/obscurenpc/contexto/<clave>.txt (la clave es el campo "Clave interna" o el nombre).
+
+NOVEDADES 1.2.0
+- Equipo por ranura (casco, peto, pantalón, botas, mano derecha e izquierda): pestaña Equipo del editor, sostén el objeto y pulsa.
+- Drops: pestaña Equipo > "Drops al morir". Formato:  objeto | probabilidad % | cantidad (o mín-máx), separados por ;
+  Ej: minecraft:golden_apple | 25 | 1-2 ; minecraft:bone | 80 | 1-3.  "Añadir lo que sostengo" agrega el objeto con su NBT.
+- Órdenes por chat: en Conducta activa "Obedece órdenes". El jugador escribe frases como "sígueme", "quédate aquí", "protégeme",
+  "defiende esta zona", "libre" (o "todos, síganme"). Condición opcional (ej. afinidad>=3). Interruptor general y máximo de acompañantes
+  en config/obscurenpc-common.toml (ordenes_por_chat, max_acompanantes). Frases propias en el contexto: Obedece: / Espera: / Protege: / Guardia: / Libre: / Rechaza:
+- Respuestas más amplias: chistes, preguntas personales, cosas de "otro mundo" (internet, móviles...) que responde en personaje, consejos...
+- Gestos nuevos: scan, plead, nervous, grieve, defiant, command, listen.
+- NPCs de la historia: /onpc historia  (lista) · /onpc historia todos (los coloca en círculo y deja sus contextos y diálogos en config)
+  · /onpc historia <id> · /onpc historia instalar | reinstalar. Personajes: elena, ibarra, tomas, anselmo, lia, reyes, silas, mika, nico, voss, dante, soria, alba, rosa.
+  Sus datos secretos se desbloquean con la afinidad (se gana hablando, agradeciendo y con los diálogos). Cámbiales skin con el editor (campo Skin).

@@ -304,6 +304,16 @@ public final class Dialogs {
         Actor npc = null;
         if (c != null) npc = findNpc(p, c.npc);
         String nm = Brain.norm(msg);
+        Orders.Kind ord = Orders.ENABLED.get() ? Orders.detect(msg) : null;
+        if (ord != null && Orders.isGroup(msg) && !(npc != null && npc.isAlive())) {
+            boolean any = false;
+            for (Actor g : Orders.group(p)) {
+                Brain.Reply gr = Orders.apply(g, p, ord);
+                g.speak((gr.gesture() != null ? "[gesto:" + gr.gesture() + "]" : "") + gr.text(), p, true);
+                any = true;
+            }
+            if (any) return;
+        }
         if (npc == null || !npc.isAlive()) {
             npc = null;
             double best = 1e9;
@@ -312,6 +322,7 @@ public final class Dialogs {
                 String n1 = Brain.norm(a.data().nombre);
                 boolean named = !n1.isEmpty() && (" " + nm + " ").contains(" " + n1 + " ");
                 boolean close = a.distanceTo(p) < 4 && a.hasLineOfSight(p) && msg.trim().endsWith("?");
+                if (!close && ord != null && a.data().acepta_ordenes && a.distanceTo(p) < 8 && a.hasLineOfSight(p)) close = true;
                 if (!named && !close) continue;
                 double dd = a.distanceToSqr(p);
                 if (dd < best) { best = dd; npc = a; }

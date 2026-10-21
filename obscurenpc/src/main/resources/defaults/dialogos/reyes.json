@@ -1,0 +1,79 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:cross_arms]Vaya. Un superviviente que llega hasta aquí.",
+    "Coronel Reyes. Esta zona es restringida, pero... será útil conocerle. [pone:conocido]"
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:hands_back]¿Qué desea?"
+   ],
+   "opciones": [
+    {
+     "texto": "¿Qué hacen aquí?",
+     "ir": "operacion"
+    },
+    {
+     "texto": "¿Por qué trajeron gente a la isla?",
+     "ir": "sujetos",
+     "si": [
+      "afinidad>=3"
+     ]
+    },
+    {
+     "texto": "¿Hay salida?",
+     "ir": "salida"
+    },
+    {
+     "texto": "Retirarme.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "operacion": {
+   "decir": [
+    "Es un asunto de seguridad nacional. No le corresponde saber los detalles.",
+    "Digamos que ponemos a prueba algo importante."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "sujetos": {
+   "decir": [
+    "[gesto:think]Interesante pregunta. No todos los recién llegados llegan por casualidad.",
+    "Algunos fueron... seleccionados. Eso es todo lo que diré por ahora."
+   ],
+   "afinidad": 1,
+   "pone": [
+    "reyes_sujetos"
+   ],
+   "ir": "inicio"
+  },
+  "salida": {
+   "decir": [
+    "[gesto:shake_head]Hay una. Pero no se abre para quien no sirve.",
+    "Demuéstreme que sirve."
+   ],
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:stop]Retírese."
+   ]
+  }
+ }
+}

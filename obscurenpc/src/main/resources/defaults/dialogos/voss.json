@@ -1,0 +1,75 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:stop]¿Qué miras? Silencio. [pone:conocido]",
+    "Soy Voss. Yo cuido la puerta. Tú te quedas dentro."
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:cross_arms]Habla rápido."
+   ],
+   "opciones": [
+    {
+     "texto": "¿Dónde estoy?",
+     "ir": "donde"
+    },
+    {
+     "texto": "¿Por qué me tienen aquí?",
+     "ir": "porque"
+    },
+    {
+     "texto": "¿Qué pasó con el helicóptero?",
+     "ir": "helicoptero",
+     "si": [
+      "afinidad>=2"
+     ]
+    },
+    {
+     "texto": "Nada.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "donde": {
+   "decir": [
+    "En las celdas del complejo. Aquí se queda quien el coronel decida."
+   ],
+   "afinidad": 0,
+   "ir": "inicio"
+  },
+  "porque": {
+   "decir": [
+    "[gesto:shrug]Yo no hago preguntas. Tú tampoco deberías.",
+    "Si el coronel te quiere vivo, lo sabrás."
+   ],
+   "ir": "inicio"
+  },
+  "helicoptero": {
+   "decir": [
+    "[gesto:look_around]Salió esta mañana con carga especial. No volvió.",
+    "Oí un choque a lo lejos. Y desde entonces, la radio está muerta."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:point]Largo."
+   ]
+  }
+ }
+}

@@ -51,7 +51,7 @@ public final class Editor {
         o.addProperty("tipo", "npc");
         o.addProperty("uuid", a.getUUID().toString());
         o.addProperty("motor", a.isEf() ? "ef" : "normal");
-        o.add("data", JsonParser.parseString(a.data().toJson()));
+        o.add("data", withExtras(a.data()));
         o.add("cat", catalog());
         addCtx(o, a.data().key());
         o.addProperty("vida_actual", a.getHealth());
@@ -72,10 +72,53 @@ public final class Editor {
         o.addProperty("radio", be.radio);
         o.addProperty("activo", be.activo);
         o.addProperty("rango", be.rango);
-        o.add("data", JsonParser.parseString(be.template.toJson()));
+        o.add("data", withExtras(be.template));
         o.add("cat", catalog());
         addCtx(o, be.template.key());
         Net.toClient(p, "editor", o.toString());
+    }
+
+    private static JsonObject withExtras(NpcData d) {
+        JsonObject j = JsonParser.parseString(d.toJson()).getAsJsonObject();
+        j.addProperty("drops_txt", dropsToText(d));
+        return j;
+    }
+
+    /** una linea por drop: objeto | probabilidad % | min-max */
+    static String dropsToText(NpcData d) {
+        StringBuilder sb = new StringBuilder();
+        for (NpcData.Drop x : d.drops) {
+            String id = x.item;
+            if (id != null && id.startsWith("{")) {
+                ItemStack st = Actor.snbtToStack(id);
+                if (!st.isEmpty()) id = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(st.getItem()).toString();
+            }
+            sb.append(id).append(" | ").append(trim(x.prob)).append(" | ").append(x.min == x.max ? String.valueOf(x.min) : x.min + "-" + x.max).append(" ; ");
+        }
+        String r = sb.toString().trim();
+        return r.endsWith(";") ? r.substring(0, r.length() - 1).trim() : r;
+    }
+
+    private static String trim(float f) { return f == (int) f ? String.valueOf((int) f) : String.valueOf(f); }
+
+    static void parseDrops(NpcData d, String v) {
+        java.util.List<NpcData.Drop> l = new java.util.ArrayList<>();
+        for (String line : v.split("[\\n;]")) {
+            if (line.isBlank()) continue;
+            String[] s = line.split("\\|");
+            NpcData.Drop x = new NpcData.Drop();
+            x.item = s[0].trim();
+            try { if (s.length > 1) x.prob = Math.max(0F, Math.min(100F, Float.parseFloat(s[1].trim().replace("%", "").replace(',', '.')))); } catch (NumberFormatException ignored) { }
+            try {
+                if (s.length > 2) {
+                    String[] r = s[2].trim().split("-");
+                    x.min = Math.max(1, Integer.parseInt(r[0].trim()));
+                    x.max = r.length > 1 ? Math.max(x.min, Integer.parseInt(r[1].trim())) : x.min;
+                }
+            } catch (NumberFormatException ignored) { }
+            if (!x.item.isEmpty()) l.add(x);
+        }
+        d.drops = l;
     }
 
     private static void addCtx(JsonObject o, String key) {
@@ -141,6 +184,26 @@ public final class Editor {
             }
             case "recargar" -> { Dialogs.reload(); msg(p, "Diálogos, contexto y rutinas recargados"); }
             case "equipo" -> equipo(p, a, be, str(o, "que"));
+            case "slot" -> slot(p, a, be, str(o, "slot"), str(o, "modo"), str(o, "item"));
+            case "drop_mano" -> {
+                NpcData d = a != null ? a.data() : be.template;
+                ItemStack h = p.getMainHandItem();
+                if (h.isEmpty()) { msg(p, "Sostén el objeto que quieres que suelte"); return; }
+                NpcData.Drop x = new NpcData.Drop();
+                x.item = Actor.stackToSnbt(h);
+                x.min = x.max = h.getCount();
+                d.drops.add(x);
+                if (a == null) be.setChanged();
+                msg(p, "Añadido a los drops: " + h.getHoverName().getString() + " (100%). Ajusta la probabilidad en la lista");
+                if (a != null) open(p, a); else openSpawner(p, new BlockPos(o.get("x").getAsInt(), o.get("y").getAsInt(), o.get("z").getAsInt()));
+            }
+            case "drops_vaciar" -> {
+                NpcData d = a != null ? a.data() : be.template;
+                d.drops = new java.util.ArrayList<>();
+                if (a == null) be.setChanged();
+                msg(p, "Drops borrados");
+                if (a != null) open(p, a); else openSpawner(p, new BlockPos(o.get("x").getAsInt(), o.get("y").getAsInt(), o.get("z").getAsInt()));
+            }
             case "vaciar_equipo" -> {
                 NpcData d = a != null ? a.data() : be.template;
                 d.eq_mano = d.eq_mano2 = d.eq_cabeza = d.eq_pecho = d.eq_piernas = d.eq_pies = "";
@@ -215,6 +278,39 @@ public final class Editor {
         msg(p, "Equipo copiado de lo que llevas puesto/en la mano");
     }
 
+    /** pone/quita una ranura concreta: modo "mano" (copia lo que sostienes), "id" (un objeto por nombre) o "nada" */
+    private static void slot(ServerPlayer p, Actor a, SpawnerEntity be, String slot, String modo, String item) {
+        NpcData d = a != null ? a.data() : be.template;
+        String v;
+        switch (modo) {
+            case "nada" -> v = "";
+            case "id" -> {
+                var it = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(new net.minecraft.resources.ResourceLocation(item.contains(":") ? item : "minecraft:" + item));
+                if (it == null || it == net.minecraft.world.item.Items.AIR) { msg(p, "No existe el objeto " + item); return; }
+                v = Actor.stackToSnbt(new ItemStack(it));
+            }
+            default -> v = Actor.stackToSnbt(p.getMainHandItem());
+        }
+        switch (slot) {
+            case "mano" -> d.eq_mano = v;
+            case "mano2" -> d.eq_mano2 = v;
+            case "cabeza" -> d.eq_cabeza = v;
+            case "pecho" -> d.eq_pecho = v;
+            case "piernas" -> d.eq_piernas = v;
+            case "pies" -> d.eq_pies = v;
+            default -> { return; }
+        }
+        if (a != null) {
+            if (v.isEmpty()) for (net.minecraft.world.entity.EquipmentSlot s : net.minecraft.world.entity.EquipmentSlot.values()) {
+                String nm = switch (s) { case MAINHAND -> "mano"; case OFFHAND -> "mano2"; case HEAD -> "cabeza"; case CHEST -> "pecho"; case LEGS -> "piernas"; case FEET -> "pies"; };
+                if (nm.equals(slot)) a.setItemSlot(s, ItemStack.EMPTY);
+            }
+            a.applyData();
+        } else be.setChanged();
+        ItemStack st = Actor.snbtToStack(v);
+        msg(p, slot + ": " + (st.isEmpty() ? "vacío" : st.getHoverName().getString()));
+    }
+
     private static void motor(ServerPlayer p, Actor a, SpawnerEntity be, String motor) {
         if (a == null) { be.motor = motor; be.setChanged(); msg(p, "Motor del spawner: " + motor); return; }
         if (a.isEf() == motor.equals("ef")) return;
@@ -248,6 +344,7 @@ public final class Editor {
             return;
         }
         NpcData d = a != null ? a.data() : be.template;
+        if (k.equals("drops_txt")) { parseDrops(d, v); if (a == null) be.setChanged(); return; }
         if (!setField(d, k, v)) return;
         if (a != null) {
             if (k.equals("postura")) a.setStance(d.postura);

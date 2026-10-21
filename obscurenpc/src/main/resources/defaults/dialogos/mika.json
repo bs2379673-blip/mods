@@ -1,0 +1,90 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:wave]¡Hola, hola! ¡Un nuevo voluntario! [pone:conocido]",
+    "Soy Mika. Estoy organizando el concierto de la isla."
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:talk_e]¿Quieres saber del concierto?"
+   ],
+   "opciones": [
+    {
+     "texto": "¿Qué es el concierto?",
+     "ir": "concierto"
+    },
+    {
+     "texto": "¿Quién es Miku?",
+     "ir": "miku"
+    },
+    {
+     "texto": "¿Cómo puedo ayudar?",
+     "ir": "ayuda"
+    },
+    {
+     "texto": "¿Tienes miedo?",
+     "ir": "miedo",
+     "si": [
+      "afinidad>=3"
+     ]
+    },
+    {
+     "texto": "Me voy.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "concierto": {
+   "decir": [
+    "[gesto:talk_a]Una noche de música para todos. Luces, altavoces y una estrella especial.",
+    "En medio de tanto miedo, necesitamos algo hermoso."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "miku": {
+   "decir": [
+    "[gesto:talk_c]Miku es una cantante virtual. Su voz hace que olvides el miedo.",
+    "No sé cómo llegará aquí, pero será inolvidable."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "ayuda": {
+   "decir": [
+    "[gesto:point]Necesito baterías, cables y gente que cuide la zona esa noche.",
+    "Si encuentras cobre o redstone, ¡tráelo!"
+   ],
+   "pone": [
+    "ayuda_mika"
+   ],
+   "ir": "inicio"
+  },
+  "miedo": {
+   "decir": [
+    "[gesto:think]Claro que sí. Pero si no hago algo hermoso, ¿para qué sobrevivir?"
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:wave]¡Nos vemos en el concierto!"
+   ]
+  }
+ }
+}

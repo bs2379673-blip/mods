@@ -1,0 +1,91 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:point]¡Eh, tú! No toques eso. [pone:conocido]",
+    "Soy Lía. Mecánica. Y la que arregla lo que los demás rompen."
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:talk_d]¿Qué necesitas?"
+   ],
+   "opciones": [
+    {
+     "texto": "¿Qué pasó con el helicóptero?",
+     "ir": "helicoptero"
+    },
+    {
+     "texto": "Necesito reparar algo.",
+     "ir": "reparar"
+    },
+    {
+     "texto": "¿Qué sabes de Soria?",
+     "ir": "soria",
+     "si": [
+      "afinidad>=2"
+     ]
+    },
+    {
+     "texto": "¿Qué llevaba el helicóptero?",
+     "ir": "carga",
+     "si": [
+      "afinidad>=4"
+     ]
+    },
+    {
+     "texto": "Nada, adiós.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "helicoptero": {
+   "decir": [
+    "[gesto:facepalm]Se estrelló. Por una avería que no tuvo ningún sentido.",
+    "O alguien tocó el motor, o la flor se metió en las turbinas. No sé cuál me asusta más."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "reparar": {
+   "decir": [
+    "[gesto:talk_b]Trae materiales y lo arreglo. No hago milagros, hago mecánica."
+   ],
+   "ir": "inicio"
+  },
+  "soria": {
+   "decir": [
+    "[gesto:shrug]Soria era el piloto. Sobrevivió, pero está mal. No quiere hablar del vuelo.",
+    "Algo lo asustó antes de caer. Pregúntale con cuidado."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "carga": {
+   "decir": [
+    "[gesto:look_around]Personas en camillas, sedadas. Yo no vi las caras.",
+    "Cuando cayó el helicóptero, las camillas se abrieron solas. Y se levantaron.",
+    "No me preguntes más. No quiero recordarlo."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:wave]Vete, vete, que tengo trabajo."
+   ]
+  }
+ }
+}

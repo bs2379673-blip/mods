@@ -1,0 +1,83 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:nod]Alguien vivo... gracias a Dios. [pone:conocido]",
+    "Soy el capitán Soria. Perdona que no me levante."
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:talk_b]Dime, {jugador}."
+   ],
+   "opciones": [
+    {
+     "texto": "¿Qué pasó en el vuelo?",
+     "ir": "vuelo"
+    },
+    {
+     "texto": "¿Qué llevaban en el helicóptero?",
+     "ir": "carga",
+     "si": [
+      "afinidad>=2"
+     ]
+    },
+    {
+     "texto": "¿Qué viste en el aire?",
+     "ir": "aire",
+     "si": [
+      "afinidad>=4"
+     ]
+    },
+    {
+     "texto": "Descansa.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "vuelo": {
+   "decir": [
+    "[gesto:shake_head]Era un traslado rutinario. A mitad de camino, la carga se descontroló.",
+    "Escuché golpes, gritos. Perdí el control. Eso es todo lo que recuerdo."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "carga": {
+   "decir": [
+    "[gesto:look_around]Personas sedadas. Me dijeron que eran voluntarios.",
+    "Una despertó durante el vuelo con una herida que se cerraba sola. No olvido eso."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "aire": {
+   "decir": [
+    "[gesto:facepalm]Varios de pie, con los ojos abiertos pero sin estar despiertos. Murmuraban todos: «La flor ve».",
+    "Uno me sonrió. Luego, todo se apagó."
+   ],
+   "afinidad": 1,
+   "pone": [
+    "soria_vio"
+   ],
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:nod]Cuídate, {jugador}."
+   ]
+  }
+ }
+}

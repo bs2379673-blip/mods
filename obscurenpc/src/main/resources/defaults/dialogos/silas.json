@@ -1,0 +1,81 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:wave]¡Amigo mío! Pasa, mira mis tesoros. [pone:conocido]",
+    "Me llamo Silas. Compro y vendo de todo."
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:talk_c]¿Qué te interesa?"
+   ],
+   "opciones": [
+    {
+     "texto": "¿Qué vendes?",
+     "ir": "venta"
+    },
+    {
+     "texto": "¿Tienes algún rumor?",
+     "ir": "rumor"
+    },
+    {
+     "texto": "Dame algo para empezar.",
+     "ir": "regalo",
+     "si": [
+      "!regalo_silas"
+     ]
+    },
+    {
+     "texto": "Adiós.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "venta": {
+   "decir": [
+    "[gesto:point]Comida, vendas, herramientas... y a veces algo mejor. Depende de tu billetera."
+   ],
+   "ir": "inicio"
+  },
+  "rumor": {
+   "decir": [
+    "[gesto:look_around]Dicen que el coronel esconde comida en su bunker. Y que hay un laboratorio con flores de todos los colores.",
+    "Yo no voy a esos sitios. Soy cobarde, pero estoy vivo."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "regalo": {
+   "decir": [
+    "[gesto:talk_b]Un obsequio, solo esta vez. Los negocios empiezan con cariño."
+   ],
+   "dar": [
+    "minecraft:cooked_chicken 2",
+    "minecraft:string 3"
+   ],
+   "pone": [
+    "regalo_silas"
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:nod]Vuelve cuando tengas con qué pagar."
+   ]
+  }
+ }
+}

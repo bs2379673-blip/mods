@@ -1,0 +1,97 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:wave]¡Eh, muchacho! Acércate, que no muerdo. Los dientes ya no son lo que eran. [pone:conocido]",
+    "Soy Anselmo. Guardián del faro y de mi mal humor."
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:talk_b]¿Qué quieres saber, hijo?"
+   ],
+   "opciones": [
+    {
+     "texto": "¿Cómo era la isla antes?",
+     "ir": "antes"
+    },
+    {
+     "texto": "¿Qué sabes de la flor?",
+     "ir": "flor"
+    },
+    {
+     "texto": "¿Tienes un mapa?",
+     "ir": "mapa",
+     "si": [
+      "!mapa"
+     ]
+    },
+    {
+     "texto": "¿Quién es la niña de los campos?",
+     "ir": "alba",
+     "si": [
+      "afinidad>=3"
+     ]
+    },
+    {
+     "texto": "Me voy.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "antes": {
+   "decir": [
+    "[gesto:think]Un pueblito, una escuela, pescadores... Todo eso se esfumó cuando llegó el cargamento de plantas.",
+    "Primero se fueron las familias. Después las luces."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "flor": {
+   "decir": [
+    "[gesto:shake_head]Mi vecino se curó de una herida con una hoja. Dos días después ya no hablaba como persona.",
+    "Dicen que la flor se alimenta de lo que más se quiere. No te acerques."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "mapa": {
+   "decir": [
+    "[gesto:beckon]Toma. Es de los viejos tiempos, pero los caminos casi no cambian."
+   ],
+   "dar": [
+    "minecraft:map 1"
+   ],
+   "pone": [
+    "mapa"
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "alba": {
+   "decir": [
+    "[gesto:look_around]Anda por los campos de flores. No es una niña de verdad, pero te mira como si te conociera.",
+    "Habla en acertijos. Escúchala, pero no le creas todo."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:nod]Anda con Dios, o con el diablo, que ya está aquí."
+   ]
+  }
+ }
+}

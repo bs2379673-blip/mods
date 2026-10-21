@@ -1,0 +1,96 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:stop]Alto. Identifícate.",
+    "[gesto:nod]Sargento Ibarra. Aquí el que da las órdenes soy yo. [pone:conocido]"
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:salute]Informa, {jugador}."
+   ],
+   "opciones": [
+    {
+     "texto": "¿Qué es este puesto?",
+     "ir": "puesto"
+    },
+    {
+     "texto": "¿Qué sabes del coronel?",
+     "ir": "coronel",
+     "si": [
+      "afinidad>=2"
+     ]
+    },
+    {
+     "texto": "Necesito suministros.",
+     "ir": "suministros",
+     "si": [
+      "!suministros"
+     ]
+    },
+    {
+     "texto": "¿Puedes acompañarme?",
+     "ir": "acompanar"
+    },
+    {
+     "texto": "Me voy.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "puesto": {
+   "decir": [
+    "Nuestra posición está en la zona alta, con buena vista y una sola entrada.",
+    "Aquí se guardan raciones, armas y municiones para quien las necesite y se las gane."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "coronel": {
+   "decir": [
+    "[gesto:cross_arms]El coronel Reyes manda desde su bunker. No lo vemos nunca.",
+    "Cerró las puertas con nosotros afuera. No lo olvido."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "suministros": {
+   "decir": [
+    "[gesto:talk_b]Toma. Es lo que puedo ofrecerte. No lo malgastes."
+   ],
+   "dar": [
+    "minecraft:bread 4",
+    "minecraft:cooked_beef 3"
+   ],
+   "pone": [
+    "suministros"
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "acompanar": {
+   "decir": [
+    "[gesto:nod]Díselo en el chat: «sígueme» o «protégeme». Si te has ganado mi confianza, iré."
+   ],
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:salute]Mantén la cabeza fría."
+   ]
+  }
+ }
+}

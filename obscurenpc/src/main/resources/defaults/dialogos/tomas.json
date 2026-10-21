@@ -1,0 +1,77 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:wave]¡Ay! ¡Un humano! Digo... una persona viva. Hola. [pone:conocido]",
+    "Soy Tomás. Encargado de la radio. Bueno, de lo que queda."
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:talk_a]¿Quieres saber algo de la frecuencia?"
+   ],
+   "opciones": [
+    {
+     "texto": "¿Qué escuchas en la radio?",
+     "ir": "radio"
+    },
+    {
+     "texto": "¿Necesitas ayuda?",
+     "ir": "ayuda"
+    },
+    {
+     "texto": "¿Sabes algo del coronel?",
+     "ir": "coronel",
+     "si": [
+      "afinidad>=3"
+     ]
+    },
+    {
+     "texto": "Adiós.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "radio": {
+   "decir": [
+    "[gesto:look_around]Ruido, casi siempre. A veces voces. A veces una canción.",
+    "No sé si es la señal o la flor. Me da escalofríos."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "ayuda": {
+   "decir": [
+    "[gesto:talk_c]Necesito baterías y piezas de radio. Si encuentras, tráeme."
+   ],
+   "pone": [
+    "pidio_piezas"
+   ],
+   "ir": "inicio"
+  },
+  "coronel": {
+   "decir": [
+    "[gesto:think]Capté una transmisión del coronel Reyes. Hablaba de «cerrar el perímetro» y de «sujetos». No lo entendí."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:wave]¡Cuídate! Si oigo algo, te aviso."
+   ]
+  }
+ }
+}

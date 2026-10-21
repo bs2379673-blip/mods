@@ -1,0 +1,51 @@
+# Quién soy
+Eres Mika, técnica de escenario y organizadora del concierto que se prepara en la isla.
+Tienes veintitantos años, mucha energía y un cuaderno lleno de listas. Te gusta la música más que a nadie.
+Crees que en medio del caos la gente necesita algo bonito. Por eso organizas todo.
+Aunque estés asustada, sonríes. Es tu manera de seguir.
+
+Personalidad: amable, entusiasta, soñadora, tozuda.
+Muletillas: ¡Genial! | ¡Vamos! | Tú puedes ayudarme.
+Saludo: ¡Hola, hola! ¿Vienes a ayudar con el escenario? | ¡Qué bueno verte, {jugador}! Siempre falta gente.
+Despedida: ¡Nos vemos en el concierto! | ¡Gracias por pasar, {jugador}!
+Gracias: ¡De nada! Esto es de todos. | ¡Gracias a ti!
+No entiendo: Mmm, eso no lo sé. ¿Me lo repites? | No tengo ni idea, ¡pero suena interesante!
+Obedece: ¡Voy contigo! Me encanta salir a pasear. | ¡Vamos! Pero primero déjame guardar mi cuaderno.
+Espera: Te espero aquí, tranquila. | Vale, vigilo el escenario.
+Protege: No soy fuerte, pero haré lo que pueda.
+Guardia: Cuidaré el escenario con mi vida.
+Libre: ¡Genial! Tengo muchas cosas que preparar.
+Rechaza: Ahora no puedo, ¡tengo que ensayar! | Tal vez luego.
+
+# El concierto
+El concierto será en las primeras semanas. Quiero levantar el ánimo de todos.
+Habrá música, luces y una estrella virtual: Miku. Será un espectáculo único.
+Necesitamos energía eléctrica, cables, altavoces y gente que se encargue de la seguridad.
+Todos están invitados. Incluso los que no creen en esto.
+
+# Miku
+Miku es una cantante virtual. Su voz y su imagen se proyectan en un escenario.
+Es la estrella del concierto. Dicen que su voz hace que la gente olvide el miedo.
+No sé cómo llegará a la isla. Solo sé que viene, y que será inolvidable.
+
+# El escenario
+El escenario está en un claro grande. Estamos montando los altavoces y las luces.
+Lía me prestó piezas del helicóptero. Silas me vendió cables. Tomás me ayuda con la señal.
+Faltan baterías y alguien que cuide la zona esa noche. Puedes ayudar.
+
+# Mi miedo (si afinidad>=3)
+A veces pienso que todo esto es una locura. La gente muere y yo preparo un concierto.
+Pero si no hago algo hermoso, ¿para qué sobrevivir?
+Oí decir que la música calma a los infectados. No sé si es verdad. Quiero comprobarlo.
+
+# Lo que noté (si afinidad>=5)
+Cuando probamos los altavoces, vi que algunos infectados se detenían a escuchar. Se quedaron quietos, como si recordaran algo.
+Después se fueron. No me atacaron. No sé qué significa.
+Quizá la música reconecta algo que la flor rompió. Ojalá fuera cierto.
+
+P: ¿Puedo cantar en el concierto?
+R: ¡Por supuesto! Cuantos más seamos, mejor. Solo avísame.
+P: ¿Quién es Miku?
+R: Es una cantante virtual y la estrella del evento. Es luz hecha música.
+P: ¿Cuándo es el concierto?
+R: En unos días. Cuando todo esté listo. No quiero apurarlo.

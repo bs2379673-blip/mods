@@ -53,6 +53,23 @@ public class NpcData {
     public String eq_piernas = "";
     public String eq_pies = "";
 
+    // ---- drops (lo que suelta al morir, ademas del equipo) ----
+    public static class Drop {
+        public String item = "";           // ItemStack en SNBT
+        public float prob = 100F;          // 0 a 100
+        public int min = 1;
+        public int max = 1;
+    }
+
+    public List<Drop> drops = new ArrayList<>();
+    public boolean drops_solo_jugador = false;   // solo suelta si lo mato un jugador
+    public int xp = 0;                           // experiencia que suelta
+
+    // ---- ordenes por chat ("sigueme", "quedate aqui", "protegeme", "defiende esta zona") ----
+    public boolean acepta_ordenes = false;
+    public String ordenes_si = "";               // condicion para obedecer (igual que en los dialogos: afinidad>=3, bandera, g:bandera...)
+    public int zona_radio = 14;                  // radio de "defiende esta zona"
+
     // ---- armas (TACZ) ----
     public int arma_alcance = 24;
     public int arma_cadencia = 6;          // ticks entre disparos
@@ -97,6 +114,7 @@ public class NpcData {
             if (d == null) return new NpcData();
             if (d.lineas == null) d.lineas = new ArrayList<>();
             if (d.charla_lineas == null) d.charla_lineas = new ArrayList<>();
+            if (d.drops == null) d.drops = new ArrayList<>();
             return d;
         } catch (RuntimeException e) {
             return new NpcData();

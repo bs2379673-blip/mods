@@ -1,0 +1,80 @@
+{
+ "inicios": [
+  {
+   "si": [
+    "!conocido"
+   ],
+   "nodo": "primero"
+  },
+  {
+   "nodo": "inicio"
+  }
+ ],
+ "nodos": {
+  "primero": {
+   "decir": [
+    "[gesto:wave]Hola. Soy Nico, el médico. Siéntate, que te reviso. [pone:conocido]"
+   ],
+   "ir": "inicio"
+  },
+  "inicio": {
+   "decir": [
+    "[gesto:talk_b]¿Qué te duele, {jugador}?"
+   ],
+   "opciones": [
+    {
+     "texto": "Estoy herido.",
+     "ir": "curar"
+    },
+    {
+     "texto": "¿Qué pasa con la infección?",
+     "ir": "infeccion"
+    },
+    {
+     "texto": "He visto heridas que se cierran solas.",
+     "ir": "raro",
+     "si": [
+      "afinidad>=3"
+     ]
+    },
+    {
+     "texto": "Estoy bien, gracias.",
+     "ir": "adios"
+    }
+   ]
+  },
+  "curar": {
+   "decir": [
+    "[gesto:nod]Déjame ver... Respira. Ya está.",
+    "No te muevas tanto."
+   ],
+   "cmd": [
+    "effect give %jugador% minecraft:regeneration 20 1",
+    "effect give %jugador% minecraft:saturation 2 1"
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "infeccion": {
+   "decir": [
+    "[gesto:shake_head]La mordida transmite la flor. Fiebre, temblores, sed... Si te muerden, ven de inmediato.",
+    "Cada caso es distinto. Algunos cambian en minutos."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "raro": {
+   "decir": [
+    "[gesto:think]Sí. He visto gente así. No son infectados. Se curan raro y no recuerdan cómo se hicieron las heridas.",
+    "Prefiero no sacar conclusiones, pero me preocupa."
+   ],
+   "afinidad": 1,
+   "ir": "inicio"
+  },
+  "adios": {
+   "decir": [
+    "[gesto:nod]Cuídate esas heridas."
+   ]
+  }
+ }
+}

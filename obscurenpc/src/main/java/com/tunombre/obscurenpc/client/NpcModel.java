@@ -21,7 +21,9 @@ public class NpcModel extends PlayerModel<Actor> {
         return switch (g) {
             case "talk_a", "talk_b", "talk_c", "talk_d", "talk_e" -> 55;
             case "wave", "beckon" -> 55;
-            case "think", "look_around" -> 70;
+            case "think", "look_around", "nervous", "listen" -> 70;
+            case "scan", "plead", "grieve", "defiant" -> 60;
+            case "command" -> 50;
             case "facepalm" -> 50;
             case "nod", "shake_head" -> 28;
             default -> 40;
@@ -71,6 +73,13 @@ public class NpcModel extends PlayerModel<Actor> {
                     case "beckon" -> pose(rightArm, -1.3F + Mth.sin(t * 0.5F) * 0.4F, 0F, -0.2F, e);
                     case "stop" -> pose(rightArm, -1.5F, 0F, -0.15F, e);
                     case "think" -> { pose(rightArm, -1.9F, -0.4F, 0F, e); pose(leftArm, -0.9F, 0.5F, 0F, e); head.zRot += 0.1F * e; }
+                    case "scan" -> { pose(rightArm, -2.4F, -0.5F, 0F, e); head.yRot += Mth.sin(t * 0.18F) * 0.9F * e; }
+                    case "plead" -> { pose(rightArm, -1.0F, 0.2F, -0.5F, e); pose(leftArm, -1.0F, -0.2F, 0.5F, e); head.xRot += (0.2F - 0.2F * Mth.cos(t * 0.5F)) * e; }
+                    case "nervous" -> { pose(rightArm, 0.45F, 0.2F, -0.15F, e); pose(leftArm, 0.45F, -0.2F, 0.15F, e); head.yRot += Mth.sin(t * 0.25F) * 0.7F * e; }
+                    case "grieve" -> { pose(rightArm, -2.1F, -0.3F, 0F, e); pose(leftArm, 0.05F, 0F, 0.35F, e); head.xRot += 0.35F * e; head.yRot += Mth.sin(t * 0.5F) * 0.25F * e; }
+                    case "defiant" -> { pose(rightArm, -0.85F, -0.55F, 0F, e); pose(leftArm, -0.85F, 0.55F, 0F, e); head.yRot += Mth.sin(t * 0.7F) * 0.3F * e; head.xRot -= 0.1F * e; }
+                    case "command" -> { pose(rightArm, -1.55F + Mth.sin(t * 0.4F) * 0.1F, -0.1F, 0F, e); pose(leftArm, 0.05F, 0F, 0.55F, e); }
+                    case "listen" -> { pose(rightArm, 0.45F, 0.2F, -0.15F, e); pose(leftArm, 0.45F, -0.2F, 0.15F, e); head.zRot += 0.18F * e; head.xRot += 0.05F * e; }
                     default -> { }
                 }
             }
