@@ -1,0 +1,37 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="jefes"
+version="1.0.0"
+displayName="Jefes"
+description='''Jefes con modelo propio que maneja un administrador: pasos, gruñidos, ataques, agarre con quick time events y screamer.'''
+
+[[dependencies.jefes]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.jefes]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.jefes]]
+modId="quicktime_events"
+mandatory=true
+versionRange="[1.0.0,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.jefes]]
+modId="epicfight"
+mandatory=false
+versionRange="[20.14,)"
+ordering="AFTER"
+side="BOTH"

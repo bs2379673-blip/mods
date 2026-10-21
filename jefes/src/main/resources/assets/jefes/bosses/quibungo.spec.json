@@ -1,0 +1,35 @@
+{
+  "id": "quibungo",
+  "name": "Quibungo",
+  "title": "QUIBUNGO|No hagas ruido.",
+  "scale": 1.0,
+  "width": 1.5,
+  "height": 5.4,
+  "eye": 4.5,
+  "cameraDist": 10,
+  "blind": true,
+  "speed": { "walk": 0.09, "sprint": 0.22, "sneak": 0.045, "jump": 0.62, "turn": 7, "stride": 2.3 },
+  "reach": 4.2,
+  "damage": 10,
+  "knock": 1.3,
+  "bones": {
+    "body": 57, "chest": 111, "head": 10, "jaws": [24, 35, 48],
+    "spine": [270, 271, 272, 273, 274],
+    "armFL": 163, "armFR": 217, "armBL": 190, "armBR": 244,
+    "hipL": 59, "hipR": 85, "kneeL": 60, "kneeR": 86
+  },
+  "grab": {
+    "hand": { "cube": 163, "p": [8.0, 47.9, 6.3] },
+    "mouth": { "cube": 10, "p": [2.0, 4.0, -7.0] },
+    "armReach": -0.8, "armUp": -2.2, "armMouth": -2.4,
+    "hang": 1.25
+  },
+  "anims": { "idle": "STANDING", "walk": "WALKING", "run": "RUNNING", "sneakIdle": "SNEAKING", "sneakWalk": "SNEAK_WALK", "always": "GLOBAL", "headYaw": "HEAD_ROTATION_YAW", "sniff": "Up looking" },
+  "sounds": {},
+  "qte": [
+    { "type": "any", "key": "key.jump", "presses": 24, "seconds": 5.5, "color": "C8322A" },
+    { "type": "alternate", "key1": "key.left", "key2": "key.right", "presses": 14, "seconds": 3.6, "color": "E0872F" },
+    { "type": "timing", "key": "key.jump", "presses": 2, "seconds": 3.8, "color": "F0F0F0" }
+  ],
+  "screamer": { "image": "", "secs": 2.5, "sound": "" }
+}

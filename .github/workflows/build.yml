@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mod: [efactions, saclothing, tacui, efzombies, bestialago, infectados, spawncontrol, interacciones, taaef, flashlightef, visionfx, cosmeticos, intro, modelos, crafteos, concierto, anomalias, ragdollfix, obscureui, nieblafx, obscurenpc, obscurearcade]
+        mod: [efactions, saclothing, tacui, efzombies, bestialago, infectados, spawncontrol, interacciones, taaef, flashlightef, visionfx, cosmeticos, intro, modelos, crafteos, concierto, anomalias, ragdollfix, obscureui, nieblafx, obscurenpc, obscurearcade, jefes]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
