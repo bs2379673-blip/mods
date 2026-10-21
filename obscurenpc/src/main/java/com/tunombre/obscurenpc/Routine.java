@@ -166,7 +166,7 @@ public final class Routine {
                 Player p = a.level().getNearestPlayer(a, num(s, "radio", 6));
                 return p != null && !p.isSpectator();
             }
-            case "esperar_bandera" -> return State.has(s.get("bandera").getAsString().replace("g:", ""));
+            case "esperar_bandera" -> { return State.has(s.get("bandera").getAsString().replace("g:", "")); }
             case "bandera" -> {
                 if (s.has("pone")) State.set(s.get("pone").getAsString());
                 if (s.has("quita")) State.clear(s.get("quita").getAsString());
