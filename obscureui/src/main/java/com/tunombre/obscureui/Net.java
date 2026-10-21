@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public final class Net {
-    private static final String V = "1";
+    private static final String V = "2";
     public static final SimpleChannel CH = NetworkRegistry.newSimpleChannel(new ResourceLocation(ObscureUI.MODID, "main"), () -> V, V::equals, V::equals);
 
     private Net() { }

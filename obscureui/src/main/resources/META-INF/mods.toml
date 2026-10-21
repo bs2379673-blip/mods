@@ -6,7 +6,7 @@ license="All Rights Reserved"
 modId="obscureui"
 version="${mod_version}"
 displayName="ObscureUI"
-description='''Panel de administracion del servidor Obscure: anomalias, concierto, spawns, infectados, crafteos y loot desde una sola pantalla (tecla O o /obscure).'''
+description='''Panel de administracion del servidor Obscure hecho con CotiiUI: jugadores y rendimiento en vivo, anomalias, filtros de pantalla, cosmeticos, quick times, concierto, spawns, mapa de zonas de infectados, crafteos y atajos (tecla O o /obscure).'''
 
 [[dependencies.obscureui]]
 modId="forge"
@@ -24,7 +24,7 @@ side="BOTH"
 
 [[dependencies.obscureui]]
 modId="cotiiui"
-mandatory=false
+mandatory=true
 versionRange="[1.0.8,)"
 ordering="AFTER"
 side="CLIENT"
