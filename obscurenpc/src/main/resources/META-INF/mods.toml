@@ -1,0 +1,37 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="obscurenpc"
+version="${mod_version}"
+displayName="Obscure NPC"
+description='''NPCs vivos para el servidor Obscure: huesos de Epic Fight o normales, dialogos en burbuja y chat con animaciones de hablar, IA por contexto sin internet, rutinas y objetivos, actores para escenas, spawner, integracion con TACZ y editor in-game con CotiiUI.'''
+
+[[dependencies.obscurenpc]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.obscurenpc]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.obscurenpc]]
+modId="epicfight"
+mandatory=true
+versionRange="[20.14,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.obscurenpc]]
+modId="cotiiui"
+mandatory=true
+versionRange="[1.0.8,)"
+ordering="AFTER"
+side="CLIENT"

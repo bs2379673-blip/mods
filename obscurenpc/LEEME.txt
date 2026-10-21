@@ -1,0 +1,42 @@
+OBSCURE NPC - guía rápida
+=========================
+
+OBJETOS (pestaña creativa "Obscure NPC")
+- Creador de NPC: click derecho en un bloque crea un NPC. Agachado + click en el aire cambia el motor
+  (Epic Fight o huesos normales). Si le copiaste una plantilla, crea NPCs con esa configuración.
+- Editor de NPC: click derecho en un NPC abre el editor. Agachado + click en un NPC copia su plantilla al ítem.
+  Click derecho en un Spawner abre su editor; agachado + click en un spawner le pega la plantilla.
+- Spawner de NPC: bloque que repite un NPC (cada X tiempo tras morir, hasta un máximo, si hay jugadores cerca).
+
+MOTORES
+- Epic Fight (obscurenpc:npc): animado con los huesos de Epic Fight (lucha, correr, gestos propios).
+- Normal (obscurenpc:npc_vanilla): modelo de jugador de Minecraft con gestos hechos a mano.
+
+HABLAR
+- Click derecho sobre el NPC: inicia su diálogo (archivo, líneas simples o saludo automático de la IA).
+- Las opciones salen en el chat: click en ellas o escribe el número.
+- Escribe en el chat el nombre del NPC ("Hange, ¿qué son las anomalías?") o acércate a menos de 4 bloques y haz
+  una pregunta terminada en "?": responde con la IA por contexto (sin internet).
+
+ARCHIVOS (config/obscurenpc/)
+- dialogos/<id>.json     diálogos con nodos y opciones (ver ejemplo.json). Recarga: /onpc recargar
+- conocimiento/<id>.json base de conocimiento de la IA (temas con claves y respuestas). _mundo.json lo comparten todos.
+- rutinas/<id>.json      objetivos/rutinas del NPC (ir, esperar, decir, gestos, comandos...). Sirve para actores de escenas.
+- estado.json            banderas globales (las usan los diálogos con "g:bandera").
+
+Etiquetas dentro de un texto: [gesto:id] [sonido:id] [postura:id] [pausa:ticks] [pone:bandera] [quita:bandera] [cmd:comando] [gpone:global] [gquita:global]
+Variables: {jugador} {npc} {hora} {dia} {clima} {bioma} {vida} {visitas}
+Condiciones ("si"): bandera, !bandera, g:bandera, hora:dia|noche, dia>=2, visitas>=3, afinidad>=2, item:minecraft:apple:3, tag:etiqueta, noche, lluvia
+
+COMANDOS (/onpc, permiso 2)
+ crear <nombre> [pos] [ef|normal]      decir <npcs> <texto>       ir <npcs> <pos> [vel]
+ mirar <npcs> <pos> / mirar_fin        gesto <npcs> <id>          postura <npcs> <id>
+ dialogo <npcs> <id> [jugador]         rutina <npcs> <id>         rutina_parar <npcs>
+ set <npcs> <campo> <valor>            equipar <npcs> <slot> <item>   tp <npcs> <pos>   borrar <npcs>
+ bandera poner|quitar|lista            recargar                   lista (gestos y posturas)
+ <npcs> es cualquier selector: @e[type=obscurenpc:npc,name=Hange] o @e[type=obscurenpc:npc,limit=1,sort=nearest]
+
+TACZ: ponle un arma de TACZ en la mano (Editor > Copiar mi mano) y ataca con ella (munición infinita opcional).
+Gestos: talk_a..e, point, wave, think, salute, shrug, nod, shake_head, look_around, facepalm, beckon, stop; posturas fijas:
+cross_arms, hands_back, hands_hip, think_pose, guard. También sirve cualquier animación de Epic Fight (comer, beber, cavar,
+sentarse...) o de otro mod escribiendo "espacio:ruta" (p. ej. las de EpicFight-Dancing).

@@ -1,0 +1,21 @@
+{
+  "nota": "Conocimiento compartido por todos los NPCs (a menos que su campo 'Conocimiento' diga otra cosa). Cada tema tiene claves (palabras que el jugador puede escribir), respuestas y opcionalmente 'mas' (respuestas cada vez más profundas si sigue preguntando), 'si' (condiciones), 'pone' (banderas) y 'gesto'. Pon aquí solo lo que cualquier NPC puede saber.",
+  "no_entiendo": [],
+  "temas": [
+    { "id": "isla", "claves": ["isla", "donde estamos", "este lugar", "lugar"],
+      "respuestas": ["Es una isla aislada. Nadie sabe bien cómo llegó cada uno.", "Una isla, sí. No hay manera fácil de salir."],
+      "mas": ["Dicen que antes había instalaciones aquí. Mejor no acercarse a ellas.", "No tengo más información. Y la poca que tengo, prefiero guardarla."], "gesto": "talk_a" },
+    { "id": "cielo", "claves": ["anomalia", "anomalias", "cielo rojo", "cielo", "tormenta de colores"],
+      "respuestas": ["Cuando el cielo cambia de color, algo malo viene. Refúgiate bajo techo.", "El cielo rojo es lo peor. Ya lo verás."],
+      "mas": ["Cada color es distinto. Cuanto más intenso, más peligroso.", "No sé qué las causa. Nadie lo sabe, o nadie lo dice."], "gesto": "talk_d" },
+    { "id": "zombis", "claves": ["zombie", "zombies", "zombi", "infectado", "infectados", "plaga", "muertos"],
+      "respuestas": ["Los infectados salen más de noche. Y cada día hay más.", "No te quedes quieto en campo abierto. Se acercan rápido."],
+      "mas": ["Algunos son distintos a los demás. Si ves uno que no reconoces, corre.", "Los más peligrosos aparecen con el tiempo. Hay que estar preparado."], "gesto": "talk_c" },
+    { "id": "comida", "claves": ["comida", "hambre", "comer", "pan", "agua"],
+      "respuestas": ["Busca cultivos y animales. Y no comas nada que no conozcas.", "Sin comida no aguantas ni una semana aquí."] },
+    { "id": "armas", "claves": ["arma", "armas", "pistola", "fusil", "municion", "balas"],
+      "respuestas": ["Las armas sirven, pero la munición es poca. Cuenta cada bala.", "Si encuentras algún arma, cuídala. Y no malgastes munición en los lentos."] },
+    { "id": "cordura", "claves": ["cordura", "locura", "loco", "enloquecer", "sanity", "ver cosas"],
+      "respuestas": ["Ver cosas que no están... le pasa a más gente de la que admite.", "Si sientes que pierdes la cabeza, busca luz y compañía."], "gesto": "think" }
+  ]
+}

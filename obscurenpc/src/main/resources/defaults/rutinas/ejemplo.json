@@ -1,0 +1,14 @@
+{
+  "nota": "Rutina de ejemplo: patrulla entre dos puntos. Cambia las coordenadas. Pasos: ir{x,y,z,vel,espera_llegar} esperar{ticks} decir{texto} gesto{id} postura{id} mirar{x,y,z|jugador} mirar_fin cmd{cmd} tp{x,y,z} dialogo{id,radio} esperar_jugador{radio} esperar_bandera{bandera} bandera{pone|quita} equipar{item,slot,nbt} atacar{radio} saltar_a{paso} fin",
+  "repetir": true,
+  "pasos": [
+    { "op": "ir", "x": 0.5, "y": 64, "z": 0.5, "vel": 1.0 },
+    { "op": "mirar", "jugador": true },
+    { "op": "decir", "texto": "Todo tranquilo por aquí." },
+    { "op": "esperar", "ticks": 100 },
+    { "op": "mirar_fin" },
+    { "op": "ir", "x": 10.5, "y": 64, "z": 0.5, "vel": 1.0 },
+    { "op": "gesto", "id": "look_around" },
+    { "op": "esperar", "ticks": 80 }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "nota": "Diálogo de ejemplo. Para usarlo: en el Editor de NPC, sección DIÁLOGO > Archivo de diálogo > ejemplo. Cada 'nodo' tiene lo que el NPC dice, y opcionalmente opciones para el jugador.",
+  "inicios": [
+    { "si": ["!conocido"], "nodo": "primer_encuentro" },
+    { "si": ["hora:noche"], "nodo": "de_noche" },
+    { "nodo": "inicio" }
+  ],
+  "nodos": {
+    "primer_encuentro": {
+      "decir": ["[gesto:wave]¡Eh, tú! Acércate, no muerdo.", "Me llamo {npc}. ¿Y tú eres...?", "Ah, {jugador}. Bienvenido a este lugar. [pone:conocido]"],
+      "ir": "inicio"
+    },
+    "inicio": {
+      "decir": ["¿Qué necesitas, {jugador}?"],
+      "opciones": [
+        { "texto": "¿Qué es este lugar?", "ir": "lugar" },
+        { "texto": "¿Tienes algo para mí?", "ir": "regalo", "si": ["!regalo_dado"] },
+        { "texto": "¿Qué sabes de las anomalías?", "ir": "anomalias", "si": ["dia>=2"] },
+        { "texto": "Nada, solo paso.", "ir": "adios" }
+      ]
+    },
+    "lugar": {
+      "decir": ["[gesto:point]Estamos en una zona de {bioma}. Hace {clima} y es de {hora}.", "[gesto:talk_d]Aquí aprendes rápido o no aprendes."],
+      "ir": "inicio"
+    },
+    "regalo": {
+      "decir": ["[gesto:talk_b]Toma, algo es algo. No lo malgastes."],
+      "dar": ["minecraft:bread 3"],
+      "pone": ["regalo_dado"],
+      "afinidad": 2,
+      "ir": "inicio"
+    },
+    "anomalias": {
+      "decir": ["[gesto:shrug]No sé qué son. Solo sé que el cielo se pone raro y la gente se pone peor.", "Si ves el cielo rojo, busca refugio."],
+      "ir": "inicio"
+    },
+    "de_noche": {
+      "decir": ["[gesto:look_around]Shhh. De noche mejor hablar bajo..."],
+      "ir": "inicio"
+    },
+    "adios": {
+      "decir": ["[gesto:nod]Cuídate, {jugador}."]
+    }
+  }
+}

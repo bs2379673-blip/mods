@@ -1,0 +1,8 @@
+{
+ "item.obscurenpc.npc_creator": "Creador de NPC",
+ "item.obscurenpc.npc_editor": "Editor de NPC",
+ "block.obscurenpc.npc_spawner": "Spawner de NPC",
+ "entity.obscurenpc.npc": "NPC (Epic Fight)",
+ "entity.obscurenpc.npc_vanilla": "NPC (huesos normales)",
+ "itemGroup.obscurenpc": "Obscure NPC"
+}
