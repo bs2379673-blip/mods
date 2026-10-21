@@ -12,6 +12,8 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.settings.IKeyConflictContext;
+import net.minecraftforge.client.settings.KeyConflictContext;
 import org.lwjgl.glfw.GLFW;
 
 /** El administrador controla a un jefe: camara en tercera persona, teclas de acciones y lo que aprieta viaja al servidor. */
@@ -29,7 +31,31 @@ public final class Control {
 
     private Control() { }
 
-    private static KeyMapping key(String n, int code) { return new KeyMapping("key.jefes." + n, InputConstants.Type.KEYSYM, code, "key.categories.jefes"); }
+    /** las teclas de los jefes solo existen mientras se controla uno: no chocan con las de ningun otro mod */
+    private enum Ctx implements IKeyConflictContext {
+        CTRL;
+
+        @Override public boolean isActive() { return Control.active(); }
+
+        @Override public boolean conflicts(IKeyConflictContext other) { return other == this; }
+    }
+
+    private static KeyMapping key(String n, int code) { return new KeyMapping("key.jefes." + n, Ctx.CTRL, InputConstants.Type.KEYSYM, code, "key.categories.jefes"); }
+
+    private static java.util.Set<KeyMapping> own() { return java.util.Set.of(ROAR, GROWL, VOICE, SMASH, SNIFF, LEAP, FREE, KILL, EXIT); }
+
+    /** mientras se controla un jefe (o se esta agarrado) ninguna otra tecla de ningun mod hace nada, salvo las imprescindibles */
+    public static void suppressOthers(boolean victim) {
+        Minecraft mc = Minecraft.getInstance();
+        var o = mc.options;
+        java.util.Set<KeyMapping> keep = new java.util.HashSet<>(java.util.List.of(o.keyUp, o.keyDown, o.keyLeft, o.keyRight, o.keyJump, o.keyChat, o.keyCommand, o.keyScreenshot, o.keyFullscreen));
+        if (!victim) { keep.addAll(own()); keep.addAll(java.util.List.of(o.keySprint, o.keyShift, o.keyAttack, o.keyUse, o.keyPlayerList)); }
+        for (KeyMapping k : o.keyMappings) {
+            if (keep.contains(k)) continue;
+            k.setDown(false);
+            while (k.consumeClick()) { }
+        }
+    }
 
     public static void register(RegisterKeyMappingsEvent e) {
         for (KeyMapping k : new KeyMapping[]{ROAR, GROWL, VOICE, SMASH, SNIFF, LEAP, FREE, KILL, EXIT}) e.register(k);

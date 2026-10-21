@@ -10,7 +10,8 @@ public final class Rig {
 
     /** estado de suavizado de UNA entidad (solo cliente) */
     public static final class State {
-        float wIdle = 1, wWalk, wRun, wSneak, wSneakWalk, air;
+        float wIdle = 1, wWalk, wRun, wSneak, wSneakWalk, air, sw, lastT, lastStruggle;
+        Act lastAct = Act.HOLD;
         double phIdle, phWalk, phRun, phSneak, phSneakWalk, last = -1;
     }
 
@@ -33,10 +34,32 @@ public final class Rig {
     /** 0 antes de a, 1 despues de b, suave entre medias */
     static float rng(float t, float a, float b) { return ss((t - a) / (b - a)); }
 
-    public static void pose(Model m, Spec s, Pose p, State st, In in) {
+    /** postura de agarre completa (la que usa el servidor para la mano): animacion de reposo del modelo + la postura encima */
+    public static void handPose(Model m, Spec s, Pose p, Act act, float t, float struggle) {
         p.reset();
-        if (in.act.stance()) { stance(m, s, p, in.act, in.actT, in.struggle, in.timeMs); return; }
+        double ph = 3000.0 + t * 50.0;
+        clip(m, p, s.anim("idle", "STANDING"), ph, 1F);
+        for (Model.Clip c : m.clipsNamed(s.anim("always", "GLOBAL"))) p.addClip(c, ph, 1F, null);
+        stance(m, s, p, act, t, struggle, ph);
+    }
+
+    public static void pose(Model m, Spec s, Pose p, State st, In in) {
         float dt = st.last < 0 ? 0 : (float) Math.max(0, Math.min(100, in.timeMs - st.last));
+        boolean on = in.act.stance();
+        st.sw += ((on ? 1F : 0F) - st.sw) * (1F - (float) Math.exp(-dt / 120.0));
+        normal(m, s, p, st, in, dt);
+        if (on) { st.lastAct = in.act; st.lastT = in.actT; st.lastStruggle = in.struggle; }
+        else if (st.sw > 0.004F) st.lastT += dt / 50F;
+        if (on || st.sw > 0.004F) {
+            float[] ra = p.rot.clone(), pa = p.pos.clone();
+            handPose(m, s, p, st.lastAct, st.lastT, st.lastStruggle);
+            float w = st.sw;
+            for (int i = 0; i < ra.length; i++) { p.rot[i] = ra[i] + (p.rot[i] - ra[i]) * w; p.pos[i] = pa[i] + (p.pos[i] - pa[i]) * w; }
+        }
+    }
+
+    private static void normal(Model m, Spec s, Pose p, State st, In in, float dt) {
+        p.reset();
         st.last = in.timeMs;
         boolean moving = in.moveSpeed > 0.012F;
         float tI = !moving && !in.crouch ? 1 : 0, tS = !moving && in.crouch ? 1 : 0;
@@ -160,38 +183,42 @@ public final class Rig {
         }
     }
 
-    /** postura fija del agarre: igual en cliente y servidor, asi la mano esta donde se ve */
+    /** postura del agarre (sumada a la animacion de reposo): igual en cliente y servidor, asi la mano esta donde se ve */
     public static void stance(Model m, Spec s, Pose p, Act act, float t, float struggle, double timeMs) {
-        int chest = s.bone("chest"), head = s.bone("head"), body = s.bone("body");
+        int chest = s.bone("chest"), head = s.bone("head");
         int fl = s.bone("armFL"), fr = s.bone("armFR"), bl = s.bone("armBL"), br = s.bone("armBR");
         float armUp = s.grab.get("armUp").getAsFloat(), armMouth = s.grab.get("armMouth").getAsFloat(), armReach = s.grab.get("armReach").getAsFloat();
-        float sway = (float) Math.sin(timeMs / 380.0) * 0.03F;
-        float ax, lean, headX = 0, jaw = 0;
+        float sway = (float) Math.sin(timeMs / 420.0) * 0.025F;
+        float ax, lean, headX = 0, jaw = 0, fade = 1F, eng;
         switch (act) {
-            case REACH -> { ax = lerp(0, armReach, rng(t, 0, 9)); lean = -0.28F * rng(t, 0, 9); }
+            case REACH -> { float k = rng(t, 0, 13); ax = lerp(0, armReach, k); lean = -0.22F * k; eng = k; }
             case HOLD -> {
-                float up = rng(t, 0, 14);
-                ax = lerp(armReach, armUp, up); lean = lerp(-0.28F, 0.12F, up);
-                float sh = (float) Math.sin(t * 1.7F) * 0.05F * struggle;
-                ax += sh;
+                float up = rng(t, 0, 18);
+                ax = lerp(armReach, armUp, up) + (float) Math.sin(t * 1.7F) * 0.05F * struggle; lean = lerp(-0.22F, 0.10F, up); eng = 1F;
+                headX = 0.10F * up;
             }
             case KILL -> {
                 float to = rng(t, 0, 30);
-                ax = lerp(armUp, armMouth, to); lean = lerp(0.12F, 0.62F, to); headX = 0.75F * to;
+                ax = lerp(armUp, armMouth, to); lean = lerp(0.10F, 0.62F, to); headX = lerp(0.10F, 0.75F, to); eng = 1F;
                 jaw = 0.95F * rng(t, 22, 38) * (1F - rng(t, 44, 49));
             }
+            case RECOVER -> { ax = armMouth; lean = 0.62F; headX = 0.75F; fade = 1F - rng(t, 0, 26); eng = 1F; }
             default -> { // THROW
-                float sw = rng(t, 0, 8);
-                ax = lerp(armUp, -0.15F, sw); lean = lerp(0.12F, -0.35F, sw);
+                float sw = rng(t, 0, 9);
+                ax = lerp(armUp, -0.15F, sw); lean = lerp(0.10F, -0.35F, sw); headX = 0.10F * (1F - sw);
+                fade = 1F - rng(t, 13, 32); eng = 1F;
             }
         }
-        rot(p, fl, ax, 0, 0);
-        float ux = act == Act.THROW ? lerp(-1.1F, 0.2F, rng(t, 0, 8)) : -1.1F + sway * 3;
-        rot(p, fr, ux, 0, 0.55F); rot(p, bl, -0.9F + sway * 2, 0, -0.5F); rot(p, br, -0.9F - sway * 2, 0, 0.5F);
-        rot(p, chest, lean + sway, 0, 0);
-        rot(p, head, headX + (act == Act.HOLD ? 0.12F : 0), 0, 0);
+        // el brazo que agarra, el tronco y la cabeza; los otros brazos solo acompanan un poco para que no quede rigido
+        rot(p, fl, ax * fade, 0, 0);
+        rot(p, fr, (-0.30F * eng + sway * 2) * fade, 0, 0.20F * eng * fade);
+        rot(p, bl, (-0.22F * eng + sway) * fade, 0, -0.14F * eng * fade);
+        rot(p, br, (-0.22F * eng - sway) * fade, 0, 0.14F * eng * fade);
+        rot(p, chest, (lean + sway) * fade, 0, 0);
+        rot(p, head, headX * fade, 0, 0);
         for (int j : s.boneList("jaws")) rot(p, j, jaw, 0, 0);
-        rot(p, s.bone("hipL"), -0.12F, 0, 0); rot(p, s.bone("hipR"), -0.12F, 0, 0);
+        float bend = Math.abs(lean) * fade;
+        rot(p, s.bone("kneeL"), 0.18F * bend, 0, 0); rot(p, s.bone("kneeR"), 0.18F * bend, 0, 0);
     }
 
     /** matriz raiz del modelo: yaw en grados (el de la entidad), escala del jefe y suelo del modelo */

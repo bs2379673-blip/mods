@@ -25,6 +25,11 @@ public final class ClientSetup {
             ScreamFx.draw(g, w, h);
         }));
         var bus2 = MinecraftForge.EVENT_BUS;
+        for (var ph : new TickEvent.Phase[]{TickEvent.Phase.START, TickEvent.Phase.END})
+            bus2.addListener(net.minecraftforge.eventbus.api.EventPriority.HIGHEST, false, TickEvent.ClientTickEvent.class, e -> {
+                if (e.phase == ph && (Control.active() || Cinematic.active())) Control.suppressOthers(!Control.active() && Cinematic.active());
+            });
+        bus2.addListener(net.minecraftforge.eventbus.api.EventPriority.HIGHEST, false, net.minecraftforge.client.event.InputEvent.MouseScrollingEvent.class, e -> { if (Control.active() || Cinematic.active()) e.setCanceled(true); });
         bus2.addListener((TickEvent.ClientTickEvent e) -> {
             if (e.phase != TickEvent.Phase.END) return;
             Control.tick();

@@ -172,9 +172,8 @@ public class JefeEntity extends Mob {
         if (b == null) return position().add(0, 3, 0);
         Spec s = b.spec;
         Pose p = rig(b.model);
-        p.reset();
         Act a = getAct();
-        Rig.stance(b.model, s, p, a.stance() ? a : Act.HOLD, t, struggle(), (level().isClientSide ? tickCount : tickCount) * 50.0);
+        Rig.handPose(b.model, s, p, a.stance() ? a : Act.HOLD, t, struggle());
         Mat4[] w = p.world(Rig.root(b.model, s.scale, getYRot()));
         JsonObject h = s.grab.getAsJsonObject("hand");
         JsonArray lp = h.getAsJsonArray("p");
@@ -279,9 +278,9 @@ public class JefeEntity extends Mob {
             setYHeadRot(yaw + head);
             if (in.jump() && onGround() && (a == Act.NONE || a == Act.LAND) && !crouch) {
                 Vec3 dm = getDeltaMovement();
-                double boost = 0.12 + (sprint ? 0.2 : 0) * fwd;
+                double boost = (0.22 + (sprint ? 0.45 : 0)) * fwd / 1.0;
                 double r = Math.toRadians(yaw);
-                setDeltaMovement(dm.x + -Math.sin(r) * boost * fwd, s.jump, dm.z + Math.cos(r) * boost * fwd);
+                setDeltaMovement(dm.x + -Math.sin(r) * boost, s.jump, dm.z + Math.cos(r) * boost);
                 hasImpulse = true;
             }
         } else if (!a.stance()) {
@@ -320,7 +319,7 @@ public class JefeEntity extends Mob {
                 sound(Jefes.STEP.get(), crouch ? 1.2F : sprint ? 2.8F : 2.0F, (steppedLeft ? 0.9F : 1.0F) + random.nextFloat() * 0.1F - (sprint ? 0.1F : 0F));
             }
         }
-        if (controller == null && Jefes.cfgAmbient() && a == Act.NONE && random.nextInt(170) == 0) growl(0.8F);
+        if (Jefes.cfgAmbient() && (a == Act.NONE || a == Act.HOLD) && random.nextInt(controller == null ? 170 : 240) == 0) growl(controller == null ? 0.8F : 0.55F);
 
         runAct(b, s, a);
     }
@@ -329,7 +328,7 @@ public class JefeEntity extends Mob {
         int t = actTicks;
         switch (a) {
             case ATTACK_L, ATTACK_R -> {
-                if (t == 4) sound(Jefes.ATTACK.get(), 1.6F, 0.9F + random.nextFloat() * 0.2F);
+                if (t == 4) { sound(Jefes.ATTACK.get(), 1.6F, 0.9F + random.nextFloat() * 0.2F); if (random.nextInt(3) == 0) growl(0.9F); }
                 if (t == 9 && melee(s.reach, 1F, false)) sound(Jefes.HIT.get(), 1.8F, 0.9F + random.nextFloat() * 0.2F);
                 if (t >= a.ticks) setAct(Act.NONE);
             }
@@ -353,13 +352,13 @@ public class JefeEntity extends Mob {
             case LEAP -> {
                 if (t == 12) {
                     double r = Math.toRadians(getYRot());
-                    setDeltaMovement(-Math.sin(r) * 0.75, s.jump * 1.1, Math.cos(r) * 0.75);
+                    setDeltaMovement(-Math.sin(r) * s.leapFwd, s.leapUp, Math.cos(r) * s.leapFwd);
                     hasImpulse = true;
                     sound(Jefes.ROAR.get(), 2F, 1.2F);
                 }
                 if (t > 150) setAct(Act.NONE);
             }
-            case LAND, STAGGER -> { if (t >= a.ticks) setAct(Act.NONE); }
+            case LAND, STAGGER, RECOVER -> { if (t >= a.ticks) setAct(Act.NONE); }
             case REACH -> {
                 if (t == 3) sound(Jefes.ATTACK.get(), 1.4F, 0.7F);
                 if (t == 10) tryGrab(s);
@@ -488,7 +487,7 @@ public class JefeEntity extends Mob {
         }
         if (t >= killAt + 26) {
             if (v != null) forceRelease(v);
-            setAct(Act.NONE);
+            setAct(Act.RECOVER);
         }
     }
 

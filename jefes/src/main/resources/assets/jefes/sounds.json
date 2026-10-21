@@ -13,6 +13,10 @@
       {
         "name": "jefes:step3",
         "attenuation_distance": 96
+      },
+      {
+        "name": "jefes:step4",
+        "attenuation_distance": 96
       }
     ]
   },
@@ -20,11 +24,15 @@
     "subtitle": "jefes.subtitle.roar",
     "sounds": [
       {
-        "name": "jefes:roar",
+        "name": "jefes:roar1",
         "attenuation_distance": 160
       },
       {
         "name": "jefes:roar2",
+        "attenuation_distance": 160
+      },
+      {
+        "name": "jefes:roar3",
         "attenuation_distance": 160
       }
     ]
@@ -79,73 +87,6 @@
       {
         "name": "jefes:growl_12",
         "attenuation_distance": 72
-      },
-      {
-        "name": "jefes:snarl",
-        "attenuation_distance": 72
-      }
-    ]
-  },
-  "attack": {
-    "subtitle": "jefes.subtitle.attack",
-    "sounds": [
-      {
-        "name": "jefes:attack",
-        "attenuation_distance": 64
-      }
-    ]
-  },
-  "hit": {
-    "subtitle": "jefes.subtitle.hit",
-    "sounds": [
-      {
-        "name": "jefes:hit",
-        "attenuation_distance": 64
-      }
-    ]
-  },
-  "land": {
-    "subtitle": "jefes.subtitle.land",
-    "sounds": [
-      {
-        "name": "jefes:land",
-        "attenuation_distance": 128
-      }
-    ]
-  },
-  "sniff": {
-    "subtitle": "jefes.subtitle.sniff",
-    "sounds": [
-      {
-        "name": "jefes:sniff",
-        "attenuation_distance": 48
-      }
-    ]
-  },
-  "grab": {
-    "subtitle": "jefes.subtitle.grab",
-    "sounds": [
-      {
-        "name": "jefes:grab",
-        "attenuation_distance": 64
-      }
-    ]
-  },
-  "chomp": {
-    "subtitle": "jefes.subtitle.chomp",
-    "sounds": [
-      {
-        "name": "jefes:chomp",
-        "attenuation_distance": 64
-      }
-    ]
-  },
-  "scream": {
-    "subtitle": "jefes.subtitle.scream",
-    "sounds": [
-      {
-        "name": "jefes:scream",
-        "attenuation_distance": 32
       }
     ]
   },
@@ -187,6 +128,93 @@
       {
         "name": "jefes:voice_9",
         "attenuation_distance": 56
+      }
+    ]
+  },
+  "attack": {
+    "subtitle": "jefes.subtitle.attack",
+    "sounds": [
+      {
+        "name": "jefes:attack1",
+        "attenuation_distance": 64
+      },
+      {
+        "name": "jefes:attack2",
+        "attenuation_distance": 64
+      },
+      {
+        "name": "jefes:attack3",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "hit": {
+    "subtitle": "jefes.subtitle.hit",
+    "sounds": [
+      {
+        "name": "jefes:hit1",
+        "attenuation_distance": 64
+      },
+      {
+        "name": "jefes:hit2",
+        "attenuation_distance": 64
+      },
+      {
+        "name": "jefes:hit3",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "land": {
+    "subtitle": "jefes.subtitle.land",
+    "sounds": [
+      {
+        "name": "jefes:land",
+        "attenuation_distance": 128
+      }
+    ]
+  },
+  "sniff": {
+    "subtitle": "jefes.subtitle.sniff",
+    "sounds": [
+      {
+        "name": "jefes:sniff1",
+        "attenuation_distance": 64
+      },
+      {
+        "name": "jefes:sniff2",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "grab": {
+    "subtitle": "jefes.subtitle.grab",
+    "sounds": [
+      {
+        "name": "jefes:grab",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "chomp": {
+    "subtitle": "jefes.subtitle.chomp",
+    "sounds": [
+      {
+        "name": "jefes:chomp",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "scream": {
+    "subtitle": "jefes.subtitle.scream",
+    "sounds": [
+      {
+        "name": "jefes:scream1",
+        "attenuation_distance": 48
+      },
+      {
+        "name": "jefes:scream2",
+        "attenuation_distance": 48
       }
     ]
   }
