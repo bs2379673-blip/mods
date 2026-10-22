@@ -640,7 +640,7 @@ public final class LootScreen extends Screen {
 
     private void tabZones() {
         header("ZONAS DE AVENTURA");
-        note("Dentro de una zona los jugadores pasan a modo aventura (no rompen ni colocan bloques). Al salir de la zona, al morir o al desconectarse vuelven a supervivencia. Tras morir no vuelven a aventura hasta que salgan de la zona. Solo se cambia a quien está en supervivencia (creativo y espectador no se tocan).");
+        note("Dentro de una zona los jugadores pasan a modo aventura (no rompen ni colocan bloques). Al salir de la zona vuelven a supervivencia (también al morir o desconectarse).  Si reaparecen o se reconectan dentro de una zona, vuelven a aventura al instante. Solo se cambia a quien está en supervivencia (creativo y espectador no se tocan).");
         dyn(1, C_TEXT, () -> "Jugadores en aventura ahora: " + st.get("advCount").getAsInt());
         tog("No afectar a operadores", () -> bool(set(), "zOps"), v -> setSetting("zOps", String.valueOf(v)), false);
         header("NUEVA ZONA");

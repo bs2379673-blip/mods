@@ -26,37 +26,39 @@ public final class Zones {
         return false;
     }
 
+    /** @return true si cambio algo del estado */
+    private static boolean check(State.Data d, ServerPlayer p) {
+        String id = p.getUUID().toString();
+        boolean in = inAny(d, p) && !(d.zOps && p.hasPermissions(2));
+        boolean managed = d.advManaged.contains(id);
+        GameType gm = p.gameMode.getGameModeForPlayer();
+        if (in) {
+            if (managed) {
+                // un admin lo cambio a mano: dejamos de gestionarlo
+                if (gm != GameType.ADVENTURE) { d.advManaged.remove(id); return true; }
+            } else if (gm == GameType.SURVIVAL) {
+                p.setGameMode(GameType.ADVENTURE);
+                d.advManaged.add(id);
+                return true;
+            }
+        } else if (managed) {
+            if (gm == GameType.ADVENTURE) p.setGameMode(GameType.SURVIVAL);
+            d.advManaged.remove(id);
+            return true;
+        }
+        return false;
+    }
+
     @SubscribeEvent
     public static void onTick(TickEvent.ServerTickEvent e) {
-        if (e.phase != TickEvent.Phase.END || ++counter % 10 != 0) return;
+        if (e.phase != TickEvent.Phase.END || ++counter % 5 != 0) return;
         MinecraftServer s = e.getServer();
         if (s == null) return;
         State st = State.get(s);
         State.Data d = st.d;
-        if (d.zones.isEmpty() && d.advManaged.isEmpty() && d.advExempt.isEmpty()) return;
+        if (d.zones.isEmpty() && d.advManaged.isEmpty()) return;
         boolean changed = false;
-        for (ServerPlayer p : s.getPlayerList().getPlayers()) {
-            String id = p.getUUID().toString();
-            boolean in = inAny(d, p) && !(d.zOps && p.hasPermissions(2));
-            boolean managed = d.advManaged.contains(id);
-            if (in) {
-                if (managed) {
-                    // un admin lo cambio a mano: dejamos de gestionarlo
-                    if (p.gameMode.getGameModeForPlayer() != GameType.ADVENTURE) { d.advManaged.remove(id); changed = true; }
-                } else if (!d.advExempt.contains(id) && p.gameMode.getGameModeForPlayer() == GameType.SURVIVAL) {
-                    p.setGameMode(GameType.ADVENTURE);
-                    d.advManaged.add(id);
-                    changed = true;
-                }
-            } else {
-                if (managed) {
-                    if (p.gameMode.getGameModeForPlayer() == GameType.ADVENTURE) p.setGameMode(GameType.SURVIVAL);
-                    d.advManaged.remove(id);
-                    changed = true;
-                }
-                if (d.advExempt.remove(id)) changed = true;
-            }
-        }
+        for (ServerPlayer p : s.getPlayerList().getPlayers()) changed |= check(d, p);
         if (changed) st.dirty();
     }
 
@@ -64,12 +66,21 @@ public final class Zones {
     public static void onDeath(LivingDeathEvent e) {
         if (!(e.getEntity() instanceof ServerPlayer p) || p.getServer() == null) return;
         State st = State.get(p.getServer());
-        String id = p.getUUID().toString();
-        if (st.d.advManaged.remove(id)) {
+        if (st.d.advManaged.remove(p.getUUID().toString())) {
             if (p.gameMode.getGameModeForPlayer() == GameType.ADVENTURE) p.setGameMode(GameType.SURVIVAL);
-            st.d.advExempt.add(id); // no vuelve a aventura hasta que salga de la zona
             st.dirty();
         }
+    }
+
+    /** Al reaparecer o conectarse se vuelve a comprobar al instante: si esta dentro de una zona, aventura de nuevo. */
+    @SubscribeEvent
+    public static void onRespawn(PlayerEvent.PlayerRespawnEvent e) {
+        if (e.getEntity() instanceof ServerPlayer p && p.getServer() != null) { State st = State.get(p.getServer()); if (check(st.d, p)) st.dirty(); }
+    }
+
+    @SubscribeEvent
+    public static void onLogin(PlayerEvent.PlayerLoggedInEvent e) {
+        if (e.getEntity() instanceof ServerPlayer p && p.getServer() != null) { State st = State.get(p.getServer()); if (check(st.d, p)) st.dirty(); }
     }
 
     @SubscribeEvent
