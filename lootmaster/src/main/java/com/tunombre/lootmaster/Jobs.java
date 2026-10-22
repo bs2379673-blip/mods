@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 
 /** Tareas largas repartidas en ticks: escaneo, relleno inicial, evento, revertir y reinicio de loots. Una sola a la vez. */
 public final class Jobs {
-    public enum Kind { SCAN, FILL, EVENT, REVERT, RESET }
+    public enum Kind { SCAN, FILL, EVENT, REVERT, RESET, WAND, UNDO }
 
     private record Unit(ServerLevel level, int cx, int cz, List<BlockPos> pos) { }
 
@@ -53,6 +53,8 @@ public final class Jobs {
         int total, doneUnits;
         boolean cancelled, finished;
         State.Data st;
+        int x1, x2, z1, z2, y1, y2;
+        boolean dry, ignoreY, replace, replaceProt, nonEmpty;
 
         Job(Kind kind, String arg) { this.kind = kind; this.arg = arg; }
 
@@ -93,6 +95,7 @@ public final class Jobs {
                     }
                     if (kind == Kind.FILL && j.dims.isEmpty()) return "Ese relleno ya se hizo. Para repetirlo hay que desbloquearlo antes.";
                 }
+                case WAND -> { return "Usa Jobs.startWand"; }
                 case EVENT, RESET -> {
                     for (ServerLevel lv : s.getAllLevels()) {
                         Map<Long, List<BlockPos>> by = new LinkedHashMap<>();
@@ -105,9 +108,9 @@ public final class Jobs {
                         for (Map.Entry<Long, List<BlockPos>> e : by.entrySet()) j.units.add(new Unit(lv, ChunkPos.getX(e.getKey()), ChunkPos.getZ(e.getKey()), e.getValue()));
                     }
                 }
-                case REVERT -> {
+                case REVERT, UNDO -> {
                     Map<ServerLevel, Map<Long, List<BlockPos>>> by = new LinkedHashMap<>();
-                    for (String key : st.d.snap.keySet()) {
+                    for (String key : (kind == Kind.UNDO ? st.d.wandSnap : st.d.snap).keySet()) {
                         String[] p = key.split("\\|");
                         if (p.length != 4) continue;
                         ServerLevel lv = s.getLevel(ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, new ResourceLocation(p[0])));
@@ -188,6 +191,7 @@ public final class Jobs {
             if (j.kind == Kind.FILL) for (String d : j.dims) st.d.fillDone.put(d, now);
             if (j.kind == Kind.EVENT) st.d.evProfile = j.arg;
             if (j.kind == Kind.REVERT) { st.d.snap.clear(); st.d.evProfile = ""; }
+            if (j.kind == Kind.UNDO) st.d.wandSnap.clear();
         } else if (j.kind == Kind.EVENT && st.d.snap.isEmpty()) st.d.evProfile = "";
         st.dirty();
         last = j;
@@ -200,6 +204,8 @@ public final class Jobs {
             case FILL -> "relleno inicial";
             case EVENT -> "evento «" + j.arg + "»";
             case REVERT -> "revertir evento";
+            case WAND -> j.dry ? "contar zona de la varita" : "relleno de zona (varita)";
+            case UNDO -> "deshacer relleno de zona";
             case RESET -> j.arg.isEmpty() ? "reinicio de todos los loots" : "reinicio del perfil «" + j.arg + "»";
         };
     }
@@ -216,7 +222,8 @@ public final class Jobs {
             case SCAN, FILL -> fill(st, j, lv, p);
             case EVENT -> event(st, j, lv, p);
             case RESET -> reset(st, j, lv, p);
-            case REVERT -> revert(st, j, lv, p);
+            case REVERT, UNDO -> revert(st, j, lv, p);
+            case WAND -> wand(st, j, lv, p);
         }
     }
 
@@ -298,13 +305,104 @@ public final class Jobs {
     }
 
     private static void revert(State st, Job j, ServerLevel lv, BlockPos p) {
-        String old = st.d.snap.get(key(lv, p));
+        Map<String, String> sn = j.kind == Kind.UNDO ? st.d.wandSnap : st.d.snap;
+        String old = sn.get(key(lv, p));
         if (old == null) return;
         Optional<DecorLootTargeting.Target> ot = DecorLootTargeting.findLootContainer(lv, p);
-        if (ot.isEmpty() || !DecorLootConfigManager.has(old)) { j.inc("no_restaurados"); return; }
+        if (ot.isEmpty()) { j.inc("no_restaurados"); return; }
+        if (old.isEmpty()) {
+            if (ot.get().data().isMarkedAsLootCrate()) DecorLootTargeting.clearTarget(lv, ot.get());
+            j.inc("restaurados");
+            return;
+        }
+        if (!DecorLootConfigManager.has(old)) { j.inc("no_restaurados"); return; }
         DecorLootContainerData data = ot.get().data();
         DecorLootInteraction.markAsLootCrate(lv, ot.get(), old, data.isLocked(), st.d.evClear);
         j.inc("restaurados");
+    }
+
+    public static final String REMOVE = "__quitar__";
+
+    private static boolean regionHas(MinecraftServer s, ServerLevel lv, int cx, int cz) {
+        if (lv.getChunkSource().getChunkNow(cx, cz) != null) return true;
+        Path f = DimensionType.getStorageFolder(lv.dimension(), s.getWorldPath(LevelResource.ROOT)).resolve("region").resolve("r." + (cx >> 5) + "." + (cz >> 5) + ".mca");
+        if (!Files.isRegularFile(f)) return false;
+        try (java.io.RandomAccessFile r = new java.io.RandomAccessFile(f.toFile(), "r")) {
+            if (r.length() < 4096) return false;
+            r.seek(4L * ((cx & 31) + (cz & 31) * 32));
+            return r.readInt() != 0;
+        } catch (java.io.IOException e) { return false; }
+    }
+
+    /** Zona de la varita: rectangulo entre dos puntos (opcionalmente toda la altura). @return error o null */
+    public static String startWand(MinecraftServer s, ServerLevel lv, BlockPos a, BlockPos b, boolean dry) {
+        if (current != null) return "Ya hay una tarea en curso (" + label(current) + ").";
+        State st = State.get(s);
+        String prof = st.d.wProfile;
+        boolean remove = prof.equals(REMOVE);
+        if (!remove && !DecorLootConfigManager.has(prof)) return "El perfil «" + prof + "» no existe. Elige otro en el panel.";
+        Job j = new Job(Kind.WAND, prof);
+        j.st = st.d;
+        j.dry = dry;
+        j.x1 = Math.min(a.getX(), b.getX()); j.x2 = Math.max(a.getX(), b.getX());
+        j.z1 = Math.min(a.getZ(), b.getZ()); j.z2 = Math.max(a.getZ(), b.getZ());
+        j.y1 = Math.min(a.getY(), b.getY()); j.y2 = Math.max(a.getY(), b.getY());
+        j.ignoreY = st.d.wIgnoreY; j.replace = st.d.wReplace; j.replaceProt = st.d.wReplaceProt; j.nonEmpty = st.d.wNonEmpty;
+        int cx1 = j.x1 >> 4, cx2 = j.x2 >> 4, cz1 = j.z1 >> 4, cz2 = j.z2 >> 4;
+        long n = (long) (cx2 - cx1 + 1) * (cz2 - cz1 + 1);
+        if (n > 40000) return "La zona es demasiado grande (" + n + " chunks, máximo 40000).";
+        for (int cx = cx1; cx <= cx2; cx++)
+            for (int cz = cz1; cz <= cz2; cz++)
+                if (regionHas(s, lv, cx, cz)) j.units.add(new Unit(lv, cx, cz, null));
+        j.dims.add(lv.dimension().location().toString());
+        j.total = j.units.size();
+        if (!dry) st.d.wandSnap.clear();
+        current = j;
+        return null;
+    }
+
+    private static void wand(State st, Job j, ServerLevel lv, BlockPos p) {
+        if (p.getX() < j.x1 || p.getX() > j.x2 || p.getZ() < j.z1 || p.getZ() > j.z2) return;
+        if (!j.ignoreY && (p.getY() < j.y1 || p.getY() > j.y2)) return;
+        BlockEntity be = lv.getBlockEntity(p);
+        if (be == null) return;
+        if (!(be instanceof Container)) {
+            if (be.getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER).isPresent()) j.inc("inventarios_no_compatibles_con_SA");
+            return;
+        }
+        BlockState bs = be.getBlockState();
+        ResourceLocation rl = ForgeRegistries.BLOCKS.getKey(bs.getBlock());
+        String bid = rl == null ? "?" : rl.toString();
+        j.inc("contenedores");
+        if (st.d.seen.add(bid)) st.dirty();
+        if (bs.getBlock() instanceof ChestBlock && bs.hasProperty(ChestBlock.TYPE) && bs.getValue(ChestBlock.TYPE) != ChestType.SINGLE) { j.inc("cofres_dobles_no_soportados"); return; }
+        Optional<DecorLootTargeting.Target> ot = DecorLootTargeting.findLootContainer(lv, p);
+        if (ot.isEmpty()) { j.inc("no_soportados"); return; }
+        DecorLootTargeting.Target t = ot.get();
+        DecorLootContainerData data = t.data();
+        boolean remove = j.arg.equals(REMOVE);
+        boolean marked = data.isMarkedAsLootCrate();
+        String cur = marked ? data.configId() : "";
+        if (isLoose(lv, p)) { j.inc("loot_suelto"); return; }
+        if (marked) {
+            if (!j.replace && !remove) { j.inc("ya_con_etiqueta"); return; }
+            if (st.d.prot.contains(cur) && !j.replaceProt) { j.inc("protegidos"); return; }
+            if (cur.equals(j.arg)) { j.inc("ya_eran_asi"); return; }
+        } else {
+            if (remove) { j.inc("sin_etiqueta"); return; }
+            if (!typeAllowed(st.d, bid, t.lootContainer() != null)) { j.inc("tipo_desactivado"); return; }
+            if (!DecorLootInteraction.isContainerEmpty(t.container()) && !j.nonEmpty) { j.inc("con_objetos_omitidos"); return; }
+        }
+        if (j.dry) { j.inc(remove ? "se_quitarian" : marked ? "se_cambiarian" : "se_rellenarian"); return; }
+        st.d.wandSnap.putIfAbsent(key(lv, p), cur);
+        if (remove) {
+            DecorLootTargeting.clearTarget(lv, t);
+            j.inc("etiquetas_quitadas");
+            return;
+        }
+        if (data.hasPendingSeed()) data.consumePendingSeed();
+        DecorLootInteraction.markAsLootCrate(lv, t, j.arg, marked && data.isLocked(), true);
+        j.inc(marked ? "cambiados" : "rellenados");
     }
 
     public static Map<String, Integer> countByProfile(MinecraftServer s) {

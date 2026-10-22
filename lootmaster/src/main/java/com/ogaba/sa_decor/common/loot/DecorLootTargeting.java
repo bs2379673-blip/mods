@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 public final class DecorLootTargeting {
     public static Optional<Target> findLootContainer(Level level, BlockPos hitPos) { throw new UnsupportedOperationException(); }
+    public static void clearTarget(Level level, Target target) { throw new UnsupportedOperationException(); }
     public static void saveTarget(Level level, Target target) { throw new UnsupportedOperationException(); }
     public static boolean isUnsupportedDoubleChest(BlockState state) { throw new UnsupportedOperationException(); }
     public record Target(BlockPos pos, BlockEntity blockEntity, DecorLootContainer lootContainer, Container container, DecorLootContainerData data) { }

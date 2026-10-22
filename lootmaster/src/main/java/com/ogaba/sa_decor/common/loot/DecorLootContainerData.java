@@ -12,5 +12,6 @@ public final class DecorLootContainerData {
     public void clearPlayerStates() { throw new UnsupportedOperationException(); }
     public void clearLootrContainerId() { throw new UnsupportedOperationException(); }
     public boolean hasConfigId() { throw new UnsupportedOperationException(); }
+    public void consumePendingSeed() { throw new UnsupportedOperationException(); }
     public boolean hasPendingSeed() { throw new UnsupportedOperationException(); }
 }

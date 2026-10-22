@@ -31,7 +31,7 @@ public final class LootScreen extends Screen {
     private static final int C_BG = 0xF00C0C0F, C_SIDE = 0xFF121216, C_BORDER = 0xFF6E1420, C_ACCENT = 0xFFC8283A, C_TEXT = 0xFFE8E8EC,
             C_DIM = 0xFF8C8C98, C_OK = 0xFF55D68A, C_FIELD = 0xFF1C1C22, C_BAR = 0xFF2B0E14, C_ON = 0xFF2EBB55, C_OFF = 0xFF55555F, C_WARN = 0xFFE0A030;
     private static final int GAP = 6, SIDE_W = 108;
-    private static final List<String> TABS = List.of("Resumen", "Perfiles", "Global", "Relleno inicial", "Evento", "Tipos", "Ayuda");
+    private static final List<String> TABS = List.of("Resumen", "Varita", "Perfiles", "Global", "Relleno inicial", "Evento", "Tipos", "Ayuda");
 
     private JsonObject st;
     private String sig = "";
@@ -83,6 +83,17 @@ public final class LootScreen extends Screen {
         } catch (RuntimeException ignored) { }
     }
 
+    public static void wantTab(String t) {
+        if (!TABS.contains(t)) return;
+        lastTab = t;
+        if (active != null) { active.tab = t; active.scroll = 0; active.buildTab(); }
+    }
+
+    public static void onSel(String json) {
+        if (active == null || active.st == null) return;
+        try { active.st.add("sel", JsonParser.parseString(json).getAsJsonObject()); } catch (RuntimeException ignored) { }
+    }
+
     public static void onJob(String json) {
         if (active == null || active.st == null) return;
         try { active.st.add("job", JsonParser.parseString(json).getAsJsonObject()); } catch (RuntimeException ignored) { }
@@ -109,7 +120,7 @@ public final class LootScreen extends Screen {
         for (JsonElement e : o.getAsJsonArray("dims")) sb.append(e.getAsJsonObject().get("id").getAsString()).append(e.getAsJsonObject().get("done").getAsString().isEmpty() ? "0" : "1").append(',');
         sb.append('|');
         for (JsonElement e : o.getAsJsonArray("types")) sb.append(e.getAsJsonObject().get("id").getAsString()).append(',');
-        sb.append('|').append(str(o, "evProfile").isEmpty() ? 0 : 1).append(o.get("evChanged").getAsInt() > 0 ? 1 : 0).append(o.get("origCount").getAsInt() > 0 ? 1 : 0);
+        sb.append('|').append(o.has("wandUndo") && o.get("wandUndo").getAsInt() > 0 ? 'U' : 'N').append(str(o, "evProfile").isEmpty() ? 0 : 1).append(o.get("evChanged").getAsInt() > 0 ? 1 : 0).append(o.get("origCount").getAsInt() > 0 ? 1 : 0);
         JsonObject j = o.getAsJsonObject("job");
         sb.append(j != null && j.has("running") && j.get("running").getAsBoolean() ? 'R' : 'S');
         return sb.toString();
@@ -450,6 +461,7 @@ public final class LootScreen extends Screen {
         rowH = 0;
         switch (tab) {
             case "Resumen" -> tabSummary();
+            case "Varita" -> tabWand();
             case "Perfiles" -> tabProfiles();
             case "Global" -> tabGlobal();
             case "Relleno inicial" -> tabFill();
@@ -577,6 +589,47 @@ public final class LootScreen extends Screen {
         header("REINICIO");
         note("Vacía y vuelve a llenar YA todos los contenedores con etiqueta (menos los perfiles protegidos). Normalmente no hace falta: el respawn por tiempo de cada perfil ya los rellena solo cuando un jugador los vacía.");
         if (!running()) btnSure("resetall", "REINICIAR TODOS LOS LOOTS AHORA", C_ACCENT, false, () -> opWith("reset", "profile", ""));
+    }
+
+    private static String pt(JsonObject s, String k) {
+        if (s == null || !s.has(k)) return "sin marcar";
+        JsonArray a = s.getAsJsonArray(k);
+        return a.get(0).getAsInt() + "  " + a.get(1).getAsInt() + "  " + a.get(2).getAsInt();
+    }
+
+    private void tabWand() {
+        header("VARITA DE RELLENO");
+        note("Consigue la varita con /give @s lootmaster:rellenador (o en la pestaña de herramientas). Clic izquierdo en un bloque = punto 1, clic derecho = punto 2. Clic en el aire (o agachado + clic) abre este panel.");
+        dyn(1, C_TEXT, () -> "Punto 1: " + pt(st.getAsJsonObject("sel"), "a"));
+        dyn(1, C_TEXT, () -> "Punto 2: " + pt(st.getAsJsonObject("sel"), "b"));
+        dyn(1, C_DIM, () -> {
+            JsonObject s = st.getAsJsonObject("sel");
+            if (s == null || !s.has("a") || !s.has("b")) return "Zona: marca los dos puntos";
+            JsonArray a = s.getAsJsonArray("a"), b = s.getAsJsonArray("b");
+            int dx = Math.abs(a.get(0).getAsInt() - b.get(0).getAsInt()) + 1, dz = Math.abs(a.get(2).getAsInt() - b.get(2).getAsInt()) + 1, dy = Math.abs(a.get(1).getAsInt() - b.get(1).getAsInt()) + 1;
+            return "Zona: " + dx + " × " + dz + (bool(set(), "wIgnoreY") ? " (toda la altura)" : " × " + dy + " de alto");
+        });
+        header("QUÉ PONER");
+        List<String> ids = new ArrayList<>(profileIds());
+        List<String> labels = new ArrayList<>(ids);
+        ids.add(0, "__quitar__");
+        labels.add(0, "(quitar etiqueta)");
+        String cur = str(set(), "wProfile");
+        cycMap("Perfil de loot", labels, ids, ids.contains(cur) ? cur : ids.get(Math.min(1, ids.size() - 1)), v -> setSetting("wProfile", v), false);
+        tog("Toda la altura (ignorar Y)", () -> bool(set(), "wIgnoreY"), v -> setSetting("wIgnoreY", String.valueOf(v)), false);
+        tog("Cambiar también los que ya tienen etiqueta", () -> bool(set(), "wReplace"), v -> setSetting("wReplace", String.valueOf(v)), false);
+        tog("…incluso los perfiles protegidos", () -> bool(set(), "wReplaceProt"), v -> setSetting("wReplaceProt", String.valueOf(v)), false);
+        tog("Incluir los que tienen objetos (BORRA)", () -> bool(set(), "wNonEmpty"), v -> setSetting("wNonEmpty", String.valueOf(v)), false);
+        header("ACCIONES");
+        if (running()) {
+            dyn(1, C_WARN, () -> "Hay una tarea en curso: " + str(job(), "label"));
+            btn("Detener la tarea", C_WARN, false, () -> op("stop"));
+        } else {
+            btn("CONTAR (no cambia nada)", C_BORDER, false, () -> { JsonObject o = new JsonObject(); o.addProperty("op", "wand"); o.addProperty("dry", true); send(o); });
+            btnSure("wapply", "APLICAR A LA ZONA", C_ACCENT, false, () -> { JsonObject o = new JsonObject(); o.addProperty("op", "wand"); o.addProperty("dry", false); send(o); });
+            if (st.has("wandUndo") && st.get("wandUndo").getAsInt() > 0) btnSure("wundo", "DESHACER EL ÚLTIMO RELLENO", C_OK, false, () -> op("wundo"));
+        }
+        dyn(4, C_DIM, () -> str(job(), "sum"));
     }
 
     private void tabProfiles() {

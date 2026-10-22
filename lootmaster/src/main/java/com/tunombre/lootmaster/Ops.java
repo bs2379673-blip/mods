@@ -37,7 +37,7 @@ public final class Ops {
 
     public static void open(ServerPlayer p) {
         WATCH.add(p.getUUID());
-        Net.toClient(p, "state", state(p.getServer()).toString());
+        Net.toClient(p, "state", state(p.getServer(), p).toString());
     }
 
     public static String summary(Jobs.Job j) {
@@ -63,7 +63,7 @@ public final class Ops {
         return o;
     }
 
-    public static JsonObject state(MinecraftServer s) {
+    public static JsonObject state(MinecraftServer s, ServerPlayer pl) {
         State st = State.get(s);
         State.Data d = st.d;
         JsonObject o = new JsonObject();
@@ -122,7 +122,14 @@ public final class Ops {
         set.addProperty("gClear", d.gClear);
         set.addProperty("gMin", d.gMin);
         set.addProperty("perTick", d.perTick);
+        set.addProperty("wProfile", d.wProfile);
+        set.addProperty("wIgnoreY", d.wIgnoreY);
+        set.addProperty("wReplace", d.wReplace);
+        set.addProperty("wReplaceProt", d.wReplaceProt);
+        set.addProperty("wNonEmpty", d.wNonEmpty);
         o.add("set", set);
+        o.add("sel", Wand.json(pl));
+        o.addProperty("wandUndo", d.wandSnap.size());
         o.addProperty("evProfile", d.evProfile);
         o.addProperty("evChanged", d.snap.size());
         o.addProperty("origCount", d.orig.size());
@@ -172,6 +179,19 @@ public final class Ops {
                     else startMsg(p, Jobs.start(s, Jobs.Kind.REVERT, "", "todas"), "Revirtiendo al loot anterior…");
                 }
                 case "reset" -> startMsg(p, Jobs.start(s, Jobs.Kind.RESET, str(o, "profile"), "todas"), "Reinicio de loots en marcha.");
+                case "wand" -> {
+                    Wand.Sel sel = Wand.get(p);
+                    if (sel == null || sel.a == null || sel.b == null) msg(p, "Marca los dos puntos con la varita (clic izquierdo y clic derecho en un bloque).");
+                    else {
+                        var lv = Wand.levelOf(p, sel);
+                        boolean dry = bool(o, "dry");
+                        startMsg(p, lv == null ? "Dimensión no disponible." : Jobs.startWand(s, lv, sel.a, sel.b, dry), dry ? "Contando la zona…" : "Rellenando la zona…");
+                    }
+                }
+                case "wundo" -> {
+                    if (d.wandSnap.isEmpty()) msg(p, "No hay nada que deshacer.");
+                    else startMsg(p, Jobs.start(s, Jobs.Kind.UNDO, "", "todas"), "Deshaciendo el último relleno de zona…");
+                }
                 case "gapply" -> { globalApply(d); msg(p, "Ajustes globales aplicados (los perfiles protegidos no se tocan)."); }
                 case "grestore" -> { globalRestore(d); msg(p, "Perfiles devueltos a como estaban antes."); }
                 default -> { }
@@ -181,7 +201,7 @@ public final class Ops {
             LootMaster.LOG.warn("op {} fallo", op, e);
         }
         st.dirty();
-        Net.toClient(p, "state", state(s).toString());
+        Net.toClient(p, "state", state(s, p).toString());
     }
 
     private static String dim(JsonObject o) { String v = str(o, "dim"); return v.isEmpty() ? "todas" : v; }
@@ -199,6 +219,11 @@ public final class Ops {
             case "gOnly" -> d.gOnly = v;
             case "gClear" -> d.gClear = v;
             case "gMin" -> d.gMin = Math.max(0, Math.min(100000, (int) Double.parseDouble(v)));
+            case "wProfile" -> d.wProfile = v;
+            case "wIgnoreY" -> d.wIgnoreY = v.equals("true");
+            case "wReplace" -> d.wReplace = v.equals("true");
+            case "wReplaceProt" -> d.wReplaceProt = v.equals("true");
+            case "wNonEmpty" -> d.wNonEmpty = v.equals("true");
             case "perTick" -> d.perTick = Math.max(1, Math.min(40, (int) Double.parseDouble(v)));
             default -> { }
         }
