@@ -672,7 +672,7 @@ public final class LootScreen extends Screen {
 
     private void tabTypes() {
         header("TIPOS DE CONTENEDOR");
-        note("Qué bloques entran en el relleno inicial. Por defecto: cofres, cofres trampa, barriles, shulkers y los bloques de Survivors Arsenal. Los tipos aparecen aquí después de un escaneo.");
+        note("Qué bloques entran en el relleno inicial. Por defecto entran todos los contenedores de vanilla y de otros mods, menos bloques técnicos (hopper, dispenser, hornos, etc.). Los tipos aparecen aquí después de un escaneo.");
         JsonArray ty = st.getAsJsonArray("types");
         if (ty.size() == 0) note("Aún no se ha visto ningún tipo. Ve a «Relleno inicial» y pulsa ESCANEAR.");
         for (JsonElement e : ty) {

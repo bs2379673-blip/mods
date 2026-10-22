@@ -63,6 +63,10 @@ public final class Jobs {
     private static Job last;
     private static final Pattern REGION = Pattern.compile("r\\.(-?\\d+)\\.(-?\\d+)\\.mca");
 
+    private static final java.util.Set<String> TECH = java.util.Set.of("minecraft:hopper", "minecraft:dropper", "minecraft:dispenser", "minecraft:furnace",
+            "minecraft:blast_furnace", "minecraft:smoker", "minecraft:brewing_stand", "minecraft:crafter", "minecraft:jukebox", "minecraft:chiseled_bookshelf",
+            "minecraft:decorated_pot", "minecraft:lectern", "minecraft:campfire", "minecraft:soul_campfire");
+
     private Jobs() { }
 
     public static Job current() { return current; }
@@ -223,12 +227,22 @@ public final class Jobs {
     }
 
     public static boolean defaultType(String bid, boolean sa) {
-        return sa || bid.equals("minecraft:chest") || bid.equals("minecraft:trapped_chest") || bid.equals("minecraft:barrel") || bid.endsWith("shulker_box");
+        if (sa) return true;
+        // cualquier contenedor de cualquier mod, menos bloques tecnicos (se pueden activar a mano en la pestana Tipos)
+        return !TECH.contains(bid);
     }
 
     private static void fill(State st, Job j, ServerLevel lv, BlockPos p) {
         BlockEntity be = lv.getBlockEntity(p);
-        if (!(be instanceof Container)) return;
+        if (be == null) return;
+        if (!(be instanceof Container)) {
+            if (be.getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER).isPresent()) {
+                j.inc("inventarios_no_compatibles_con_SA");
+                ResourceLocation r0 = ForgeRegistries.BLOCKS.getKey(be.getBlockState().getBlock());
+                if (r0 != null) LootMaster.LOG.info("[LootMaster] inventario sin soporte de sa_decor (no implementa Container): {}", r0);
+            }
+            return;
+        }
         BlockState bs = be.getBlockState();
         ResourceLocation rl = ForgeRegistries.BLOCKS.getKey(bs.getBlock());
         String bid = rl == null ? "?" : rl.toString();
