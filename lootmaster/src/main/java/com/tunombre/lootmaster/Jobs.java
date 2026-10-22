@@ -208,7 +208,7 @@ public final class Jobs {
     private static String key(ServerLevel lv, BlockPos p) { return lv.dimension().location() + "|" + p.getX() + "|" + p.getY() + "|" + p.getZ(); }
 
     private static boolean isLoose(ServerLevel lv, BlockPos p) {
-        try { return DecorLooseLootSavedData.get(lv).getManualProfile(p) != null; } catch (RuntimeException e) { return false; }
+        try { String m = DecorLooseLootSavedData.get(lv).getManualProfile(p); return m != null && !m.isBlank(); } catch (RuntimeException e) { return false; }
     }
 
     private static void handle(MinecraftServer s, State st, Job j, ServerLevel lv, BlockPos p) {
