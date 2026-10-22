@@ -293,8 +293,10 @@ public class JefeEntity extends Mob {
         float v = crouch ? s.sneak : sprint ? s.sprint : s.walk;
         if (a == Act.ATTACK_L || a == Act.ATTACK_R) v *= 0.35F;
         if (!canMove && a != Act.ATTACK_L && a != Act.ATTACK_R) { v = 0; fwd = 0; }
-        setZza(fwd);
+        // OJO: Mob.setSpeed tambien pone zza = velocidad, asi que primero la velocidad y DESPUES la entrada de avance
+        // (al reves, el avance valia solo v/2.16 y la velocidad real salia elevada al cuadrado: casi no se movia)
         setSpeed(v / 2.16F);
+        setZza(fwd);
 
         // aterrizaje
         if (!onGround()) airTicks++;
