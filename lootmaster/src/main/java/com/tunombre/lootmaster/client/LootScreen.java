@@ -31,7 +31,7 @@ public final class LootScreen extends Screen {
     private static final int C_BG = 0xF00C0C0F, C_SIDE = 0xFF121216, C_BORDER = 0xFF6E1420, C_ACCENT = 0xFFC8283A, C_TEXT = 0xFFE8E8EC,
             C_DIM = 0xFF8C8C98, C_OK = 0xFF55D68A, C_FIELD = 0xFF1C1C22, C_BAR = 0xFF2B0E14, C_ON = 0xFF2EBB55, C_OFF = 0xFF55555F, C_WARN = 0xFFE0A030;
     private static final int GAP = 6, SIDE_W = 108;
-    private static final List<String> TABS = List.of("Resumen", "Varita", "Perfiles", "Global", "Relleno inicial", "Evento", "Tipos", "Ayuda");
+    private static final List<String> TABS = List.of("Resumen", "Varita", "Zonas", "Perfiles", "Global", "Relleno inicial", "Evento", "Tipos", "Ayuda");
 
     private JsonObject st;
     private String sig = "";
@@ -49,6 +49,7 @@ public final class LootScreen extends Screen {
     private long statusAt;
     private String fillDim = "todas";
     private String evPick = "";
+    private String zoneName = "";
 
     private static final class Cell {
         final AbstractWidget w;
@@ -74,10 +75,12 @@ public final class LootScreen extends Screen {
             JsonObject o = JsonParser.parseString(json).getAsJsonObject();
             if (active == null) {
                 if (Minecraft.getInstance().screen instanceof LootScreen) return;
+                if (o.has("zones")) WandRender.setZones(o.getAsJsonArray("zones"));
                 Minecraft.getInstance().setScreen(new LootScreen(o));
                 return;
             }
             active.st = o;
+            if (o.has("zones")) WandRender.setZones(o.getAsJsonArray("zones"));
             String s = signature(o);
             if (!s.equals(active.sig)) { active.sig = s; active.buildTab(); }
         } catch (RuntimeException ignored) { }
@@ -120,6 +123,8 @@ public final class LootScreen extends Screen {
         for (JsonElement e : o.getAsJsonArray("dims")) sb.append(e.getAsJsonObject().get("id").getAsString()).append(e.getAsJsonObject().get("done").getAsString().isEmpty() ? "0" : "1").append(',');
         sb.append('|');
         for (JsonElement e : o.getAsJsonArray("types")) sb.append(e.getAsJsonObject().get("id").getAsString()).append(',');
+        sb.append('|');
+        if (o.has("zones")) for (JsonElement e : o.getAsJsonArray("zones")) sb.append(e.getAsJsonObject().get("name").getAsString()).append(',');
         sb.append('|').append(o.has("wandUndo") && o.get("wandUndo").getAsInt() > 0 ? 'U' : 'N').append(str(o, "evProfile").isEmpty() ? 0 : 1).append(o.get("evChanged").getAsInt() > 0 ? 1 : 0).append(o.get("origCount").getAsInt() > 0 ? 1 : 0);
         JsonObject j = o.getAsJsonObject("job");
         sb.append(j != null && j.has("running") && j.get("running").getAsBoolean() ? 'R' : 'S');
@@ -462,6 +467,7 @@ public final class LootScreen extends Screen {
         switch (tab) {
             case "Resumen" -> tabSummary();
             case "Varita" -> tabWand();
+            case "Zonas" -> tabZones();
             case "Perfiles" -> tabProfiles();
             case "Global" -> tabGlobal();
             case "Relleno inicial" -> tabFill();
@@ -630,6 +636,34 @@ public final class LootScreen extends Screen {
             if (st.has("wandUndo") && st.get("wandUndo").getAsInt() > 0) btnSure("wundo", "DESHACER EL ÚLTIMO RELLENO", C_OK, false, () -> op("wundo"));
         }
         dyn(4, C_DIM, () -> str(job(), "sum"));
+    }
+
+    private void tabZones() {
+        header("ZONAS DE AVENTURA");
+        note("Dentro de una zona los jugadores pasan a modo aventura (no rompen ni colocan bloques). Al salir de la zona, al morir o al desconectarse vuelven a supervivencia. Tras morir no vuelven a aventura hasta que salgan de la zona. Solo se cambia a quien está en supervivencia (creativo y espectador no se tocan).");
+        dyn(1, C_TEXT, () -> "Jugadores en aventura ahora: " + st.get("advCount").getAsInt());
+        tog("No afectar a operadores", () -> bool(set(), "zOps"), v -> setSetting("zOps", String.valueOf(v)), false);
+        header("NUEVA ZONA");
+        note("1) Marca dos puntos con la varita. 2) Pon un nombre. 3) Crear. Si «Toda la altura» (pestaña Varita) está activado, la zona cubre todas las alturas.");
+        place(false, 32, (x, w) -> {
+            Lbl l = new Lbl(x, 0, () -> "Nombre de la zona", C_DIM);
+            EditBox eb = new EditBox(font(), x, 11, w, 18, Component.empty());
+            eb.setMaxLength(40);
+            eb.setValue(zoneName);
+            eb.setResponder(s -> zoneName = s);
+            return List.of(l, eb);
+        });
+        btn("CREAR ZONA CON LA SELECCIÓN DE LA VARITA", C_ACCENT, false, () -> opWith("zone_add", "name", zoneName));
+        header("ZONAS");
+        JsonArray zs = st.getAsJsonArray("zones");
+        if (zs == null || zs.size() == 0) note("Aún no hay zonas.");
+        else for (JsonElement e : zs) {
+            JsonObject z = e.getAsJsonObject();
+            String n = str(z, "name");
+            dyn(1, C_TEXT, () -> n + " · " + str(z, "dim") + " · " + (z.get("x2").getAsInt() - z.get("x1").getAsInt() + 1) + "×" + (z.get("z2").getAsInt() - z.get("z1").getAsInt() + 1) + (bool(z, "ignoreY") ? " (toda la altura)" : ""));
+            tog("Activa", () -> bool(z, "enabled"), v -> { z.addProperty("enabled", v); JsonObject o = new JsonObject(); o.addProperty("op", "zone_on"); o.addProperty("name", n); o.addProperty("v", v); send(o); }, true);
+            btnSure("zdel:" + n, "Borrar", C_BORDER, true, () -> opWith("zone_del", "name", n));
+        }
     }
 
     private void tabProfiles() {

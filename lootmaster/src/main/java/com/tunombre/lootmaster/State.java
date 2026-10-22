@@ -17,6 +17,12 @@ public final class State extends SavedData {
     private static State cached;
     private static MinecraftServer cachedFor;
 
+    public static final class Zone {
+        public String name = "", dim = "";
+        public int x1, x2, z1, z2, y1, y2;
+        public boolean ignoreY = true, enabled = true;
+    }
+
     public static final class Orig { public boolean per, rEn, rOnly, rClear; public long ticks; }
 
     public static final class Data {
@@ -32,6 +38,10 @@ public final class State extends SavedData {
         public String gPer = "", gResp = "", gOnly = "", gClear = "";
         public int gMin = 0;
         public int perTick = 3;
+        public java.util.List<Zone> zones = new java.util.ArrayList<>();
+        public Set<String> advManaged = new TreeSet<>();
+        public Set<String> advExempt = new TreeSet<>();
+        public boolean zOps = false;
         public Map<String, String> wandSnap = new LinkedHashMap<>();
         public String wProfile = "civil";
         public boolean wIgnoreY = true, wReplace = false, wReplaceProt = false, wNonEmpty = false;
@@ -60,6 +70,9 @@ public final class State extends SavedData {
         if (s.d.typeOn == null) s.d.typeOn = new TreeMap<>();
         if (s.d.seen == null) s.d.seen = new TreeSet<>();
         if (s.d.snap == null) s.d.snap = new LinkedHashMap<>();
+        if (s.d.zones == null) s.d.zones = new java.util.ArrayList<>();
+        if (s.d.advManaged == null) s.d.advManaged = new TreeSet<>();
+        if (s.d.advExempt == null) s.d.advExempt = new TreeSet<>();
         if (s.d.wandSnap == null) s.d.wandSnap = new LinkedHashMap<>();
         if (s.d.orig == null) s.d.orig = new TreeMap<>();
         return s;

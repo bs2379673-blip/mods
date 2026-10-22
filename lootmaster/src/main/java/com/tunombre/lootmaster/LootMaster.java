@@ -40,6 +40,7 @@ public class LootMaster {
         });
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(Wand.class);
+        MinecraftForge.EVENT_BUS.register(Zones.class);
     }
 
     @SubscribeEvent

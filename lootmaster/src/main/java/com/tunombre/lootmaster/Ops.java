@@ -122,6 +122,7 @@ public final class Ops {
         set.addProperty("gClear", d.gClear);
         set.addProperty("gMin", d.gMin);
         set.addProperty("perTick", d.perTick);
+        set.addProperty("zOps", d.zOps);
         set.addProperty("wProfile", d.wProfile);
         set.addProperty("wIgnoreY", d.wIgnoreY);
         set.addProperty("wReplace", d.wReplace);
@@ -129,6 +130,17 @@ public final class Ops {
         set.addProperty("wNonEmpty", d.wNonEmpty);
         o.add("set", set);
         o.add("sel", Wand.json(pl));
+        JsonArray zs = new JsonArray();
+        for (State.Zone z : d.zones) {
+            JsonObject x = new JsonObject();
+            x.addProperty("name", z.name); x.addProperty("dim", z.dim);
+            x.addProperty("x1", z.x1); x.addProperty("x2", z.x2); x.addProperty("z1", z.z1); x.addProperty("z2", z.z2);
+            x.addProperty("y1", z.y1); x.addProperty("y2", z.y2);
+            x.addProperty("ignoreY", z.ignoreY); x.addProperty("enabled", z.enabled);
+            zs.add(x);
+        }
+        o.add("zones", zs);
+        o.addProperty("advCount", d.advManaged.size());
         o.addProperty("wandUndo", d.wandSnap.size());
         o.addProperty("evProfile", d.evProfile);
         o.addProperty("evChanged", d.snap.size());
@@ -192,6 +204,25 @@ public final class Ops {
                     if (d.wandSnap.isEmpty()) msg(p, "No hay nada que deshacer.");
                     else startMsg(p, Jobs.start(s, Jobs.Kind.UNDO, "", "todas"), "Deshaciendo el último relleno de zona…");
                 }
+                case "zone_add" -> {
+                    Wand.Sel sel = Wand.get(p);
+                    String name = str(o, "name").trim();
+                    if (sel == null || sel.a == null || sel.b == null) msg(p, "Marca los dos puntos con la varita antes de crear la zona.");
+                    else if (name.isEmpty()) msg(p, "Ponle un nombre a la zona.");
+                    else {
+                        d.zones.removeIf(z -> z.name.equalsIgnoreCase(name));
+                        State.Zone z = new State.Zone();
+                        z.name = name; z.dim = sel.dim;
+                        z.x1 = Math.min(sel.a.getX(), sel.b.getX()); z.x2 = Math.max(sel.a.getX(), sel.b.getX());
+                        z.z1 = Math.min(sel.a.getZ(), sel.b.getZ()); z.z2 = Math.max(sel.a.getZ(), sel.b.getZ());
+                        z.y1 = Math.min(sel.a.getY(), sel.b.getY()); z.y2 = Math.max(sel.a.getY(), sel.b.getY());
+                        z.ignoreY = d.wIgnoreY;
+                        d.zones.add(z);
+                        msg(p, "Zona de aventura «" + name + "» creada.");
+                    }
+                }
+                case "zone_del" -> { String n = str(o, "name"); d.zones.removeIf(z -> z.name.equals(n)); msg(p, "Zona «" + n + "» borrada."); }
+                case "zone_on" -> { String n = str(o, "name"); for (State.Zone z : d.zones) if (z.name.equals(n)) z.enabled = bool(o, "v"); }
                 case "gapply" -> { globalApply(d); msg(p, "Ajustes globales aplicados (los perfiles protegidos no se tocan)."); }
                 case "grestore" -> { globalRestore(d); msg(p, "Perfiles devueltos a como estaban antes."); }
                 default -> { }
@@ -219,6 +250,7 @@ public final class Ops {
             case "gOnly" -> d.gOnly = v;
             case "gClear" -> d.gClear = v;
             case "gMin" -> d.gMin = Math.max(0, Math.min(100000, (int) Double.parseDouble(v)));
+            case "zOps" -> d.zOps = v.equals("true");
             case "wProfile" -> d.wProfile = v;
             case "wIgnoreY" -> d.wIgnoreY = v.equals("true");
             case "wReplace" -> d.wReplace = v.equals("true");

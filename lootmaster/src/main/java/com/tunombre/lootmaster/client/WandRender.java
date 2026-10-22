@@ -20,6 +20,13 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = LootMaster.MODID, value = Dist.CLIENT)
 public final class WandRender {
     private static int[] a, b;
+    private static java.util.List<int[]> zones = new java.util.ArrayList<>();
+
+    static void setZones(JsonArray zs) {
+        java.util.List<int[]> l = new java.util.ArrayList<>();
+        for (var e : zs) { JsonObject z = e.getAsJsonObject(); l.add(new int[]{z.get("x1").getAsInt(), z.get("z1").getAsInt(), z.get("x2").getAsInt(), z.get("z2").getAsInt(), z.get("y1").getAsInt(), z.get("y2").getAsInt(), z.get("ignoreY").getAsBoolean() ? 1 : 0, z.get("enabled").getAsBoolean() ? 1 : 0}); }
+        zones = l;
+    }
 
     private WandRender() { }
 
@@ -42,19 +49,24 @@ public final class WandRender {
         if (e.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.player.getMainHandItem().getItem() != LootMaster.WAND.get()) return;
-        if (a == null && b == null) return;
-        int[] p1 = a != null ? a : b, p2 = b != null ? b : a;
         PoseStack ps = e.getPoseStack();
         Vec3 cam = e.getCamera().getPosition();
         MultiBufferSource.BufferSource buf = mc.renderBuffers().bufferSource();
         VertexConsumer vc = buf.getBuffer(RenderType.lines());
         ps.pushPose();
         ps.translate(-cam.x, -cam.y, -cam.z);
+        for (int[] z : zones) {
+            float c = z[7] == 1 ? 1F : 0.4F;
+            LevelRenderer.renderLineBox(ps, vc, z[0], z[6] == 1 ? mc.level.getMinBuildHeight() : z[4], z[1], z[2] + 1, z[6] == 1 ? mc.level.getMaxBuildHeight() : z[5] + 1, z[3] + 1, c, c, 0.1F, 1F);
+        }
+        if (a != null || b != null) {
+        int[] p1 = a != null ? a : b, p2 = b != null ? b : a;
         int y1 = Math.min(p1[1], p2[1]), y2 = Math.max(p1[1], p2[1]) + 1;
         if (a != null && b != null) { y1 = mc.level.getMinBuildHeight(); y2 = mc.level.getMaxBuildHeight(); }
         LevelRenderer.renderLineBox(ps, vc, Math.min(p1[0], p2[0]), y1, Math.min(p1[2], p2[2]), Math.max(p1[0], p2[0]) + 1, y2, Math.max(p1[2], p2[2]) + 1, 1F, 0.2F, 0.25F, 1F);
         if (a != null) LevelRenderer.renderLineBox(ps, vc, a[0], a[1], a[2], a[0] + 1, a[1] + 1, a[2] + 1, 0.3F, 1F, 0.4F, 1F);
         if (b != null) LevelRenderer.renderLineBox(ps, vc, b[0], b[1], b[2], b[0] + 1, b[1] + 1, b[2] + 1, 0.3F, 0.6F, 1F, 1F);
+        }
         ps.popPose();
         buf.endBatch(RenderType.lines());
     }
