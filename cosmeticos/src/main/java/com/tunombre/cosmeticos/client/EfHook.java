@@ -15,7 +15,11 @@ final class EfHook {
     static void register() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(EventPriority.LOWEST, (PatchedRenderersEvent.Modify e) -> {
             PatchedEntityRenderer r = e.get(EntityType.PLAYER);
-            if (r instanceof PatchedLivingEntityRenderer living) living.addCustomLayer(new CosPatchedLayer());
+            if (r instanceof PatchedLivingEntityRenderer living) {
+                // sin esto Epic Fight dibuja tambien la capa vanilla con el modelo normal (copia pequeña en la cabeza)
+                living.addPatchedLayerAlways(CosLayer.class, new yesman.epicfight.client.renderer.patched.layer.EmptyLayer());
+                living.addCustomLayer(new CosPatchedLayer());
+            }
         });
     }
 }
