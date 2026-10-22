@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="lootmaster"
+version="${mod_version}"
+displayName="Loot Master"
+description='''Panel de control del loot de todos los contenedores (Survivors Arsenal): relleno inicial, cambios masivos reversibles, respawn y modo por jugador.'''
+
+[[dependencies.lootmaster]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.lootmaster]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.lootmaster]]
+modId="sa_decor"
+mandatory=true
+versionRange="[1.0.3,)"
+ordering="AFTER"
+side="BOTH"
