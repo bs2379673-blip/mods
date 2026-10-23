@@ -42,7 +42,7 @@ public class CosPatchedLayer extends PatchedLayer {
             stack.pushPose();
             // poses[] ya es la matriz de piel (delta respecto al reposo): se aplica al punto de reposo del hueso
             MathUtils.mulStack(stack, poses[j.getId()]);
-            stack.translate(bp.x, bp.y, bp.z);
+            stack.translate(bp.x, bp.y - 0.764F, bp.z); // el origen del dibujo de Epic Fight esta subido la altura del Root (0.764)
             if (bone == Cosm.Bone.CHEST) stack.translate(0F, 0.4F, 0F);
             else if (bone == Cosm.Bone.PELVIS) stack.translate(0F, -0.064F, 0F);
             // del espacio local de cosmeticos (y arriba, z invertido) al del esqueleto: giro de 180 sobre Y
