@@ -50,6 +50,7 @@ public final class LootScreen extends Screen {
     private String fillDim = "todas";
     private String evPick = "";
     private String zoneName = "";
+    private EditBox fromBox, toBox;
 
     private static final class Cell {
         final AbstractWidget w;
@@ -642,6 +643,13 @@ public final class LootScreen extends Screen {
         dyn(4, C_DIM, () -> str(job(), "sum"));
     }
 
+    private static String handBlock() {
+        var p = Minecraft.getInstance().player;
+        if (p == null || !(p.getMainHandItem().getItem() instanceof net.minecraft.world.item.BlockItem bi)) return null;
+        var k = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(bi.getBlock());
+        return k == null ? null : k.toString();
+    }
+
     private void undoButton() {
         if (!str(st, "undoLabel").isEmpty() && !running())
             btnSure("bundo", "DESHACER: " + str(st, "undoLabel"), C_OK, false, () -> op("bundo"));
@@ -657,10 +665,10 @@ public final class LootScreen extends Screen {
         if (ids.isEmpty()) note("No hay temas en config/lootmaster/decor/. Reinicia el servidor para crear el de ejemplo.");
         else cycMap("Tema", names, ids, str(set(), "dTheme"), v -> setSetting("dTheme", v), false);
         textNum("Densidad (0-100, 50 = normal)", () -> str(set(), "dDensity"), s -> { if (!s.isEmpty() && !s.equals(".")) setSetting("dDensity", s); }, true);
-        textNum("Variante (número)", () -> str(set(), "dSeed"), s -> { if (!s.isEmpty() && !s.equals(".")) setSetting("dSeed", s); }, true);
+        dyn(1, C_DIM, () -> "Variante: " + str(set(), "dSeed") + "  (cambia con «Otra variante»)");
         tog("Interiores", () -> bool(set(), "dInterior"), v -> setSetting("dInterior", String.valueOf(v)), true);
         tog("Exteriores (calle, acera, patios)", () -> bool(set(), "dExterior"), v -> setSetting("dExterior", String.valueOf(v)), true);
-        tog("Toda la altura (si no, de los puntos hacia arriba)", () -> bool(set(), "wIgnoreY"), v -> setSetting("wIgnoreY", String.valueOf(v)), false);
+        note("Altura: desde 3 bloques bajo el punto más bajo hasta 24 sobre el más alto. Pon los puntos a la altura del suelo de la planta baja.");
         header("ACCIONES");
         if (running()) {
             dyn(1, C_WARN, () -> "Tarea en curso: " + str(job(), "label"));
@@ -689,18 +697,20 @@ public final class LootScreen extends Screen {
             eb.setMaxLength(120);
             eb.setValue(str(set(), "rFrom"));
             eb.setResponder(s -> setSetting("rFrom", s));
+            fromBox = eb;
             return List.of(l, eb);
         });
-        btn("Tomar «a quitar» del bloque en mi mano", C_BORDER, false, () -> { JsonObject o = new JsonObject(); o.addProperty("op", "rhand"); o.addProperty("which", "from"); send(o); });
+        btn("Tomar «a quitar» del bloque en mi mano", C_BORDER, false, () -> { String id = handBlock(); if (id != null && fromBox != null) fromBox.setValue(id); else setStatus("Lleva un bloque en la mano.", C_WARN); });
         place(false, 32, (x, w) -> {
             Lbl l = new Lbl(x, 0, () -> "Bloque nuevo", C_DIM);
             EditBox eb = new EditBox(font(), x, 11, w, 18, Component.empty());
             eb.setMaxLength(120);
             eb.setValue(str(set(), "rTo"));
             eb.setResponder(s -> setSetting("rTo", s));
+            toBox = eb;
             return List.of(l, eb);
         });
-        btn("Tomar «nuevo» del bloque en mi mano", C_BORDER, false, () -> { JsonObject o = new JsonObject(); o.addProperty("op", "rhand"); o.addProperty("which", "to"); send(o); });
+        btn("Tomar «nuevo» del bloque en mi mano", C_BORDER, false, () -> { String id = handBlock(); if (id != null && toBox != null) toBox.setValue(id); else setStatus("Lleva un bloque en la mano.", C_WARN); });
         tog("Mantener orientación y propiedades", () -> bool(set(), "rKeep"), v -> setSetting("rKeep", String.valueOf(v)), true);
         tog("Toda la altura", () -> bool(set(), "wIgnoreY"), v -> setSetting("wIgnoreY", String.valueOf(v)), true);
         header("ACCIONES");

@@ -300,6 +300,7 @@ public final class Ops {
             case "gClear" -> d.gClear = v;
             case "gMin" -> d.gMin = Math.max(0, Math.min(100000, (int) Double.parseDouble(v)));
             case "dTheme" -> d.dTheme = v;
+            case "dSeed" -> d.dSeed = (int) Double.parseDouble(v);
             case "dDensity" -> d.dDensity = Math.max(0, Math.min(100, (int) Double.parseDouble(v)));
             case "dInterior" -> d.dInterior = v.equals("true");
             case "dExterior" -> d.dExterior = v.equals("true");

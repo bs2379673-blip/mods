@@ -161,7 +161,15 @@ public final class Decor {
 
     private static final int BED = 1, KITCHEN = 2, BATH = 3, OFFICE = 4, SHOP = 5;
 
+    private static final Map<Block, Integer> MARK_CACHE = new HashMap<>();
+
     private static int markOf(BlockState s) {
+        Integer c = MARK_CACHE.get(s.getBlock());
+        if (c == null) { c = markOf0(s); MARK_CACHE.put(s.getBlock(), c); }
+        return c;
+    }
+
+    private static int markOf0(BlockState s) {
         Block b = s.getBlock();
         if (b instanceof BedBlock) return BED;
         ResourceLocation rl = ForgeRegistries.BLOCKS.getKey(b);
@@ -248,8 +256,9 @@ public final class Decor {
         double factor = Math.max(0, Math.min(100, d.dDensity)) / 50.0;
         boolean interior = d.dInterior, exterior = d.dExterior;
         Ctx cx = new Ctx();
-        int ya = d.wIgnoreY ? lv.getMinBuildHeight() + 1 : Math.max(lv.getMinBuildHeight() + 1, Math.min(a.getY(), b.getY()) - 3);
-        int yb = d.wIgnoreY ? lv.getMaxBuildHeight() - 2 : Math.min(lv.getMaxBuildHeight() - 2, Math.max(a.getY(), b.getY()) + 24);
+        // altura: desde 3 bloques bajo el punto mas bajo hasta 24 sobre el mas alto (asi no se decoran cuevas ni sotanos lejanos)
+        int ya = Math.max(lv.getMinBuildHeight() + 1, Math.min(a.getY(), b.getY()) - 3);
+        int yb = Math.min(lv.getMaxBuildHeight() - 2, Math.max(a.getY(), b.getY()) + 24);
         cx.ya = ya;
         cx.yb = yb;
         Plan plan = new Plan();
