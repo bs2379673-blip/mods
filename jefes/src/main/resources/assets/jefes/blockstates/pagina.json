@@ -1,0 +1,124 @@
+{
+ "variants": {
+  "facing=north,num=0": {
+   "model": "jefes:block/pagina_0"
+  },
+  "facing=east,num=0": {
+   "model": "jefes:block/pagina_0",
+   "y": 90
+  },
+  "facing=south,num=0": {
+   "model": "jefes:block/pagina_0",
+   "y": 180
+  },
+  "facing=west,num=0": {
+   "model": "jefes:block/pagina_0",
+   "y": 270
+  },
+  "facing=north,num=1": {
+   "model": "jefes:block/pagina_1"
+  },
+  "facing=east,num=1": {
+   "model": "jefes:block/pagina_1",
+   "y": 90
+  },
+  "facing=south,num=1": {
+   "model": "jefes:block/pagina_1",
+   "y": 180
+  },
+  "facing=west,num=1": {
+   "model": "jefes:block/pagina_1",
+   "y": 270
+  },
+  "facing=north,num=2": {
+   "model": "jefes:block/pagina_2"
+  },
+  "facing=east,num=2": {
+   "model": "jefes:block/pagina_2",
+   "y": 90
+  },
+  "facing=south,num=2": {
+   "model": "jefes:block/pagina_2",
+   "y": 180
+  },
+  "facing=west,num=2": {
+   "model": "jefes:block/pagina_2",
+   "y": 270
+  },
+  "facing=north,num=3": {
+   "model": "jefes:block/pagina_3"
+  },
+  "facing=east,num=3": {
+   "model": "jefes:block/pagina_3",
+   "y": 90
+  },
+  "facing=south,num=3": {
+   "model": "jefes:block/pagina_3",
+   "y": 180
+  },
+  "facing=west,num=3": {
+   "model": "jefes:block/pagina_3",
+   "y": 270
+  },
+  "facing=north,num=4": {
+   "model": "jefes:block/pagina_4"
+  },
+  "facing=east,num=4": {
+   "model": "jefes:block/pagina_4",
+   "y": 90
+  },
+  "facing=south,num=4": {
+   "model": "jefes:block/pagina_4",
+   "y": 180
+  },
+  "facing=west,num=4": {
+   "model": "jefes:block/pagina_4",
+   "y": 270
+  },
+  "facing=north,num=5": {
+   "model": "jefes:block/pagina_5"
+  },
+  "facing=east,num=5": {
+   "model": "jefes:block/pagina_5",
+   "y": 90
+  },
+  "facing=south,num=5": {
+   "model": "jefes:block/pagina_5",
+   "y": 180
+  },
+  "facing=west,num=5": {
+   "model": "jefes:block/pagina_5",
+   "y": 270
+  },
+  "facing=north,num=6": {
+   "model": "jefes:block/pagina_6"
+  },
+  "facing=east,num=6": {
+   "model": "jefes:block/pagina_6",
+   "y": 90
+  },
+  "facing=south,num=6": {
+   "model": "jefes:block/pagina_6",
+   "y": 180
+  },
+  "facing=west,num=6": {
+   "model": "jefes:block/pagina_6",
+   "y": 270
+  },
+  "facing=north,num=7": {
+   "model": "jefes:block/pagina_7"
+  },
+  "facing=east,num=7": {
+   "model": "jefes:block/pagina_7",
+   "y": 90
+  },
+  "facing=south,num=7": {
+   "model": "jefes:block/pagina_7",
+   "y": 180
+  },
+  "facing=west,num=7": {
+   "model": "jefes:block/pagina_7",
+   "y": 270
+  }
+ }
+}

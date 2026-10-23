@@ -65,6 +65,13 @@ public class Jefes {
     public static final RegistryObject<Item> MANDO = ITEMS.register("mando", () -> new MandoItem(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> INVOCADOR = ITEMS.register("invocador", () -> new InvocadorItem(new Item.Properties().stacksTo(1)));
 
+    public static final DeferredRegister<net.minecraft.world.level.block.Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
+    public static final RegistryObject<net.minecraft.world.level.block.Block> PAGINA = BLOCKS.register("pagina", PaginaBlock::new);
+    public static final RegistryObject<Item> PAGINA_ITEM = ITEMS.register("pagina", () -> new net.minecraft.world.item.BlockItem(PAGINA.get(), new Item.Properties()));
+    public static final RegistryObject<SoundEvent> SLENDER_STATIC = sound("slender_static", 64F);
+    public static final RegistryObject<SoundEvent> SLENDER_DEATH = sound("slender_death", 48F);
+    public static final RegistryObject<SoundEvent> SLENDER_THEME = sound("slender_theme", 48F);
+
     public static final RegistryObject<SoundEvent> STEP = sound("step", 96F);
     public static final RegistryObject<SoundEvent> ROAR = sound("roar", 160F);
     public static final RegistryObject<SoundEvent> GROWL = sound("growl", 96F);
@@ -101,18 +108,19 @@ public class Jefes {
     public Jefes() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         ENTITIES.register(bus);
+        BLOCKS.register(bus);
         ITEMS.register(bus);
         SOUNDS.register(bus);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CFG);
         bus.addListener((EntityAttributeCreationEvent e) -> e.put(JEFE.get(), JefeEntity.createAttributes().build()));
         bus.addListener((BuildCreativeModeTabContentsEvent e) -> {
-            if (e.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) { e.accept(MANDO); e.accept(INVOCADOR); }
+            if (e.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) { e.accept(MANDO); e.accept(INVOCADOR); e.accept(PAGINA_ITEM); }
         });
         Net.init();
         Qte.init();
         MinecraftForge.EVENT_BUS.addListener((ServerAboutToStartEvent e) -> { Bosses.loadServer(); QteDefs.install(); });
         MinecraftForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent e) -> {
-            if (e.getEntity() instanceof ServerPlayer sp) for (Boss b : Bosses.SERVER.values()) Net.toPlayer(sp, Net.Defs.of(b));
+            if (e.getEntity() instanceof ServerPlayer sp) { for (Boss b : Bosses.SERVER.values()) Net.toPlayer(sp, Net.Defs.of(b)); Slender.join(sp); }
         });
         MinecraftForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent e) -> {
             if (!(e.getEntity() instanceof ServerPlayer sp)) return;
@@ -187,6 +195,37 @@ public class Jefes {
                     c.getSource().sendSuccess(() -> Component.literal("Jefes quitados: " + l.size()), true);
                     return l.size();
                 }))
+                .then(Commands.literal("slender")
+                        .then(Commands.literal("paginas").then(Commands.argument("radio", com.mojang.brigadier.arguments.IntegerArgumentType.integer(10, 300))
+                                .executes(c -> scatterCmd(c.getSource(), com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "radio"), 8))
+                                .then(Commands.argument("cantidad", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 64))
+                                        .executes(c -> scatterCmd(c.getSource(), com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "radio"), com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "cantidad"))))))
+                        .then(Commands.literal("iniciar").executes(c -> {
+                            Slender.Game g = Slender.Game.get(c.getSource().getServer());
+                            g.collected = 0; g.active = true; g.sync(c.getSource().getServer());
+                            c.getSource().getServer().getPlayerList().broadcastSystemMessage(Component.literal("§f§lJunta las " + g.total + " paginas. Y no lo mires."), false);
+                            return 1;
+                        }))
+                        .then(Commands.literal("parar").executes(c -> {
+                            Slender.Game g = Slender.Game.get(c.getSource().getServer());
+                            g.active = false; g.sync(c.getSource().getServer());
+                            return 1;
+                        }))
+                        .then(Commands.literal("reiniciar").executes(c -> {
+                            Slender.Game g = Slender.Game.get(c.getSource().getServer());
+                            g.active = false; g.collected = 0; g.total = 0; g.placed = 0; g.sync(c.getSource().getServer());
+                            c.getSource().sendSuccess(() -> Component.literal("Minijuego a cero. Las paginas ya puestas siguen en el mundo: quitalas a mano."), false);
+                            return 1;
+                        }))
+                        .then(Commands.literal("estado").executes(c -> {
+                            Slender.Game g = Slender.Game.get(c.getSource().getServer());
+                            c.getSource().sendSuccess(() -> Component.literal("Paginas: " + g.collected + "/" + g.total + (g.active ? " (en juego)" : " (parado)")), false);
+                            return 1;
+                        }))
+                        .then(Commands.literal("glitch").executes(c -> {
+                            Net.toPlayer(c.getSource().getPlayerOrException(), new Net.Burst(80, 1F, true));
+                            return 1;
+                        })))
                 .then(Commands.literal("sonido").then(Commands.argument("cual", StringArgumentType.word())
                         .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("gruñido", "rugido", "voz", "olfateo"), b))
                         .executes(c -> {
@@ -195,6 +234,12 @@ public class Jefes {
                             j.doAction(switch (StringArgumentType.getString(c, "cual")) { case "rugido" -> 4; case "voz" -> 9; case "olfateo" -> 6; default -> 8; });
                             return 1;
                         }))));
+    }
+
+    private static int scatterCmd(CommandSourceStack s, int radio, int n) {
+        int k = Slender.scatter(s.getLevel(), net.minecraft.core.BlockPos.containing(s.getPosition()), radio, n);
+        s.sendSuccess(() -> Component.literal("Paginas puestas: " + k + " de " + n + " pedidas (radio " + radio + "). /jefe slender iniciar para empezar el juego."), true);
+        return k;
     }
 
     private static int spawnCmd(CommandSourceStack s, String id, boolean announce) {

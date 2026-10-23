@@ -114,6 +114,11 @@ public class JefeEntity extends Mob {
 
     public UUID getController() { return controller; }
 
+    public boolean slender() { Boss b = getBoss(); return b != null && "slender".equals(b.spec.kind); }
+
+    private long blinkAt;
+    private final java.util.List<long[]> sentenced = new java.util.ArrayList<>();   // {id del jugador, tick en que muere}
+
     public void setController(UUID id) { controller = id; setFlag(F_CONTROLLED, id != null); }
 
     public String displayName() { Boss b = getBoss(); return b == null ? "Jefe" : b.spec.name; }
@@ -216,6 +221,7 @@ public class JefeEntity extends Mob {
     public void doAction(int id) {
         if (level().isClientSide || !isAlive()) return;
         Act a = getAct();
+        if (slender()) { slenderAction(id, a); return; }
         switch (id) {
             case 8 -> growl(1F);
             case 9 -> sound(Jefes.VOICE.get(), 1.4F, 0.9F + random.nextFloat() * 0.2F);
@@ -236,6 +242,76 @@ public class JefeEntity extends Mob {
         }
     }
 
+    // ------------------------------------------------------------------ Slenderman ----
+    /** clic izq latigazo, clic der teletransporte, R estatica fuerte, G/V susurro, K llevarse al mas cercano */
+    private void slenderAction(int id, Act a) {
+        switch (id) {
+            case 1 -> { if (a == Act.NONE) setAct((alt++ & 1) == 0 ? Act.ATTACK_L : Act.ATTACK_R); }
+            case 5 -> blink();
+            case 4 -> Slender.burst(this, 70F, 50, 0.9F, false);
+            case 8, 9 -> sound(Jefes.SLENDER_STATIC.get(), 1.2F, 0.7F + random.nextFloat() * 0.3F);
+            case 12 -> slenderTake();
+            default -> { }
+        }
+    }
+
+    /** se teletransporta a donde mira el administrador (hasta 48 bloques) */
+    private void blink() {
+        if (tickCount - blinkAt < 14 || in == null) return;
+        Vec3 eye = position().add(0, 4.2, 0);
+        Vec3 look = Vec3.directionFromRotation(in.pitch(), in.yaw());
+        Vec3 end = eye.add(look.scale(48));
+        var hit = level().clip(new net.minecraft.world.level.ClipContext(eye, end, net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE, this));
+        Vec3 t = hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS ? end : hit.getLocation().subtract(look.scale(0.9));
+        net.minecraft.core.BlockPos bp = net.minecraft.core.BlockPos.containing(t);
+        // busca el suelo: baja hasta apoyarse, o sube si quedo dentro de un bloque
+        int guard = 0;
+        while (guard++ < 40 && level().getBlockState(bp).isSolid() ) bp = bp.above();
+        guard = 0;
+        while (guard++ < 40 && !level().getBlockState(bp.below()).isSolid() && bp.getY() > level().getMinBuildHeight() + 1) bp = bp.below();
+        Vec3 from = position();
+        Slender.burst(this, 40F, 14, 0.55F, false);
+        sound(Jefes.SLENDER_STATIC.get(), 1.6F, 1.2F);
+        moveTo(bp.getX() + 0.5, bp.getY(), bp.getZ() + 0.5, getYRot(), 0F);
+        setDeltaMovement(Vec3.ZERO);
+        blinkAt = tickCount;
+        Slender.burst(this, 40F, 14, 0.55F, false);
+        sound(Jefes.SLENDER_STATIC.get(), 1.6F, 1.0F);
+    }
+
+    /** el jugador vivo mas cercano (hasta 7 bloques, de frente) se condena: flash, sonido y muere unos segundos despues */
+    private void slenderTake() {
+        double r = Math.toRadians(getYRot());
+        Vec3 fwd = new Vec3(-Math.sin(r), 0, Math.cos(r));
+        ServerPlayer best = null;
+        double bd = 1e9;
+        for (ServerPlayer p : level().getEntitiesOfClass(ServerPlayer.class, getBoundingBox().inflate(7, 4, 7), q -> q.isAlive() && !q.isCreative() && !q.isSpectator()
+                && !(controller != null && controller.equals(q.getUUID())))) {
+            Vec3 to = p.position().subtract(position()).multiply(1, 0, 1);
+            if (to.lengthSqr() > 0.01 && to.normalize().dot(fwd) < 0.1) continue;
+            double d = p.distanceToSqr(this);
+            if (d < bd) { bd = d; best = p; }
+        }
+        if (best == null) return;
+        for (long[] s : sentenced) if (s[0] == best.getId()) return;
+        sentenced.add(new long[]{best.getId(), tickCount + 55});
+        Net.toPlayer(best, new Net.Burst(70, 1F, true));
+        level().playSound(null, best.getX(), best.getY(), best.getZ(), Jefes.SLENDER_DEATH.get(), SoundSource.HOSTILE, 3F, 1F);
+    }
+
+    private void slenderTick() {
+        if (sentenced.isEmpty()) return;
+        for (var it = sentenced.iterator(); it.hasNext(); ) {
+            long[] s = it.next();
+            Entity e = level().getEntity((int) s[0]);
+            if (!(e instanceof ServerPlayer p) || !p.isAlive()) { it.remove(); continue; }
+            if (tickCount >= s[1]) {
+                it.remove();
+                p.hurt(new DamageSource(level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(Jefes.ATRAPADO), this), Float.MAX_VALUE);
+            }
+        }
+    }
+
     // ------------------------------------------------------------------ sonidos ----
     public void sound(SoundEvent e, float vol, float pitch) { level().playSound(null, getX(), getY() + 2, getZ(), e, SoundSource.HOSTILE, vol, pitch); }
 
@@ -249,6 +325,8 @@ public class JefeEntity extends Mob {
         Spec s = b.spec;
         actTicks++;
         Act a = getAct();
+        boolean sl = "slender".equals(s.kind);
+        if (sl) slenderTick();
         boolean ctl = controller != null && in != null && tickCount - inTick < 12;
         boolean crouch = false, sprint = false;
         float fwd = 0F;
@@ -301,7 +379,7 @@ public class JefeEntity extends Mob {
         // aterrizaje
         if (!onGround()) airTicks++;
         else {
-            if (airTicks > 9 && (a == Act.NONE || a == Act.LAND || a == Act.LEAP)) {
+            if (!sl && airTicks > 9 && (a == Act.NONE || a == Act.LAND || a == Act.LEAP)) {
                 setAct(Act.LAND);
                 sound(Jefes.LAND.get(), 2.5F, 0.8F + random.nextFloat() * 0.2F);
                 if (a == Act.LEAP) melee(s.reach * 0.9F, 0.6F, true);
@@ -312,7 +390,7 @@ public class JefeEntity extends Mob {
         // pasos
         double moved = Math.hypot(getX() - lastX, getZ() - lastZ);
         lastX = getX(); lastZ = getZ();
-        if (onGround() && moved > 0.01 && !a.stance()) {
+        if (!sl && onGround() && moved > 0.01 && !a.stance()) {
             stepAcc += moved;
             float stride = s.stride * (crouch ? 0.7F : 1F);
             if (stepAcc >= stride) {
@@ -321,13 +399,21 @@ public class JefeEntity extends Mob {
                 sound(Jefes.STEP.get(), crouch ? 1.2F : sprint ? 2.8F : 2.0F, (steppedLeft ? 0.9F : 1.0F) + random.nextFloat() * 0.1F - (sprint ? 0.1F : 0F));
             }
         }
-        if (Jefes.cfgAmbient() && (a == Act.NONE || a == Act.HOLD) && random.nextInt(controller == null ? 170 : 240) == 0) growl(controller == null ? 0.8F : 0.55F);
+        if (!sl && Jefes.cfgAmbient() && (a == Act.NONE || a == Act.HOLD) && random.nextInt(controller == null ? 170 : 240) == 0) growl(controller == null ? 0.8F : 0.55F);
 
         runAct(b, s, a);
     }
 
     private void runAct(Boss b, Spec s, Act a) {
         int t = actTicks;
+        if ("slender".equals(s.kind)) {
+            if (a == Act.ATTACK_L || a == Act.ATTACK_R) {
+                if (t == 4) sound(Jefes.SLENDER_STATIC.get(), 0.8F, 1.4F);
+                if (t == 9) melee(s.reach, 1F, false);
+                if (t >= a.ticks) setAct(Act.NONE);
+            } else if (a != Act.NONE) setAct(Act.NONE);
+            return;
+        }
         switch (a) {
             case ATTACK_L, ATTACK_R -> {
                 if (t == 4) { sound(Jefes.ATTACK.get(), 1.6F, 0.9F + random.nextFloat() * 0.2F); if (random.nextInt(3) == 0) growl(0.9F); }

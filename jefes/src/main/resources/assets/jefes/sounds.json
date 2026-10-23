@@ -217,5 +217,30 @@
         "attenuation_distance": 48
       }
     ]
+  },
+  "slender_static": {
+    "subtitle": "jefes.subtitle.slender",
+    "sounds": [
+      {
+        "name": "jefes:slender_static"
+      }
+    ]
+  },
+  "slender_death": {
+    "subtitle": "jefes.subtitle.slender_death",
+    "sounds": [
+      {
+        "name": "jefes:slender_death"
+      }
+    ]
+  },
+  "slender_theme": {
+    "subtitle": "jefes.subtitle.slender_theme",
+    "sounds": [
+      {
+        "name": "jefes:slender_theme",
+        "stream": true
+      }
+    ]
   }
 }

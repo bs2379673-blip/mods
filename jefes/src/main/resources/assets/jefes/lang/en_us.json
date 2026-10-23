@@ -26,5 +26,10 @@
   "jefes.subtitle.voice": "Voz imitada",
   "key.jefes.voice": "Voz / susurro",
   "key.jefes.growl": "Growl",
-  "item.jefes.invocador": "Boss summoner"
+  "item.jefes.invocador": "Boss summoner",
+  "block.jefes.pagina": "Slenderman page",
+  "key.jefes.blink": "Teletransporte",
+  "jefes.subtitle.slender": "Estática",
+  "jefes.subtitle.slender_theme": "Música",
+  "jefes.subtitle.slender_death": "Slenderman"
 }

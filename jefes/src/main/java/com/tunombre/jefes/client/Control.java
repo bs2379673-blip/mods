@@ -123,7 +123,13 @@ public final class Control {
         JefeEntity j = boss();
         var f = mc.font;
         int y = 6;
-        String[] lines = {
+        boolean sl = j != null && j.slender();
+        String[] lines = sl ? new String[]{
+                "§f§lSLENDERMAN",
+                "§fWASD §7mover  §fShift §7agachado  §fCtrl §7correr",
+                "§fClic izq §7latigazo de tentaculo  §fClic der §7teletransportarte adonde miras",
+                "§fR §7estatica fuerte  §fG §7susurro  §fK §7llevarse al jugador de enfrente",
+                "§fH §7dejar de controlar"} : new String[]{
                 "§c§l" + (j == null ? "..." : j.displayName().toUpperCase()) + (j != null && j.getBoss() != null && j.getBoss().spec.blind ? " §7(ciego: solo reacciona a sonidos)" : ""),
                 "§fWASD §7mover  §fShift §7agachado  §fCtrl §7correr  §fEspacio §7saltar",
                 "§fClic izq §7zarpazo  §fClic der §7agarrar  §fF §7aplastar  §fX §7salto largo",

@@ -1,0 +1,29 @@
+{
+ "id": "slender",
+ "name": "Slenderman",
+ "kind": "slender",
+ "title": "SLENDERMAN|No lo mires.",
+ "scale": 1.0,
+ "width": 1.2,
+ "height": 5.0,
+ "eye": 4.3,
+ "cameraDist": 8,
+ "blind": false,
+ "speed": {
+  "walk": 0.1,
+  "sprint": 0.26,
+  "sneak": 0.05,
+  "jump": 0.5,
+  "turn": 10,
+  "stride": 3.0
+ },
+ "reach": 4.6,
+ "damage": 8,
+ "knock": 0.9,
+ "bones": {},
+ "grab": {},
+ "anims": {},
+ "sounds": {},
+ "screamer": {},
+ "qte": []
+}

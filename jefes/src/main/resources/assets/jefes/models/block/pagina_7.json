@@ -1,0 +1,40 @@
+{
+ "textures": {
+  "p": "jefes:block/paginas",
+  "particle": "jefes:block/paginas"
+ },
+ "elements": [
+  {
+   "from": [
+    3.25,
+    1.55,
+    15.85
+   ],
+   "to": [
+    12.75,
+    14.45,
+    15.95
+   ],
+   "faces": {
+    "north": {
+     "uv": [
+      12,
+      8,
+      16,
+      16
+     ],
+     "texture": "#p"
+    },
+    "south": {
+     "uv": [
+      16,
+      8,
+      12,
+      16
+     ],
+     "texture": "#p"
+    }
+   }
+  }
+ ]
+}

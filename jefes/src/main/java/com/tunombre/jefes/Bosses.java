@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Bosses {
     public static final Map<String, Boss> SERVER = new TreeMap<>();
     public static final Map<String, Boss> CLIENT = new ConcurrentHashMap<>();
-    private static final String[] BUILTIN = {"quibungo"};
+    private static final String[] BUILTIN = {"quibungo", "slender"};
 
     private Bosses() { }
 

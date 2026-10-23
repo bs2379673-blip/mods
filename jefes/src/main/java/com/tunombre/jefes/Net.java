@@ -33,6 +33,8 @@ public final class Net {
         CH.registerMessage(i++, Possess.class, Possess::write, Possess::read, Possess::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CH.registerMessage(i++, Cine.class, Cine::write, Cine::read, Cine::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CH.registerMessage(i++, Scream.class, Scream::write, Scream::read, Scream::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CH.registerMessage(i++, Game.class, Game::write, Game::read, Game::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CH.registerMessage(i++, Burst.class, Burst::write, Burst::read, Burst::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CH.registerMessage(i++, Input.class, Input::write, Input::read, Input::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CH.registerMessage(i++, Action.class, Action::write, Action::read, Action::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
@@ -93,6 +95,30 @@ public final class Net {
 
         void handle(Supplier<NetworkEvent.Context> c) {
             c.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.jefes.client.ClientHooks.scream(secs, visual)));
+            c.get().setPacketHandled(true);
+        }
+    }
+
+    /** estado del minijuego de las paginas */
+    public record Game(int collected, int total, boolean active) {
+        void write(FriendlyByteBuf b) { b.writeVarInt(collected); b.writeVarInt(total); b.writeBoolean(active); }
+
+        static Game read(FriendlyByteBuf b) { return new Game(b.readVarInt(), b.readVarInt(), b.readBoolean()); }
+
+        void handle(Supplier<NetworkEvent.Context> c) {
+            c.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.jefes.client.SlenderFx.game(collected, total, active)));
+            c.get().setPacketHandled(true);
+        }
+    }
+
+    /** rafaga de glitch en la pantalla: ticks, fuerza 0..1 y si muestra la cara de Slenderman */
+    public record Burst(int ticks, float strength, boolean flash) {
+        void write(FriendlyByteBuf b) { b.writeVarInt(ticks); b.writeFloat(strength); b.writeBoolean(flash); }
+
+        static Burst read(FriendlyByteBuf b) { return new Burst(b.readVarInt(), b.readFloat(), b.readBoolean()); }
+
+        void handle(Supplier<NetworkEvent.Context> c) {
+            c.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.jefes.client.SlenderFx.burst(ticks, strength, flash)));
             c.get().setPacketHandled(true);
         }
     }

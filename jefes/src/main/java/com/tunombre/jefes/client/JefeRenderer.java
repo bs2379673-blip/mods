@@ -35,6 +35,7 @@ public class JefeRenderer extends EntityRenderer<JefeEntity> {
     public void render(JefeEntity e, float yaw, float pt, PoseStack ps, MultiBufferSource buf, int light) {
         Boss b = e.getBoss();
         if (b == null) return;
+        if ("slender".equals(b.spec.kind)) { SlenderRender.render(e, pt, ps, buf, light); return; }
         Pose pose = e.rig(b.model);
         Rig.State st = states.computeIfAbsent(e, k -> new Rig.State());
         Rig.In in = new Rig.In();

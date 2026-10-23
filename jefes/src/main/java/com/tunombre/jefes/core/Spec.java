@@ -10,7 +10,7 @@ import java.util.List;
 
 /** Definicion de un jefe (assets/jefes/bosses/<id>.json o config/jefes/bosses/<id>.json): cuerpo, velocidades, huesos, sonidos, QTE. */
 public final class Spec {
-    public final String id, name, title;
+    public final String id, name, title, kind;
     public final float scale, width, height, eye, cameraDist;
     public final float walk, sprint, sneak, jump, turn, stride;   // velocidades en bloques por tick
     public final float reach, damage, knock, leapFwd, leapUp;
@@ -25,6 +25,7 @@ public final class Spec {
         id = j.get("id").getAsString();
         name = j.get("name").getAsString();
         title = str(j, "title", name.toUpperCase());
+        kind = str(j, "kind", "");
         scale = f(j, "scale", 1F); width = f(j, "width", 1.4F); height = f(j, "height", 5F); eye = f(j, "eye", height * 0.9F);
         cameraDist = f(j, "cameraDist", 9F);
         JsonObject sp = obj(j, "speed");
