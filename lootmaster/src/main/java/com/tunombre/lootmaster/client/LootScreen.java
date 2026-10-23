@@ -657,7 +657,7 @@ public final class LootScreen extends Screen {
 
     private void tabDecor() {
         header("DECORAR ZONA (INTELIGENTE)");
-        note("Marca la zona con la varita (dos puntos en el suelo). El mod encuentra las habitaciones, deduce qué es cada una (dormitorio, cocina, baño, oficina, comercio…) y propone decoración pegada a paredes y esquinas, sin tapar puertas ni pasillos. Primero PLANIFICAR (se dibuja en el mundo), luego APLICAR. Todo se puede DESHACER.");
+        note("Marca la zona con la varita (dos puntos en el suelo; sirve para una casa o para una ciudad entera). El mod separa las habitaciones, deduce qué es cada una (dormitorio, cocina, baño, oficina, comercio, hospital…) y las amuebla con conjuntos que tienen sentido: cocina con mueble bajo la mesada y alacenas, escritorio con su compu, silla y lámpara, camas con mesitas, cuerpos, autos chocados con vidrios y conos en la calle… Todo respeta puertas y pasillos. Primero PLANIFICAR (se dibuja en el mundo), luego APLICAR. Se puede DESHACER.");
         dyn(1, C_TEXT, () -> { JsonObject s = st.getAsJsonObject("sel"); return "Zona: " + (s != null && s.has("a") && s.has("b") ? "marcada" : "sin marcar"); });
         JsonArray th = st.getAsJsonArray("themes");
         List<String> ids = new ArrayList<>(), names = new ArrayList<>();
@@ -668,6 +668,9 @@ public final class LootScreen extends Screen {
         dyn(1, C_DIM, () -> "Variante: " + str(set(), "dSeed") + "  (cambia con «Otra variante»)");
         tog("Interiores", () -> bool(set(), "dInterior"), v -> setSetting("dInterior", String.valueOf(v)), true);
         tog("Exteriores (calle, acera, patios)", () -> bool(set(), "dExterior"), v -> setSetting("dExterior", String.valueOf(v)), true);
+        tog("Plantillas de loot según el mueble (cocina, armario…)", () -> bool(set(), "dLoot"), v -> setSetting("dLoot", String.valueOf(v)), true);
+        textNum("Reinicio del loot al decorar (minutos, 0 = no tocar)", () -> str(set(), "dRespawn"), s -> { if (!s.isEmpty() && !s.equals(".")) setSetting("dRespawn", s); }, true);
+        note("El reinicio solo se enciende en las plantillas usadas que lo tengan apagado (las que ya lo tienen, o están protegidas, no se tocan). Es por plantilla, no por mueble. «Restaurar como estaban» (Ajustes globales) lo devuelve.");
         note("Altura: desde 3 bloques bajo el punto más bajo hasta 24 sobre el más alto. Pon los puntos a la altura del suelo de la planta baja.");
         header("ACCIONES");
         if (running()) {
@@ -677,7 +680,7 @@ public final class LootScreen extends Screen {
             btn("PLANIFICAR (vista previa)", C_BORDER, true, () -> op("dplan"));
             btn("Otra variante", C_BORDER, true, () -> { op("dseed"); });
             if (st.has("planCount") && st.get("planCount").getAsInt() > 0) {
-                dyn(1, C_OK, () -> "Plan listo: " + st.get("planCount").getAsInt() + " decoraciones (cajas azules = exterior, verdes = interior)");
+                dyn(1, C_OK, () -> "Plan listo: " + st.get("planCount").getAsInt() + " piezas (verde = muebles, rojo = cuerpos y vehículos, azul = calle y patios, amarillo = restos)");
                 btnSure("dapply", "APLICAR EL PLAN", C_ACCENT, true, () -> op("dapply"));
                 btn("Descartar plan", C_BORDER, true, () -> op("ddiscard"));
             }

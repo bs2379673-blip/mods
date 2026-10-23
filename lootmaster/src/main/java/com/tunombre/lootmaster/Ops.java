@@ -133,6 +133,8 @@ public final class Ops {
         set.addProperty("dSeed", d.dSeed);
         set.addProperty("dInterior", d.dInterior);
         set.addProperty("dExterior", d.dExterior);
+        set.addProperty("dLoot", d.dLoot);
+        set.addProperty("dRespawn", d.dRespawn);
         set.addProperty("rFrom", d.rFrom);
         set.addProperty("rTo", d.rTo);
         set.addProperty("rKeep", d.rKeep);
@@ -304,6 +306,8 @@ public final class Ops {
             case "dDensity" -> d.dDensity = Math.max(0, Math.min(100, (int) Double.parseDouble(v)));
             case "dInterior" -> d.dInterior = v.equals("true");
             case "dExterior" -> d.dExterior = v.equals("true");
+            case "dLoot" -> d.dLoot = v.equals("true");
+            case "dRespawn" -> d.dRespawn = Math.max(0, Math.min(10000, (int) Double.parseDouble(v)));
             case "rFrom" -> d.rFrom = v;
             case "rTo" -> d.rTo = v;
             case "rKeep" -> d.rKeep = v.equals("true");

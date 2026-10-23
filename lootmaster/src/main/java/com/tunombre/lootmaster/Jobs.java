@@ -67,6 +67,8 @@ public final class Jobs {
         public void inc2(String k) { inc(k); }
         public ChunkTask task;
         public Runnable fin;
+        /** Ejecutar {@code fin} aunque la tarea se detenga (para guardar el historial de lo ya hecho). */
+        public boolean finOnCancel;
         public String lbl = "";
         public Object ctx;
         public final java.util.Set<Long> chunks = new java.util.HashSet<>();
@@ -203,7 +205,7 @@ public final class Jobs {
 
     private static void finish(State st, Job j) {
         j.finished = true;
-        if (!j.cancelled && j.fin != null) {
+        if ((!j.cancelled || j.finOnCancel) && j.fin != null) {
             try { j.fin.run(); } catch (RuntimeException ex) { j.inc("errores"); LootMaster.LOG.warn("Fallo al terminar {}: {}", j.lbl, ex.toString(), ex); }
         }
         if (!j.cancelled) {

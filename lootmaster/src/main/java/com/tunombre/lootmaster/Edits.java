@@ -202,6 +202,7 @@ public final class Edits {
                         }
             }
         }, () -> { if (!dry) commit(s, op); });
+        j.finOnCancel = true;
         j.setBox(Math.min(a.getX(), b.getX()), Math.max(a.getX(), b.getX()), Math.min(a.getZ(), b.getZ()), Math.max(a.getZ(), b.getZ()), Math.min(a.getY(), b.getY()), Math.max(a.getY(), b.getY()));
         int n = Jobs.boxUnits(s, lv, j, j.x1(), j.x2(), j.z1(), j.z2());
         if (n > 40000) return "La zona es demasiado grande (" + n + " chunks).";

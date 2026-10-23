@@ -69,7 +69,10 @@ public final class WandRender {
         ps.pushPose();
         ps.translate(-cam.x, -cam.y, -cam.z);
         for (int i = 0; i + 3 < plan.length; i += 4) {
-            float r = plan[i + 3] == 4 ? 0.3F : 0.2F, g = plan[i + 3] == 4 ? 0.6F : 1F, bl = plan[i + 3] == 4 ? 1F : 0.4F;
+            int cat = plan[i + 3];
+            float r = cat == 4 ? 0.3F : cat == 2 ? 1F : cat == 3 ? 1F : 0.2F;
+            float g = cat == 4 ? 0.6F : cat == 2 ? 0.25F : cat == 3 ? 0.85F : 1F;
+            float bl = cat == 4 ? 1F : cat == 2 ? 0.25F : cat == 3 ? 0.2F : 0.4F;
             LevelRenderer.renderLineBox(ps, vc, plan[i] + 0.15, plan[i + 1] + 0.05, plan[i + 2] + 0.15, plan[i] + 0.85, plan[i + 1] + 0.95, plan[i + 2] + 0.85, r, g, bl, 1F);
         }
         if (!holding) { ps.popPose(); buf.endBatch(RenderType.lines()); return; }

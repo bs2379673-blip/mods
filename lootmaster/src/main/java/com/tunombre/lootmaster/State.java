@@ -46,7 +46,8 @@ public final class State extends SavedData {
         public String wProfile = "civil";
         public String dTheme = "apocaliptico";
         public int dDensity = 50, dSeed = 1;
-        public boolean dInterior = true, dExterior = false;
+        public boolean dInterior = true, dExterior = false, dLoot = true;
+        public int dRespawn = 20;
         public String rFrom = "", rTo = "";
         public boolean rKeep = true;
         public boolean wIgnoreY = true, wReplace = false, wReplaceProt = false, wNonEmpty = false;
