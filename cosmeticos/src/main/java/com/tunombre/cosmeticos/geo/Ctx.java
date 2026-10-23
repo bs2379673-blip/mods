@@ -11,7 +11,11 @@ public final class Ctx {
     public float speed;        // velocidad horizontal
     public float turn;         // giro del cuerpo en grados por tick
     public float turnAcc;      // aceleracion del giro (suavizada)
-    public boolean air, glide, crouch, swim, sprint;
+    public boolean air, glide, crouch, swim, sprint, fly;
+    /** arriba del mundo expresado en el espacio del hueso (para la gravedad de tentáculos y cadenas) */
+    public V3 up = V3.Y;
+    /** el jugador lleva a alguien enganchado con la guadaña */
+    public boolean carrying;
     public float seed;         // 0..1 distinto por jugador
     public V3 camR = V3.X, camU = V3.Y, camF = V3.Z;   // ejes de la camara expresados en el espacio del hueso
     public Scene sc = new Scene();

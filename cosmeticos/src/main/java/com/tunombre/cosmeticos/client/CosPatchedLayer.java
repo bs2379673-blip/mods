@@ -30,7 +30,14 @@ public class CosPatchedLayer extends PatchedLayer {
         Armature arm = patch.getArmature();
         float pt = net.minecraft.client.Minecraft.getInstance().getFrameTime();
         CosRender.draw(p, mask, pt, light, buf, ps, (stack, bone) -> {
-            String name = switch (bone) { case HEAD -> "Head"; case CHEST -> "Chest"; case PELVIS -> "Torso"; };
+            if (bone == Cosm.Bone.ROOT) {
+                // sin hueso: la pila ya está en los pies del jugador y gira con el cuerpo; no sigue las inclinaciones de las animaciones
+                stack.pushPose();
+                stack.translate(0F, 0.75F, 0F);
+                stack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180F));
+                return true;
+            }
+            String name = switch (bone) { case HEAD -> "Head"; case CHEST -> "Chest"; case PELVIS -> "Torso"; case HAND_R -> arm.hasJoint("Tool_R") ? "Tool_R" : "Hand_R"; default -> "Root"; };
             Joint j = arm.hasJoint(name) ? arm.searchJointByName(name) : null;
             if (j == null || j.getId() >= poses.length) return false;
             // poses[] = transformacion absoluta de la articulacion (incluye su altura de reposo y la animacion): es lo mismo que
@@ -42,6 +49,7 @@ public class CosPatchedLayer extends PatchedLayer {
                 case HEAD -> stack.translate(0F, -0.02F, 0F);       // el casco de Epic Fight baja 0.02
                 case CHEST -> stack.translate(0F, 0.4F, 0F);        // del centro del pecho (1.11) al cuello (1.51)
                 case PELVIS -> stack.translate(0F, -0.064F, 0F);    // de la articulacion Torso (0.81) a la cadera (0.75)
+                default -> { }
             }
             // del espacio de los cosmeticos (x izquierda, y arriba, z delante) al del esqueleto (z invertido y x al reves)
             stack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180F));

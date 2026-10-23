@@ -19,6 +19,10 @@ public class Cosmeticos {
     public static final String MODID = "cosmeticos";
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, MODID);
     public static final List<RegistryObject<MobEffect>> OBJS = new ArrayList<>();
+    public static final DeferredRegister<net.minecraft.world.entity.EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MODID);
+    public static final RegistryObject<net.minecraft.world.entity.EntityType<Hook>> HOOK = ENTITIES.register("gancho",
+            () -> net.minecraft.world.entity.EntityType.Builder.<Hook>of(Hook::new, net.minecraft.world.entity.MobCategory.MISC)
+                    .sized(0.25F, 0.25F).clientTrackingRange(10).updateInterval(1).noSave().noSummon().fireImmune().build("gancho"));
 
     static {
         for (Cosmetics.Def d : Cosmetics.ALL) OBJS.add(EFFECTS.register(d.id(), () -> new CosmeticEffect(d.index(), d.color())));
@@ -27,6 +31,7 @@ public class Cosmeticos {
     public Cosmeticos() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         EFFECTS.register(bus);
+        ENTITIES.register(bus);
         Net.init();
         MinecraftForge.EVENT_BUS.register(Server.class);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.cosmeticos.client.CosClient.init());

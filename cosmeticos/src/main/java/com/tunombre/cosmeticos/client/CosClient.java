@@ -20,6 +20,8 @@ public final class CosClient {
 
     public static void init() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(CosClient::onLayers);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(CosClient::onRenderers);
+        MinecraftForge.EVENT_BUS.register(CarryClient.class);
         MinecraftForge.EVENT_BUS.register(CosClient.class);
         if (ModList.get().isLoaded("epicfight")) EfHook.register();
     }
@@ -31,6 +33,10 @@ public final class CosClient {
     public static long mask(UUID id) {
         Long m = MASKS.get(id);
         return m == null ? 0L : m;
+    }
+
+    private static void onRenderers(EntityRenderersEvent.RegisterRenderers e) {
+        e.registerEntityRenderer(com.tunombre.cosmeticos.Cosmeticos.HOOK.get(), net.minecraft.client.renderer.entity.NoopRenderer::new);
     }
 
     private static void onLayers(EntityRenderersEvent.AddLayers e) {

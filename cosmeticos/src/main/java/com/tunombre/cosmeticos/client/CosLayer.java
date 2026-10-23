@@ -21,12 +21,14 @@ public class CosLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abst
             stack.pushPose();
             switch (bone) {
                 case HEAD -> m.head.translateAndRotate(stack);
-                case CHEST -> m.body.translateAndRotate(stack);
-                case PELVIS -> m.body.translateAndRotate(stack);
+                case CHEST, PELVIS -> m.body.translateAndRotate(stack);
+                case HAND_R -> m.rightArm.translateAndRotate(stack);
+                case ROOT -> { }
             }
             // de las coordenadas del modelo (y hacia abajo) a las nuestras: x izquierda, y arriba, z delante
             stack.scale(1F, -1F, -1F);
-            if (bone == Cosm.Bone.PELVIS) stack.translate(0F, -0.75F, 0F);
+            if (bone == Cosm.Bone.PELVIS || bone == Cosm.Bone.ROOT) stack.translate(0F, -0.75F, 0F);
+            if (bone == Cosm.Bone.HAND_R) stack.translate(0F, -0.62F, 0F);   // del hombro a la palma
             return true;
         });
     }

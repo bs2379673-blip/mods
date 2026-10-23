@@ -101,6 +101,8 @@ public final class CosRender {
         c.crouch = p.isCrouching();
         c.swim = p.isSwimming() || p.isInWater();
         c.sprint = p.isSprinting();
+        c.fly = p.getAbilities().flying;
+        c.carrying = com.tunombre.cosmeticos.Hook.isCarrying(p);
     }
 
     private static void camera(PoseStack ps, Ctx c) {
@@ -109,6 +111,15 @@ public final class CosRender {
         Vector3f u = inv.transformDirection(new Vector3f(0, 1, 0)).normalize();
         Vector3f f = inv.transformDirection(new Vector3f(0, 0, -1)).normalize();
         c.camR = new V3(r.x, r.y, r.z); c.camU = new V3(u.x, u.y, u.z); c.camF = new V3(f.x, f.y, f.z);
+        // arriba del mundo: la vista aplica la rotación inversa de la cámara; en pantallas (inventario) no hay cámara útil y queda la del hueso
+        try {
+            org.joml.Quaternionf q = new org.joml.Quaternionf(net.minecraft.client.Minecraft.getInstance().gameRenderer.getMainCamera().rotation()).conjugate();
+            Vector3f wu = q.transform(new Vector3f(0, 1, 0));
+            Vector3f bu = inv.transformDirection(wu).normalize();
+            c.up = Float.isFinite(bu.x) ? new V3(bu.x, bu.y, bu.z) : V3.Y;
+        } catch (RuntimeException e) {
+            c.up = V3.Y;
+        }
     }
 
     private static void flush(Ctx c, PoseStack ps, MultiBufferSource buf, int light) {

@@ -7,7 +7,7 @@ public final class Fx {
     private Fx() { }
 
     private abstract static class Aura implements Cosm {
-        @Override public Bone bone() { return Bone.PELVIS; }
+        @Override public Bone bone() { return Bone.ROOT; }
     }
 
     private static float h(int a, int b) { return Noise.hash(a, b); }
