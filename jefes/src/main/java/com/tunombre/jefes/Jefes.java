@@ -70,7 +70,9 @@ public class Jefes {
     public static final RegistryObject<Item> PAGINA_ITEM = ITEMS.register("pagina", () -> new net.minecraft.world.item.BlockItem(PAGINA.get(), new Item.Properties()));
     public static final RegistryObject<SoundEvent> SLENDER_STATIC = sound("slender_static", 64F);
     public static final RegistryObject<SoundEvent> SLENDER_DEATH = sound("slender_death", 48F);
-    public static final RegistryObject<SoundEvent> SLENDER_THEME = sound("slender_theme", 48F);
+    /** temas del minijuego: paginas 1-2, 3-4, 5-6 y 7; los reproduce el cliente (SlenderMusic) en capas sincronizadas */
+    public static final java.util.List<RegistryObject<SoundEvent>> SLENDER_THEMES = java.util.List.of(
+            sound("slender_theme_1", 48F), sound("slender_theme_2", 48F), sound("slender_theme_3", 48F), sound("slender_theme_4", 48F));
 
     public static final RegistryObject<SoundEvent> STEP = sound("step", 96F);
     public static final RegistryObject<SoundEvent> ROAR = sound("roar", 160F);

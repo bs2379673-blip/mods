@@ -234,11 +234,38 @@
       }
     ]
   },
-  "slender_theme": {
+  "slender_theme_1": {
     "subtitle": "jefes.subtitle.slender_theme",
     "sounds": [
       {
-        "name": "jefes:slender_theme",
+        "name": "jefes:slender_theme_1",
+        "stream": true
+      }
+    ]
+  },
+  "slender_theme_2": {
+    "subtitle": "jefes.subtitle.slender_theme",
+    "sounds": [
+      {
+        "name": "jefes:slender_theme_2",
+        "stream": true
+      }
+    ]
+  },
+  "slender_theme_3": {
+    "subtitle": "jefes.subtitle.slender_theme",
+    "sounds": [
+      {
+        "name": "jefes:slender_theme_3",
+        "stream": true
+      }
+    ]
+  },
+  "slender_theme_4": {
+    "subtitle": "jefes.subtitle.slender_theme",
+    "sounds": [
+      {
+        "name": "jefes:slender_theme_4",
         "stream": true
       }
     ]

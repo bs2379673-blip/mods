@@ -29,7 +29,7 @@ public final class SlenderFx {
 
     private SlenderFx() { }
 
-    public static void game(int collected, int total, boolean active) { gameCollected = collected; gameTotal = total; gameActive = active; }
+    public static void game(int collected, int total, boolean active) { gameCollected = collected; gameTotal = total; gameActive = active; SlenderMusic.game(collected, total, active); }
 
     public static void burst(int ticks, float strength, boolean flash) {
         if (strength <= 0.02F) return;

@@ -75,11 +75,6 @@ public final class Slender {
             for (ServerPlayer o : s.getPlayerList().getPlayers()) {
                 o.displayClientMessage(Component.literal("§f§lPagina " + g.collected + "/" + g.total + (left > 0 ? " §7— quedan " + left : "")), true);
             }
-            if (g.collected == 3 || g.collected == 6) {
-                for (ServerPlayer o : s.getPlayerList().getPlayers()) {
-                    lv.playSound(null, o.getX(), o.getY(), o.getZ(), Jefes.SLENDER_THEME.get(), SoundSource.MUSIC, 0.9F, 1F);
-                }
-            }
             if (g.collected >= g.total && g.total > 0) {
                 g.active = false;
                 s.getPlayerList().broadcastSystemMessage(Component.literal("§a§lJuntaron todas las paginas."), false);

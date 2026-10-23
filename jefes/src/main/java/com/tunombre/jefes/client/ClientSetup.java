@@ -35,6 +35,7 @@ public final class ClientSetup {
             if (e.phase != TickEvent.Phase.END) return;
             Control.tick();
             SlenderFx.tick();
+            SlenderMusic.tick();
             Cinematic.tick();
         });
         bus2.addListener((TickEvent.RenderTickEvent e) -> {
@@ -59,7 +60,7 @@ public final class ClientSetup {
             else if (e.isUseItem()) Control.onAttackUse(false);
         });
         bus2.addListener((RenderHandEvent e) -> { if (Control.active() || Cinematic.active()) e.setCanceled(true); });
-        bus2.addListener((ClientPlayerNetworkEvent.LoggingOut e) -> { Control.set(-1); Cinematic.set(-1); ClientBosses.clear(); SlenderFx.game(0, 0, false); com.tunombre.jefes.Bosses.CLIENT.clear(); });
+        bus2.addListener((ClientPlayerNetworkEvent.LoggingOut e) -> { Control.set(-1); Cinematic.set(-1); ClientBosses.clear(); SlenderFx.game(0, 0, false); SlenderMusic.stopAll(); com.tunombre.jefes.Bosses.CLIENT.clear(); });
         bus2.addListener((net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles e) -> SlenderFx.camera(e));
         bus2.addListener((net.minecraftforge.client.event.ViewportEvent.ComputeFov e) -> SlenderFx.fov(e));
         bus2.addListener((ClientPlayerNetworkEvent.Clone e) -> { Cinematic.set(-1); });
