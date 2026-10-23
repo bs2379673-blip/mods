@@ -20,7 +20,7 @@ import java.util.Random;
  * de frente, destellos con su cara. Todo se calcula en el cliente a partir de donde esta el jefe y hacia donde mira el jugador.
  */
 public final class SlenderFx {
-    private static final ResourceLocation FLASH = new ResourceLocation(Jefes.MODID, "textures/gui/slender_flash.png");
+    private static final ResourceLocation[] FLASH = {new ResourceLocation(Jefes.MODID, "textures/gui/slender_flash_0.png"), new ResourceLocation(Jefes.MODID, "textures/gui/slender_flash_1.png"), new ResourceLocation(Jefes.MODID, "textures/gui/slender_flash_2.png"), new ResourceLocation(Jefes.MODID, "textures/gui/slender_flash_3.png")};
     private static final Random R = new Random();
     private static float intensity, target;
     private static int burstLeft, burstTotal, flashLeft, tick, gameCollected, gameTotal;
@@ -116,15 +116,21 @@ public final class SlenderFx {
         }
         // apagon corto
         if (lv > 0.55F && R.nextInt(Math.max(6, (int) (40 - lv * 30))) == 0) g.fill(0, 0, w, h, 0xB0000000);
-        // la cara
+        // la cara: fotogramas del susto original, partidos en tiras que se desplazan
         if (flashLeft > 0) {
-            float a = burstFlash ? 0.95F : 0.55F + 0.35F * lv;
-            int sz = Math.min(w, h);
-            int x = (w - sz) / 2 + R.nextInt(9) - 4, y = (h - sz) / 2 + R.nextInt(9) - 4;
-            g.fill(0, 0, w, h, 0xCC000000);
+            float a = burstFlash ? 1F : 0.65F + 0.3F * lv;
+            ResourceLocation tex = FLASH[R.nextInt(FLASH.length)];
+            g.fill(0, 0, w, h, 0xFF000000);
             g.setColor(1F, 1F, 1F, a);
-            g.blit(FLASH, x, y, 0, 0, sz, sz, sz, sz);
+            int strips = 9;
+            for (int j = 0; j < strips; j++) {
+                int y0 = h * j / strips, y1 = h * (j + 1) / strips;
+                int dx = R.nextInt(5) == 0 ? R.nextInt(41) - 20 : R.nextInt(5) - 2;
+                g.blit(tex, dx - 24, y0, w + 48, y1 - y0, 0F, 360F * j / strips, 640, 360 / strips + 1, 640, 360);
+            }
             g.setColor(1F, 1F, 1F, 1F);
+            int nz = 260;
+            for (int i = 0; i < nz; i++) { int x = R.nextInt(w), y = R.nextInt(h), c = R.nextInt(255); g.fill(x, y, x + 2 + R.nextInt(5), y + 1, 0x90000000 | (c << 16) | (c << 8) | c); }
         }
         RenderSystem.disableBlend();
     }
