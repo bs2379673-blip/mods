@@ -10,13 +10,13 @@ import net.minecraft.util.RandomSource;
 /**
  * Musica del minijuego de las paginas. Los cuatro temas (paginas 1-2, 3-4, 5-6 y 7) arrancan a la vez, con el mismo
  * largo, y solo cambia cual se oye: asi siempre van al mismo compas y el paso de una fase a otra es un crossfade
- * en vez de un corte. Al juntar la ultima pagina (o parar el juego) todo se apaga de a poco.
+ * en vez de un corte. Suenan en la categoria MASTER (no en "musica") para que no se puedan silenciar con el control de musica, y a volumen de fondo. Al juntar la ultima pagina (o parar el juego) todo se apaga de a poco.
  */
 public final class SlenderMusic {
     private SlenderMusic() { }
 
     /** volumen maximo de cada tema (el primero es mas suave de por si) */
-    private static final float[] GAIN = {1.0F, 0.9F, 0.85F, 0.85F};
+    private static final float[] GAIN = {0.62F, 0.4F, 0.36F, 0.36F};
     /** segundos que tarda en entrar/salir un tema */
     private static final float FADE_IN = 3.5F, FADE_OUT = 5F;
 
@@ -30,7 +30,7 @@ public final class SlenderMusic {
         boolean done;
 
         Layer(int i) {
-            super(Jefes.SLENDER_THEMES.get(i).get(), SoundSource.MUSIC, RandomSource.create());
+            super(Jefes.SLENDER_THEMES.get(i).get(), SoundSource.MASTER, RandomSource.create());
             this.gain = GAIN[i];
             this.looping = true;
             this.delay = 0;
@@ -60,7 +60,8 @@ public final class SlenderMusic {
     public static void game(int collected, int total, boolean active) {
         wanted = active && total > 0;
         int p = 0;
-        if (wanted && collected > 0) {
+        if (wanted) {
+            // al iniciar el evento ya suena el primer tema; despues va subiendo con las paginas
             float f = collected / (float) total;
             p = f <= 0.25F ? 1 : f <= 0.5F ? 2 : f <= 0.75F ? 3 : f < 1F ? 4 : 0;
         }
@@ -83,7 +84,14 @@ public final class SlenderMusic {
         }
     }
 
+    private static int quiet;
+
     public static void tick() {
+        // la musica de fondo de Minecraft no entra mientras dura el evento
+        if (phase > 0 && ++quiet >= 20) {
+            quiet = 0;
+            try { Minecraft.getInstance().getMusicManager().stopPlaying(); } catch (Throwable ignored) { }
+        }
         if (phase == 0) {
             // todo apagado y ya sin volumen: se liberan los streams
             boolean silent = true;

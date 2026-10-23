@@ -275,6 +275,7 @@ public class JefeEntity extends Mob {
         moveTo(bp.getX() + 0.5, bp.getY(), bp.getZ() + 0.5, getYRot(), 0F);
         setDeltaMovement(Vec3.ZERO);
         blinkAt = tickCount;
+        Net.CH.send(PacketDistributor.TRACKING_ENTITY.with(() -> this), new Net.Blink(getId(), from.x, from.y, from.z, getX(), getY(), getZ()));
         Slender.burst(this, 40F, 14, 0.55F, false);
         sound(Jefes.SLENDER_STATIC.get(), 1.6F, 1.0F);
     }

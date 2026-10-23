@@ -35,6 +35,7 @@ public final class Net {
         CH.registerMessage(i++, Scream.class, Scream::write, Scream::read, Scream::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CH.registerMessage(i++, Game.class, Game::write, Game::read, Game::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CH.registerMessage(i++, Burst.class, Burst::write, Burst::read, Burst::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CH.registerMessage(i++, Blink.class, Blink::write, Blink::read, Blink::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CH.registerMessage(i++, Input.class, Input::write, Input::read, Input::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CH.registerMessage(i++, Action.class, Action::write, Action::read, Action::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
@@ -107,6 +108,18 @@ public final class Net {
 
         void handle(Supplier<NetworkEvent.Context> c) {
             c.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.jefes.client.SlenderFx.game(collected, total, active)));
+            c.get().setPacketHandled(true);
+        }
+    }
+
+    /** teletransporte de un jefe: de donde sale y a donde llega, para que el cliente haga el glitch sin depender de ver el salto */
+    public record Blink(int id, double fx, double fy, double fz, double tx, double ty, double tz) {
+        void write(FriendlyByteBuf b) { b.writeVarInt(id); b.writeDouble(fx); b.writeDouble(fy); b.writeDouble(fz); b.writeDouble(tx); b.writeDouble(ty); b.writeDouble(tz); }
+
+        static Blink read(FriendlyByteBuf b) { return new Blink(b.readVarInt(), b.readDouble(), b.readDouble(), b.readDouble(), b.readDouble(), b.readDouble(), b.readDouble()); }
+
+        void handle(Supplier<NetworkEvent.Context> c) {
+            c.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.tunombre.jefes.client.SlenderRender.blink(this)));
             c.get().setPacketHandled(true);
         }
     }

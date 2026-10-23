@@ -33,10 +33,23 @@ public final class SlenderRender {
         Vec3 last;
         double glitchUntil = -1, ghostUntil = -1, ghostYaw;
         Vec3 ghost;
+        Vec3 pendingFrom;
+        long pendingAt;
         float[] mesh;
     }
 
     private SlenderRender() { }
+
+    /** el servidor avisa que Slenderman se teletransporto: se pone ya en el destino (sin deslizarse) y se marca el glitch */
+    public static void blink(com.tunombre.jefes.Net.Blink m) {
+        var mc = Minecraft.getInstance();
+        if (mc.level == null || !(mc.level.getEntity(m.id()) instanceof JefeEntity e)) return;
+        St st = STATES.computeIfAbsent(e, k -> new St());
+        st.pendingFrom = new Vec3(m.fx(), m.fy(), m.fz());
+        st.pendingAt = mc.level.getGameTime();
+        e.moveTo(m.tx(), m.ty(), m.tz(), e.getYRot(), e.getXRot());
+        e.xo = e.xOld = m.tx(); e.yo = e.yOld = m.ty(); e.zo = e.zOld = m.tz();
+    }
 
     public static void render(JefeEntity e, float pt, PoseStack ps, MultiBufferSource buf, int light) {
         if (!tried) {
@@ -68,15 +81,18 @@ public final class SlenderRender {
             in.lashIdx = act == Act.ATTACK_L ? 0 : 1;
         }
         // teletransporte: salto de posicion de un cuadro al otro
-        if (st.last != null && st.last.distanceToSqr(pp) > 16) {
+        if (st.pendingFrom != null && e.level().getGameTime() - st.pendingAt > 30) st.pendingFrom = null;
+        // (el aviso del servidor es lo confiable; el salto visto es respaldo para otros teletransportes, p. ej. /tp)
+        if (st.pendingFrom != null || (st.last != null && st.last.distanceToSqr(pp) > 9)) {
             in.reset = true;
-            st.glitchUntil = time + 18;
-            st.ghostUntil = time + 14;
-            st.ghost = st.last;
+            st.glitchUntil = time + 26;
+            st.ghostUntil = time + 20;
+            st.ghost = st.pendingFrom != null ? st.pendingFrom : st.last;
             st.ghostYaw = yaw;
+            st.pendingFrom = null;
         }
         st.last = pp;
-        double glitch = time < st.glitchUntil ? 0.45 * (st.glitchUntil - time) / 18.0 : 0;
+        double glitch = time < st.glitchUntil ? 0.6 * (st.glitchUntil - time) / 26.0 : 0;
         boolean hide = glitch > 0 && ((int) Math.floor(time * 3) * 2654435761L >>> 5 & 7) == 0;
 
         SlenderGeo.Out out = new SlenderGeo.Out();
@@ -113,7 +129,7 @@ public final class SlenderRender {
             // fantasma donde estaba, deshaciendose
             SlenderGeo.In g = new SlenderGeo.In();
             g.px = st.ghost.x; g.py = st.ghost.y; g.pz = st.ghost.z; g.yaw = st.ghostYaw; g.time = time; g.speed = 0;
-            float f = (float) ((st.ghostUntil - time) / 14.0);
+            float f = (float) ((st.ghostUntil - time) / 20.0);
             float[] gm = SlenderGeo.mesh(g, st.geo, 0.7 * f + 0.1, null);
             VertexConsumer tr = buf.getBuffer(RenderType.entityTranslucent(TEX));
             mesh(tr, pm, nm, gm, (float) (pp.x - st.ghost.x), (float) (pp.y - st.ghost.y), (float) (pp.z - st.ghost.z), 0, 0, 0.8F, 0.9F, 1F, 0.55F * f, LightTexture.FULL_BRIGHT);
