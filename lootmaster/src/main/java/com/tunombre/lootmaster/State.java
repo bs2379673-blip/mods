@@ -21,6 +21,8 @@ public final class State extends SavedData {
         public String name = "", dim = "";
         public int x1, x2, z1, z2, y1, y2;
         public boolean ignoreY = true, enabled = true;
+        /** Encierro: quien está adentro no puede salir y reaparece adentro (para eventos). */
+        public boolean lock = false;
     }
 
     public static final class Orig { public boolean per, rEn, rOnly, rClear; public long ticks; }
@@ -41,6 +43,9 @@ public final class State extends SavedData {
         public java.util.List<Zone> zones = new java.util.ArrayList<>();
         public Set<String> advManaged = new TreeSet<>();
         public Set<String> advExempt = new TreeSet<>();
+        /** jugador → zona de encierro en la que quedó atrapado */
+        public Map<String, String> trapped = new TreeMap<>();
+        public String dTemplate = "auto";
         public boolean zOps = false;
         public Map<String, String> wandSnap = new LinkedHashMap<>();
         public String wProfile = "civil";
@@ -81,6 +86,8 @@ public final class State extends SavedData {
         if (s.d.advExempt == null) s.d.advExempt = new TreeSet<>();
         if (s.d.wandSnap == null) s.d.wandSnap = new LinkedHashMap<>();
         if (s.d.orig == null) s.d.orig = new TreeMap<>();
+        if (s.d.trapped == null) s.d.trapped = new TreeMap<>();
+        if (s.d.dTemplate == null) s.d.dTemplate = "auto";
         return s;
     }
 

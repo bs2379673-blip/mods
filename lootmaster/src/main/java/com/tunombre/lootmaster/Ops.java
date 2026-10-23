@@ -129,6 +129,7 @@ public final class Ops {
         set.addProperty("perTick", d.perTick);
         set.addProperty("zOps", d.zOps);
         set.addProperty("dTheme", d.dTheme);
+        set.addProperty("dTemplate", d.dTemplate);
         set.addProperty("dDensity", d.dDensity);
         set.addProperty("dSeed", d.dSeed);
         set.addProperty("dInterior", d.dInterior);
@@ -148,6 +149,10 @@ public final class Ops {
         JsonArray th = new JsonArray();
         for (Decor.Theme x : Decor.themes().values()) { JsonObject q = new JsonObject(); q.addProperty("id", x.id); q.addProperty("name", x.name); th.add(q); }
         o.add("themes", th);
+        JsonArray tps = new JsonArray();
+        Decor.Theme cur = Decor.themes().get(d.dTheme);
+        if (cur != null) for (Decor.Template x : cur.templates.values()) { JsonObject q = new JsonObject(); q.addProperty("id", x.id); q.addProperty("name", x.name); q.addProperty("desc", x.desc); tps.add(q); }
+        o.add("templates", tps);
         o.addProperty("undoLabel", Edits.lastLabel(s));
         Decor.Plan pn = pl == null ? null : Decor.plan(pl);
         o.addProperty("planCount", pn == null ? 0 : pn.list.size());
@@ -157,11 +162,12 @@ public final class Ops {
             x.addProperty("name", z.name); x.addProperty("dim", z.dim);
             x.addProperty("x1", z.x1); x.addProperty("x2", z.x2); x.addProperty("z1", z.z1); x.addProperty("z2", z.z2);
             x.addProperty("y1", z.y1); x.addProperty("y2", z.y2);
-            x.addProperty("ignoreY", z.ignoreY); x.addProperty("enabled", z.enabled);
+            x.addProperty("ignoreY", z.ignoreY); x.addProperty("enabled", z.enabled); x.addProperty("lock", z.lock);
             zs.add(x);
         }
         o.add("zones", zs);
         o.addProperty("advCount", d.advManaged.size());
+        o.addProperty("trapCount", d.trapped.size());
         o.addProperty("wandUndo", d.wandSnap.size());
         o.addProperty("evProfile", d.evProfile);
         o.addProperty("evChanged", d.snap.size());
@@ -244,6 +250,12 @@ public final class Ops {
                 }
                 case "zone_del" -> { String n = str(o, "name"); d.zones.removeIf(z -> z.name.equals(n)); msg(p, "Zona «" + n + "» borrada."); }
                 case "zone_on" -> { String n = str(o, "name"); for (State.Zone z : d.zones) if (z.name.equals(n)) z.enabled = bool(o, "v"); }
+                case "zone_lock" -> {
+                    String n = str(o, "name");
+                    boolean v = bool(o, "v");
+                    for (State.Zone z : d.zones) if (z.name.equals(n)) z.lock = v;
+                    msg(p, v ? "Encierro activado en «" + n + "»: quien esté adentro no puede salir y reaparece adentro." : "Encierro desactivado en «" + n + "»: todos quedan libres.");
+                }
                 case "dplan" -> {
                     Wand.Sel sel = Wand.get(p);
                     if (sel == null || sel.a == null || sel.b == null) msg(p, "Marca los dos puntos con la varita (la zona a decorar).");
@@ -302,6 +314,7 @@ public final class Ops {
             case "gClear" -> d.gClear = v;
             case "gMin" -> d.gMin = Math.max(0, Math.min(100000, (int) Double.parseDouble(v)));
             case "dTheme" -> d.dTheme = v;
+            case "dTemplate" -> d.dTemplate = v;
             case "dSeed" -> d.dSeed = (int) Double.parseDouble(v);
             case "dDensity" -> d.dDensity = Math.max(0, Math.min(100, (int) Double.parseDouble(v)));
             case "dInterior" -> d.dInterior = v.equals("true");

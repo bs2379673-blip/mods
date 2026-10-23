@@ -232,7 +232,34 @@ public final class Pieces {
     }
 
     /** Coloca la pieza. @return true si quedó puesta */
-    public static boolean place(ServerLevel lv, Info i, BlockPos origin, Direction wf, RandomSource rnd) {
+    /** Cómo se sostiene una pieza según sus propiedades extra (@ceiling, @wall, @air, @top, @floor), o null. */
+    public static String mount(String props) {
+        if (props == null) return null;
+        for (String t : props.split(";")) { t = t.trim(); if (t.startsWith("@")) return t.substring(1); }
+        return null;
+    }
+
+    /** Aplica propiedades "clave=valor" separadas por ; o , (las que el bloque no tiene se ignoran). */
+    public static BlockState props(BlockState st, String props) {
+        if (props == null) return st;
+        for (String t : props.split("[;,]")) {
+            t = t.trim();
+            if (t.isEmpty() || t.startsWith("@")) continue;
+            int e = t.indexOf('=');
+            if (e <= 0) continue;
+            Property<?> p = st.getBlock().getStateDefinition().getProperty(t.substring(0, e).trim());
+            if (p != null) st = setProp(st, p, t.substring(e + 1).trim());
+        }
+        return st;
+    }
+
+    private static <T extends Comparable<T>> BlockState setProp(BlockState s, Property<T> p, String v) {
+        return p.getValue(v).map(x -> s.setValue(p, x)).orElse(s);
+    }
+
+    public static boolean place(ServerLevel lv, Info i, BlockPos origin, Direction wf, RandomSource rnd) { return place(lv, i, origin, wf, rnd, null); }
+
+    public static boolean place(ServerLevel lv, Info i, BlockPos origin, Direction wf, RandomSource rnd, String extra) {
         if (!i.ok) return false;
         try {
             BlockState st = i.block.defaultBlockState();
@@ -271,6 +298,7 @@ public final class Pieces {
                         linked = linked.updateShape(d, lv.getBlockState(np), lv, origin, np);
                     }
                     if (!linked.isAir()) st = linked;
+                    st = props(st, extra);
                     lv.setBlock(origin, st, 3);
                     if (i.path.equals("lying_corpse")) variantCorpse(lv, origin, rnd);
                     return true;

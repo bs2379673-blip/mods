@@ -6,6 +6,8 @@ public final class DecorLootConfigManager {
     public static DecorLootConfig get(String id) { throw new UnsupportedOperationException(); }
     public static Collection<DecorLootConfig> values() { throw new UnsupportedOperationException(); }
     public static boolean has(String id) { throw new UnsupportedOperationException(); }
+    public static java.nio.file.Path getConfigPath(String id) { throw new UnsupportedOperationException(); }
+    public static long getRevision(String id) { throw new UnsupportedOperationException(); }
     public static boolean setPerPlayer(String id, boolean enabled) { throw new UnsupportedOperationException(); }
     public static boolean setRespawn(String id, boolean enabled, int timeTicks, boolean onlyIfEmpty, boolean clearBeforeRespawn) { throw new UnsupportedOperationException(); }
 }

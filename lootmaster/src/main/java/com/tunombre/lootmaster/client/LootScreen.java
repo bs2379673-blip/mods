@@ -664,6 +664,17 @@ public final class LootScreen extends Screen {
         for (JsonElement e : th) { ids.add(str(e.getAsJsonObject(), "id")); names.add(str(e.getAsJsonObject(), "name")); }
         if (ids.isEmpty()) note("No hay temas en config/lootmaster/decor/. Reinicia el servidor para crear el de ejemplo.");
         else cycMap("Tema", names, ids, str(set(), "dTheme"), v -> setSetting("dTheme", v), false);
+        JsonArray tp = st.getAsJsonArray("templates");
+        List<String> tids = new ArrayList<>(), tnames = new ArrayList<>();
+        tids.add("auto");
+        tnames.add("Automática (deduce cada habitación)");
+        if (tp != null) for (JsonElement e : tp) { tids.add(str(e.getAsJsonObject(), "id")); tnames.add(str(e.getAsJsonObject(), "name")); }
+        cycMap("Plantilla del edificio", tnames, tids, str(set(), "dTemplate"), v -> setSetting("dTemplate", v), false);
+        dyn(2, C_DIM, () -> {
+            String cur = str(set(), "dTemplate");
+            if (tp != null) for (JsonElement e : tp) if (str(e.getAsJsonObject(), "id").equals(cur)) return str(e.getAsJsonObject(), "desc");
+            return "Marca un edificio (o varios del mismo tipo) y elige qué es: casa, granja, oficinas, hospital… Cada plantilla tiene sus habitaciones, su luz y su loot.";
+        });
         textNum("Densidad (0-100, 50 = normal)", () -> str(set(), "dDensity"), s -> { if (!s.isEmpty() && !s.equals(".")) setSetting("dDensity", s); }, true);
         dyn(1, C_DIM, () -> "Variante: " + str(set(), "dSeed") + "  (cambia con «Otra variante»)");
         tog("Interiores", () -> bool(set(), "dInterior"), v -> setSetting("dInterior", String.valueOf(v)), true);
@@ -680,7 +691,7 @@ public final class LootScreen extends Screen {
             btn("PLANIFICAR (vista previa)", C_BORDER, true, () -> op("dplan"));
             btn("Otra variante", C_BORDER, true, () -> { op("dseed"); });
             if (st.has("planCount") && st.get("planCount").getAsInt() > 0) {
-                dyn(1, C_OK, () -> "Plan listo: " + st.get("planCount").getAsInt() + " piezas (verde = muebles, rojo = cuerpos y vehículos, azul = calle y patios, amarillo = restos)");
+                dyn(1, C_OK, () -> "Plan listo: " + st.get("planCount").getAsInt() + " piezas (verde = muebles, rojo = cuerpos y vehículos, azul = calle y patios, amarillo = restos, blanco = luces)");
                 btnSure("dapply", "APLICAR EL PLAN", C_ACCENT, true, () -> op("dapply"));
                 btn("Descartar plan", C_BORDER, true, () -> op("ddiscard"));
             }
@@ -745,6 +756,8 @@ public final class LootScreen extends Screen {
         });
         btn("CREAR ZONA CON LA SELECCIÓN DE LA VARITA", C_ACCENT, false, () -> opWith("zone_add", "name", zoneName));
         header("ZONAS");
+        note("Encierro: quien esté dentro de la zona (o entre después) queda en modo aventura y no puede salir: si cruza el borde vuelve al último lugar seguro, y al morir reaparece adentro. Ve el borde como una pared de partículas rojas. Creativo y espectador no quedan encerrados (ni los operadores si «No afectar a operadores» está activo). Al apagar el encierro, desactivar o borrar la zona, todos quedan libres y vuelven a reaparecer en su cama o spawn de siempre.");
+        dyn(1, C_DIM, () -> "Jugadores encerrados ahora: " + (st.has("trapCount") ? st.get("trapCount").getAsInt() : 0));
         JsonArray zs = st.getAsJsonArray("zones");
         if (zs == null || zs.size() == 0) note("Aún no hay zonas.");
         else for (JsonElement e : zs) {
@@ -752,6 +765,7 @@ public final class LootScreen extends Screen {
             String n = str(z, "name");
             dyn(1, C_TEXT, () -> n + " · " + str(z, "dim") + " · " + (z.get("x2").getAsInt() - z.get("x1").getAsInt() + 1) + "×" + (z.get("z2").getAsInt() - z.get("z1").getAsInt() + 1) + (bool(z, "ignoreY") ? " (toda la altura)" : ""));
             tog("Activa", () -> bool(z, "enabled"), v -> { z.addProperty("enabled", v); JsonObject o = new JsonObject(); o.addProperty("op", "zone_on"); o.addProperty("name", n); o.addProperty("v", v); send(o); }, true);
+            tog("Encierro (no se puede salir, reaparecen adentro)", () -> bool(z, "lock"), v -> { z.addProperty("lock", v); JsonObject o = new JsonObject(); o.addProperty("op", "zone_lock"); o.addProperty("name", n); o.addProperty("v", v); send(o); }, true);
             btnSure("zdel:" + n, "Borrar", C_BORDER, true, () -> opWith("zone_del", "name", n));
         }
     }

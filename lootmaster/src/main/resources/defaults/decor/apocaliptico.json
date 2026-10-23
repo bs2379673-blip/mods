@@ -1,12 +1,67 @@
 {
  "format": 2,
- "version": 1,
+ "version": 2,
  "name": "Apocalíptico",
  "comment": "Cada habitación se amuebla con composiciones (conjuntos con sentido). Editable. \"format\": 2. Si subes \"version\" en este archivo, el mod lo respalda como .bak y pone el suyo. Ver LEEME en la carpeta.",
  "density": {
   "interior": 0.3,
   "clutter": 0.06,
   "exterior": 0.0035
+ },
+ "light": {
+  "every": 16,
+  "min": 1,
+  "max": 6,
+  "p": 0.7,
+  "opts": [
+   {
+    "b": "sa_decor:lamp_block",
+    "mount": "ceiling",
+    "lvl": 10,
+    "w": 3,
+    "rooms": [
+     "dormitorio",
+     "sala",
+     "cuarto",
+     "porche",
+     "cocina",
+     "bano"
+    ]
+   },
+   {
+    "b": [
+     "sa_decor:double_flourecent_lamp",
+     "sa_decor:double_flourecent_lamp_flickering",
+     "sa_decor:double_flourecent_lamp_broken"
+    ],
+    "mount": "ceiling",
+    "lvl": 12,
+    "w": 3,
+    "rooms": [
+     "oficina",
+     "comercio",
+     "hospital",
+     "cocina",
+     "bano",
+     "cuarto"
+    ]
+   },
+   {
+    "b": "minecraft:lantern",
+    "mount": "top",
+    "w": 1
+   },
+   {
+    "b": [
+     "minecraft:candle",
+     "minecraft:white_candle",
+     "minecraft:brown_candle"
+    ],
+    "mount": "top",
+    "w": 1,
+    "s": "candles=3;lit=true"
+   }
+  ]
  },
  "rooms": {
   "dormitorio": {
@@ -3196,6 +3251,34 @@
        "d1": 2
       }
      ]
+    },
+    {
+     "id": "caja_extra",
+     "w": 2,
+     "max": 1,
+     "spacing": 10,
+     "anchor": "wall",
+     "clear": 1,
+     "minArea": 60,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:counter_cabinet",
+       "f": "in",
+       "over": [
+        {
+         "b": "sa_decor:cash_register_machine",
+         "y": 1,
+         "f": "in",
+         "once": true
+        }
+       ]
+      },
+      {
+       "b": "sa_decor:counter_cabinet",
+       "f": "in"
+      }
+     ]
     }
    ],
    "clutter": [
@@ -6143,6 +6226,7067 @@
      "spacing": 9
     }
    ]
+  },
+  "granero": {
+   "comps": [
+    {
+     "id": "fardos_en_la_esquina",
+     "core": true,
+     "anchor": "corner",
+     "clear": 0,
+     "cat": 1,
+     "parts": [
+      {
+       "b": "minecraft:hay_block"
+      },
+      {
+       "b": "minecraft:hay_block",
+       "x": 1,
+       "p": 0.8
+      },
+      {
+       "b": "minecraft:hay_block",
+       "z": 1,
+       "p": 0.7
+      },
+      {
+       "b": "minecraft:hay_block",
+       "y": 1,
+       "p": 0.7
+      },
+      {
+       "b": "minecraft:hay_block",
+       "x": 1,
+       "y": 1,
+       "p": 0.4
+      }
+     ]
+    },
+    {
+     "id": "comedero",
+     "w": 4,
+     "max": 2,
+     "spacing": 4,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "minecraft:composter",
+       "f": "in"
+      },
+      {
+       "b": [
+        "minecraft:cauldron",
+        "minecraft:water_cauldron"
+       ],
+       "f": "in"
+      },
+      {
+       "b": "minecraft:hay_block",
+       "f": "in",
+       "p": 0.8
+      }
+     ]
+    },
+    {
+     "id": "barriles_de_granja",
+     "w": 3,
+     "max": 2,
+     "spacing": 4,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "minecraft:barrel",
+       "n": 2,
+       "loot": "farm",
+       "s": "facing=up"
+      },
+      {
+       "b": [
+        "sa_decor:oak_supply_crate",
+        "sa_decor:spruce_supply_crate",
+        "sa_decor:food_crate"
+       ],
+       "f": "in",
+       "p": 0.8,
+       "loot": "farm|food_storage"
+      }
+     ]
+    },
+    {
+     "id": "mesa_de_herramientas",
+     "w": 3,
+     "max": 1,
+     "spacing": 6,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "minecraft:crafting_table",
+       "f": "in"
+      },
+      {
+       "b": "minecraft:grindstone",
+       "f": "in",
+       "p": 0.8
+      },
+      {
+       "b": "sa_decor:tool_storage",
+       "f": "in",
+       "p": 0.7,
+       "loot": "farm|tool_storage"
+      }
+     ]
+    },
+    {
+     "id": "yunque_viejo",
+     "w": 1,
+     "max": 1,
+     "spacing": 8,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "minArea": 14,
+     "parts": [
+      {
+       "b": [
+        "minecraft:chipped_anvil",
+        "minecraft:damaged_anvil"
+       ],
+       "f": "r"
+      }
+     ]
+    },
+    {
+     "id": "pila_de_madera",
+     "w": 2,
+     "max": 2,
+     "spacing": 5,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:planks_pallet_stack1",
+        "sa_decor:planks_pallet_stack2",
+        "sa_decor:wood_plank_pile"
+       ],
+       "f": "in",
+       "n": 2
+      }
+     ]
+    },
+    {
+     "id": "fardos_sueltos",
+     "w": 2,
+     "max": 3,
+     "spacing": 4,
+     "anchor": "free",
+     "clear": 0,
+     "cat": 1,
+     "minArea": 20,
+     "parts": [
+      {
+       "b": "minecraft:hay_block"
+      },
+      {
+       "b": "minecraft:hay_block",
+       "x": 1,
+       "p": 0.6
+      }
+     ]
+    },
+    {
+     "id": "bidones",
+     "w": 2,
+     "max": 2,
+     "spacing": 5,
+     "anchor": "corner",
+     "clear": 0,
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:oil_barrel",
+        "sa_decor:oil_barrel_blue",
+        "sa_decor:oil_barrel_green",
+        "sa_decor:oil_barrel_red",
+        "sa_decor:oil_barrel_yellow"
+       ]
+      },
+      {
+       "b": [
+        "sa_decor:gas_barrel",
+        "sa_decor:oil_barrel",
+        "sa_decor:oil_barrel_blue",
+        "sa_decor:oil_barrel_green",
+        "sa_decor:oil_barrel_red",
+        "sa_decor:oil_barrel_yellow"
+       ],
+       "x": 1,
+       "p": 0.6
+      }
+     ]
+    },
+    {
+     "id": "gra_cuerpo_tirado",
+     "anchor": "free",
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "gra_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "gra_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 4,
+     "max": 5
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 2,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 1,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 6
+    },
+    {
+     "b": "minecraft:cobweb",
+     "where": "corner",
+     "w": 2,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:fly_emitter",
+     "where": "corner",
+     "w": 1,
+     "max": 1,
+     "spacing": 5
+    }
+   ]
+  },
+  "cocina_rustica": {
+   "comps": [
+    {
+     "id": "cocina_de_campo",
+     "core": true,
+     "anchor": "wall",
+     "clear": 1,
+     "alt": "cocina_de_campo_chica",
+     "cat": 1,
+     "minArea": 10,
+     "row": [
+      {
+       "b": "minecraft:smoker",
+       "f": "in"
+      },
+      {
+       "b": [
+        "sa_decor:counter_cabinet",
+        "sa_decor:kitchen_drawer"
+       ],
+       "f": "in",
+       "over": [
+        {
+         "b": [
+          "sa_decor:wall_wooden_drawer",
+          "sa_decor:kitchen_shelf"
+         ],
+         "y": 2,
+         "f": "in",
+         "p": 0.7
+        }
+       ]
+      },
+      {
+       "b": "sa_decor:kitchen_sink",
+       "f": "in"
+      },
+      {
+       "b": "minecraft:barrel",
+       "loot": "food_storage|farm",
+       "s": "facing=up"
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:dirty_props",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 2,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.7
+      }
+     ]
+    },
+    {
+     "id": "cocina_de_campo_chica",
+     "w": 0,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:stove",
+        "sa_decor:stove_green",
+        "sa_decor:stove_red"
+       ],
+       "f": "in"
+      },
+      {
+       "b": "sa_decor:kitchen_sink",
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "mesa_familiar",
+     "w": 4,
+     "max": 1,
+     "spacing": 6,
+     "anchor": "free",
+     "clear": 0,
+     "minArea": 12,
+     "cat": 1,
+     "parts": [
+      {
+       "b": "sa_decor:wooden_table",
+       "x": 1,
+       "z": 1
+      },
+      {
+       "b": "sa_decor:wooden_table",
+       "x": 2,
+       "z": 1,
+       "p": 0.7
+      },
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_beige",
+        "sa_decor:wooden_seat_blue",
+        "sa_decor:wooden_seat_gray",
+        "sa_decor:wooden_seat_green",
+        "sa_decor:wooden_seat_red"
+       ],
+       "z": 1,
+       "f": "r"
+      },
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_beige",
+        "sa_decor:wooden_seat_blue",
+        "sa_decor:wooden_seat_gray",
+        "sa_decor:wooden_seat_green",
+        "sa_decor:wooden_seat_red"
+       ],
+       "x": 3,
+       "z": 1,
+       "f": "l",
+       "p": 0.8
+      },
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_beige",
+        "sa_decor:wooden_seat_blue",
+        "sa_decor:wooden_seat_gray",
+        "sa_decor:wooden_seat_green",
+        "sa_decor:wooden_seat_red"
+       ],
+       "x": 1,
+       "f": "in",
+       "p": 0.8
+      },
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_beige",
+        "sa_decor:wooden_seat_blue",
+        "sa_decor:wooden_seat_gray",
+        "sa_decor:wooden_seat_green",
+        "sa_decor:wooden_seat_red"
+       ],
+       "x": 1,
+       "z": 2,
+       "f": "out",
+       "p": 0.8
+      },
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_beige",
+        "sa_decor:wooden_seat_blue",
+        "sa_decor:wooden_seat_gray",
+        "sa_decor:wooden_seat_green",
+        "sa_decor:wooden_seat_red"
+       ],
+       "x": 2,
+       "z": 2,
+       "f": "out",
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "despensa_de_campo",
+     "w": 3,
+     "max": 1,
+     "spacing": 6,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:wooden_shelves",
+       "f": "in",
+       "loot": "food_storage"
+      },
+      {
+       "b": "minecraft:barrel",
+       "loot": "farm|food_storage",
+       "s": "facing=up"
+      },
+      {
+       "b": "sa_decor:food_crate",
+       "f": "in",
+       "p": 0.7
+      }
+     ]
+    },
+    {
+     "id": "heladera_vieja",
+     "w": 2,
+     "max": 1,
+     "spacing": 6,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:fridge",
+        "sa_decor:fridge_green",
+        "sa_decor:fridge_red"
+       ],
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "alacena_rustica",
+     "w": 2,
+     "max": 2,
+     "spacing": 4,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:oak_wooden_drawer_double",
+        "sa_decor:birch_wooden_drawer_double",
+        "sa_decor:spruce_wooden_drawer_double"
+       ],
+       "f": "in",
+       "over": [
+        {
+         "b": [
+          "sa_decor:radio",
+          "sa_decor:black_telephone"
+         ],
+         "y": 1,
+         "p": 0.6,
+         "once": true
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "cru_cuerpo_tirado",
+     "anchor": "free",
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "cru_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "cru_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 3,
+     "max": 4
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:garbage_props",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "near",
+     "w": 2,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 6
+    },
+    {
+     "b": "sa_decor:cardboard_box",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:fly_emitter",
+     "where": "corner",
+     "w": 1,
+     "max": 2,
+     "spacing": 5
+    },
+    {
+     "b": "minecraft:cobweb",
+     "where": "corner",
+     "w": 1,
+     "max": 2
+    }
+   ]
+  },
+  "aula": {
+   "comps": [
+    {
+     "id": "pizarron_y_profesor",
+     "core": true,
+     "anchor": "wall",
+     "clear": 2,
+     "cat": 1,
+     "minArea": 14,
+     "row": [
+      {
+       "b": "sa_decor:office_desk",
+       "f": "in",
+       "over": [
+        {
+         "b": [
+          "sa_decor:old_computer",
+          "sa_decor:paper_props",
+          "sa_decor:black_desk_lamp"
+         ],
+         "y": 1,
+         "p": 0.8,
+         "once": true
+        },
+        {
+         "b": "sa_decor:noteboard",
+         "x": 1,
+         "y": 1,
+         "f": "in",
+         "once": true
+        }
+       ]
+      }
+     ],
+     "parts": [
+      {
+       "b": [
+        "sa_decor:office_chair",
+        "sa_decor:office_chair_blue",
+        "sa_decor:office_chair_brown",
+        "sa_decor:office_chair_green",
+        "sa_decor:office_chair_red"
+       ],
+       "z": 1,
+       "f": "out",
+       "p": 0.9
+      }
+     ]
+    },
+    {
+     "id": "fila_de_pupitres",
+     "w": 6,
+     "max": 5,
+     "spacing": 2,
+     "anchor": "free",
+     "clear": 0,
+     "cat": 1,
+     "minArea": 14,
+     "parts": [
+      {
+       "b": "sa_decor:wooden_table"
+      },
+      {
+       "b": [
+        "sa_decor:plastic_chair_white",
+        "sa_decor:plastic_chair_red",
+        "sa_decor:folding_chair_blue"
+       ],
+       "z": 1,
+       "f": "out",
+       "p": 0.9
+      },
+      {
+       "b": "sa_decor:wooden_table",
+       "x": 2
+      },
+      {
+       "b": [
+        "sa_decor:plastic_chair_white",
+        "sa_decor:plastic_chair_red",
+        "sa_decor:folding_chair_blue"
+       ],
+       "x": 2,
+       "z": 1,
+       "f": "out",
+       "p": 0.9
+      },
+      {
+       "b": "sa_decor:wooden_table",
+       "x": 4,
+       "p": 0.8
+      },
+      {
+       "b": [
+        "sa_decor:plastic_chair_white",
+        "sa_decor:plastic_chair_red",
+        "sa_decor:folding_chair_blue"
+       ],
+       "x": 4,
+       "z": 1,
+       "f": "out",
+       "p": 0.8
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:paper_props",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 2,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.6
+      }
+     ]
+    },
+    {
+     "id": "estante_de_libros",
+     "w": 2,
+     "max": 2,
+     "spacing": 4,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "minecraft:bookshelf",
+        "sa_decor:wooden_shelves"
+       ],
+       "f": "in",
+       "n": 2,
+       "loot": "office"
+      }
+     ]
+    },
+    {
+     "id": "taquillas_de_alumnos",
+     "w": 2,
+     "max": 1,
+     "spacing": 6,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "minArea": 16,
+     "row": [
+      {
+       "b": [
+        "sa_decor:locker",
+        "sa_decor:locker_gray",
+        "sa_decor:locker_green",
+        "sa_decor:locker_red"
+       ],
+       "f": "in",
+       "n": 4
+      }
+     ]
+    },
+    {
+     "id": "aul_cuerpo_tirado",
+     "anchor": "free",
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "aul_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "aul_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:paper_props",
+     "where": "free",
+     "w": 5,
+     "max": 6
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 2,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 2,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 6
+    },
+    {
+     "b": "sa_decor:backpack_loot",
+     "where": "near",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "wall",
+     "w": 1,
+     "max": 2
+    }
+   ]
+  },
+  "restaurante": {
+   "comps": [
+    {
+     "id": "barra_con_caja",
+     "core": true,
+     "anchor": "wall",
+     "clear": 1,
+     "alt": "barra_chica",
+     "cat": 1,
+     "minArea": 16,
+     "row": [
+      {
+       "b": "sa_decor:counter_cabinet",
+       "f": "in",
+       "over": [
+        {
+         "b": "sa_decor:cash_register_machine",
+         "y": 1,
+         "f": "in",
+         "once": true
+        }
+       ]
+      },
+      {
+       "b": [
+        "sa_decor:counter_cabinet",
+        "sa_decor:metal_counter_cabinet"
+       ],
+       "f": "in",
+       "n": 2,
+       "over": [
+        {
+         "b": [
+          "sa_decor:wall_wooden_drawer_glass",
+          "sa_decor:kitchen_shelf"
+         ],
+         "y": 2,
+         "f": "in",
+         "p": 0.6
+        }
+       ]
+      }
+     ],
+     "parts": [
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_red",
+        "sa_decor:wooden_seat_gray"
+       ],
+       "x": 1,
+       "z": 1,
+       "f": "out",
+       "p": 0.8
+      },
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_red"
+       ],
+       "x": 2,
+       "z": 1,
+       "f": "out",
+       "p": 0.6
+      }
+     ]
+    },
+    {
+     "id": "barra_chica",
+     "w": 0,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:counter_cabinet",
+       "f": "in",
+       "over": [
+        {
+         "b": "sa_decor:cash_register_machine",
+         "y": 1,
+         "f": "in",
+         "once": true
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "mesa_de_cuatro",
+     "w": 6,
+     "max": 6,
+     "spacing": 4,
+     "anchor": "free",
+     "clear": 0,
+     "cat": 1,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:wooden_table",
+        "sa_decor:white_smooth_table"
+       ],
+       "x": 1,
+       "z": 1
+      },
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_beige",
+        "sa_decor:wooden_seat_blue",
+        "sa_decor:wooden_seat_gray",
+        "sa_decor:wooden_seat_green",
+        "sa_decor:wooden_seat_red"
+       ],
+       "z": 1,
+       "f": "r"
+      },
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_beige",
+        "sa_decor:wooden_seat_blue",
+        "sa_decor:wooden_seat_gray",
+        "sa_decor:wooden_seat_green",
+        "sa_decor:wooden_seat_red"
+       ],
+       "x": 2,
+       "z": 1,
+       "f": "l"
+      },
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_beige",
+        "sa_decor:wooden_seat_blue",
+        "sa_decor:wooden_seat_gray",
+        "sa_decor:wooden_seat_green",
+        "sa_decor:wooden_seat_red"
+       ],
+       "x": 1,
+       "f": "in",
+       "p": 0.7
+      },
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_beige",
+        "sa_decor:wooden_seat_blue",
+        "sa_decor:wooden_seat_gray",
+        "sa_decor:wooden_seat_green",
+        "sa_decor:wooden_seat_red"
+       ],
+       "x": 1,
+       "z": 2,
+       "f": "out",
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:paper_props",
+        "sa_decor:dirty_props",
+        "sa_decor:broken_glass"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "mesa_de_dos_en_la_pared",
+     "w": 4,
+     "max": 4,
+     "spacing": 3,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:wooden_table",
+        "sa_decor:plastic_table_white"
+       ],
+       "x": 1
+      },
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_beige",
+        "sa_decor:wooden_seat_blue",
+        "sa_decor:wooden_seat_gray",
+        "sa_decor:wooden_seat_green",
+        "sa_decor:wooden_seat_red",
+        "sa_decor:plastic_chair_white"
+       ],
+       "f": "r"
+      },
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_beige",
+        "sa_decor:wooden_seat_blue",
+        "sa_decor:wooden_seat_gray",
+        "sa_decor:wooden_seat_green",
+        "sa_decor:wooden_seat_red",
+        "sa_decor:plastic_chair_white"
+       ],
+       "x": 2,
+       "f": "l",
+       "p": 0.8
+      }
+     ]
+    },
+    {
+     "id": "heladera_de_bebidas",
+     "w": 2,
+     "max": 1,
+     "spacing": 8,
+     "anchor": "wall",
+     "clear": 1,
+     "minArea": 16,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:freezer",
+        "sa_decor:vending_machine"
+       ],
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "res_cuerpo_tirado",
+     "anchor": "free",
+     "w": 2,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "res_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 2,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "res_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 3,
+     "max": 4
+    },
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 4,
+     "max": 5
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:garbage_props",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "wall",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 7
+    },
+    {
+     "b": "sa_decor:grime_carpet",
+     "where": "free",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:cardboard_box",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:backpack_loot",
+     "where": "near",
+     "w": 1,
+     "max": 1
+    },
+    {
+     "b": "sa_decor:ammo_props",
+     "where": "near",
+     "w": 1,
+     "max": 1
+    }
+   ]
+  },
+  "cocina_industrial": {
+   "comps": [
+    {
+     "id": "linea_de_coccion",
+     "core": true,
+     "anchor": "wall",
+     "clear": 1,
+     "alt": "cocina_media",
+     "cat": 1,
+     "minArea": 10,
+     "row": [
+      {
+       "b": "sa_decor:metal_counter_cabinet",
+       "f": "in",
+       "over": [
+        {
+         "b": "sa_decor:wall_metal_counter_cabinet",
+         "y": 2,
+         "f": "in",
+         "p": 0.8
+        }
+       ]
+      },
+      {
+       "b": [
+        "sa_decor:stove",
+        "sa_decor:stove_green",
+        "sa_decor:stove_red"
+       ],
+       "f": "in",
+       "n": 2
+      },
+      {
+       "b": "sa_decor:metal_counter_cabinet",
+       "f": "in",
+       "over": [
+        {
+         "b": "sa_decor:microwave",
+         "y": 1,
+         "p": 0.6,
+         "once": true
+        }
+       ]
+      },
+      {
+       "b": "sa_decor:kitchen_sink",
+       "f": "in"
+      },
+      {
+       "b": "sa_decor:metal_counter_cabinet",
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "cocina_media",
+     "w": 0,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:fridge",
+        "sa_decor:fridge_green",
+        "sa_decor:fridge_red"
+       ],
+       "f": "in",
+       "over": [
+        {
+         "b": "sa_decor:wall_wooden_drawer",
+         "y": 2,
+         "f": "in",
+         "p": 0.45
+        }
+       ]
+      },
+      {
+       "b": [
+        "sa_decor:counter_cabinet",
+        "sa_decor:kitchen_drawer"
+       ],
+       "f": "in",
+       "over": [
+        {
+         "b": "sa_decor:microwave",
+         "y": 1,
+         "f": "in",
+         "p": 0.55,
+         "once": true
+        },
+        {
+         "b": [
+          "sa_decor:wall_wooden_drawer",
+          "sa_decor:wall_wooden_drawer",
+          "sa_decor:wall_wooden_drawer_glass"
+         ],
+         "y": 2,
+         "f": "in",
+         "p": 0.8
+        }
+       ]
+      },
+      {
+       "b": [
+        "sa_decor:stove",
+        "sa_decor:stove_green",
+        "sa_decor:stove_red"
+       ],
+       "f": "in",
+       "over": [
+        {
+         "b": "sa_decor:kitchen_shelf",
+         "y": 2,
+         "f": "in",
+         "p": 0.8
+        }
+       ]
+      },
+      {
+       "b": [
+        "sa_decor:counter_cabinet",
+        "sa_decor:kitchen_drawer"
+       ],
+       "f": "in",
+       "over": [
+        {
+         "b": [
+          "sa_decor:wall_wooden_drawer",
+          "sa_decor:wall_wooden_drawer",
+          "sa_decor:wall_wooden_drawer_glass"
+         ],
+         "y": 2,
+         "f": "in",
+         "p": 0.75
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "camaras_de_frio",
+     "w": 3,
+     "max": 2,
+     "spacing": 4,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:refrigerator",
+        "sa_decor:freezer"
+       ],
+       "f": "in",
+       "loot": "cold_storage|kitchen"
+      }
+     ]
+    },
+    {
+     "id": "estanteria_de_insumos",
+     "w": 3,
+     "max": 2,
+     "spacing": 4,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:metal_rack",
+        "sa_decor:wooden_shelves"
+       ],
+       "f": "in",
+       "n": 2,
+       "loot": "food_storage"
+      }
+     ]
+    },
+    {
+     "id": "mesada_central",
+     "w": 2,
+     "max": 1,
+     "spacing": 6,
+     "anchor": "free",
+     "clear": 0,
+     "minArea": 24,
+     "cat": 1,
+     "parts": [
+      {
+       "b": "sa_decor:metal_counter"
+      },
+      {
+       "b": "sa_decor:metal_counter",
+       "x": 1
+      },
+      {
+       "b": "sa_decor:metal_counter",
+       "x": 2,
+       "p": 0.7
+      }
+     ]
+    },
+    {
+     "id": "ind_cuerpo_tirado",
+     "anchor": "free",
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "ind_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "ind_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 3,
+     "max": 4
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:garbage_props",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "near",
+     "w": 2,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 6
+    },
+    {
+     "b": "sa_decor:cardboard_box",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:fly_emitter",
+     "where": "corner",
+     "w": 1,
+     "max": 2,
+     "spacing": 5
+    }
+   ]
+  },
+  "farmacia": {
+   "comps": [
+    {
+     "id": "mostrador_de_farmacia",
+     "core": true,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "minArea": 10,
+     "row": [
+      {
+       "b": "sa_decor:counter_cabinet",
+       "f": "in",
+       "over": [
+        {
+         "b": "sa_decor:cash_register_machine",
+         "y": 1,
+         "f": "in",
+         "once": true
+        }
+       ]
+      },
+      {
+       "b": "sa_decor:counter_cabinet",
+       "f": "in",
+       "loot": "pharmacy"
+      },
+      {
+       "b": "sa_decor:medicinal_cabinet",
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "estanterias_de_remedios",
+     "w": 6,
+     "max": 5,
+     "spacing": 2,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:store_shelf",
+        "sa_decor:marketing_shelf"
+       ],
+       "f": "in",
+       "n": 2,
+       "loot": "pharmacy"
+      }
+     ]
+    },
+    {
+     "id": "gondola_de_remedios",
+     "w": 3,
+     "max": 2,
+     "spacing": 5,
+     "anchor": "free",
+     "clear": 0,
+     "minArea": 24,
+     "cat": 1,
+     "parts": [
+      {
+       "b": "sa_decor:store_shelf",
+       "f": "out",
+       "loot": "pharmacy"
+      },
+      {
+       "b": "sa_decor:store_shelf",
+       "z": 1,
+       "f": "in",
+       "loot": "pharmacy"
+      }
+     ]
+    },
+    {
+     "id": "botiquines",
+     "w": 3,
+     "max": 2,
+     "spacing": 3,
+     "anchor": "wall",
+     "clear": 0,
+     "cat": 1,
+     "parts": [
+      {
+       "b": "sa_decor:medicinal_cabinet",
+       "y": 1,
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "cajas_de_medicamentos",
+     "w": 2,
+     "max": 2,
+     "spacing": 4,
+     "anchor": "corner",
+     "clear": 0,
+     "cat": 1,
+     "parts": [
+      {
+       "b": "sa_decor:medicinal_crate",
+       "f": "in"
+      },
+      {
+       "b": [
+        "sa_decor:cardboard_box",
+        "sa_decor:medium_cardboard_box",
+        "sa_decor:small_cardboard_box",
+        "sa_decor:small_cardboard_box_stack1",
+        "sa_decor:small_cardboard_box_stack2"
+       ],
+       "x": 1,
+       "f": "rand",
+       "p": 0.6
+      }
+     ]
+    },
+    {
+     "id": "far_cuerpo_tirado",
+     "anchor": "free",
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "far_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "far_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 3,
+     "max": 4
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "near",
+     "w": 3,
+     "max": 4
+    },
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 2,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 6
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    }
+   ]
+  },
+  "taller": {
+   "comps": [
+    {
+     "id": "banco_y_herramientas",
+     "core": true,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "alt": "banco_solo",
+     "row": [
+      {
+       "b": "sa_decor:decor_workbench",
+       "f": "in"
+      },
+      {
+       "b": "sa_decor:tool_storage",
+       "f": "in"
+      },
+      {
+       "b": [
+        "sa_decor:metal_rack",
+        "sa_decor:wall_metal_rack"
+       ],
+       "f": "in",
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:dirty_props",
+        "sa_decor:trash_props",
+        "sa_decor:wires"
+       ],
+       "min": 1,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    },
+    {
+     "id": "banco_solo",
+     "w": 0,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:decor_workbench",
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "auto_en_reparacion",
+     "w": 4,
+     "max": 1,
+     "spacing": 10,
+     "anchor": "free",
+     "clear": 0,
+     "cat": 2,
+     "minArea": 36,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:broken_sedan",
+        "sa_decor:destroyed_sedan",
+        "sa_decor:broken_pickup",
+        "sa_decor:destroyed_pickup",
+        "sa_decor:broken_van",
+        "sa_decor:destroyed_van"
+       ],
+       "f": "in"
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:tire_block",
+        "sa_decor:tire_block_stack2"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:dirty_props",
+        "sa_decor:oil_barrel"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": "sa_decor:wires",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "neumaticos_apilados",
+     "w": 3,
+     "max": 3,
+     "spacing": 4,
+     "anchor": "corner",
+     "clear": 0,
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:tire_block_stack3",
+        "sa_decor:tire_block_stack2",
+        "sa_decor:tire_block_stack3v"
+       ],
+       "f": "rand"
+      },
+      {
+       "b": [
+        "sa_decor:tire_block",
+        "sa_decor:tire_block_stack2v"
+       ],
+       "x": 1,
+       "f": "rand",
+       "p": 0.7
+      }
+     ]
+    },
+    {
+     "id": "bidones_de_aceite",
+     "w": 3,
+     "max": 2,
+     "spacing": 4,
+     "anchor": "wall",
+     "clear": 0,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:oil_barrel",
+        "sa_decor:oil_barrel_blue",
+        "sa_decor:oil_barrel_green",
+        "sa_decor:oil_barrel_red",
+        "sa_decor:oil_barrel_yellow",
+        "sa_decor:gas_barrel"
+       ],
+       "f": "in",
+       "n": 3,
+       "p": 0.85
+      }
+     ]
+    },
+    {
+     "id": "estanterias_de_repuestos",
+     "w": 3,
+     "max": 2,
+     "spacing": 4,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:metal_rack",
+       "f": "in",
+       "n": 2,
+       "loot": "garage|hardware"
+      }
+     ]
+    },
+    {
+     "id": "taquillas_del_taller",
+     "w": 1,
+     "max": 1,
+     "spacing": 8,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "minArea": 16,
+     "row": [
+      {
+       "b": [
+        "sa_decor:locker",
+        "sa_decor:locker_gray",
+        "sa_decor:locker_green",
+        "sa_decor:locker_red"
+       ],
+       "f": "in",
+       "n": 2
+      }
+     ]
+    },
+    {
+     "id": "tal_cuerpo_tirado",
+     "anchor": "free",
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "tal_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "tal_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "free",
+     "w": 5,
+     "max": 6
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 2,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:wires",
+     "where": "wall",
+     "w": 2,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 6
+    },
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 1,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:cardboard_box",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    }
+   ]
+  },
+  "oficina_policial": {
+   "comps": [
+    {
+     "id": "escritorio_policial",
+     "core": true,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "alt": "puesto_chico",
+     "row": [
+      {
+       "b": "sa_decor:office_desk",
+       "f": "in",
+       "over": [
+        {
+         "b": [
+          "sa_decor:pc",
+          "sa_decor:pc_broken",
+          "sa_decor:old_computer",
+          "sa_decor:broken_old_computer"
+         ],
+         "y": 1,
+         "p": 0.9,
+         "once": true
+        },
+        {
+         "b": [
+          "sa_decor:black_telephone",
+          "sa_decor:military_radio",
+          "sa_decor:radio",
+          "sa_decor:paper_props"
+         ],
+         "x": 1,
+         "y": 1,
+         "p": 0.8,
+         "once": true
+        }
+       ]
+      }
+     ],
+     "parts": [
+      {
+       "b": [
+        "sa_decor:office_chair",
+        "sa_decor:office_chair_blue",
+        "sa_decor:office_chair_brown",
+        "sa_decor:office_chair_green",
+        "sa_decor:office_chair_red",
+        "sa_decor:office_chair_broken",
+        "sa_decor:office_chair_broken_blue",
+        "sa_decor:office_chair_broken_brown",
+        "sa_decor:office_chair_broken_green",
+        "sa_decor:office_chair_broken_red"
+       ],
+       "z": 1,
+       "f": "out",
+       "p": 0.9
+      }
+     ]
+    },
+    {
+     "id": "puesto_chico",
+     "w": 0,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:office_desk",
+       "f": "in",
+       "over": [
+        {
+         "b": [
+          "sa_decor:pc",
+          "sa_decor:pc_broken",
+          "sa_decor:old_computer",
+          "sa_decor:broken_old_computer"
+         ],
+         "y": 1,
+         "once": true
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "vestuario",
+     "w": 3,
+     "max": 2,
+     "spacing": 5,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:locker",
+        "sa_decor:locker_gray",
+        "sa_decor:locker_green",
+        "sa_decor:locker_red",
+        "sa_decor:big_metal_locker"
+       ],
+       "f": "in",
+       "n": 3
+      }
+     ]
+    },
+    {
+     "id": "archivo_policial",
+     "w": 3,
+     "max": 2,
+     "spacing": 4,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:cabinet_one",
+        "sa_decor:cabinet_double"
+       ],
+       "f": "in",
+       "n": 2,
+       "over": [
+        {
+         "b": "sa_decor:noteboard",
+         "y": 1,
+         "f": "in",
+         "p": 0.6,
+         "once": true
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "cajas_de_balas",
+     "w": 2,
+     "max": 1,
+     "spacing": 8,
+     "anchor": "corner",
+     "clear": 0,
+     "cat": 1,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:ammo_box",
+        "sa_decor:ammo_box_stack_2",
+        "sa_decor:ammo_box_stack_3"
+       ],
+       "f": "rand"
+      },
+      {
+       "b": [
+        "sa_decor:cardboard_box",
+        "sa_decor:medium_cardboard_box",
+        "sa_decor:small_cardboard_box",
+        "sa_decor:small_cardboard_box_stack1",
+        "sa_decor:small_cardboard_box_stack2"
+       ],
+       "x": 1,
+       "f": "rand",
+       "p": 0.6
+      }
+     ]
+    },
+    {
+     "id": "barricada_policial",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "anchor": "free",
+     "clear": 0,
+     "cat": 2,
+     "minArea": 24,
+     "parts": [
+      {
+       "b": "sa_decor:sand_bag"
+      },
+      {
+       "b": "sa_decor:sand_bag",
+       "x": 1
+      },
+      {
+       "b": "sa_decor:sand_bag",
+       "x": 2,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 3,
+       "f": "rand"
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:blood_props",
+        "sa_decor:broken_glass",
+        "sa_decor:paper_props"
+       ],
+       "min": 2,
+       "max": 4,
+       "d0": 1,
+       "d1": 3
+      }
+     ]
+    },
+    {
+     "id": "pol_cuerpo_tirado",
+     "anchor": "free",
+     "w": 2,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "pol_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 2,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "pol_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 5,
+     "max": 6
+    },
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 3,
+     "max": 4
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "wall",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 6
+    },
+    {
+     "b": "sa_decor:cardboard_box",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:backpack_loot",
+     "where": "near",
+     "w": 1,
+     "max": 1
+    },
+    {
+     "b": "sa_decor:wires",
+     "where": "wall",
+     "w": 1,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:ammo_props",
+     "where": "near",
+     "w": 1,
+     "max": 2
+    }
+   ]
+  },
+  "celda": {
+   "comps": [
+    {
+     "id": "catre_de_celda",
+     "core": true,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:military_bed",
+        "sa_decor:military_bed_blue",
+        "sa_decor:red_sleeping_bag"
+       ],
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "inodoro_de_celda",
+     "w": 3,
+     "max": 1,
+     "spacing": 3,
+     "anchor": "corner",
+     "clear": 1,
+     "cat": 1,
+     "parts": [
+      {
+       "b": "sa_decor:toilet",
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "cuerpo_en_la_celda",
+     "w": 2,
+     "max": 1,
+     "spacing": 6,
+     "anchor": "free",
+     "clear": 0,
+     "cat": 2,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 3
+    },
+    {
+     "b": "minecraft:cobweb",
+     "where": "corner",
+     "w": 1,
+     "max": 1
+    }
+   ]
+  },
+  "deposito": {
+   "comps": [
+    {
+     "id": "racks_altos",
+     "core": true,
+     "anchor": "wall",
+     "clear": 2,
+     "cat": 1,
+     "minArea": 16,
+     "alt": "racks_bajos",
+     "row": [
+      {
+       "b": "sa_decor:metal_rack",
+       "f": "in",
+       "n": 4,
+       "loot": "hardware|construction|small_crate"
+      }
+     ]
+    },
+    {
+     "id": "racks_bajos",
+     "w": 0,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:metal_rack",
+        "sa_decor:wooden_shelves"
+       ],
+       "f": "in",
+       "n": 2
+      }
+     ]
+    },
+    {
+     "id": "pasillo_de_racks",
+     "w": 4,
+     "max": 4,
+     "spacing": 5,
+     "anchor": "free",
+     "clear": 0,
+     "minArea": 40,
+     "cat": 1,
+     "parts": [
+      {
+       "b": "sa_decor:metal_rack",
+       "f": "out"
+      },
+      {
+       "b": "sa_decor:metal_rack",
+       "x": 1,
+       "f": "out"
+      },
+      {
+       "b": "sa_decor:metal_rack",
+       "x": 2,
+       "f": "out",
+       "p": 0.8
+      },
+      {
+       "b": "sa_decor:metal_rack",
+       "z": 1,
+       "f": "in"
+      },
+      {
+       "b": "sa_decor:metal_rack",
+       "x": 1,
+       "z": 1,
+       "f": "in"
+      },
+      {
+       "b": "sa_decor:metal_rack",
+       "x": 2,
+       "z": 1,
+       "f": "in",
+       "p": 0.8
+      }
+     ]
+    },
+    {
+     "id": "tarimas_con_cajas",
+     "w": 5,
+     "max": 6,
+     "spacing": 4,
+     "anchor": "free",
+     "clear": 0,
+     "minArea": 20,
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:planks_pallet_stack1",
+        "sa_decor:planks_pallet_stack2"
+       ]
+      },
+      {
+       "b": [
+        "sa_decor:oak_big_wooden_crate",
+        "sa_decor:spruce_big_wooden_crate",
+        "sa_decor:cardboard_box"
+       ],
+       "x": 1,
+       "f": "rand",
+       "p": 0.8
+      },
+      {
+       "b": [
+        "sa_decor:cardboard_box",
+        "sa_decor:medium_cardboard_box",
+        "sa_decor:small_cardboard_box",
+        "sa_decor:small_cardboard_box_stack1",
+        "sa_decor:small_cardboard_box_stack2"
+       ],
+       "z": 1,
+       "f": "rand",
+       "p": 0.6
+      }
+     ]
+    },
+    {
+     "id": "zona_de_barriles",
+     "w": 3,
+     "max": 2,
+     "spacing": 6,
+     "anchor": "corner",
+     "clear": 0,
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:oil_barrel",
+        "sa_decor:oil_barrel_blue",
+        "sa_decor:oil_barrel_green",
+        "sa_decor:oil_barrel_red",
+        "sa_decor:oil_barrel_yellow"
+       ]
+      },
+      {
+       "b": [
+        "sa_decor:oil_barrel",
+        "sa_decor:oil_barrel_blue",
+        "sa_decor:oil_barrel_green",
+        "sa_decor:oil_barrel_red",
+        "sa_decor:oil_barrel_yellow"
+       ],
+       "x": 1
+      },
+      {
+       "b": [
+        "sa_decor:oil_barrel",
+        "sa_decor:oil_barrel_blue",
+        "sa_decor:oil_barrel_green",
+        "sa_decor:oil_barrel_red",
+        "sa_decor:oil_barrel_yellow"
+       ],
+       "z": 1,
+       "p": 0.8
+      },
+      {
+       "b": [
+        "sa_decor:gas_barrel",
+        "sa_decor:oil_barrel",
+        "sa_decor:oil_barrel_blue",
+        "sa_decor:oil_barrel_green",
+        "sa_decor:oil_barrel_red",
+        "sa_decor:oil_barrel_yellow"
+       ],
+       "x": 1,
+       "z": 1,
+       "p": 0.6
+      }
+     ]
+    },
+    {
+     "id": "cajones_grandes",
+     "w": 3,
+     "max": 3,
+     "spacing": 4,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:oak_big_wooden_crate",
+        "sa_decor:birch_big_wooden_crate",
+        "sa_decor:spruce_big_wooden_crate",
+        "sa_decor:double_wooden_supply_crate"
+       ],
+       "f": "in",
+       "n": 2
+      }
+     ]
+    },
+    {
+     "id": "oficina_del_capataz",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "minArea": 30,
+     "row": [
+      {
+       "b": "sa_decor:office_desk",
+       "f": "in",
+       "over": [
+        {
+         "b": [
+          "sa_decor:pc",
+          "sa_decor:pc_broken",
+          "sa_decor:old_computer",
+          "sa_decor:broken_old_computer"
+         ],
+         "y": 1,
+         "once": true
+        }
+       ]
+      }
+     ],
+     "parts": [
+      {
+       "b": [
+        "sa_decor:office_chair",
+        "sa_decor:office_chair_blue",
+        "sa_decor:office_chair_brown",
+        "sa_decor:office_chair_green",
+        "sa_decor:office_chair_red"
+       ],
+       "z": 1,
+       "f": "out"
+      }
+     ]
+    },
+    {
+     "id": "dep_cuerpo_tirado",
+     "anchor": "free",
+     "w": 2,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "dep_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 2,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "dep_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 4,
+     "max": 5
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:garbage_props",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 2,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "wall",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 6
+    },
+    {
+     "b": "sa_decor:backpack_loot",
+     "where": "near",
+     "w": 1,
+     "max": 1
+    },
+    {
+     "b": "sa_decor:wires",
+     "where": "wall",
+     "w": 1,
+     "max": 1
+    }
+   ]
+  },
+  "refugio": {
+   "comps": [
+    {
+     "id": "camas_improvisadas",
+     "core": true,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:red_sleeping_bag",
+        "sa_decor:military_bed",
+        "sa_decor:military_bed_blue"
+       ],
+       "f": "in",
+       "n": 2,
+       "gap": 1
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props",
+        "sa_decor:paper_props"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      }
+     ]
+    },
+    {
+     "id": "mesa_de_radio",
+     "w": 3,
+     "max": 1,
+     "spacing": 8,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "parts": [
+      {
+       "b": "sa_decor:wooden_table"
+      },
+      {
+       "b": [
+        "sa_decor:military_radio",
+        "sa_decor:radio"
+       ],
+       "y": 1
+      },
+      {
+       "b": "sa_decor:wooden_table",
+       "x": 1,
+       "p": 0.8
+      },
+      {
+       "b": [
+        "sa_decor:paper_props",
+        "sa_decor:black_desk_lamp"
+       ],
+       "x": 1,
+       "y": 1,
+       "p": 0.7
+      },
+      {
+       "b": [
+        "sa_decor:folding_chair_green",
+        "sa_decor:folding_chair_blue"
+       ],
+       "z": 1,
+       "f": "out"
+      }
+     ]
+    },
+    {
+     "id": "acopio_de_comida",
+     "w": 3,
+     "max": 2,
+     "spacing": 4,
+     "anchor": "corner",
+     "clear": 0,
+     "cat": 1,
+     "parts": [
+      {
+       "b": "sa_decor:food_crate",
+       "f": "in"
+      },
+      {
+       "b": [
+        "sa_decor:food_crate",
+        "sa_decor:cardboard_box"
+       ],
+       "x": 1,
+       "f": "rand",
+       "p": 0.8
+      },
+      {
+       "b": "sa_decor:medicinal_crate",
+       "z": 1,
+       "f": "in",
+       "p": 0.6
+      }
+     ]
+    },
+    {
+     "id": "municion",
+     "w": 1,
+     "max": 1,
+     "spacing": 10,
+     "anchor": "corner",
+     "clear": 0,
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:ammo_box",
+        "sa_decor:ammo_box_stack_2"
+       ],
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:sand_bag",
+       "x": 1,
+       "p": 0.6
+      }
+     ]
+    },
+    {
+     "id": "barricada_interior",
+     "w": 2,
+     "max": 1,
+     "spacing": 10,
+     "anchor": "free",
+     "clear": 0,
+     "minArea": 20,
+     "cat": 2,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:barricade",
+        "sa_decor:big_barricade"
+       ]
+      },
+      {
+       "b": "sa_decor:sand_bag",
+       "x": 2,
+       "p": 0.8
+      },
+      {
+       "b": "sa_decor:sand_bag",
+       "x": 3,
+       "p": 0.6
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:blood_props",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    },
+    {
+     "id": "banco_de_reparaciones",
+     "w": 2,
+     "max": 1,
+     "spacing": 8,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:decor_workbench",
+       "f": "in"
+      },
+      {
+       "b": "sa_decor:tool_storage",
+       "f": "in",
+       "p": 0.7
+      }
+     ]
+    },
+    {
+     "id": "agua_y_baldes",
+     "w": 2,
+     "max": 1,
+     "spacing": 6,
+     "anchor": "wall",
+     "clear": 0,
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "minecraft:water_cauldron",
+        "minecraft:cauldron"
+       ]
+      },
+      {
+       "b": [
+        "sa_decor:oil_barrel",
+        "sa_decor:oil_barrel_blue",
+        "sa_decor:oil_barrel_green",
+        "sa_decor:oil_barrel_red",
+        "sa_decor:oil_barrel_yellow"
+       ],
+       "x": 1,
+       "p": 0.7
+      }
+     ]
+    },
+    {
+     "id": "ref_cuerpo_tirado",
+     "anchor": "free",
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "ref_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "ref_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 3,
+     "max": 4
+    },
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 3,
+     "max": 4
+    },
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 2,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:backpack_loot",
+     "where": "near",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:ammo_props",
+     "where": "near",
+     "w": 1,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 6
+    }
+   ]
+  },
+  "habitacion_hotel": {
+   "comps": [
+    {
+     "id": "cama_de_hotel",
+     "core": true,
+     "anchor": "wall",
+     "clear": 1,
+     "alt": "cama_sola",
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "minecraft:white_bed",
+        "minecraft:light_gray_bed"
+       ],
+       "x": 1,
+       "f": "out"
+      },
+      {
+       "b": [
+        "sa_decor:oak_wooden_drawer_one",
+        "sa_decor:birch_wooden_drawer_one",
+        "sa_decor:spruce_wooden_drawer_one"
+       ],
+       "f": "in"
+      },
+      {
+       "b": [
+        "sa_decor:oak_wooden_drawer_one",
+        "sa_decor:birch_wooden_drawer_one",
+        "sa_decor:spruce_wooden_drawer_one"
+       ],
+       "x": 2,
+       "f": "in",
+       "p": 0.9
+      },
+      {
+       "b": [
+        "sa_decor:black_telephone",
+        "sa_decor:white_telephone"
+       ],
+       "y": 1,
+       "p": 0.7
+      },
+      {
+       "b": [
+        "sa_decor:black_desk_lamp",
+        "sa_decor:blue_desk_lamp"
+       ],
+       "x": 2,
+       "y": 1,
+       "p": 0.7
+      }
+     ]
+    },
+    {
+     "id": "cama_sola",
+     "w": 0,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "minecraft:white_bed"
+       ],
+       "f": "out"
+      }
+     ]
+    },
+    {
+     "id": "tv_frente_a_la_cama",
+     "w": 3,
+     "max": 1,
+     "spacing": 6,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:oak_wooden_drawer_double",
+        "sa_decor:birch_wooden_drawer_double",
+        "sa_decor:spruce_wooden_drawer_double"
+       ],
+       "f": "in",
+       "over": [
+        {
+         "b": [
+          "sa_decor:tv",
+          "sa_decor:tv_broken"
+         ],
+         "y": 1,
+         "once": true
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "placard",
+     "w": 3,
+     "max": 1,
+     "spacing": 6,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:wardrobe",
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "mesa_y_silla",
+     "w": 2,
+     "max": 1,
+     "spacing": 6,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:wooden_table"
+      },
+      {
+       "b": [
+        "sa_decor:wooden_seat",
+        "sa_decor:wooden_seat_beige",
+        "sa_decor:wooden_seat_blue",
+        "sa_decor:wooden_seat_gray",
+        "sa_decor:wooden_seat_green",
+        "sa_decor:wooden_seat_red"
+       ],
+       "z": 1,
+       "f": "out",
+       "p": 0.8
+      },
+      {
+       "b": [
+        "sa_decor:paper_props",
+        "sa_decor:radio"
+       ],
+       "y": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "hot_cuerpo_tirado",
+     "anchor": "free",
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "hot_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "hot_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 3,
+     "max": 4
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:garbage_props",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "wall",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 6
+    },
+    {
+     "b": "sa_decor:grime_carpet",
+     "where": "free",
+     "w": 2,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:backpack_loot",
+     "where": "near",
+     "w": 1,
+     "max": 1
+    }
+   ]
+  },
+  "recepcion": {
+   "comps": [
+    {
+     "id": "mostrador_de_recepcion",
+     "core": true,
+     "anchor": "wall",
+     "clear": 2,
+     "cat": 1,
+     "minArea": 12,
+     "row": [
+      {
+       "b": "sa_decor:counter_cabinet",
+       "f": "in",
+       "over": [
+        {
+         "b": [
+          "sa_decor:pc",
+          "sa_decor:pc_broken",
+          "sa_decor:old_computer",
+          "sa_decor:broken_old_computer"
+         ],
+         "y": 1,
+         "p": 0.8,
+         "once": true
+        }
+       ]
+      },
+      {
+       "b": "sa_decor:counter_cabinet",
+       "f": "in",
+       "over": [
+        {
+         "b": [
+          "sa_decor:black_telephone",
+          "sa_decor:white_telephone"
+         ],
+         "y": 1,
+         "once": true
+        }
+       ]
+      },
+      {
+       "b": "sa_decor:counter_cabinet",
+       "f": "in",
+       "p": 0.8
+      }
+     ],
+     "parts": [
+      {
+       "b": [
+        "sa_decor:office_chair",
+        "sa_decor:office_chair_blue",
+        "sa_decor:office_chair_brown",
+        "sa_decor:office_chair_green",
+        "sa_decor:office_chair_red"
+       ],
+       "x": 1,
+       "z": 1,
+       "f": "out",
+       "p": 0.8
+      }
+     ]
+    },
+    {
+     "id": "sillas_de_espera",
+     "w": 4,
+     "max": 3,
+     "spacing": 3,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:plastic_chair_white",
+        "sa_decor:folding_chair_blue",
+        "sa_decor:wooden_seat_gray"
+       ],
+       "f": "in",
+       "n": 3,
+       "p": 0.85
+      }
+     ]
+    },
+    {
+     "id": "mesita_con_planta",
+     "w": 2,
+     "max": 2,
+     "spacing": 5,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "parts": [
+      {
+       "b": "sa_decor:wooden_table"
+      },
+      {
+       "b": [
+        "minecraft:potted_dead_bush",
+        "minecraft:flower_pot",
+        "minecraft:potted_fern"
+       ],
+       "y": 1,
+       "p": 0.8
+      }
+     ]
+    },
+    {
+     "id": "maquina_de_cafe",
+     "w": 1,
+     "max": 1,
+     "spacing": 10,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "minArea": 16,
+     "row": [
+      {
+       "b": "sa_decor:vending_machine",
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "bebedero",
+     "w": 1,
+     "max": 1,
+     "spacing": 10,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:drinking_fountain",
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "rec_cuerpo_tirado",
+     "anchor": "free",
+     "w": 2,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "rec_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 2,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "rec_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 5,
+     "max": 6
+    },
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 3,
+     "max": 4
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "wall",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 6
+    },
+    {
+     "b": "sa_decor:cardboard_box",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:backpack_loot",
+     "where": "near",
+     "w": 1,
+     "max": 1
+    },
+    {
+     "b": "sa_decor:wires",
+     "where": "wall",
+     "w": 1,
+     "max": 2
+    }
+   ]
+  },
+  "local_electronica": {
+   "comps": [
+    {
+     "id": "mostrador_de_ventas",
+     "core": true,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "minArea": 8,
+     "row": [
+      {
+       "b": "sa_decor:counter_cabinet",
+       "f": "in",
+       "over": [
+        {
+         "b": "sa_decor:cash_register_machine",
+         "y": 1,
+         "f": "in",
+         "once": true
+        }
+       ]
+      },
+      {
+       "b": "sa_decor:counter_cabinet",
+       "f": "in",
+       "over": [
+        {
+         "b": [
+          "sa_decor:radio",
+          "sa_decor:pc_broken"
+         ],
+         "y": 1,
+         "p": 0.6,
+         "once": true
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "exhibidor_de_tvs",
+     "w": 4,
+     "max": 3,
+     "spacing": 3,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:cabinet_double",
+        "sa_decor:oak_wooden_drawer_double",
+        "sa_decor:birch_wooden_drawer_double",
+        "sa_decor:spruce_wooden_drawer_double"
+       ],
+       "f": "in",
+       "n": 2,
+       "over": [
+        {
+         "b": [
+          "sa_decor:tv",
+          "sa_decor:tv_broken",
+          "sa_decor:smart_tv_broken"
+         ],
+         "y": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "mesa_de_computadoras",
+     "w": 3,
+     "max": 2,
+     "spacing": 4,
+     "anchor": "free",
+     "clear": 0,
+     "minArea": 16,
+     "cat": 1,
+     "parts": [
+      {
+       "b": "sa_decor:white_smooth_table"
+      },
+      {
+       "b": "sa_decor:white_smooth_table",
+       "x": 1
+      },
+      {
+       "b": [
+        "sa_decor:pc",
+        "sa_decor:pc_broken",
+        "sa_decor:old_computer",
+        "sa_decor:broken_old_computer"
+       ],
+       "y": 1
+      },
+      {
+       "b": [
+        "sa_decor:pc",
+        "sa_decor:pc_broken",
+        "sa_decor:old_computer",
+        "sa_decor:broken_old_computer",
+        "sa_decor:radio"
+       ],
+       "x": 1,
+       "y": 1,
+       "p": 0.8
+      }
+     ]
+    },
+    {
+     "id": "estanteria_de_cajas",
+     "w": 3,
+     "max": 2,
+     "spacing": 4,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:store_shelf",
+        "sa_decor:metal_rack"
+       ],
+       "f": "in",
+       "n": 2,
+       "loot": "store_shelf|office"
+      }
+     ]
+    },
+    {
+     "id": "ele_cuerpo_tirado",
+     "anchor": "free",
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "ele_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "ele_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 3,
+     "max": 4
+    },
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 4,
+     "max": 5
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:garbage_props",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "near",
+     "w": 4,
+     "max": 5
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 7
+    },
+    {
+     "b": "sa_decor:cardboard_box",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:backpack_loot",
+     "where": "near",
+     "w": 1,
+     "max": 1
+    }
+   ]
+  },
+  "local_comida": {
+   "comps": [
+    {
+     "id": "mostrador_de_comida",
+     "core": true,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "minArea": 8,
+     "row": [
+      {
+       "b": "sa_decor:counter_cabinet",
+       "f": "in",
+       "over": [
+        {
+         "b": "sa_decor:cash_register_machine",
+         "y": 1,
+         "f": "in",
+         "once": true
+        }
+       ]
+      },
+      {
+       "b": [
+        "sa_decor:stove",
+        "sa_decor:stove_green",
+        "sa_decor:stove_red"
+       ],
+       "f": "in"
+      },
+      {
+       "b": "sa_decor:metal_counter_cabinet",
+       "f": "in",
+       "over": [
+        {
+         "b": "sa_decor:microwave",
+         "y": 1,
+         "p": 0.7,
+         "once": true
+        }
+       ]
+      },
+      {
+       "b": [
+        "sa_decor:freezer",
+        "sa_decor:fridge"
+       ],
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "mesitas_plasticas",
+     "w": 5,
+     "max": 4,
+     "spacing": 4,
+     "anchor": "free",
+     "clear": 0,
+     "minArea": 12,
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:plastic_table_red",
+        "sa_decor:plastic_table_white"
+       ],
+       "x": 1,
+       "z": 1
+      },
+      {
+       "b": [
+        "sa_decor:plastic_chair_red",
+        "sa_decor:plastic_chair_white"
+       ],
+       "z": 1,
+       "f": "r"
+      },
+      {
+       "b": [
+        "sa_decor:plastic_chair_red",
+        "sa_decor:plastic_chair_white"
+       ],
+       "x": 2,
+       "z": 1,
+       "f": "l",
+       "p": 0.8
+      }
+     ]
+    },
+    {
+     "id": "maquina_de_bebidas",
+     "w": 2,
+     "max": 1,
+     "spacing": 8,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:vending_machine",
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "tachos",
+     "w": 2,
+     "max": 1,
+     "spacing": 6,
+     "anchor": "corner",
+     "clear": 0,
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:trash_can",
+        "sa_decor:modern_trash_bin"
+       ],
+       "f": "in"
+      },
+      {
+       "b": [
+        "sa_decor:dirty_props",
+        "sa_decor:trash_props",
+        "sa_decor:garbage_props",
+        "sa_decor:paper_props"
+       ],
+       "x": 1,
+       "p": 0.6
+      }
+     ]
+    },
+    {
+     "id": "lco_cuerpo_tirado",
+     "anchor": "free",
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "lco_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 8,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "lco_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 3,
+     "max": 4
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:garbage_props",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "near",
+     "w": 2,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 6
+    },
+    {
+     "b": "sa_decor:cardboard_box",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:fly_emitter",
+     "where": "corner",
+     "w": 1,
+     "max": 2,
+     "spacing": 5
+    }
+   ]
+  },
+  "kiosco": {
+   "comps": [
+    {
+     "id": "mostrador_de_kiosco",
+     "core": true,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:counter_cabinet",
+       "f": "in",
+       "over": [
+        {
+         "b": "sa_decor:cash_register_machine",
+         "y": 1,
+         "f": "in",
+         "once": true
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "estante_de_golosinas",
+     "w": 3,
+     "max": 2,
+     "spacing": 2,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:marketing_shelf",
+        "sa_decor:store_shelf",
+        "sa_decor:marketing_shelf_wooden"
+       ],
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "heladera_de_kiosco",
+     "w": 2,
+     "max": 1,
+     "spacing": 4,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": [
+        "sa_decor:freezer",
+        "sa_decor:fridge_red"
+       ],
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "kio_cuerpo_tirado",
+     "anchor": "free",
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 6,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "kio_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 1,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 6,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "kio_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:paper_props",
+     "where": "near",
+     "w": 3,
+     "max": 4
+    },
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "wall",
+     "w": 4,
+     "max": 5
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:garbage_props",
+     "where": "corner",
+     "w": 2,
+     "max": 2
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "near",
+     "w": 4,
+     "max": 5
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 7
+    },
+    {
+     "b": "sa_decor:cardboard_box",
+     "where": "corner",
+     "w": 3,
+     "max": 3
+    },
+    {
+     "b": "sa_decor:backpack_loot",
+     "where": "near",
+     "w": 1,
+     "max": 1
+    }
+   ]
+  },
+  "galeria": {
+   "comps": [
+    {
+     "id": "bancos_del_pasillo",
+     "w": 4,
+     "max": 6,
+     "spacing": 6,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:park_bench",
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "cesto",
+     "w": 3,
+     "max": 6,
+     "spacing": 8,
+     "anchor": "wall",
+     "clear": 0,
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:modern_trash_bin",
+        "sa_decor:trash_can"
+       ],
+       "f": "in"
+      },
+      {
+       "b": [
+        "sa_decor:dirty_props",
+        "sa_decor:trash_props",
+        "sa_decor:garbage_props",
+        "sa_decor:paper_props"
+       ],
+       "x": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "maquinas_expendedoras",
+     "w": 2,
+     "max": 3,
+     "spacing": 10,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:vending_machine",
+       "f": "in",
+       "n": 2
+      }
+     ]
+    },
+    {
+     "id": "maceta",
+     "w": 3,
+     "max": 6,
+     "spacing": 6,
+     "anchor": "wall",
+     "clear": 0,
+     "cat": 1,
+     "parts": [
+      {
+       "b": [
+        "minecraft:potted_dead_bush",
+        "minecraft:potted_fern"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "bebedero",
+     "w": 1,
+     "max": 2,
+     "spacing": 15,
+     "anchor": "wall",
+     "clear": 1,
+     "cat": 1,
+     "row": [
+      {
+       "b": "sa_decor:drinking_fountain",
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "pila_de_cosas_saqueadas",
+     "w": 2,
+     "max": 3,
+     "spacing": 10,
+     "anchor": "free",
+     "clear": 0,
+     "cat": 2,
+     "minArea": 40,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:cardboard_box",
+        "sa_decor:medium_cardboard_box",
+        "sa_decor:small_cardboard_box",
+        "sa_decor:small_cardboard_box_stack1",
+        "sa_decor:small_cardboard_box_stack2"
+       ],
+       "f": "rand"
+      },
+      {
+       "b": [
+        "sa_decor:plastic_chair_white",
+        "sa_decor:folding_chair_blue"
+       ],
+       "x": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:broken_glass",
+        "sa_decor:paper_props",
+        "sa_decor:trash_props",
+        "sa_decor:blood_props"
+       ],
+       "min": 2,
+       "max": 4,
+       "d0": 1,
+       "d1": 3
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 3,
+       "p": 0.5,
+       "f": "rand"
+      }
+     ]
+    },
+    {
+     "id": "gal_cuerpo_tirado",
+     "anchor": "free",
+     "w": 3,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "gal_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 3,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 10,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "gal_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:paper_props",
+     "where": "free",
+     "w": 4,
+     "max": 999
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "free",
+     "w": 3,
+     "max": 999
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "free",
+     "w": 3,
+     "max": 999
+    },
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "free",
+     "w": 3,
+     "max": 999
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 999,
+     "spacing": 8
+    },
+    {
+     "b": "sa_decor:backpack_loot",
+     "where": "near",
+     "w": 1,
+     "max": 999
+    }
+   ]
+  },
+  "patio_granja": {
+   "comps": [
+    {
+     "id": "fardos_al_aire",
+     "anchor": "free",
+     "clear": 0,
+     "w": 5,
+     "spacing": 10,
+     "max": 999,
+     "cat": 1,
+     "ground": [
+      "tierra",
+      "otro"
+     ],
+     "parts": [
+      {
+       "b": "minecraft:hay_block"
+      },
+      {
+       "b": "minecraft:hay_block",
+       "x": 1,
+       "p": 0.8
+      },
+      {
+       "b": "minecraft:hay_block",
+       "z": 1,
+       "p": 0.6
+      },
+      {
+       "b": "minecraft:hay_block",
+       "y": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "abrevadero",
+     "anchor": "free",
+     "clear": 0,
+     "w": 3,
+     "spacing": 14,
+     "max": 999,
+     "cat": 1,
+     "ground": [
+      "tierra",
+      "otro"
+     ],
+     "parts": [
+      {
+       "b": "minecraft:water_cauldron"
+      },
+      {
+       "b": "minecraft:water_cauldron",
+       "x": 1,
+       "p": 0.7
+      },
+      {
+       "b": "minecraft:composter",
+       "x": 2,
+       "p": 0.6
+      }
+     ]
+    },
+    {
+     "id": "cerco_roto",
+     "anchor": "free",
+     "clear": 0,
+     "w": 3,
+     "spacing": 10,
+     "max": 999,
+     "cat": 1,
+     "ground": [
+      "tierra"
+     ],
+     "parts": [
+      {
+       "b": "minecraft:spruce_fence"
+      },
+      {
+       "b": "minecraft:spruce_fence",
+       "x": 1
+      },
+      {
+       "b": "minecraft:spruce_fence",
+       "x": 2,
+       "p": 0.6
+      },
+      {
+       "b": "minecraft:spruce_fence",
+       "x": 4,
+       "p": 0.7
+      }
+     ]
+    },
+    {
+     "id": "camioneta_abandonada",
+     "anchor": "free",
+     "clear": 0,
+     "w": 3,
+     "spacing": 30,
+     "max": 999,
+     "cat": 2,
+     "ground": [
+      "tierra",
+      "otro"
+     ],
+     "parts": [
+      {
+       "b": [
+        "sa_decor:broken_pickup",
+        "sa_decor:destroyed_pickup"
+       ],
+       "f": "in"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "minecraft:hay_block",
+       "min": 0,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:dirty_props",
+        "sa_decor:tire_block"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 3,
+       "p": 0.4,
+       "f": "rand"
+      }
+     ]
+    },
+    {
+     "id": "barriles_del_campo",
+     "anchor": "free",
+     "clear": 0,
+     "w": 2,
+     "spacing": 15,
+     "max": 999,
+     "cat": 1,
+     "ground": [
+      "tierra",
+      "otro"
+     ],
+     "parts": [
+      {
+       "b": [
+        "sa_decor:oil_barrel",
+        "sa_decor:oil_barrel_blue",
+        "sa_decor:oil_barrel_green",
+        "sa_decor:oil_barrel_red",
+        "sa_decor:oil_barrel_yellow"
+       ]
+      },
+      {
+       "b": [
+        "sa_decor:gas_barrel",
+        "sa_decor:oil_barrel",
+        "sa_decor:oil_barrel_blue",
+        "sa_decor:oil_barrel_green",
+        "sa_decor:oil_barrel_red",
+        "sa_decor:oil_barrel_yellow"
+       ],
+       "x": 1,
+       "p": 0.6
+      }
+     ]
+    },
+    {
+     "id": "pgr_cuerpo_tirado",
+     "anchor": "free",
+     "w": 2,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 0,
+     "ground": [
+      "otro",
+      "tierra"
+     ],
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "pgr_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 2,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 0,
+     "ground": [
+      "otro",
+      "tierra"
+     ],
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "pgr_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "ground": [
+      "otro",
+      "tierra"
+     ],
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "free",
+     "w": 3,
+     "max": 999
+    },
+    {
+     "b": "sa_decor:trash_props",
+     "where": "free",
+     "w": 1,
+     "max": 999
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 999,
+     "spacing": 10
+    }
+   ]
+  },
+  "gasolinera_ext": {
+   "comps": [
+    {
+     "id": "surtidores",
+     "anchor": "free",
+     "clear": 0,
+     "w": 4,
+     "spacing": 6,
+     "max": 8,
+     "cat": 4,
+     "open": true,
+     "parts": [
+      {
+       "b": "sa_decor:fuel_pump",
+       "f": "in"
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:dirty_props",
+        "sa_decor:oil_barrel"
+       ],
+       "min": 0,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    },
+    {
+     "id": "coche_en_el_surtidor",
+     "anchor": "free",
+     "clear": 0,
+     "w": 3,
+     "spacing": 12,
+     "max": 999,
+     "cat": 2,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:broken_sedan",
+        "sa_decor:destroyed_sedan",
+        "sa_decor:broken_pickup",
+        "sa_decor:destroyed_pickup",
+        "sa_decor:broken_van",
+        "sa_decor:destroyed_van"
+       ],
+       "f": "in"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:broken_glass",
+       "min": 1,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 3,
+       "p": 0.4,
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "min": 0,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    },
+    {
+     "id": "bidones_y_neumaticos",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 3,
+     "spacing": 10,
+     "max": 999,
+     "cat": 4,
+     "parts": [
+      {
+       "b": [
+        "sa_decor:oil_barrel",
+        "sa_decor:oil_barrel_blue",
+        "sa_decor:oil_barrel_green",
+        "sa_decor:oil_barrel_red",
+        "sa_decor:oil_barrel_yellow"
+       ]
+      },
+      {
+       "b": [
+        "sa_decor:tire_block_stack2",
+        "sa_decor:tire_block"
+       ],
+       "x": 1,
+       "f": "rand"
+      }
+     ]
+    },
+    {
+     "id": "contenedor",
+     "anchor": "wall",
+     "clear": 1,
+     "w": 1,
+     "spacing": 25,
+     "max": 999,
+     "cat": 4,
+     "row": [
+      {
+       "b": [
+        "sa_decor:dumpster",
+        "sa_decor:dumpster_blue"
+       ],
+       "f": "in"
+      }
+     ]
+    },
+    {
+     "id": "gas_cuerpo_tirado",
+     "anchor": "free",
+     "w": 2,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 0,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 1
+      },
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:ammo_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      },
+      {
+       "b": "sa_decor:dirty_props",
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 2,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "gas_cuerpo_contra_pared",
+     "anchor": "wall",
+     "clear": 0,
+     "w": 2,
+     "max": 2,
+     "spacing": 7,
+     "cat": 2,
+     "minArea": 0,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:blood_props",
+       "x": 1,
+       "p": 0.7
+      }
+     ],
+     "scatter": [
+      {
+       "b": [
+        "sa_decor:backpack_loot",
+        "sa_decor:trash_props"
+       ],
+       "min": 0,
+       "max": 1,
+       "d0": 1,
+       "d1": 1,
+       "p": 0.5
+      }
+     ]
+    },
+    {
+     "id": "gas_dos_cuerpos",
+     "anchor": "free",
+     "w": 1,
+     "max": 1,
+     "spacing": 12,
+     "cat": 2,
+     "minArea": 12,
+     "parts": [
+      {
+       "b": "sa_decor:lying_corpse",
+       "f": "rand"
+      },
+      {
+       "b": "sa_decor:lying_corpse",
+       "x": 1,
+       "z": 1,
+       "f": "rand"
+      }
+     ],
+     "scatter": [
+      {
+       "b": "sa_decor:blood_props",
+       "min": 2,
+       "max": 3,
+       "d0": 1,
+       "d1": 2
+      },
+      {
+       "b": [
+        "sa_decor:ammo_props",
+        "sa_decor:backpack_loot",
+        "sa_decor:broken_glass"
+       ],
+       "min": 1,
+       "max": 2,
+       "d0": 1,
+       "d1": 2
+      }
+     ]
+    }
+   ],
+   "clutter": [
+    {
+     "b": "sa_decor:dirty_props",
+     "where": "free",
+     "w": 3,
+     "max": 999
+    },
+    {
+     "b": "sa_decor:garbage_props",
+     "where": "free",
+     "w": 2,
+     "max": 999
+    },
+    {
+     "b": "sa_decor:broken_glass",
+     "where": "free",
+     "w": 1,
+     "max": 999
+    },
+    {
+     "b": "sa_decor:blood_props",
+     "where": "free",
+     "w": 1,
+     "max": 999,
+     "spacing": 8
+    }
+   ]
+  }
+ },
+ "templates": {
+  "casa": {
+   "name": "Casa civil",
+   "desc": "Vivienda: dormitorios, cocina, baño, living y depósito. Luz cálida de casa (lámparas de techo, apliques, velas).",
+   "rooms": {
+    "chico": {
+     "bano": 5,
+     "cuarto": 3,
+     "dormitorio": 3
+    },
+    "medio": {
+     "dormitorio": 5,
+     "cocina": 3,
+     "sala": 3,
+     "bano": 1
+    },
+    "grande": {
+     "sala": 5,
+     "cocina": 2,
+     "dormitorio": 2
+    }
+   },
+   "ensure": [
+    "cocina",
+    "bano",
+    "dormitorio",
+    "sala"
+   ],
+   "light": {
+    "every": 16,
+    "min": 1,
+    "max": 4,
+    "p": 0.8,
+    "opts": [
+     {
+      "b": "sa_decor:lamp_block",
+      "mount": "ceiling",
+      "lvl": 11,
+      "w": 4
+     },
+     {
+      "b": "sa_decor:small_lamp",
+      "mount": "wall",
+      "lvl": 9,
+      "w": 2,
+      "rooms": [
+       "dormitorio",
+       "sala",
+       "cuarto"
+      ]
+     },
+     {
+      "b": "sa_decor:double_flourecent_lamp",
+      "mount": "ceiling",
+      "lvl": 11,
+      "w": 3,
+      "rooms": [
+       "cocina",
+       "bano"
+      ]
+     },
+     {
+      "b": "minecraft:lantern",
+      "mount": "top",
+      "w": 1
+     },
+     {
+      "b": [
+       "minecraft:candle",
+       "minecraft:white_candle",
+       "minecraft:brown_candle"
+      ],
+      "mount": "top",
+      "w": 1,
+      "s": "candles=3;lit=true"
+     }
+    ]
+   },
+   "loot": {
+    "wooden_shelves": "civilian",
+    "cabinet_one": "civilian",
+    "cabinet_double": "civilian",
+    "office_desk": "civilian|office"
+   }
+  },
+  "departamentos": {
+   "name": "Edificio de departamentos",
+   "desc": "Muchos departamentos chicos: cada uno con dormitorio, cocina y baño. Luz de casa.",
+   "rooms": {
+    "chico": {
+     "bano": 5,
+     "dormitorio": 3,
+     "cuarto": 2
+    },
+    "medio": {
+     "dormitorio": 4,
+     "cocina": 4,
+     "sala": 2
+    },
+    "grande": {
+     "sala": 4,
+     "cocina": 2,
+     "dormitorio": 2
+    }
+   },
+   "light": {
+    "every": 16,
+    "min": 1,
+    "max": 4,
+    "p": 0.8,
+    "opts": [
+     {
+      "b": "sa_decor:lamp_block",
+      "mount": "ceiling",
+      "lvl": 11,
+      "w": 4
+     },
+     {
+      "b": "sa_decor:small_lamp",
+      "mount": "wall",
+      "lvl": 9,
+      "w": 2,
+      "rooms": [
+       "dormitorio",
+       "sala",
+       "cuarto"
+      ]
+     },
+     {
+      "b": "sa_decor:double_flourecent_lamp",
+      "mount": "ceiling",
+      "lvl": 11,
+      "w": 3,
+      "rooms": [
+       "cocina",
+       "bano"
+      ]
+     },
+     {
+      "b": "minecraft:lantern",
+      "mount": "top",
+      "w": 1
+     },
+     {
+      "b": [
+       "minecraft:candle",
+       "minecraft:white_candle",
+       "minecraft:brown_candle"
+      ],
+      "mount": "top",
+      "w": 1,
+      "s": "candles=3;lit=true"
+     }
+    ]
+   },
+   "loot": {
+    "wooden_shelves": "civilian",
+    "cabinet_one": "civilian",
+    "cabinet_double": "civilian"
+   }
+  },
+  "granja": {
+   "name": "Granja",
+   "desc": "Casa de campo y granero: fardos, comederos, barriles, herramientas, cocina rústica. Luz de faroles y velas. Afuera: fardos, abrevaderos, cercos y camionetas.",
+   "rooms": {
+    "chico": {
+     "cuarto": 3,
+     "bano": 2,
+     "dormitorio": 2,
+     "granero": 2
+    },
+    "medio": {
+     "granero": 4,
+     "dormitorio": 3,
+     "cocina_rustica": 3
+    },
+    "grande": {
+     "granero": 6,
+     "cocina_rustica": 1,
+     "sala": 1
+    }
+   },
+   "ensure": [
+    "cocina_rustica",
+    "granero",
+    "dormitorio"
+   ],
+   "light": {
+    "every": 18,
+    "min": 1,
+    "max": 4,
+    "p": 0.85,
+    "opts": [
+     {
+      "b": "minecraft:lantern",
+      "mount": "ceiling",
+      "w": 4,
+      "s": "hanging=true"
+     },
+     {
+      "b": "minecraft:lantern",
+      "mount": "top",
+      "w": 2
+     },
+     {
+      "b": [
+       "minecraft:candle",
+       "minecraft:white_candle",
+       "minecraft:brown_candle"
+      ],
+      "mount": "top",
+      "w": 2,
+      "s": "candles=3;lit=true"
+     },
+     {
+      "b": "minecraft:lantern",
+      "mount": "floor",
+      "w": 1
+     }
+    ]
+   },
+   "loot": {
+    "barrel": "farm",
+    "oak_supply_crate": "farm",
+    "spruce_supply_crate": "farm",
+    "wooden_shelves": "farm|food_storage",
+    "tool_storage": "farm|tool_storage",
+    "wardrobe": "civilian",
+    "cardboard_box": "farm|cardboard_box"
+   },
+   "outside": {
+    "patio": "patio_granja"
+   }
+  },
+  "oficinas": {
+   "name": "Oficinas",
+   "desc": "Puestos de trabajo, salas de reuniones, archivo, recepción, baños y cocinita. Luz de tubos fluorescentes.",
+   "rooms": {
+    "chico": {
+     "bano": 3,
+     "cuarto": 2,
+     "oficina": 3
+    },
+    "medio": {
+     "oficina": 6,
+     "recepcion": 1,
+     "cocina": 1
+    },
+    "grande": {
+     "oficina": 6,
+     "recepcion": 2
+    }
+   },
+   "ensure": [
+    "oficina",
+    "bano",
+    "recepcion"
+   ],
+   "light": {
+    "every": 12,
+    "min": 1,
+    "max": 10,
+    "p": 0.85,
+    "opts": [
+     {
+      "b": [
+       "sa_decor:double_flourecent_lamp",
+       "sa_decor:double_flourecent_lamp_flickering",
+       "sa_decor:double_flourecent_lamp_broken"
+      ],
+      "mount": "ceiling",
+      "lvl": 12,
+      "w": 1
+     }
+    ]
+   },
+   "votes": false
+  },
+  "hospital": {
+   "name": "Hospital / clínica",
+   "desc": "Salas con camas, suero y cortinas, enfermería, consultorios, farmacia interna, baños. Tubos fluorescentes fríos, algunos rotos o titilando.",
+   "rooms": {
+    "chico": {
+     "bano": 3,
+     "cuarto": 1,
+     "hospital": 4
+    },
+    "medio": {
+     "hospital": 7,
+     "farmacia": 1,
+     "recepcion": 1
+    },
+    "grande": {
+     "hospital": 6,
+     "recepcion": 2
+    }
+   },
+   "ensure": [
+    "hospital",
+    "recepcion",
+    "bano",
+    "farmacia"
+   ],
+   "light": {
+    "every": 10,
+    "min": 1,
+    "max": 10,
+    "p": 0.9,
+    "opts": [
+     {
+      "b": [
+       "sa_decor:double_flourecent_lamp",
+       "sa_decor:double_flourecent_lamp_flickering",
+       "sa_decor:double_flourecent_lamp_broken"
+      ],
+      "mount": "ceiling",
+      "lvl": 13,
+      "w": 1
+     }
+    ]
+   },
+   "loot": {
+    "counter_cabinet": "hospital|pharmacy",
+    "cabinet_one": "hospital",
+    "cabinet_double": "hospital",
+    "locker": "hospital|civilian",
+    "wooden_shelves": "hospital|pharmacy",
+    "oak_wooden_drawer_one": "hospital",
+    "oak_wooden_drawer_double": "hospital"
+   },
+   "votes": false
+  },
+  "farmacia": {
+   "name": "Farmacia",
+   "desc": "Mostrador con caja, estanterías y góndolas de remedios, botiquines, depósito. Loot de farmacia.",
+   "rooms": {
+    "chico": {
+     "bano": 2,
+     "cuarto": 3,
+     "farmacia": 3
+    },
+    "medio": {
+     "farmacia": 8,
+     "cuarto": 1
+    },
+    "grande": {
+     "farmacia": 1
+    }
+   },
+   "ensure": [
+    "farmacia"
+   ],
+   "light": {
+    "every": 12,
+    "min": 1,
+    "max": 10,
+    "p": 0.85,
+    "opts": [
+     {
+      "b": [
+       "sa_decor:double_flourecent_lamp",
+       "sa_decor:double_flourecent_lamp_flickering",
+       "sa_decor:double_flourecent_lamp_broken"
+      ],
+      "mount": "ceiling",
+      "lvl": 12,
+      "w": 1
+     }
+    ]
+   },
+   "loot": {
+    "store_shelf": "pharmacy",
+    "marketing_shelf": "pharmacy",
+    "cardboard_box": "pharmacy|cardboard_box"
+   },
+   "votes": false
+  },
+  "negocios": {
+   "name": "Negocios / centro comercial",
+   "desc": "Locales (tienda, electrónica, comida, kiosco) con UNA caja registradora cada uno (dos solo en locales muy grandes), pasillos con bancos y máquinas, baños y depósitos. Tubos fluorescentes.",
+   "rooms": {
+    "chico": {
+     "kiosco": 4,
+     "bano": 2,
+     "cuarto": 2
+    },
+    "medio": {
+     "comercio": 3,
+     "local_electronica": 2,
+     "local_comida": 2,
+     "kiosco": 1
+    },
+    "grande": {
+     "galeria": 5,
+     "comercio": 2
+    }
+   },
+   "ensure": [
+    "comercio",
+    "local_comida",
+    "local_electronica"
+   ],
+   "light": {
+    "every": 12,
+    "min": 1,
+    "max": 10,
+    "p": 0.85,
+    "opts": [
+     {
+      "b": [
+       "sa_decor:double_flourecent_lamp",
+       "sa_decor:double_flourecent_lamp_flickering",
+       "sa_decor:double_flourecent_lamp_broken"
+      ],
+      "mount": "ceiling",
+      "lvl": 13,
+      "w": 1
+     }
+    ]
+   },
+   "loot": {
+    "cash_register_machine": "cash_register_machine"
+   },
+   "votes": false
+  },
+  "supermercado": {
+   "name": "Supermercado",
+   "desc": "Góndolas, heladeras de exhibición, cajas al frente, depósito con tarimas. Tubos fluorescentes.",
+   "rooms": {
+    "chico": {
+     "bano": 2,
+     "cuarto": 4
+    },
+    "medio": {
+     "comercio": 5,
+     "cuarto": 2
+    },
+    "grande": {
+     "comercio": 1
+    }
+   },
+   "ensure": [
+    "comercio"
+   ],
+   "light": {
+    "every": 12,
+    "min": 1,
+    "max": 10,
+    "p": 0.85,
+    "opts": [
+     {
+      "b": [
+       "sa_decor:double_flourecent_lamp",
+       "sa_decor:double_flourecent_lamp_flickering",
+       "sa_decor:double_flourecent_lamp_broken"
+      ],
+      "mount": "ceiling",
+      "lvl": 13,
+      "w": 1
+     }
+    ]
+   },
+   "loot": {
+    "store_shelf": "food_store|store_shelf",
+    "marketing_shelf": "food_store|store_shelf"
+   },
+   "votes": false
+  },
+  "restaurante": {
+   "name": "Restaurante / bar",
+   "desc": "Salón con mesas y barra con una caja, cocina industrial con heladeras y estanterías, baños.",
+   "rooms": {
+    "chico": {
+     "bano": 4,
+     "cuarto": 2
+    },
+    "medio": {
+     "restaurante": 4,
+     "cocina_industrial": 3
+    },
+    "grande": {
+     "restaurante": 5,
+     "cocina_industrial": 1
+    }
+   },
+   "ensure": [
+    "restaurante",
+    "cocina_industrial",
+    "bano"
+   ],
+   "light": {
+    "every": 16,
+    "min": 1,
+    "max": 4,
+    "p": 0.8,
+    "opts": [
+     {
+      "b": "sa_decor:lamp_block",
+      "mount": "ceiling",
+      "lvl": 11,
+      "w": 4
+     },
+     {
+      "b": "sa_decor:small_lamp",
+      "mount": "wall",
+      "lvl": 9,
+      "w": 2,
+      "rooms": [
+       "dormitorio",
+       "sala",
+       "cuarto"
+      ]
+     },
+     {
+      "b": "sa_decor:double_flourecent_lamp",
+      "mount": "ceiling",
+      "lvl": 11,
+      "w": 3,
+      "rooms": [
+       "cocina",
+       "bano"
+      ]
+     },
+     {
+      "b": "minecraft:lantern",
+      "mount": "top",
+      "w": 1
+     },
+     {
+      "b": [
+       "minecraft:candle",
+       "minecraft:white_candle",
+       "minecraft:brown_candle"
+      ],
+      "mount": "top",
+      "w": 1,
+      "s": "candles=3;lit=true"
+     }
+    ]
+   },
+   "votes": false
+  },
+  "escuela": {
+   "name": "Escuela",
+   "desc": "Aulas con pupitres en filas, pizarrón y escritorio del profesor; dirección, baños y comedor. Tubos fluorescentes.",
+   "rooms": {
+    "chico": {
+     "bano": 4,
+     "cuarto": 2,
+     "oficina": 1
+    },
+    "medio": {
+     "aula": 7,
+     "oficina": 1,
+     "cocina_industrial": 1
+    },
+    "grande": {
+     "aula": 4,
+     "restaurante": 1,
+     "galeria": 1
+    }
+   },
+   "ensure": [
+    "aula",
+    "bano",
+    "oficina"
+   ],
+   "light": {
+    "every": 12,
+    "min": 1,
+    "max": 10,
+    "p": 0.85,
+    "opts": [
+     {
+      "b": [
+       "sa_decor:double_flourecent_lamp",
+       "sa_decor:double_flourecent_lamp_flickering",
+       "sa_decor:double_flourecent_lamp_broken"
+      ],
+      "mount": "ceiling",
+      "lvl": 12,
+      "w": 1
+     }
+    ]
+   },
+   "loot": {
+    "locker": "civilian",
+    "office_desk": "office",
+    "wooden_shelves": "office"
+   },
+   "votes": false
+  },
+  "comisaria": {
+   "name": "Comisaría",
+   "desc": "Escritorios, archivo, vestuarios y celdas con catres. Puede salir munición (nunca armas). Fluorescentes titilando.",
+   "rooms": {
+    "chico": {
+     "celda": 5,
+     "bano": 2,
+     "cuarto": 1
+    },
+    "medio": {
+     "oficina_policial": 6,
+     "recepcion": 1,
+     "celda": 1
+    },
+    "grande": {
+     "oficina_policial": 5,
+     "recepcion": 1
+    }
+   },
+   "ensure": [
+    "oficina_policial",
+    "celda",
+    "recepcion"
+   ],
+   "light": {
+    "every": 12,
+    "min": 1,
+    "max": 10,
+    "p": 0.8,
+    "opts": [
+     {
+      "b": [
+       "sa_decor:double_flourecent_lamp",
+       "sa_decor:double_flourecent_lamp_flickering",
+       "sa_decor:double_flourecent_lamp_broken"
+      ],
+      "mount": "ceiling",
+      "lvl": 11,
+      "w": 1
+     }
+    ]
+   },
+   "loot": {
+    "locker": "ammo|civilian",
+    "big_metal_locker": "ammo|civilian",
+    "cabinet_one": "office",
+    "cabinet_double": "office",
+    "office_desk": "office|ammo"
+   },
+   "votes": false
+  },
+  "taller": {
+   "name": "Taller / garaje",
+   "desc": "Bancos de trabajo, herramientas, neumáticos, bidones, repuestos y a veces un auto en reparación. Luces de obra.",
+   "rooms": {
+    "chico": {
+     "bano": 2,
+     "cuarto": 3,
+     "taller": 2
+    },
+    "medio": {
+     "taller": 6,
+     "oficina": 1
+    },
+    "grande": {
+     "taller": 1
+    }
+   },
+   "ensure": [
+    "taller"
+   ],
+   "light": {
+    "every": 20,
+    "min": 1,
+    "max": 4,
+    "p": 0.9,
+    "opts": [
+     {
+      "b": [
+       "sa_decor:dual_tripod_work_light",
+       "sa_decor:portable_work_light"
+      ],
+      "mount": "floor",
+      "lvl": 13,
+      "w": 3
+     },
+     {
+      "b": [
+       "sa_decor:double_flourecent_lamp",
+       "sa_decor:double_flourecent_lamp_flickering",
+       "sa_decor:double_flourecent_lamp_broken"
+      ],
+      "mount": "ceiling",
+      "lvl": 12,
+      "w": 2
+     }
+    ]
+   },
+   "loot": {
+    "metal_rack": "garage|hardware",
+    "tool_storage": "garage|tool_storage",
+    "locker": "garage|civilian"
+   },
+   "votes": false
+  },
+  "gasolinera": {
+   "name": "Estación de servicio",
+   "desc": "Tienda con caja, taller y baños; afuera surtidores, autos y bidones.",
+   "rooms": {
+    "chico": {
+     "bano": 3,
+     "cuarto": 2,
+     "kiosco": 2
+    },
+    "medio": {
+     "comercio": 3,
+     "taller": 2
+    },
+    "grande": {
+     "comercio": 2,
+     "taller": 1
+    }
+   },
+   "ensure": [
+    "comercio",
+    "bano"
+   ],
+   "light": {
+    "every": 12,
+    "min": 1,
+    "max": 10,
+    "p": 0.85,
+    "opts": [
+     {
+      "b": [
+       "sa_decor:double_flourecent_lamp",
+       "sa_decor:double_flourecent_lamp_flickering",
+       "sa_decor:double_flourecent_lamp_broken"
+      ],
+      "mount": "ceiling",
+      "lvl": 12,
+      "w": 1
+     }
+    ]
+   },
+   "loot": {
+    "store_shelf": "gas_station|store_shelf",
+    "marketing_shelf": "gas_station|store_shelf"
+   },
+   "outside": {
+    "acera": "gasolinera_ext",
+    "patio": "gasolinera_ext"
+   },
+   "votes": false
+  },
+  "deposito": {
+   "name": "Depósito / fábrica",
+   "desc": "Racks metálicos, tarimas con cajas, barriles, cajones grandes y la oficina del capataz. Fluorescentes altos.",
+   "rooms": {
+    "chico": {
+     "bano": 2,
+     "cuarto": 4
+    },
+    "medio": {
+     "deposito": 5,
+     "oficina": 1
+    },
+    "grande": {
+     "deposito": 1
+    }
+   },
+   "ensure": [
+    "deposito"
+   ],
+   "light": {
+    "every": 18,
+    "min": 1,
+    "max": 10,
+    "p": 0.85,
+    "opts": [
+     {
+      "b": [
+       "sa_decor:double_flourecent_lamp",
+       "sa_decor:double_flourecent_lamp_flickering",
+       "sa_decor:double_flourecent_lamp_broken"
+      ],
+      "mount": "ceiling",
+      "lvl": 13,
+      "w": 1
+     }
+    ]
+   },
+   "votes": false
+  },
+  "hotel": {
+   "name": "Hotel / motel",
+   "desc": "Habitaciones con cama, mesitas, TV y placard; recepción con sillas de espera; baños.",
+   "rooms": {
+    "chico": {
+     "bano": 6,
+     "cuarto": 1
+    },
+    "medio": {
+     "habitacion_hotel": 7,
+     "recepcion": 1
+    },
+    "grande": {
+     "recepcion": 3,
+     "restaurante": 2
+    }
+   },
+   "ensure": [
+    "recepcion",
+    "habitacion_hotel",
+    "bano"
+   ],
+   "light": {
+    "every": 14,
+    "min": 1,
+    "max": 4,
+    "p": 0.8,
+    "opts": [
+     {
+      "b": "sa_decor:lamp_block",
+      "mount": "ceiling",
+      "lvl": 10,
+      "w": 3
+     },
+     {
+      "b": "sa_decor:small_lamp",
+      "mount": "wall",
+      "lvl": 9,
+      "w": 2
+     }
+    ]
+   },
+   "votes": false
+  },
+  "refugio": {
+   "name": "Refugio de supervivientes",
+   "desc": "Camas improvisadas, radio, comida y munición acopiadas, barricadas, banco de reparaciones. Luz de velas y faroles.",
+   "rooms": {
+    "chico": {
+     "refugio": 4,
+     "bano": 1,
+     "cuarto": 2
+    },
+    "medio": {
+     "refugio": 6,
+     "cocina_rustica": 1
+    },
+    "grande": {
+     "refugio": 5,
+     "deposito": 1
+    }
+   },
+   "ensure": [
+    "refugio"
+   ],
+   "light": {
+    "every": 14,
+    "min": 1,
+    "max": 4,
+    "p": 0.95,
+    "opts": [
+     {
+      "b": [
+       "minecraft:candle",
+       "minecraft:white_candle",
+       "minecraft:brown_candle"
+      ],
+      "mount": "top",
+      "w": 3,
+      "s": "candles=3;lit=true"
+     },
+     {
+      "b": "minecraft:lantern",
+      "mount": "floor",
+      "w": 2
+     },
+     {
+      "b": "minecraft:lantern",
+      "mount": "top",
+      "w": 2
+     },
+     {
+      "b": "sa_decor:portable_work_light",
+      "mount": "floor",
+      "lvl": 11,
+      "w": 1
+     }
+    ]
+   },
+   "loot": {
+    "food_crate": "food_storage",
+    "medicinal_crate": "medicinal_crate",
+    "ammo_box": "ammo_box",
+    "ammo_box_stack_2": "ammo_box"
+   },
+   "votes": false
   }
  }
 }

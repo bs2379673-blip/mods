@@ -60,7 +60,7 @@ public final class Decor {
     public static final class Part {
         Block[] bs;
         int x, z, y;
-        String f = "in", loot;
+        String f = "in", loot, props;
         double p = 1;
         boolean once;
     }
@@ -68,7 +68,7 @@ public final class Decor {
     /** Un elemento de una fila a lo largo de la pared. */
     public static final class Elem {
         Block[] bs;
-        String f = "in", loot;
+        String f = "in", loot, props;
         int n = 1, gap;
         double p = 1;
         final List<Part> over = new ArrayList<>();
@@ -106,19 +106,53 @@ public final class Decor {
         final Map<String, Comp> byId = new HashMap<>();
     }
 
+    /** Una forma de iluminar: el artefacto (lámpara de techo, farol, velas…), dónde se monta y cuánta luz real agrega (bloque de luz invisible). */
+    public static final class LightOpt {
+        Block b;
+        String mount = "ceiling", props;
+        int lvl, w = 1;
+        Set<String> rooms;
+    }
+
+    public static final class Light {
+        final List<LightOpt> opts = new ArrayList<>();
+        int every = 16, min = 1, max = 8;
+        double p = 1;
+    }
+
+    /** Plantilla de edificio: qué habitaciones puede tener, cuáles no pueden faltar, su luz y su loot. */
+    public static final class Template {
+        public String id, name, desc = "";
+        final Map<String, Map<String, Integer>> buckets = new LinkedHashMap<>();   // chico / medio / grande → tipo → peso
+        final List<String> ensure = new ArrayList<>();
+        final Set<String> allowed = new HashSet<>();
+        final Map<String, String> outside = new HashMap<>();
+        final Map<String, String> loot = new HashMap<>();
+        boolean votes = true;
+        double cover = -1, clutter = -1;
+        Light light;
+    }
+
     public static final class Theme {
         public String id, name;
         public double cover = 0.26, clutter = 0.07, exterior = 0.004;
         public final Map<String, Room> rooms = new LinkedHashMap<>();
+        public final Map<String, Template> templates = new LinkedHashMap<>();
+        Light light;
     }
 
-    /** Una pieza del plan: un bloque (o mueble de varias partes) con su posición de origen y hacia dónde mira. */
-    public record Piece(Block block, BlockPos pos, Direction facing, String loot, int cat, int group) { }
+    /**
+     * Una pieza del plan: un bloque (o mueble de varias partes) con su posición de origen y hacia dónde mira.
+     * {@code props}: propiedades extra del bloque ("hanging=true;lit=true") y, con @, cómo se sostiene (@ceiling, @wall, @air, @top).
+     */
+    public record Piece(Block block, BlockPos pos, Direction facing, String loot, int cat, int group, String props) {
+        public Piece(Block block, BlockPos pos, Direction facing, String loot, int cat, int group) { this(block, pos, facing, loot, cat, group, null); }
+    }
 
     public static final class Plan {
         public String dim = "";
         public final List<Piece> list = new ArrayList<>();
-        public String theme = "";
+        public String theme = "", template = "";
         public int seed;
         /** Resumen legible (habitaciones, escenas, cuerpos…) para mostrar al terminar de planificar. */
         public String summary = "";
@@ -223,6 +257,7 @@ public final class Decor {
         p.p = dbl(o, "p", 1);
         p.loot = o.has("loot") ? o.get("loot").getAsString() : null;
         p.once = o.has("once") && o.get("once").getAsBoolean();
+        p.props = o.has("s") ? o.get("s").getAsString() : null;
         return p;
     }
 
@@ -266,6 +301,7 @@ public final class Decor {
                 el.gap = i(x, "gap", 0);
                 el.p = dbl(x, "p", 1);
                 el.loot = x.has("loot") ? x.get("loot").getAsString() : null;
+                el.props = x.has("s") ? x.get("s").getAsString() : null;
                 if (x.has("over")) for (JsonElement ov : x.getAsJsonArray("over")) { Part q = part(ov.getAsJsonObject(), what); if (q != null) el.over.add(q); }
                 c.row.add(el);
             }
@@ -336,11 +372,77 @@ public final class Decor {
             }
             t.rooms.put(re.getKey(), r);
         }
+        if (o.has("light")) t.light = light(o.getAsJsonObject("light"), id + "/light");
+        if (o.has("templates")) {
+            for (Map.Entry<String, JsonElement> te : o.getAsJsonObject("templates").entrySet()) {
+                try {
+                    Template tp = template(te.getKey(), te.getValue().getAsJsonObject(), t);
+                    if (tp != null) t.templates.put(tp.id, tp);
+                } catch (RuntimeException e) {
+                    LootMaster.LOG.warn("[LootMaster] plantilla {} invalida: {}", te.getKey(), e.toString());
+                }
+            }
+        }
         return t;
     }
 
+    private static Light light(JsonObject o, String what) {
+        Light l = new Light();
+        l.every = Math.max(1, i(o, "every", 16));
+        l.min = Math.max(0, i(o, "min", 1));
+        l.max = Math.max(l.min, i(o, "max", 8));
+        l.p = dbl(o, "p", 1);
+        if (o.has("opts")) {
+            for (JsonElement e : o.getAsJsonArray("opts")) {
+                JsonObject x = e.getAsJsonObject();
+                Block[] bs = blocks(x.get("b"), what);
+                if (bs == null) continue;
+                for (Block b : bs) {
+                    LightOpt lo = new LightOpt();
+                    lo.b = b;
+                    lo.mount = s(x, "mount", "ceiling");
+                    lo.props = x.has("s") ? x.get("s").getAsString() : null;
+                    lo.lvl = Math.max(0, Math.min(15, i(x, "lvl", 0)));
+                    lo.w = Math.max(1, i(x, "w", 1));
+                    if (x.has("rooms")) { lo.rooms = new HashSet<>(); for (JsonElement r : x.getAsJsonArray("rooms")) lo.rooms.add(r.getAsString()); }
+                    l.opts.add(lo);
+                }
+            }
+        }
+        return l;
+    }
+
+    private static Template template(String id, JsonObject o, Theme t) {
+        Template tp = new Template();
+        tp.id = id;
+        tp.name = s(o, "name", id);
+        tp.desc = s(o, "desc", "");
+        tp.votes = !o.has("votes") || o.get("votes").getAsBoolean();
+        tp.cover = dbl(o, "cover", -1);
+        tp.clutter = dbl(o, "clutter", -1);
+        if (o.has("rooms")) {
+            for (Map.Entry<String, JsonElement> be : o.getAsJsonObject("rooms").entrySet()) {
+                Map<String, Integer> m = new LinkedHashMap<>();
+                for (Map.Entry<String, JsonElement> re : be.getValue().getAsJsonObject().entrySet()) {
+                    if (!t.rooms.containsKey(re.getKey())) { LootMaster.LOG.info("[LootMaster] plantilla {}: habitacion desconocida {}", id, re.getKey()); continue; }
+                    int w = re.getValue().getAsInt();
+                    if (w <= 0) continue;
+                    m.put(re.getKey(), w);
+                    tp.allowed.add(re.getKey());
+                }
+                tp.buckets.put(be.getKey(), m);
+            }
+        }
+        if (o.has("ensure")) for (JsonElement e : o.getAsJsonArray("ensure")) { String r = e.getAsString(); if (t.rooms.containsKey(r)) { tp.ensure.add(r); tp.allowed.add(r); } }
+        if (o.has("outside")) for (Map.Entry<String, JsonElement> e : o.getAsJsonObject("outside").entrySet()) tp.outside.put(e.getKey(), e.getValue().getAsString());
+        if (o.has("loot")) for (Map.Entry<String, JsonElement> e : o.getAsJsonObject("loot").entrySet()) tp.loot.put(e.getKey(), e.getValue().getAsString());
+        if (o.has("light")) tp.light = light(o.getAsJsonObject("light"), id + "/light");
+        tp.allowed.add("porche");
+        return tp.allowed.size() <= 1 ? null : tp;
+    }
+
     // ------------------------------------------------------------------ lectura de la zona ----
-    private static final class Tile { int y; boolean roof, nearDoor, hollow, cut; int walls, head, ground; }
+    private static final class Tile { int y; boolean roof, nearDoor, hollow, cut; int walls, head, ground, ceil; }
 
     private static final class Ctx {
         final Map<Long, Tile> tiles = new HashMap<>();
@@ -428,7 +530,7 @@ public final class Decor {
                     for (int h = head; h <= 12 && y + h < lv.getMaxBuildHeight(); h++) {
                         m3.set(x, y + h, z);
                         BlockState u = ch.getBlockState(m3);
-                        if (solid(u) && !(u.getBlock() instanceof LeavesBlock)) { t.roof = true; break; }
+                        if (solid(u) && !(u.getBlock() instanceof LeavesBlock)) { t.roof = true; t.ceil = h; break; }
                     }
                     if (!t.roof) {
                         // un "suelo" con aire debajo es un techo, balcón o puente: ahí no van autos ni basura
@@ -468,6 +570,8 @@ public final class Decor {
         plan.dim = lv.dimension().location().toString();
         plan.theme = theme.id;
         plan.seed = seed;
+        Template tpl = theme.templates.get(d.dTemplate);
+        plan.template = tpl == null ? "" : tpl.id;
         Jobs.Job j = Jobs.create("planificar decoración", (job, level, ch, pos) -> { if (!cx.overflow) scanChunk(job, cx, level, ch); }, () -> {
             if (cx.overflow) {
                 LootMaster.LOG.warn("[LootMaster] decoracion: zona demasiado grande");
@@ -482,7 +586,7 @@ public final class Decor {
             java.util.concurrent.CompletableFuture.runAsync(() -> {
                 String err = null;
                 try {
-                    new Gen(cx, theme, seed, factor, plan).run(interior, exterior);
+                    new Gen(cx, theme, tpl, seed, factor, plan).run(interior, exterior);
                 } catch (Throwable e) {
                     err = e.toString();
                     LootMaster.LOG.warn("[LootMaster] fallo armando la decoracion", e);
@@ -535,7 +639,7 @@ public final class Decor {
         Pieces.Info info;
         int a, r, y;
         Direction wf;
-        String loot;
+        String loot, props;
         double p = 1;
         final List<int[]> cells = new ArrayList<>();   // {a, r, y} locales
     }
@@ -550,18 +654,20 @@ public final class Decor {
     private static final class Gen {
         final Ctx cx;
         final Theme th;
+        final Template tp;
         final Plan plan;
         final int seed;
         final double factor;
         final Set<Long> furn = new HashSet<>();      // celdas de piso con mueble sólido
         final Set<Long> occ = new HashSet<>();       // cualquier celda ocupada (incluye altura)
         final Set<Long> soft = new HashSet<>();      // espacio libre delante de los muebles
+        final Set<Long> tops = new HashSet<>();      // pisos con un mueble bajo y chato encima del que se puede apoyar algo (velas, farol)
         final Map<String, List<int[]>> spots = new HashMap<>();
         final Map<String, Integer> total = new LinkedHashMap<>();
         int group;
 
-        Gen(Ctx cx, Theme th, int seed, double factor, Plan plan) {
-            this.cx = cx; this.th = th; this.seed = seed; this.factor = factor; this.plan = plan;
+        Gen(Ctx cx, Theme th, Template tp, int seed, double factor, Plan plan) {
+            this.cx = cx; this.th = th; this.tp = tp; this.seed = seed; this.factor = factor; this.plan = plan;
         }
 
         void count(String k) { total.merge(k, 1, Integer::sum); }
@@ -632,29 +738,39 @@ public final class Decor {
             }
             int nRooms = rooms.size();
             if (interior) {
+                String[] types = new String[nRooms];
+                Random[] rr = new Random[nRooms];
                 for (int ri = 0; ri < nRooms; ri++) {
                     List<Long> tiles = rooms.get(ri);
                     if (tiles.size() < 4) continue;
-                    Random rnd = new Random(seed * 31L + tiles.get(0) * 7919L);
-                    String type = roomType(tiles, roomVotes.get(ri), rnd);
+                    rr[ri] = new Random(seed * 31L + tiles.get(0) * 7919L);
+                    types[ri] = roomType(tiles, roomVotes.get(ri), rr[ri]);
+                }
+                if (tp != null && !tp.ensure.isEmpty()) ensure(types, rooms);
+                for (int ri = 0; ri < nRooms; ri++) {
+                    if (types[ri] == null) continue;
+                    List<Long> tiles = rooms.get(ri);
+                    String type = types[ri];
                     Room room = th.rooms.get(type);
                     if (room == null || room.comps.isEmpty()) { type = tiles.size() >= 40 ? "sala" : "cuarto"; room = th.rooms.get(type); }
                     if (room == null) continue;
                     count("habitacion_" + type);
-                    fillRoom(tiles, room, rnd);
+                    fillRoom(tiles, room, rr[ri], type);
                 }
             }
             if (exterior) fillOutside(outside);
-            int bodies = 0, cars = 0, furniture = 0;
+            int bodies = 0, cars = 0, furniture = 0, lights = 0;
             for (Piece p : plan.list) {
                 Pieces.Info in = Pieces.info(p.block());
+                if (p.cat() == 5) { if (p.block() != Blocks.LIGHT) lights++; continue; }
                 if (in.path.equals("lying_corpse")) bodies++;
                 else if (in.kind == Pieces.Kind.VEHICLE) cars++;
                 else if (!in.decal) furniture++;
             }
             StringBuilder sb = new StringBuilder();
             sb.append(nRooms).append(" habitaciones, ").append(plan.list.size()).append(" piezas (").append(furniture).append(" muebles, ")
-                    .append(bodies).append(" cuerpos, ").append(cars).append(" vehículos)");
+                    .append(bodies).append(" cuerpos, ").append(cars).append(" vehículos, ").append(lights).append(" luces)");
+            if (tp != null) sb.append(" · plantilla ").append(tp.name);
             plan.summary = sb.toString();
         }
 
@@ -672,9 +788,21 @@ public final class Decor {
                 }
             }
             if (sides > 0 && open > 0.35 * (sides + 4)) return "porche";
-            int best = 0, bi = 0;
-            for (int i = 1; i < 8; i++) if (rv[i] > best) { best = rv[i]; bi = i; }
-            if (best > 0) return switch (bi) { case BED -> "dormitorio"; case KITCHEN -> "cocina"; case BATH -> "bano"; case OFFICE -> "oficina"; case HOSP -> "hospital"; default -> "comercio"; };
+            if (tp == null || tp.votes) {
+                int best = 0, bi = 0;
+                for (int i = 1; i < 8; i++) if (rv[i] > best) { best = rv[i]; bi = i; }
+                if (best > 0) {
+                    String v = switch (bi) { case BED -> "dormitorio"; case KITCHEN -> "cocina"; case BATH -> "bano"; case OFFICE -> "oficina"; case HOSP -> "hospital"; default -> "comercio"; };
+                    if (tp == null || tp.allowed.contains(v)) return v;
+                }
+            }
+            if (tp != null) {
+                String b = area <= 12 ? "chico" : area <= 30 ? "medio" : "grande";
+                String got = pickW(tp.buckets.get(b), rnd);
+                if (got == null) got = pickW(tp.buckets.get("medio"), rnd);
+                if (got == null) for (Map<String, Integer> m : tp.buckets.values()) { got = pickW(m, rnd); if (got != null) break; }
+                if (got != null) return got;
+            }
             double r = rnd.nextDouble();
             if (area < 6) return "cuarto";
             if (area <= 12) return r < 0.30 ? "bano" : r < 0.65 ? "cuarto" : "dormitorio";
@@ -682,13 +810,50 @@ public final class Decor {
             return r < 0.55 ? "sala" : r < 0.70 ? "oficina" : r < 0.82 ? "cocina" : r < 0.92 ? "dormitorio" : "comercio";
         }
 
+        String pickW(Map<String, Integer> m, Random rnd) {
+            if (m == null || m.isEmpty()) return null;
+            int sum = 0;
+            for (int w : m.values()) sum += w;
+            if (sum <= 0) return null;
+            int r = rnd.nextInt(sum);
+            for (Map.Entry<String, Integer> e : m.entrySet()) { r -= e.getValue(); if (r < 0) return e.getKey(); }
+            return null;
+        }
+
+        /** Las habitaciones que la plantilla pide sí o sí (una casa tiene cocina y baño): se le cambia el tipo a la que mejor encaje. */
+        void ensure(String[] types, List<List<Long>> rooms) {
+            Random rnd = new Random(seed * 977L + 5);
+            boolean[] locked = new boolean[types.length];
+            for (String need : tp.ensure) {
+                boolean have = false;
+                for (int i = 0; i < types.length; i++) if (need.equals(types[i]) && !locked[i]) { locked[i] = true; have = true; break; }
+                if (have) continue;
+                Map<String, Integer> cnt = new HashMap<>();
+                for (String t : types) if (t != null) cnt.merge(t, 1, Integer::sum);
+                int best = -1;
+                double bs = -1e9;
+                for (int i = 0; i < types.length; i++) {
+                    if (types[i] == null || locked[i] || types[i].equals("porche")) continue;
+                    int area = rooms.get(i).size();
+                    String b = area <= 12 ? "chico" : area <= 30 ? "medio" : "grande";
+                    Map<String, Integer> m = tp.buckets.get(b);
+                    double sc = (m != null && m.containsKey(need) ? m.get(need) : -3) + (cnt.getOrDefault(types[i], 0) > 1 ? 2 : 0)
+                            - (tp.ensure.contains(types[i]) ? 6 : 0) + rnd.nextDouble();
+                    if (sc > bs) { bs = sc; best = i; }
+                }
+                if (best >= 0) { types[best] = need; locked[best] = true; }
+            }
+        }
+
         // ---- amueblar una habitacion
-        void fillRoom(List<Long> tiles, Room room, Random rnd) {
+        void fillRoom(List<Long> tiles, Room room, Random rnd, String type) {
             int area = tiles.size();
             Set<Long> keys = new HashSet<>(tiles);
             List<Long> order = new ArrayList<>(tiles);
             Collections.shuffle(order, rnd);
-            double budget = area * th.cover * factor;
+            double cover = tp != null && tp.cover >= 0 ? tp.cover : th.cover;
+            double clut = tp != null && tp.clutter >= 0 ? tp.clutter : th.clutter;
+            double budget = area * cover * factor;
             double used = 0;
             Map<String, Integer> here = new HashMap<>();
             if (factor > 0) {
@@ -704,7 +869,8 @@ public final class Decor {
                     if (got == 0) fails++; else used += got;
                 }
             }
-            clutter(order, keys, room, rnd, th.clutter * factor, 1);
+            lights(tiles, keys, type, rnd);
+            clutter(order, keys, room, rnd, clut * factor, 1);
         }
 
         Comp pick(List<Comp> comps, Map<String, Integer> used, Random rnd, int area) {
@@ -744,7 +910,9 @@ public final class Decor {
             }
             Map<String, Integer> glob = new HashMap<>();
             for (Map.Entry<String, List<Long>> ze : zones.entrySet()) {
-                Room room = th.rooms.get(ze.getKey());
+                String zk = tp != null ? tp.outside.getOrDefault(ze.getKey(), ze.getKey()) : ze.getKey();
+                Room room = th.rooms.get(zk);
+                if (room == null) room = th.rooms.get(ze.getKey());
                 if (room == null || room.comps.isEmpty()) continue;
                 List<Long> tiles = ze.getValue();
                 Random rnd = new Random(seed * 13L + ze.getKey().hashCode());
@@ -768,8 +936,9 @@ public final class Decor {
         // ---- armado de una composicion
         Block choose(Block[] bs, Random rnd) { return bs[rnd.nextInt(bs.length)]; }
 
-        LP mk(Part src, Block b, int x, int z, int y, Direction wf, Frame fr, String loot) {
+        LP mk(Part src, Block b, int x, int z, int y, Direction wf, Frame fr, String loot, String props) {
             LP lp = new LP();
+            lp.props = props != null ? props : src == null ? null : src.props;
             lp.b = b;
             lp.info = Pieces.info(b);
             lp.wf = wf;
@@ -800,22 +969,22 @@ public final class Decor {
                 for (int k = 0; k < e.n; k++) {
                     if (e.p < 1 && rnd.nextDouble() > e.p) continue;
                     Block b = choose(e.bs, rnd);
-                    LP lp = mk(null, b, cursor, 0, 0, fr.face(e.f, rnd), fr, e.loot);
+                    LP lp = mk(null, b, cursor, 0, 0, fr.face(e.f, rnd), fr, e.loot, e.props);
                     L.lps.add(lp);
                     int x0 = cursor, maxA = x0;
                     for (int[] cell : lp.cells) maxA = Math.max(maxA, cell[0]);
                     for (Part o : e.over) {
                         if (o.once) {
                             // una sola vez, en la columna x del elemento (0 = la primera)
-                            L.lps.add(mk(o, choose(o.bs, rnd), x0 + o.x, o.z, o.y, fr.face(o.f, rnd), fr, null));
+                            L.lps.add(mk(o, choose(o.bs, rnd), x0 + o.x, o.z, o.y, fr.face(o.f, rnd), fr, null, null));
                             continue;
                         }
-                        for (int ax = x0; ax <= maxA; ax++) L.lps.add(mk(o, choose(o.bs, rnd), ax, o.z, o.y, fr.face(o.f, rnd), fr, null));
+                        for (int ax = x0; ax <= maxA; ax++) L.lps.add(mk(o, choose(o.bs, rnd), ax, o.z, o.y, fr.face(o.f, rnd), fr, null, null));
                     }
                     cursor = maxA + 1 + e.gap;
                 }
             }
-            for (Part p : c.parts) L.lps.add(mk(p, choose(p.bs, rnd), p.x, p.z, p.y, fr.face(p.f, rnd), fr, null));
+            for (Part p : c.parts) L.lps.add(mk(p, choose(p.bs, rnd), p.x, p.z, p.y, fr.face(p.f, rnd), fr, null, null));
             int la = 0, lr = 0;
             for (LP lp : L.lps) for (int[] cell : lp.cells) { la = Math.max(la, cell[0]); lr = Math.max(lr, cell[1]); }
             L.lenA = la + 1;
@@ -984,12 +1153,15 @@ public final class Decor {
             group++;
             for (LP lp : lps) {
                 BlockPos origin = fr.at(t, lp.a, lp.r, lp.y);
-                plan.list.add(new Piece(lp.b, origin, lp.wf, lp.loot != null ? lp.loot : c.loot, c.cat, group));
+                plan.list.add(new Piece(lp.b, origin, lp.wf, lp.loot != null ? lp.loot : c.loot, c.cat, group, lp.props));
+                boolean flat = surface(lp.info.path);
                 for (int[] cell : lp.cells) {
                     BlockPos fl = fr.at(t, cell[0], cell[1], 0);
                     occ.add(fl.above(cell[2]).asLong());
                     if (cell[2] == 0 && !lp.info.decal) furn.add(fl.asLong());
+                    if (cell[2] != 0) flat = false;
                 }
+                if (flat && lp.y == 0) for (int[] cell : lp.cells) tops.add(fr.at(t, cell[0], cell[1], 0).asLong());
             }
             if (!c.anchor.equals("free")) {
                 for (int a = 0; a < L.lenA; a++)
@@ -1053,6 +1225,105 @@ public final class Decor {
             int runs = 0;
             for (int i = 0; i < 8; i++) if (free[i] && !free[(i + 7) % 8]) runs++;
             return runs > 1;
+        }
+
+        /** Muebles bajos y chatos sobre los que se puede apoyar algo. */
+        boolean surface(String path) {
+            if (path.startsWith("wall_")) return false;
+            return path.contains("table") || path.contains("desk") || path.contains("drawer") || path.contains("counter") || path.equals("cabinet_one")
+                    || path.equals("cabinet_double") || path.contains("workbench") || path.equals("kitchen_cover") || path.equals("crafting_table")
+                    || path.equals("barrel") || path.contains("crate") || path.equals("hay_block");
+        }
+
+        // ---- luces: artefactos con sentido (lámpara en el techo, aplique en la pared, farol o velas sobre la mesa) y luz real invisible
+        void lights(List<Long> tiles, Set<Long> keys, String type, Random rnd) {
+            Light L = tp != null && tp.light != null ? tp.light : th.light;
+            if (L == null || L.opts.isEmpty() || factor <= 0 || tiles.isEmpty()) return;
+            if (L.p < 1 && rnd.nextDouble() > L.p) return;
+            List<LightOpt> ok = new ArrayList<>();
+            int sum = 0;
+            for (LightOpt o : L.opts) if (o.rooms == null || o.rooms.contains(type)) { ok.add(o); sum += o.w; }
+            if (sum <= 0) return;
+            int n = Math.max(L.min, Math.round(tiles.size() / (float) L.every));
+            n = Math.min(n, L.max);
+            // un estilo por habitación (todas las lámparas del cuarto iguales); si no entra ninguna, se prueba el siguiente
+            List<LightOpt> order = new ArrayList<>();
+            while (!ok.isEmpty()) {
+                int r = rnd.nextInt(sum);
+                for (int i = 0; i < ok.size(); i++) {
+                    r -= ok.get(i).w;
+                    if (r < 0) { sum -= ok.get(i).w; order.add(ok.remove(i)); break; }
+                }
+            }
+            double cx0 = 0, cz0 = 0;
+            for (long k : tiles) { BlockPos p = BlockPos.of(k); cx0 += p.getX(); cz0 += p.getZ(); }
+            cx0 /= tiles.size();
+            cz0 /= tiles.size();
+            List<Long> topList = new ArrayList<>();
+            for (long k : tops) if (keys.contains(k)) topList.add(k);
+            for (LightOpt opt : order) {
+                List<BlockPos> done = new ArrayList<>();
+                boolean top = opt.mount.equals("top");
+                if (top && topList.isEmpty()) continue;
+                for (int i = 0; i < n && plan.list.size() < MAX_PLAN; i++) {
+                    BlockPos best = null;
+                    Direction bf = Direction.NORTH;
+                    double bd = -1e18;
+                    for (int sTry = 0; sTry < 60; sTry++) {
+                        long k = top ? topList.get(rnd.nextInt(topList.size())) : tiles.get(rnd.nextInt(tiles.size()));
+                        Tile tl = cx.tiles.get(k);
+                        if (tl == null) continue;
+                        BlockPos fl = BlockPos.of(k);
+                        BlockPos pos;
+                        Direction f = HORIZ[rnd.nextInt(4)];
+                        switch (opt.mount) {
+                            case "ceiling" -> {
+                                if (!tl.roof || tl.ceil < 3 || tl.ceil > 12 || tl.head < Math.min(tl.ceil, 4)) continue;
+                                pos = fl.above(tl.ceil - 1);
+                            }
+                            case "wall" -> {
+                                if (tl.walls == 0 || tl.nearDoor || tl.head < 3) continue;
+                                List<Integer> ds = new ArrayList<>();
+                                for (int d = 0; d < 4; d++) if ((tl.walls & (1 << d)) != 0) ds.add(d);
+                                f = HORIZ[ds.get(rnd.nextInt(ds.size()))].getOpposite();
+                                pos = fl.above(2);
+                            }
+                            case "top" -> {
+                                if (tl.head < 3) continue;
+                                pos = fl.above();
+                            }
+                            default -> {
+                                if (tl.walls == 0 || tl.nearDoor || furn.contains(k) || occ.contains(k) || ringBlocks(fl)) continue;
+                                pos = fl;
+                            }
+                        }
+                        if (occ.contains(pos.asLong())) continue;
+                        double sc;
+                        if (done.isEmpty()) sc = -((pos.getX() - cx0) * (pos.getX() - cx0) + (pos.getZ() - cz0) * (pos.getZ() - cz0));
+                        else {
+                            sc = 1e18;
+                            for (BlockPos q : done) sc = Math.min(sc, q.distSqr(pos));
+                        }
+                        if (sc > bd) { bd = sc; best = pos; bf = f; }
+                    }
+                    if (best == null) break;
+                    if (!done.isEmpty() && bd < 9) break;   // no amontonar lámparas
+                    group++;
+                    String mk = "@" + opt.mount + (opt.props == null ? "" : ";" + opt.props);
+                    plan.list.add(new Piece(opt.b, best, bf, null, 5, group, mk));
+                    occ.add(best.asLong());
+                    if (opt.mount.equals("floor")) furn.add(best.asLong());
+                    if (opt.lvl > 0) {
+                        BlockPos lp = switch (opt.mount) { case "ceiling" -> best.below(); case "wall" -> best.relative(bf); default -> best.above(); };
+                        if (!occ.contains(lp.asLong())) {
+                            plan.list.add(new Piece(Blocks.LIGHT, lp, Direction.NORTH, null, 5, group, "@air;level=" + opt.lvl));
+                            occ.add(lp.asLong());
+                        }
+                    }
+                    done.add(best);
+                }
+                if (!done.isEmpty()) { count("luz_" + Pieces.info(opt.b).path); return; }
+            }
         }
 
         // ---- cosas sueltas (papeles, basura, vidrios) pegadas a muebles, paredes y esquinas
@@ -1164,13 +1435,16 @@ public final class Decor {
             byPos.computeIfAbsent(a.asLong(), q -> new ArrayList<>()).add(g);
         }
         Set<String> profiles = new java.util.TreeSet<>();
+        Theme thm = THEMES.get(plan.theme);
+        Template tpl = thm == null ? null : thm.templates.get(plan.template);
+        Map<String, String> lootMap = tpl == null ? Map.of() : tpl.loot;
         net.minecraft.util.RandomSource rnd = net.minecraft.util.RandomSource.create(plan.seed * 31L + 7);
         Jobs.Job j = Jobs.create("aplicar decoración", (job, level, ch, pos) -> {
             if (pos == null) return;
             for (BlockPos ap : pos) {
                 List<List<Piece>> gl = byPos.get(ap.asLong());
                 if (gl == null) continue;
-                for (List<Piece> g : gl) placeGroup(level, g, op, job, rnd, withLoot, profiles);
+                for (List<Piece> g : gl) placeGroup(level, g, op, job, rnd, withLoot, profiles, lootMap);
             }
         }, () -> {
             Edits.commit(s, op);
@@ -1198,14 +1472,22 @@ public final class Decor {
         return bs.blocksMotion() || bs.isFaceSturdy(lv, b, facing);
     }
 
-    private static void placeGroup(ServerLevel lv, List<Piece> g, Edits.Op op, Jobs.Job job, net.minecraft.util.RandomSource rnd, boolean withLoot, Set<String> profiles) {
+    private static void placeGroup(ServerLevel lv, List<Piece> g, Edits.Op op, Jobs.Job job, net.minecraft.util.RandomSource rnd, boolean withLoot, Set<String> profiles,
+                                   Map<String, String> lootMap) {
         List<Piece> sorted = new ArrayList<>(g);
         sorted.sort((a, b) -> Integer.compare(a.pos().getY(), b.pos().getY()));
         for (Piece p : sorted) {
             Pieces.Info in = Pieces.info(p.block());
             if (!in.ok) continue;
             if (!Pieces.free(lv, in, p.pos(), p.facing())) { job.inc2("omitidos_ocupados"); continue; }
-            if (in.hang) {
+            String mount = Pieces.mount(p.props());
+            if ("ceiling".equals(mount)) {
+                BlockPos up = p.pos().above();
+                BlockState us = lv.getBlockState(up);
+                if (!us.blocksMotion() && !us.isFaceSturdy(lv, up, Direction.DOWN)) { job.inc2("omitidos_sin_techo"); continue; }
+            } else if ("air".equals(mount)) {
+                // luz invisible: flota
+            } else if (in.hang || "wall".equals(mount)) {
                 if (!wallBehind(lv, p.pos(), p.facing())) { job.inc2("omitidos_sin_pared"); continue; }
             } else {
                 BlockPos bp = p.pos().below();
@@ -1215,10 +1497,11 @@ public final class Decor {
             List<BlockPos> touched = new ArrayList<>();
             Pieces.touched(in, p.pos(), p.facing(), touched);
             for (BlockPos t : touched) Edits.record(op, lv, t);
-            if (!Pieces.place(lv, in, p.pos(), p.facing(), rnd)) { job.inc2("fallaron"); continue; }
+            if (!Pieces.place(lv, in, p.pos(), p.facing(), rnd, p.props())) { job.inc2("fallaron"); continue; }
+            if (p.cat() == 5) { if (mount == null || !mount.equals("air")) job.inc2("luces"); continue; }
             job.inc2(in.decal ? "restos" : "colocados");
             if (withLoot && !in.decal) {
-                String prof = LootPick.assign(lv, in, p, touched, rnd);
+                String prof = LootPick.assign(lv, in, p, touched, rnd, lootMap);
                 if (prof != null) { profiles.add(prof); job.inc2("con_plantilla_de_loot"); }
             }
         }
