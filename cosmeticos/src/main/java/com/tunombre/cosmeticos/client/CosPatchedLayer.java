@@ -23,7 +23,7 @@ import java.util.Map;
 @SuppressWarnings({"rawtypes"})
 public class CosPatchedLayer extends PatchedLayer {
     /** matriz para pasar de las matrices de "piel" a la del hueso en su sistema local (inversa del reposo) por esqueleto y hueso */
-    private final Map<String, OpenMatrix4f> bind = new HashMap<>();
+    private final Map<String, yesman.epicfight.api.utils.math.Vec3f> bind = new HashMap<>();
 
     @Override
     protected void renderLayer(LivingEntityPatch patch, LivingEntity e, RenderLayer layer, PoseStack ps, MultiBufferSource buf, int light, OpenMatrix4f[] poses, float a, float b, float c, float d) {
@@ -36,12 +36,17 @@ public class CosPatchedLayer extends PatchedLayer {
             String name = switch (bone) { case HEAD -> "Head"; case CHEST -> "Chest"; case PELVIS -> "Torso"; };
             Joint j = arm.hasJoint(name) ? arm.searchJointByName(name) : null;
             if (j == null || j.getId() >= poses.length) return false;
-            OpenMatrix4f inv = bind.computeIfAbsent(System.identityHashCode(arm) + name, k -> OpenMatrix4f.invert(j.getToOrigin(), null));
-            OpenMatrix4f world = OpenMatrix4f.mul(poses[j.getId()], inv, null);
+            // posicion del hueso en reposo (espacio del esqueleto, y hacia arriba, origen en los pies)
+            yesman.epicfight.api.utils.math.Vec3f bp = bind.computeIfAbsent(System.identityHashCode(arm) + name,
+                    k -> OpenMatrix4f.invert(j.getToOrigin(), null).toTranslationVector());
             stack.pushPose();
-            MathUtils.mulStack(stack, world);
+            // poses[] ya es la matriz de piel (delta respecto al reposo): se aplica al punto de reposo del hueso
+            MathUtils.mulStack(stack, poses[j.getId()]);
+            stack.translate(bp.x, bp.y, bp.z);
             if (bone == Cosm.Bone.CHEST) stack.translate(0F, 0.4F, 0F);
             else if (bone == Cosm.Bone.PELVIS) stack.translate(0F, -0.064F, 0F);
+            // del espacio local de cosmeticos (y arriba, z invertido) al del esqueleto: giro de 180 sobre Y
+            stack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180F));
             return true;
         });
     }
