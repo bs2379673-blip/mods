@@ -12,6 +12,7 @@ public final class ClientNet {
         switch (kind) {
             case "state" -> mc.tell(() -> LootScreen.onState(json));
             case "sel" -> mc.tell(() -> { WandRender.set(json); LootScreen.onSel(json); });
+            case "plan" -> mc.tell(() -> WandRender.setPlan(json));
             case "tab" -> mc.tell(() -> LootScreen.wantTab(json));
             case "job" -> mc.tell(() -> LootScreen.onJob(json));
             case "msg" -> {

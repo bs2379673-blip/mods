@@ -40,9 +40,12 @@ import java.util.regex.Pattern;
 
 /** Tareas largas repartidas en ticks: escaneo, relleno inicial, evento, revertir y reinicio de loots. Una sola a la vez. */
 public final class Jobs {
-    public enum Kind { SCAN, FILL, EVENT, REVERT, RESET, WAND, UNDO }
+    public enum Kind { SCAN, FILL, EVENT, REVERT, RESET, WAND, UNDO, TASK }
 
     private record Unit(ServerLevel level, int cx, int cz, List<BlockPos> pos) { }
+
+    /** Trabajo por chunk para las herramientas de bloques (decorar, reemplazar, deshacer). */
+    public interface ChunkTask { void run(Job j, ServerLevel lv, LevelChunk ch, List<BlockPos> pos); }
 
     public static final class Job {
         public final Kind kind;
@@ -54,6 +57,19 @@ public final class Jobs {
         boolean cancelled, finished;
         State.Data st;
         int x1, x2, z1, z2, y1, y2;
+        public int x1() { return x1; }
+        public int x2() { return x2; }
+        public int z1() { return z1; }
+        public int z2() { return z2; }
+        public int y1() { return y1; }
+        public int y2() { return y2; }
+        public void setBox(int ax, int bx, int az, int bz, int ay, int by) { x1 = ax; x2 = bx; z1 = az; z2 = bz; y1 = ay; y2 = by; }
+        public void inc2(String k) { inc(k); }
+        public ChunkTask task;
+        public Runnable fin;
+        public String lbl = "";
+        public Object ctx;
+        public final java.util.Set<Long> chunks = new java.util.HashSet<>();
         boolean dry, ignoreY, replace, replaceProt, nonEmpty;
 
         Job(Kind kind, String arg) { this.kind = kind; this.arg = arg; }
@@ -170,6 +186,7 @@ public final class Jobs {
                 LevelChunk ch = u.level.getChunkSource().getChunk(u.cx, u.cz, ChunkStatus.FULL, true) instanceof LevelChunk lc ? lc : null;
                 if (ch == null) { j.inc("chunks_no_cargados"); continue; }
                 j.inc("chunks");
+                if (j.task != null) { j.task.run(j, u.level, ch, u.pos); continue; }
                 List<BlockPos> list = u.pos != null ? u.pos : new ArrayList<>(ch.getBlockEntities().keySet());
                 for (BlockPos p : list) handle(s, st, j, u.level, p);
             } catch (RuntimeException ex) {
@@ -186,6 +203,9 @@ public final class Jobs {
 
     private static void finish(State st, Job j) {
         j.finished = true;
+        if (!j.cancelled && j.fin != null) {
+            try { j.fin.run(); } catch (RuntimeException ex) { j.inc("errores"); LootMaster.LOG.warn("Fallo al terminar {}: {}", j.lbl, ex.toString(), ex); }
+        }
         if (!j.cancelled) {
             String now = java.time.LocalDateTime.now().withNano(0).toString().replace('T', ' ');
             if (j.kind == Kind.FILL) for (String d : j.dims) st.d.fillDone.put(d, now);
@@ -206,6 +226,7 @@ public final class Jobs {
             case REVERT -> "revertir evento";
             case WAND -> j.dry ? "contar zona de la varita" : "relleno de zona (varita)";
             case UNDO -> "deshacer relleno de zona";
+            case TASK -> j.lbl;
             case RESET -> j.arg.isEmpty() ? "reinicio de todos los loots" : "reinicio del perfil «" + j.arg + "»";
         };
     }
@@ -319,6 +340,33 @@ public final class Jobs {
         DecorLootContainerData data = ot.get().data();
         DecorLootInteraction.markAsLootCrate(lv, ot.get(), old, data.isLocked(), st.d.evClear);
         j.inc("restaurados");
+    }
+
+    // ---- API para tareas de bloques ----
+    public static Job create(String label, ChunkTask task, Runnable fin) {
+        Job j = new Job(Kind.TASK, "");
+        j.lbl = label;
+        j.task = task;
+        j.fin = fin;
+        return j;
+    }
+
+    public static void unit(Job j, ServerLevel lv, int cx, int cz, List<BlockPos> pos) { j.units.add(new Unit(lv, cx, cz, pos)); }
+
+    /** Anade todos los chunks existentes del rectangulo (en bloques). @return cuantos */
+    public static int boxUnits(MinecraftServer s, ServerLevel lv, Job j, int x1, int x2, int z1, int z2) {
+        int n = 0;
+        for (int cx = x1 >> 4; cx <= x2 >> 4; cx++)
+            for (int cz = z1 >> 4; cz <= z2 >> 4; cz++)
+                if (regionHas(s, lv, cx, cz)) { j.units.add(new Unit(lv, cx, cz, null)); j.chunks.add(ChunkPos.asLong(cx, cz)); n++; }
+        return n;
+    }
+
+    public static String begin(Job j) {
+        if (current != null) return "Ya hay una tarea en curso (" + label(current) + ").";
+        j.total = j.units.size();
+        current = j;
+        return null;
     }
 
     public static final String REMOVE = "__quitar__";

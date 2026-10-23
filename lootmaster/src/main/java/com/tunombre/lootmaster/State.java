@@ -44,6 +44,11 @@ public final class State extends SavedData {
         public boolean zOps = false;
         public Map<String, String> wandSnap = new LinkedHashMap<>();
         public String wProfile = "civil";
+        public String dTheme = "apocaliptico";
+        public int dDensity = 50, dSeed = 1;
+        public boolean dInterior = true, dExterior = false;
+        public String rFrom = "", rTo = "";
+        public boolean rKeep = true;
         public boolean wIgnoreY = true, wReplace = false, wReplaceProt = false, wNonEmpty = false;
     }
 

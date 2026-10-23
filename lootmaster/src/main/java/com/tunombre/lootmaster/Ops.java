@@ -31,6 +31,11 @@ public final class Ops {
         return l;
     }
 
+    public static void sendPlan(ServerPlayer p, Decor.Plan plan) {
+        JsonArray a = plan == null ? new JsonArray() : Decor.preview(plan);
+        Net.toClient(p, "plan", a.toString());
+    }
+
     public static boolean isWatching(ServerPlayer p) { return WATCH.contains(p.getUUID()); }
 
     public static void clearWatchers() { WATCH.clear(); }
@@ -123,6 +128,14 @@ public final class Ops {
         set.addProperty("gMin", d.gMin);
         set.addProperty("perTick", d.perTick);
         set.addProperty("zOps", d.zOps);
+        set.addProperty("dTheme", d.dTheme);
+        set.addProperty("dDensity", d.dDensity);
+        set.addProperty("dSeed", d.dSeed);
+        set.addProperty("dInterior", d.dInterior);
+        set.addProperty("dExterior", d.dExterior);
+        set.addProperty("rFrom", d.rFrom);
+        set.addProperty("rTo", d.rTo);
+        set.addProperty("rKeep", d.rKeep);
         set.addProperty("wProfile", d.wProfile);
         set.addProperty("wIgnoreY", d.wIgnoreY);
         set.addProperty("wReplace", d.wReplace);
@@ -130,6 +143,12 @@ public final class Ops {
         set.addProperty("wNonEmpty", d.wNonEmpty);
         o.add("set", set);
         o.add("sel", Wand.json(pl));
+        JsonArray th = new JsonArray();
+        for (Decor.Theme x : Decor.themes().values()) { JsonObject q = new JsonObject(); q.addProperty("id", x.id); q.addProperty("name", x.name); th.add(q); }
+        o.add("themes", th);
+        o.addProperty("undoLabel", Edits.lastLabel(s));
+        Decor.Plan pn = pl == null ? null : Decor.plan(pl);
+        o.addProperty("planCount", pn == null ? 0 : pn.list.size());
         JsonArray zs = new JsonArray();
         for (State.Zone z : d.zones) {
             JsonObject x = new JsonObject();
@@ -223,6 +242,36 @@ public final class Ops {
                 }
                 case "zone_del" -> { String n = str(o, "name"); d.zones.removeIf(z -> z.name.equals(n)); msg(p, "Zona «" + n + "» borrada."); }
                 case "zone_on" -> { String n = str(o, "name"); for (State.Zone z : d.zones) if (z.name.equals(n)) z.enabled = bool(o, "v"); }
+                case "dplan" -> {
+                    Wand.Sel sel = Wand.get(p);
+                    if (sel == null || sel.a == null || sel.b == null) msg(p, "Marca los dos puntos con la varita (la zona a decorar).");
+                    else {
+                        var lv = Wand.levelOf(p, sel);
+                        startMsg(p, lv == null ? "Dimensión no disponible." : Decor.startPlan(s, p, lv, sel.a, sel.b, d), "Analizando la zona…");
+                    }
+                }
+                case "dapply" -> startMsg(p, Decor.startApply(s, p), "Colocando la decoración…");
+                case "ddiscard" -> { Decor.discard(p); sendPlan(p, null); msg(p, "Plan descartado."); }
+                case "dseed" -> { d.dSeed = new java.util.Random().nextInt(1_000_000); msg(p, "Otra variante: pulsa PLANIFICAR."); }
+                case "dreload" -> { Decor.loadThemes(); msg(p, "Temas recargados: " + Decor.themes().size()); }
+                case "bundo" -> startMsg(p, Edits.startUndo(s), "Deshaciendo el último cambio de bloques…");
+                case "rhand" -> {
+                    var it = p.getMainHandItem().getItem();
+                    if (!(it instanceof net.minecraft.world.item.BlockItem bi)) msg(p, "Lleva un bloque en la mano.");
+                    else {
+                        var key = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(bi.getBlock());
+                        if (key != null) { if (str(o, "which").equals("from")) d.rFrom = key.toString(); else d.rTo = key.toString(); }
+                    }
+                }
+                case "rcount", "rapply" -> {
+                    Wand.Sel sel = Wand.get(p);
+                    boolean dry = op.equals("rcount");
+                    if (sel == null || sel.a == null || sel.b == null) msg(p, "Marca los dos puntos con la varita.");
+                    else {
+                        var lv = Wand.levelOf(p, sel);
+                        startMsg(p, lv == null ? "Dimensión no disponible." : Edits.startReplace(s, lv, sel.a, sel.b, d.rFrom, d.rTo, d.rKeep, d.wIgnoreY, dry), dry ? "Contando…" : "Reemplazando…");
+                    }
+                }
                 case "gapply" -> { globalApply(d); msg(p, "Ajustes globales aplicados (los perfiles protegidos no se tocan)."); }
                 case "grestore" -> { globalRestore(d); msg(p, "Perfiles devueltos a como estaban antes."); }
                 default -> { }
@@ -250,6 +299,13 @@ public final class Ops {
             case "gOnly" -> d.gOnly = v;
             case "gClear" -> d.gClear = v;
             case "gMin" -> d.gMin = Math.max(0, Math.min(100000, (int) Double.parseDouble(v)));
+            case "dTheme" -> d.dTheme = v;
+            case "dDensity" -> d.dDensity = Math.max(0, Math.min(100, (int) Double.parseDouble(v)));
+            case "dInterior" -> d.dInterior = v.equals("true");
+            case "dExterior" -> d.dExterior = v.equals("true");
+            case "rFrom" -> d.rFrom = v;
+            case "rTo" -> d.rTo = v;
+            case "rKeep" -> d.rKeep = v.equals("true");
             case "zOps" -> d.zOps = v.equals("true");
             case "wProfile" -> d.wProfile = v;
             case "wIgnoreY" -> d.wIgnoreY = v.equals("true");

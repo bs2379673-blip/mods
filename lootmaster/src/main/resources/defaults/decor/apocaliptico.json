@@ -1,0 +1,105 @@
+{
+  "name": "Apocalíptico",
+  "density": { "interior": 0.10, "exterior": 0.012 },
+  "rooms": {
+    "cuarto": [
+      { "block": "sa_decor:cardboard_box", "where": "corner", "w": 4, "max": 2 },
+      { "block": "sa_decor:small_cardboard_box", "where": "wall", "w": 4, "max": 2 },
+      { "block": "sa_decor:oak_wooden_drawer_one", "where": "wall", "w": 3, "max": 2 },
+      { "block": "sa_decor:cabinet_one", "where": "wall", "w": 2, "max": 1 },
+      { "block": "sa_decor:folding_chair_green", "where": "center", "w": 2, "max": 2, "spacing": 2 },
+      { "block": "sa_decor:wooden_table", "where": "center", "w": 2, "max": 1, "spacing": 2 },
+      { "block": "sa_decor:trash_props", "where": "free", "w": 3, "max": 3 },
+      { "block": "sa_decor:paper_props", "where": "free", "w": 3, "max": 3 },
+      { "block": "sa_decor:dirty_props", "where": "free", "w": 2, "max": 3 },
+      { "block": "sa_decor:blood_props", "where": "free", "w": 1, "max": 1, "spacing": 3 },
+      { "block": "sa_decor:broken_glass", "where": "wall", "w": 2, "max": 2 }
+    ],
+    "sala": [
+      { "block": "sa_decor:wooden_table", "where": "center", "w": 3, "max": 2, "spacing": 2 },
+      { "block": "sa_decor:wooden_seat", "where": "center", "w": 3, "max": 3, "spacing": 1 },
+      { "block": "sa_decor:plastic_chair_white", "where": "center", "w": 2, "max": 2 },
+      { "block": "sa_decor:cardboard_box", "where": "corner", "w": 4, "max": 3 },
+      { "block": "sa_decor:small_cardboard_box_stack1", "where": "wall", "w": 3, "max": 3 },
+      { "block": "sa_decor:oak_supply_crate", "where": "wall", "w": 3, "max": 2 },
+      { "block": "sa_decor:wooden_shelves", "where": "wall", "w": 2, "max": 2 },
+      { "block": "sa_decor:tv_broken", "where": "wall", "w": 1, "max": 1 },
+      { "block": "sa_decor:trash_props", "where": "free", "w": 3, "max": 4 },
+      { "block": "sa_decor:paper_props", "where": "free", "w": 3, "max": 4 },
+      { "block": "sa_decor:broken_glass", "where": "wall", "w": 2, "max": 3 },
+      { "block": "sa_decor:blood_props", "where": "free", "w": 1, "max": 1, "spacing": 3 }
+    ],
+    "dormitorio": [
+      { "block": "sa_decor:wardrobe", "where": "wall", "w": 3, "max": 1 },
+      { "block": "sa_decor:oak_wooden_drawer_double", "where": "wall", "w": 3, "max": 1 },
+      { "block": "sa_decor:red_sleeping_bag", "where": "center", "w": 2, "max": 1, "spacing": 2 },
+      { "block": "sa_decor:small_lamp", "where": "wall", "w": 2, "max": 1 },
+      { "block": "sa_decor:radio", "where": "wall", "w": 1, "max": 1 },
+      { "block": "sa_decor:cardboard_box", "where": "corner", "w": 3, "max": 2 },
+      { "block": "sa_decor:paper_props", "where": "free", "w": 3, "max": 3 },
+      { "block": "sa_decor:dirty_props", "where": "free", "w": 2, "max": 2 }
+    ],
+    "cocina": [
+      { "block": "sa_decor:kitchen_drawer", "where": "wall", "w": 3, "max": 2 },
+      { "block": "sa_decor:kitchen_shelf", "where": "wall", "w": 2, "max": 1 },
+      { "block": "sa_decor:small_cardboard_box", "where": "wall", "w": 3, "max": 2 },
+      { "block": "sa_decor:food_crate", "where": "wall", "w": 2, "max": 2 },
+      { "block": "sa_decor:trash_bin", "where": "corner", "w": 3, "max": 1 },
+      { "block": "sa_decor:folding_chair_blue", "where": "center", "w": 2, "max": 2, "spacing": 2 },
+      { "block": "sa_decor:trash_props", "where": "free", "w": 3, "max": 3 },
+      { "block": "sa_decor:dirty_props", "where": "free", "w": 2, "max": 2 }
+    ],
+    "bano": [
+      { "block": "sa_decor:trash_can", "where": "corner", "w": 2, "max": 1 },
+      { "block": "sa_decor:toilet_paper", "where": "wall", "w": 1, "max": 1 },
+      { "block": "sa_decor:grime", "where": "free", "w": 3, "max": 3 },
+      { "block": "sa_decor:blood_props", "where": "free", "w": 1, "max": 1, "spacing": 2 }
+    ],
+    "oficina": [
+      { "block": "sa_decor:office_chair_broken", "where": "center", "w": 3, "max": 3, "spacing": 2 },
+      { "block": "sa_decor:office_chair", "where": "center", "w": 2, "max": 2, "spacing": 2 },
+      { "block": "sa_decor:broken_old_computer", "where": "wall", "w": 2, "max": 2 },
+      { "block": "sa_decor:old_computer", "where": "wall", "w": 1, "max": 1 },
+      { "block": "sa_decor:cabinet_double", "where": "wall", "w": 2, "max": 1 },
+      { "block": "sa_decor:paper_props", "where": "free", "w": 4, "max": 5 },
+      { "block": "sa_decor:trash_props", "where": "free", "w": 2, "max": 3 },
+      { "block": "sa_decor:cardboard_box", "where": "corner", "w": 2, "max": 2 }
+    ],
+    "comercio": [
+      { "block": "sa_decor:store_shelf", "where": "wall", "w": 4, "max": 4 },
+      { "block": "sa_decor:marketing_shelf", "where": "wall", "w": 3, "max": 3 },
+      { "block": "sa_decor:medium_cardboard_box", "where": "wall", "w": 3, "max": 3 },
+      { "block": "sa_decor:cash_register_machine", "where": "wall", "w": 1, "max": 1 },
+      { "block": "sa_decor:food_crate", "where": "wall", "w": 2, "max": 2 },
+      { "block": "sa_decor:trash_props", "where": "free", "w": 3, "max": 4 },
+      { "block": "sa_decor:broken_glass", "where": "wall", "w": 3, "max": 4 },
+      { "block": "sa_decor:blood_props", "where": "free", "w": 1, "max": 1, "spacing": 3 }
+    ],
+    "porche": [
+      { "block": "sa_decor:wooden_seat", "where": "wall", "w": 2, "max": 1 },
+      { "block": "sa_decor:small_cardboard_box", "where": "wall", "w": 3, "max": 2 },
+      { "block": "sa_decor:trash_props", "where": "free", "w": 3, "max": 2 },
+      { "block": "sa_decor:dirty_props", "where": "free", "w": 3, "max": 2 }
+    ],
+    "exterior": [
+      { "block": "sa_decor:trash_props", "where": "wall", "w": 4, "max": 999, "spacing": 3 },
+      { "block": "sa_decor:small_cardboard_box", "where": "wall", "w": 3, "max": 999, "spacing": 3 },
+      { "block": "sa_decor:wood_plank_pile", "where": "wall", "w": 1, "max": 999, "spacing": 5 },
+      { "block": "sa_decor:dirty_props", "where": "free", "w": 3, "max": 999, "spacing": 3 }
+    ],
+    "acera": [
+      { "block": "sa_decor:trash_props", "where": "wall", "w": 4, "max": 999, "spacing": 3 },
+      { "block": "sa_decor:trash_bin", "where": "wall", "w": 2, "max": 999, "spacing": 8 },
+      { "block": "sa_decor:paper_props", "where": "free", "w": 3, "max": 999, "spacing": 2 },
+      { "block": "sa_decor:broken_glass", "where": "free", "w": 2, "max": 999, "spacing": 3 }
+    ],
+    "calle": [
+      { "block": "sa_decor:traffic_cone", "where": "free", "w": 3, "max": 999, "spacing": 5 },
+      { "block": "sa_decor:tire_block", "where": "free", "w": 2, "max": 999, "spacing": 6 },
+      { "block": "sa_decor:concrete_barrier_small", "where": "free", "w": 1, "max": 999, "spacing": 8 },
+      { "block": "sa_decor:broken_glass", "where": "free", "w": 3, "max": 999, "spacing": 3 },
+      { "block": "sa_decor:blood_props", "where": "free", "w": 1, "max": 999, "spacing": 8 },
+      { "block": "sa_decor:trash_props", "where": "free", "w": 2, "max": 999, "spacing": 4 }
+    ]
+  }
+}

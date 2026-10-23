@@ -65,5 +65,8 @@ public class LootMaster {
     }
 
     @SubscribeEvent
-    public void onStopped(ServerStoppedEvent e) { State.reset(); Ops.clearWatchers(); Wand.clear(); }
+    public void onStarting(net.minecraftforge.event.server.ServerStartingEvent e) { Decor.loadThemes(); }
+
+    @SubscribeEvent
+    public void onStopped(ServerStoppedEvent e) { State.reset(); Edits.reset(); Ops.clearWatchers(); Wand.clear(); Decor.clearAll(); }
 }

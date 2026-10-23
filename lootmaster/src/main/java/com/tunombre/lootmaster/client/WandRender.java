@@ -22,6 +22,17 @@ public final class WandRender {
     private static int[] a, b;
     private static java.util.List<int[]> zones = new java.util.ArrayList<>();
 
+    private static int[] plan = new int[0];
+
+    static void setPlan(String json) {
+        try {
+            JsonArray a = JsonParser.parseString(json).getAsJsonArray();
+            int[] r = new int[a.size()];
+            for (int i = 0; i < r.length; i++) r[i] = a.get(i).getAsInt();
+            plan = r;
+        } catch (RuntimeException e) { plan = new int[0]; }
+    }
+
     static void setZones(JsonArray zs) {
         java.util.List<int[]> l = new java.util.ArrayList<>();
         for (var e : zs) { JsonObject z = e.getAsJsonObject(); l.add(new int[]{z.get("x1").getAsInt(), z.get("z1").getAsInt(), z.get("x2").getAsInt(), z.get("z2").getAsInt(), z.get("y1").getAsInt(), z.get("y2").getAsInt(), z.get("ignoreY").getAsBoolean() ? 1 : 0, z.get("enabled").getAsBoolean() ? 1 : 0}); }
@@ -48,13 +59,20 @@ public final class WandRender {
     public static void onRender(RenderLevelStageEvent e) {
         if (e.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.player.getMainHandItem().getItem() != LootMaster.WAND.get()) return;
+        if (mc.player == null) return;
+        boolean holding = mc.player.getMainHandItem().getItem() == LootMaster.WAND.get();
+        if (!holding && plan.length == 0) return;
         PoseStack ps = e.getPoseStack();
         Vec3 cam = e.getCamera().getPosition();
         MultiBufferSource.BufferSource buf = mc.renderBuffers().bufferSource();
         VertexConsumer vc = buf.getBuffer(RenderType.lines());
         ps.pushPose();
         ps.translate(-cam.x, -cam.y, -cam.z);
+        for (int i = 0; i + 3 < plan.length; i += 4) {
+            float r = plan[i + 3] == 4 ? 0.3F : 0.2F, g = plan[i + 3] == 4 ? 0.6F : 1F, bl = plan[i + 3] == 4 ? 1F : 0.4F;
+            LevelRenderer.renderLineBox(ps, vc, plan[i] + 0.15, plan[i + 1] + 0.05, plan[i + 2] + 0.15, plan[i] + 0.85, plan[i + 1] + 0.95, plan[i + 2] + 0.85, r, g, bl, 1F);
+        }
+        if (!holding) { ps.popPose(); buf.endBatch(RenderType.lines()); return; }
         for (int[] z : zones) {
             float c = z[7] == 1 ? 1F : 0.4F;
             LevelRenderer.renderLineBox(ps, vc, z[0], z[6] == 1 ? mc.level.getMinBuildHeight() : z[4], z[1], z[2] + 1, z[6] == 1 ? mc.level.getMaxBuildHeight() : z[5] + 1, z[3] + 1, c, c, 0.1F, 1F);

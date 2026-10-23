@@ -31,7 +31,7 @@ public final class LootScreen extends Screen {
     private static final int C_BG = 0xF00C0C0F, C_SIDE = 0xFF121216, C_BORDER = 0xFF6E1420, C_ACCENT = 0xFFC8283A, C_TEXT = 0xFFE8E8EC,
             C_DIM = 0xFF8C8C98, C_OK = 0xFF55D68A, C_FIELD = 0xFF1C1C22, C_BAR = 0xFF2B0E14, C_ON = 0xFF2EBB55, C_OFF = 0xFF55555F, C_WARN = 0xFFE0A030;
     private static final int GAP = 6, SIDE_W = 108;
-    private static final List<String> TABS = List.of("Resumen", "Varita", "Zonas", "Perfiles", "Global", "Relleno inicial", "Evento", "Tipos", "Ayuda");
+    private static final List<String> TABS = List.of("Resumen", "Varita", "Decorar", "Reemplazar", "Zonas", "Perfiles", "Global", "Relleno inicial", "Evento", "Tipos", "Ayuda");
 
     private JsonObject st;
     private String sig = "";
@@ -123,6 +123,8 @@ public final class LootScreen extends Screen {
         for (JsonElement e : o.getAsJsonArray("dims")) sb.append(e.getAsJsonObject().get("id").getAsString()).append(e.getAsJsonObject().get("done").getAsString().isEmpty() ? "0" : "1").append(',');
         sb.append('|');
         for (JsonElement e : o.getAsJsonArray("types")) sb.append(e.getAsJsonObject().get("id").getAsString()).append(',');
+        sb.append('|').append(o.has("planCount") && o.get("planCount").getAsInt() > 0 ? 'P' : 'p').append(str(o, "undoLabel").isEmpty() ? 'u' : 'U');
+        if (o.has("themes")) for (JsonElement e : o.getAsJsonArray("themes")) sb.append(e.getAsJsonObject().get("id").getAsString()).append(',');
         sb.append('|');
         if (o.has("zones")) for (JsonElement e : o.getAsJsonArray("zones")) sb.append(e.getAsJsonObject().get("name").getAsString()).append(',');
         sb.append('|').append(o.has("wandUndo") && o.get("wandUndo").getAsInt() > 0 ? 'U' : 'N').append(str(o, "evProfile").isEmpty() ? 0 : 1).append(o.get("evChanged").getAsInt() > 0 ? 1 : 0).append(o.get("origCount").getAsInt() > 0 ? 1 : 0);
@@ -467,6 +469,8 @@ public final class LootScreen extends Screen {
         switch (tab) {
             case "Resumen" -> tabSummary();
             case "Varita" -> tabWand();
+            case "Decorar" -> tabDecor();
+            case "Reemplazar" -> tabReplace();
             case "Zonas" -> tabZones();
             case "Perfiles" -> tabProfiles();
             case "Global" -> tabGlobal();
@@ -634,6 +638,79 @@ public final class LootScreen extends Screen {
             btn("CONTAR (no cambia nada)", C_BORDER, false, () -> { JsonObject o = new JsonObject(); o.addProperty("op", "wand"); o.addProperty("dry", true); send(o); });
             btnSure("wapply", "APLICAR A LA ZONA", C_ACCENT, false, () -> { JsonObject o = new JsonObject(); o.addProperty("op", "wand"); o.addProperty("dry", false); send(o); });
             if (st.has("wandUndo") && st.get("wandUndo").getAsInt() > 0) btnSure("wundo", "DESHACER EL ÚLTIMO RELLENO", C_OK, false, () -> op("wundo"));
+        }
+        dyn(4, C_DIM, () -> str(job(), "sum"));
+    }
+
+    private void undoButton() {
+        if (!str(st, "undoLabel").isEmpty() && !running())
+            btnSure("bundo", "DESHACER: " + str(st, "undoLabel"), C_OK, false, () -> op("bundo"));
+    }
+
+    private void tabDecor() {
+        header("DECORAR ZONA (INTELIGENTE)");
+        note("Marca la zona con la varita (dos puntos en el suelo). El mod encuentra las habitaciones, deduce qué es cada una (dormitorio, cocina, baño, oficina, comercio…) y propone decoración pegada a paredes y esquinas, sin tapar puertas ni pasillos. Primero PLANIFICAR (se dibuja en el mundo), luego APLICAR. Todo se puede DESHACER.");
+        dyn(1, C_TEXT, () -> { JsonObject s = st.getAsJsonObject("sel"); return "Zona: " + (s != null && s.has("a") && s.has("b") ? "marcada" : "sin marcar"); });
+        JsonArray th = st.getAsJsonArray("themes");
+        List<String> ids = new ArrayList<>(), names = new ArrayList<>();
+        for (JsonElement e : th) { ids.add(str(e.getAsJsonObject(), "id")); names.add(str(e.getAsJsonObject(), "name")); }
+        if (ids.isEmpty()) note("No hay temas en config/lootmaster/decor/. Reinicia el servidor para crear el de ejemplo.");
+        else cycMap("Tema", names, ids, str(set(), "dTheme"), v -> setSetting("dTheme", v), false);
+        textNum("Densidad (0-100, 50 = normal)", () -> str(set(), "dDensity"), s -> { if (!s.isEmpty() && !s.equals(".")) setSetting("dDensity", s); }, true);
+        textNum("Variante (número)", () -> str(set(), "dSeed"), s -> { if (!s.isEmpty() && !s.equals(".")) setSetting("dSeed", s); }, true);
+        tog("Interiores", () -> bool(set(), "dInterior"), v -> setSetting("dInterior", String.valueOf(v)), true);
+        tog("Exteriores (calle, acera, patios)", () -> bool(set(), "dExterior"), v -> setSetting("dExterior", String.valueOf(v)), true);
+        tog("Toda la altura (si no, de los puntos hacia arriba)", () -> bool(set(), "wIgnoreY"), v -> setSetting("wIgnoreY", String.valueOf(v)), false);
+        header("ACCIONES");
+        if (running()) {
+            dyn(1, C_WARN, () -> "Tarea en curso: " + str(job(), "label"));
+            btn("Detener la tarea", C_WARN, false, () -> op("stop"));
+        } else {
+            btn("PLANIFICAR (vista previa)", C_BORDER, true, () -> op("dplan"));
+            btn("Otra variante", C_BORDER, true, () -> { op("dseed"); });
+            if (st.has("planCount") && st.get("planCount").getAsInt() > 0) {
+                dyn(1, C_OK, () -> "Plan listo: " + st.get("planCount").getAsInt() + " decoraciones (cajas azules = exterior, verdes = interior)");
+                btnSure("dapply", "APLICAR EL PLAN", C_ACCENT, true, () -> op("dapply"));
+                btn("Descartar plan", C_BORDER, true, () -> op("ddiscard"));
+            }
+            undoButton();
+        }
+        dyn(5, C_DIM, () -> str(job(), "sum"));
+        btn("Recargar temas (config/lootmaster/decor)", C_BORDER, false, () -> op("dreload"));
+    }
+
+    private void tabReplace() {
+        header("REEMPLAZAR BLOQUES");
+        note("Cambia todos los bloques de un tipo por otro dentro de la zona de la varita. Pon el id (por ejemplo sa_decor:cardboard_box) o pulsa «de la mano» llevando el bloque. Con «Mantener orientación» conserva hacia dónde miran los bloques. Se puede DESHACER.");
+        dyn(1, C_TEXT, () -> { JsonObject s = st.getAsJsonObject("sel"); return "Zona: " + (s != null && s.has("a") && s.has("b") ? "marcada" : "sin marcar") + (bool(set(), "wIgnoreY") ? " (toda la altura)" : " (entre las alturas de los puntos)"); });
+        place(false, 32, (x, w) -> {
+            Lbl l = new Lbl(x, 0, () -> "Bloque a quitar", C_DIM);
+            EditBox eb = new EditBox(font(), x, 11, w, 18, Component.empty());
+            eb.setMaxLength(120);
+            eb.setValue(str(set(), "rFrom"));
+            eb.setResponder(s -> setSetting("rFrom", s));
+            return List.of(l, eb);
+        });
+        btn("Tomar «a quitar» del bloque en mi mano", C_BORDER, false, () -> { JsonObject o = new JsonObject(); o.addProperty("op", "rhand"); o.addProperty("which", "from"); send(o); });
+        place(false, 32, (x, w) -> {
+            Lbl l = new Lbl(x, 0, () -> "Bloque nuevo", C_DIM);
+            EditBox eb = new EditBox(font(), x, 11, w, 18, Component.empty());
+            eb.setMaxLength(120);
+            eb.setValue(str(set(), "rTo"));
+            eb.setResponder(s -> setSetting("rTo", s));
+            return List.of(l, eb);
+        });
+        btn("Tomar «nuevo» del bloque en mi mano", C_BORDER, false, () -> { JsonObject o = new JsonObject(); o.addProperty("op", "rhand"); o.addProperty("which", "to"); send(o); });
+        tog("Mantener orientación y propiedades", () -> bool(set(), "rKeep"), v -> setSetting("rKeep", String.valueOf(v)), true);
+        tog("Toda la altura", () -> bool(set(), "wIgnoreY"), v -> setSetting("wIgnoreY", String.valueOf(v)), true);
+        header("ACCIONES");
+        if (running()) {
+            dyn(1, C_WARN, () -> "Tarea en curso: " + str(job(), "label"));
+            btn("Detener la tarea", C_WARN, false, () -> op("stop"));
+        } else {
+            btn("CONTAR (no cambia nada)", C_BORDER, false, () -> op("rcount"));
+            btnSure("rapply", "REEMPLAZAR EN LA ZONA", C_ACCENT, false, () -> op("rapply"));
+            undoButton();
         }
         dyn(4, C_DIM, () -> str(job(), "sum"));
     }
