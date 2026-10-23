@@ -117,7 +117,7 @@ public final class CosRender {
         for (Mesh m : c.sc.meshes.values()) {
             if (m.n == 0) continue;
             ResourceLocation t = tex(m.tex);
-            VertexConsumer vc = buf.getBuffer(m.glow ? RenderType.eyes(t) : RenderType.entityTranslucent(t));
+            VertexConsumer vc = buf.getBuffer(m.glow ? CosTypes.glow(t) : RenderType.entityTranslucent(t));
             int lm = m.glow ? LightTexture.FULL_BRIGHT : light;
             float[] d = m.d;
             for (int i = 0; i < m.n; i++) {

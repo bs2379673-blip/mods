@@ -22,9 +22,6 @@ import java.util.Map;
  */
 @SuppressWarnings({"rawtypes"})
 public class CosPatchedLayer extends PatchedLayer {
-    /** matriz para pasar de las matrices de "piel" a la del hueso en su sistema local (inversa del reposo) por esqueleto y hueso */
-    private final Map<String, yesman.epicfight.api.utils.math.Vec3f> bind = new HashMap<>();
-
     @Override
     protected void renderLayer(LivingEntityPatch patch, LivingEntity e, RenderLayer layer, PoseStack ps, MultiBufferSource buf, int light, OpenMatrix4f[] poses, float a, float b, float c, float d) {
         if (!(e instanceof AbstractClientPlayer p)) return;
@@ -36,16 +33,17 @@ public class CosPatchedLayer extends PatchedLayer {
             String name = switch (bone) { case HEAD -> "Head"; case CHEST -> "Chest"; case PELVIS -> "Torso"; };
             Joint j = arm.hasJoint(name) ? arm.searchJointByName(name) : null;
             if (j == null || j.getId() >= poses.length) return false;
-            // posicion del hueso en reposo (espacio del esqueleto, y hacia arriba, origen en los pies)
-            yesman.epicfight.api.utils.math.Vec3f bp = bind.computeIfAbsent(System.identityHashCode(arm) + name,
-                    k -> OpenMatrix4f.invert(j.getToOrigin(), null).toTranslationVector());
+            // poses[] = transformacion absoluta de la articulacion (incluye su altura de reposo y la animacion): es lo mismo que
+            // usa Epic Fight para el casco, la capa o los elitros, asi que NO hay que sumarle la posicion del hueso otra vez
             stack.pushPose();
-            // poses[] ya es la matriz de piel (delta respecto al reposo): se aplica al punto de reposo del hueso
             MathUtils.mulStack(stack, poses[j.getId()]);
-            stack.translate(bp.x, bp.y - 0.764F, bp.z); // el origen del dibujo de Epic Fight esta subido la altura del Root (0.764)
-            if (bone == Cosm.Bone.CHEST) stack.translate(0F, 0.4F, 0F);
-            else if (bone == Cosm.Bone.PELVIS) stack.translate(0F, -0.064F, 0F);
-            // del espacio local de cosmeticos (y arriba, z invertido) al del esqueleto: giro de 180 sobre Y
+            // desplazamientos en ejes del hueso (y arriba): del eje de la articulacion al origen que espera cada cosmetico
+            switch (bone) {
+                case HEAD -> stack.translate(0F, -0.02F, 0F);       // el casco de Epic Fight baja 0.02
+                case CHEST -> stack.translate(0F, 0.4F, 0F);        // del centro del pecho (1.11) al cuello (1.51)
+                case PELVIS -> stack.translate(0F, -0.064F, 0F);    // de la articulacion Torso (0.81) a la cadera (0.75)
+            }
+            // del espacio de los cosmeticos (x izquierda, y arriba, z delante) al del esqueleto (z invertido y x al reves)
             stack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180F));
             return true;
         });
