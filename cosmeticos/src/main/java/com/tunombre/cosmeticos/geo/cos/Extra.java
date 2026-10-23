@@ -59,7 +59,7 @@ public final class Extra {
                     float s = (0.16F + 0.18F * h(k * 7 + cycle, 7)) * pop(life);
                     if (s <= 0.01F) continue;
                     int which = h(k * 3 + cycle, 8) < 0.12F ? 2 : (k + cycle) % 2;
-                    int col = Col.hsv(h(k * 5 + cycle, 9) * 0.25F + 0.95F + c.t * 0.004F, 0.6F, 1F, 1F);
+                    int col = Col.hsv(0.92F + 0.24F * h(k * 5 + cycle, 9), 0.6F, 1F, 1F);   // de rosa a dorado
                     G.sprite(g, p, c.camR, c.camU, c.camF, which == 2 ? s * 1.5F : s, s, (h(k, 10) - 0.5F) * 1.2F * life + 0.3F * (float) Math.sin(c.t * 0.2F + k), G.cell(4, 1, which, 0), Col.alpha(col, 0.95F));
                     if (life > 0.72F) {
                         float f = (life - 0.72F) / 0.28F;

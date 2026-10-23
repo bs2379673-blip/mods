@@ -103,11 +103,17 @@ public final class God {
         return new Cosm() {
             @Override public Bone bone() { return Bone.HAND_R; }
 
+            final class S { float down; }
+
             @Override
             public void build(Ctx c) {
+                // de pie se lleva como una parca (hoja arriba, el asta casi toca el piso); enganchando a alguien se da vuelta y la hoja queda abajo
+                S st = c.state("guadana_dios", S::new);
+                st.down += ((c.carrying ? 1F : 0F) - st.down) * (1F - (float) Math.exp(-c.dt * 0.15F));
+                float fl = st.down * st.down * (3 - 2 * st.down);
                 float sway = 0.04F * (float) Math.sin(c.t * 0.05F);
-                // el asta pasa por la mano: sube por detrás del hombro y baja hasta la hoja
-                V3 top = V3.of(0.0F, 1.15F, -0.05F), bot = V3.of(0.0F + sway, -1.6F, 0.06F);
+                // top = el extremo sin hoja (pincho), bot = el extremo de la hoja
+                V3 top = V3.of(0.0F, Noise.lerp(-0.45F, 1.15F, fl), Noise.lerp(0.05F, -0.05F, fl)), bot = V3.of(sway, Noise.lerp(1.7F, -1.6F, fl), Noise.lerp(-0.04F, 0.06F, fl));
                 int n = 10;
                 V3[] pts = new V3[n];
                 for (int i = 0; i < n; i++) pts[i] = top.lerp(bot, i / (n - 1F)).add(0.025F * (float) Math.sin(i * 0.9F), 0, 0);
@@ -119,9 +125,9 @@ public final class God {
                 // pincho de arriba
                 V3 dirUp = top.sub(bot).norm();
                 G.tube(c.sc.solid("scythe_metal"), new V3[]{top, top.add(dirUp.mul(0.12F)), top.add(dirUp.mul(0.28F))}, new float[]{0.045F, 0.03F, 0.002F}, 6, 1F, 2F, 0F, G.fill(3, 0xFFFFFFFF));
-                // hoja: sale de la punta de abajo hacia atrás y se curva hacia abajo, ancha y con filo rojo brillante
+                // hoja: sale del extremo hacia atrás y se curva hacia abajo, ancha y con filo rojo brillante
                 V3 hub = bot;
-                V3 bdir = V3.of(0, -0.15F, -1F).norm();
+                V3 bdir = V3.of(0, Noise.lerp(0.05F, -0.15F, fl), -1F).norm();
                 Mesh bm = c.sc.solid("scythe_blade"), bg = c.sc.glow("scythe_blade_g");
                 G.blade(bm, hub, bdir, V3.Y, 1.45F, 0.42F, 1.15F, V3.Y.neg(), 12, G.LANCE, new float[]{1F, 0F, 0F, 1F}, 0xFFFFFFFF, 0xFFFFFFFF, 0.03F);
                 G.blade(bg, hub, bdir, V3.Y, 1.45F, 0.42F, 1.15F, V3.Y.neg(), 12, G.LANCE, new float[]{1F, 0F, 0F, 1F}, Col.alpha(0xFFFF2030, 0.6F * pulse + 0.3F), Col.alpha(0xFFFF4050, 0.95F), 0.03F);
