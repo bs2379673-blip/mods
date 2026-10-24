@@ -1,5 +1,5 @@
 {
-  "nota": "Escena de inicio de Obscure. Cambia las coordenadas (usa /intro pos donde quieras la camara) y los comandos 'cmd' a tu gusto. Cada paso: esperar, fundido, barras, camara, subtitulo, sonido, tp, tumbar, bloqueo_servidor, temblor, cmd, bloquear, camara_fin.",
+  "nota": "Escena de inicio de Obscure. Cambia las coordenadas (usa /intro pos donde quieras la camara) y los comandos 'cmd' a tu gusto. Cada paso: esperar, fundido, barras, camara, subtitulo, sonido, tp, congelar (emote), descongelar, bloqueo_servidor, temblor, cmd, bloquear, camara_fin.",
   "pasos": [
     { "op": "bloqueo_servidor", "on": true },
     { "op": "bloquear", "on": true },
@@ -39,7 +39,7 @@
 
     { "nota": "ESTRELLA: el helicoptero estrellado y los jugadores tumbados alrededor", "op": "camara_fin" },
     { "op": "tp", "x": 300.5, "y": 70, "z": 300.5, "radio": 5, "yaw": 0, "pitch": 0 },
-    { "op": "tumbar", "on": true },
+    { "op": "congelar", "emote": "death_emote" },
     { "op": "camara", "espera": false, "puntos": [
         { "x": 300.5, "y": 74, "z": 308.5, "yaw": 180, "pitch": 25, "ticks": 0 },
         { "x": 300.5, "y": 72, "z": 306.5, "yaw": 180, "pitch": 18, "ticks": 160 } ] },
@@ -47,7 +47,7 @@
     { "op": "esperar", "ticks": 130 },
     { "op": "camara_fin" },
     { "op": "barras", "on": false, "ticks": 30 },
-    { "op": "tumbar", "on": false },
+    { "op": "descongelar" },
     { "op": "bloquear", "on": false },
     { "op": "bloqueo_servidor", "on": false }
   ]

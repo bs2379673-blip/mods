@@ -6,7 +6,7 @@ license="All Rights Reserved"
 modId="intro"
 version="${mod_version}"
 displayName="Intro (director de escenas)"
-description='''Director de escenas para eventos del servidor: cinematicas in-game con camara, fundidos, barras de cine, subtitulos, temblores, jugadores tumbados y comandos, definidas en config/intro/*.json. /intro play <escena> [jugadores].'''
+description='''Director de escenas para eventos del servidor: cinematicas in-game con camara, fundidos, barras de cine, subtitulos, temblores, jugadores congelados con emote (Epic Fight Dancing) y comandos, definidas en config/intro/*.json. /intro play <escena> [jugadores].'''
 
 [[dependencies.intro]]
 modId="forge"
@@ -20,4 +20,11 @@ modId="minecraft"
 mandatory=true
 versionRange="[1.20.1,1.21)"
 ordering="NONE"
+side="BOTH"
+
+[[dependencies.intro]]
+modId="epicfight"
+mandatory=false
+versionRange="[20.14,)"
+ordering="AFTER"
 side="BOTH"

@@ -16,6 +16,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -71,6 +72,13 @@ public final class Director {
                 .then(Commands.literal("bloquear").then(Commands.argument("jugadores", EntityArgument.players())
                         .then(Commands.literal("on").executes(c -> lock(c.getSource(), EntityArgument.getPlayers(c, "jugadores"), true)))
                         .then(Commands.literal("off").executes(c -> lock(c.getSource(), EntityArgument.getPlayers(c, "jugadores"), false)))))
+                .then(Commands.literal("congelar").then(Commands.argument("jugadores", EntityArgument.players())
+                        .executes(c -> freeze(c.getSource(), EntityArgument.getPlayers(c, "jugadores"), "death_emote"))
+                        .then(Commands.argument("emote", StringArgumentType.word())
+                                .suggests((c, b) -> SharedSuggestionProvider.suggest(emotes(), b))
+                                .executes(c -> freeze(c.getSource(), EntityArgument.getPlayers(c, "jugadores"), StringArgumentType.getString(c, "emote"))))))
+                .then(Commands.literal("descongelar").then(Commands.argument("jugadores", EntityArgument.players())
+                        .executes(c -> unfreeze(c.getSource(), EntityArgument.getPlayers(c, "jugadores")))))
                 .then(Commands.literal("lista").executes(c -> {
                     c.getSource().sendSuccess(() -> Component.literal("Escenas (config/intro): " + String.join(", ", scenes())), false);
                     return 1;
@@ -89,6 +97,36 @@ public final class Director {
             Net.send(p, "{\"op\":\"bloquear\",\"on\":" + on + "}");
         }
         src.sendSuccess(() -> Component.literal((on ? "Bloqueados " : "Liberados ") + ps.size() + " jugador(es) (no rompen, ni ponen, ni se mueven)"), true);
+        return ps.size();
+    }
+
+    private static boolean ef() { return ModList.get().isLoaded("epicfight"); }
+
+    private static List<String> emotes() { return ef() ? Emote.names() : List.of(); }
+
+    /** bloquea al jugador (no se mueve, no rompe, no interactua, no abre menus) y lo deja en un emote de Epic Fight : Dancing */
+    private static int freeze(CommandSourceStack src, Collection<ServerPlayer> ps, String emote) {
+        if (!ef()) { src.sendFailure(Component.literal("Epic Fight no esta cargado")); return 0; }
+        var id = Emote.resolve(emote);
+        if (id == null) { src.sendFailure(Component.literal("Emote desconocido '" + emote + "'")); return 0; }
+        int ok = 0;
+        for (ServerPlayer p : ps) {
+            LOCKED.add(p.getUUID());
+            Net.send(p, "{\"op\":\"bloquear\",\"on\":true}");
+            if (Emote.start(p, id)) ok++;
+        }
+        int n = ok;
+        src.sendSuccess(() -> Component.literal("Congelados " + n + "/" + ps.size() + " en " + id), true);
+        return ok;
+    }
+
+    private static int unfreeze(CommandSourceStack src, Collection<ServerPlayer> ps) {
+        for (ServerPlayer p : ps) {
+            if (ef()) Emote.stop(p);
+            LOCKED.remove(p.getUUID());
+            Net.send(p, "{\"op\":\"bloquear\",\"on\":false}");
+        }
+        src.sendSuccess(() -> Component.literal("Liberados " + ps.size() + " jugador(es)"), true);
         return ps.size();
     }
 
@@ -129,7 +167,9 @@ public final class Director {
     // ------------------------------------------------------------------ ejecucion ----
     @SubscribeEvent
     public static void onTick(TickEvent.ServerTickEvent e) {
-        if (e.phase != TickEvent.Phase.END || run == null) return;
+        if (e.phase != TickEvent.Phase.END) return;
+        if (ef()) Emote.tick(e.getServer());
+        if (run == null) return;
         Run r = run;
         MinecraftServer server = e.getServer();
         if (r.wait > 0) { r.wait--; return; }
@@ -202,6 +242,24 @@ public final class Director {
                 boolean on = flag(s, "on", true);
                 for (UUID id : r.players) { if (on) LOCKED.add(id); else LOCKED.remove(id); }
             }
+            case "congelar" -> {
+                String em = s.has("emote") ? s.get("emote").getAsString() : "death_emote";
+                var id = ef() ? Emote.resolve(em) : null;
+                for (ServerPlayer p : online(server, r)) {
+                    LOCKED.add(p.getUUID());
+                    Net.send(p, "{\"op\":\"bloquear\",\"on\":true}");
+                    if (id != null) Emote.start(p, id);
+                    else p.setForcedPose(Pose.SWIMMING);   // sin Epic Fight: queda tumbado de la forma vanilla
+                }
+            }
+            case "descongelar" -> {
+                for (ServerPlayer p : online(server, r)) {
+                    if (ef()) Emote.stop(p);
+                    p.setForcedPose(null);
+                    LOCKED.remove(p.getUUID());
+                    Net.send(p, "{\"op\":\"bloquear\",\"on\":false}");
+                }
+            }
             case "tumbar" -> {
                 boolean on = flag(s, "on", true);
                 for (ServerPlayer p : online(server, r)) p.setForcedPose(on ? Pose.SWIMMING : null);
@@ -257,7 +315,13 @@ public final class Director {
     private static void clean(ServerPlayer p) {
         LOCKED.remove(p.getUUID());
         p.setForcedPose(null);
+        if (ef()) Emote.stop(p);
         Net.send(p, "{\"op\":\"reset\"}");
+    }
+
+    @SubscribeEvent
+    public static void onLogin(PlayerEvent.PlayerLoggedInEvent e) {
+        if (e.getEntity() instanceof ServerPlayer p && LOCKED.contains(p.getUUID())) Net.send(p, "{\"op\":\"bloquear\",\"on\":true}");
     }
 
     @SubscribeEvent

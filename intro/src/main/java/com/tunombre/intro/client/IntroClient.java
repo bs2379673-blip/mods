@@ -15,7 +15,9 @@ import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.ArrayList;
@@ -181,13 +183,24 @@ public final class IntroClient {
         e.setRoll(e.getRoll() + (RND.nextFloat() - 0.5F) * 3F * k);
     }
 
-    @SubscribeEvent
+    /** primero de todos: Epic Fight : Dancing cancela el emote al ver una tecla de movimiento, asi que tiene que verlas ya en cero */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onMove(MovementInputUpdateEvent e) {
         if (!locked && path == null) return;
         var in = e.getInput();
         in.leftImpulse = 0;
         in.forwardImpulse = 0;
         in.up = in.down = in.left = in.right = in.jumping = in.shiftKeyDown = false;
+    }
+
+    /** bloqueado: no abre inventario ni el menu de emotes (el chat y la pausa si) */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onScreen(ScreenEvent.Opening e) {
+        if (!locked) return;
+        var sc = e.getNewScreen();
+        if (sc == null || sc instanceof net.minecraft.client.gui.screens.ChatScreen || sc instanceof net.minecraft.client.gui.screens.PauseScreen
+                || sc instanceof net.minecraft.client.gui.screens.DeathScreen) return;
+        e.setCanceled(true);
     }
 
     @SubscribeEvent
