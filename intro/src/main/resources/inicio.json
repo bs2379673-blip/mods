@@ -1,5 +1,5 @@
 {
-  "nota": "Escena de inicio de Obscure. Cambia las coordenadas (usa /intro pos donde quieras la camara) y los comandos 'cmd' a tu gusto. Cada paso: esperar, fundido, barras, camara, subtitulo, sonido, tp, congelar (emote), descongelar, bloqueo_servidor, temblor, cmd, bloquear, camara_fin.",
+  "nota": "Escena de inicio de Obscure. Cambia las coordenadas (usa /intro pos donde quieras la camara) y los comandos 'cmd' a tu gusto. Cada paso: esperar, fundido, barras, camara, subtitulo, sonido, tp, congelar (emote), descongelar, bloqueo_servidor, temblor, cmd, bloquear, camara_fin, voz (archivo .ogg de config/tacui/sounds del servidor; tambien \"voz\" dentro de un subtitulo), voz_parar.",
   "pasos": [
     { "op": "bloqueo_servidor", "on": true },
     { "op": "bloquear", "on": true },

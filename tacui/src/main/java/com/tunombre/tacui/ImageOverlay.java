@@ -95,7 +95,7 @@ public final class ImageOverlay {
         byte[] all = new byte[len];
         int o = 0;
         for (byte[] c : p.chunks) { System.arraycopy(c, 0, all, o, c.length); o += c.length; }
-        if (SOUNDS.size() >= 8) SOUNDS.remove(SOUNDS.keySet().iterator().next());
+        if (SOUNDS.size() >= 64) SOUNDS.remove(SOUNDS.keySet().iterator().next());
         SOUNDS.put(m.key(), all);
     }
 
@@ -106,6 +106,35 @@ public final class ImageOverlay {
         int copies = Math.max(1, (int) Math.ceil(vol));
         float each = Math.min(1.0f, vol / copies);
         for (int i = 0; i < copies; i++) Minecraft.getInstance().getSoundManager().play(new CustomSound(d, each));
+    }
+
+    /** sonidos propios sonando ahora, por nombre (para /tacsonido parar) */
+    private static final Map<String, java.util.List<CustomSound>> PLAYING = new HashMap<>();
+
+    public static void onPlaySound(TacNet.PlaySound m) {
+        byte[] d = SOUNDS.get(m.key());
+        if (d == null) { TacUI.LOGGER.warn("tacui: sonido propio {} no recibido", m.key()); return; }
+        var sm = Minecraft.getInstance().getSoundManager();
+        var list = PLAYING.computeIfAbsent(m.tag(), k -> new java.util.ArrayList<>());
+        list.removeIf(cs -> !sm.isActive(cs));
+        int copies = Math.max(1, (int) Math.ceil(m.volume()));
+        float each = Math.min(1.0f, m.volume() / copies);
+        for (int i = 0; i < copies; i++) {
+            CustomSound cs = new CustomSound(d, each, m.loop());
+            list.add(cs);
+            sm.play(cs);
+        }
+    }
+
+    public static void onStopSound(TacNet.StopSound m) {
+        var sm = Minecraft.getInstance().getSoundManager();
+        if (m.tag().isEmpty()) {
+            for (var l : PLAYING.values()) for (CustomSound cs : l) sm.stop(cs);
+            PLAYING.clear();
+        } else {
+            var l = PLAYING.remove(m.tag());
+            if (l != null) for (CustomSound cs : l) sm.stop(cs);
+        }
     }
 
     public static void onClear() { synchronized (LIST) { LIST.clear(); } synchronized (ALERTS) { ALERTS.clear(); } }

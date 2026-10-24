@@ -31,6 +31,24 @@ public final class TacNet {
                 .encoder(Alert::encode).decoder(Alert::decode).consumerMainThread(Alert::handle).add();
         CH.messageBuilder(SoundData.class, id++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(SoundData::encode).decoder(SoundData::decode).consumerMainThread(SoundData::handle).add();
+        CH.messageBuilder(PlaySound.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(PlaySound::encode).decoder(PlaySound::decode).consumerMainThread(PlaySound::handle).add();
+        CH.messageBuilder(StopSound.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(StopSound::encode).decoder(StopSound::decode).consumerMainThread(StopSound::handle).add();
+    }
+
+    /** Reproducir un sonido propio ya enviado (key = nombre#crc), de fondo para el jugador. tag = nombre para poder pararlo. */
+    public record PlaySound(String key, float volume, boolean loop, String tag) {
+        public void encode(FriendlyByteBuf b) { b.writeUtf(key); b.writeFloat(volume); b.writeBoolean(loop); b.writeUtf(tag); }
+        public static PlaySound decode(FriendlyByteBuf b) { return new PlaySound(b.readUtf(), b.readFloat(), b.readBoolean(), b.readUtf()); }
+        public void handle(Supplier<NetworkEvent.Context> c) { DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ImageOverlay.onPlaySound(this)); }
+    }
+
+    /** Parar sonidos propios: tag "" = todos. */
+    public record StopSound(String tag) {
+        public void encode(FriendlyByteBuf b) { b.writeUtf(tag); }
+        public static StopSound decode(FriendlyByteBuf b) { return new StopSound(b.readUtf()); }
+        public void handle(Supplier<NetworkEvent.Context> c) { DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ImageOverlay.onStopSound(this)); }
     }
 
     /** Un trozo de un sonido .ogg propio del servidor (config/tacui/sounds). key = nombre#crc. */

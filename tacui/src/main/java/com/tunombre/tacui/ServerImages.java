@@ -140,6 +140,28 @@ public final class ServerImages {
                                             }
                                             return n;
                                         }))))));
+        // /tacsonido <jugadores> <archivo> [volumen] [bucle] : sonido .ogg de config/tacui/sounds del SERVIDOR, sin que los clientes lo tengan
+        e.getDispatcher().register(Commands.literal("tacsonido").requires(s -> s.hasPermission(2))
+                .then(Commands.literal("lista").executes(c -> {
+                    List<String> f = customSounds();
+                    c.getSource().sendSuccess(() -> Component.literal(f.isEmpty() ? "No hay sonidos en config/tacui/sounds/" : "Sonidos: " + String.join(", ", f)), false);
+                    return f.size();
+                }))
+                .then(Commands.literal("parar").then(Commands.argument("targets", EntityArgument.players())
+                        .executes(c -> stopCmd(c.getSource(), EntityArgument.getPlayers(c, "targets"), ""))
+                        .then(Commands.argument("archivo", StringArgumentType.string())
+                                .suggests((c, b) -> SharedSuggestionProvider.suggest(customSounds(), b))
+                                .executes(c -> stopCmd(c.getSource(), EntityArgument.getPlayers(c, "targets"), StringArgumentType.getString(c, "archivo"))))))
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .then(Commands.argument("archivo", StringArgumentType.string())
+                                .suggests((c, b) -> SharedSuggestionProvider.suggest(customSounds(), b))
+                                .executes(c -> playCmd(c.getSource(), EntityArgument.getPlayers(c, "targets"), StringArgumentType.getString(c, "archivo"), 1f, false))
+                                .then(Commands.argument("volumen", FloatArgumentType.floatArg(0f, 4f))
+                                        .executes(c -> playCmd(c.getSource(), EntityArgument.getPlayers(c, "targets"), StringArgumentType.getString(c, "archivo"),
+                                                FloatArgumentType.getFloat(c, "volumen"), false))
+                                        .then(Commands.argument("bucle", com.mojang.brigadier.arguments.BoolArgumentType.bool())
+                                                .executes(c -> playCmd(c.getSource(), EntityArgument.getPlayers(c, "targets"), StringArgumentType.getString(c, "archivo"),
+                                                        FloatArgumentType.getFloat(c, "volumen"), com.mojang.brigadier.arguments.BoolArgumentType.getBool(c, "bucle"))))))));
         e.getDispatcher().register(Commands.literal("tacshow").requires(s -> s.hasPermission(2))
                 .then(Commands.literal("list").executes(c -> {
                     List<String> f = files();
@@ -251,6 +273,49 @@ public final class ServerImages {
         }
         TacNet.CH.send(to, new TacNet.ShowImage(key, secs, mode(mode), wire, vol, text));
         return null;
+    }
+
+    /** busca config/tacui/sounds/<nombre>.ogg sin importar mayusculas */
+    private static Path soundFile(String sn) {
+        if (badName(sn)) return null;
+        for (String have : customSounds()) if (have.equalsIgnoreCase(sn)) return soundsDir().resolve(have + ".ogg");
+        return null;
+    }
+
+    /** Manda (si hace falta) y reproduce un sonido propio del servidor para un jugador, de fondo. null = bien, si no el motivo. */
+    static String pushSound(ServerPlayer p, String name, float vol, boolean loop) {
+        Path sf = soundFile(name);
+        if (sf == null) return "No existe config/tacui/sounds/" + name + ".ogg (usa /tacsonido lista)";
+        byte[] snd;
+        try { snd = readFile(sf, MAX_SND); } catch (Exception ex) { return "No se pudo leer: " + ex.getMessage(); }
+        if (!TacNet.CH.isRemotePresent(p.connection.connection)) return "sin tacui instalado";
+        String key = crcKey(name, snd);
+        PacketDistributor.PacketTarget to = PacketDistributor.PLAYER.with(() -> p);
+        Set<String> sent = SENT.computeIfAbsent(p.getUUID(), k -> ConcurrentHashMap.newKeySet());
+        if (sent.add("snd:" + key)) sendChunks(to, key, snd, true);
+        TacNet.CH.send(to, new TacNet.PlaySound(key, vol, loop, name.toLowerCase(Locale.ROOT)));
+        return null;
+    }
+
+    private static int playCmd(CommandSourceStack src, Collection<ServerPlayer> targets, String name, float vol, boolean loop) {
+        int ok = 0, missing = 0;
+        for (ServerPlayer p : targets) {
+            String r = pushSound(p, name, vol, loop);
+            if (r == null) ok++;
+            else if (r.startsWith("sin tacui")) missing++;
+            else { src.sendFailure(Component.literal(r)); return 0; }
+        }
+        int fok = ok, fm = missing;
+        src.sendSuccess(() -> Component.literal("Sonido " + name + (loop ? " (en bucle)" : "") + " para " + fok + " jugador(es)"
+                + (fm > 0 ? "; " + fm + " sin tacui instalado" : "")), true);
+        return ok;
+    }
+
+    private static int stopCmd(CommandSourceStack src, Collection<ServerPlayer> targets, String name) {
+        TacNet.StopSound m = new TacNet.StopSound(name.toLowerCase(Locale.ROOT));
+        for (ServerPlayer p : targets) if (TacNet.CH.isRemotePresent(p.connection.connection)) TacNet.CH.send(PacketDistributor.PLAYER.with(() -> p), m);
+        src.sendSuccess(() -> Component.literal("Sonido " + (name.isEmpty() ? "(todos)" : name) + " parado para " + targets.size() + " jugador(es)"), true);
+        return targets.size();
     }
 
     private static int run(CommandContext<CommandSourceStack> c, float secs, String mode, String sound, String text) throws CommandSyntaxException {

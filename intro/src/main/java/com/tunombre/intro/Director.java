@@ -227,6 +227,7 @@ public final class Director {
             case "subtitulo" -> {
                 toClients(server, r, s);
                 if (s.has("sonido")) sound(server, r, s.get("sonido").getAsString(), (float) dbl(s, "volumen", 1), (float) dbl(s, "tono", 1));
+                if (s.has("voz")) voice(server, r, s.get("voz").getAsString(), dbl(s, "volumen", 1), false);
                 if (flag(s, "espera", true)) r.wait = num(s, "ticks", 60);
             }
             case "tp" -> {
@@ -236,6 +237,14 @@ public final class Director {
                     p.teleportTo(p.serverLevel(), dbl(s, "x", p.getX()) + ox, dbl(s, "y", p.getY()), dbl(s, "z", p.getZ()) + oz,
                             (float) dbl(s, "yaw", p.getYRot()), (float) dbl(s, "pitch", p.getXRot()));
                 }
+            }
+            case "voz" -> {
+                voice(server, r, s.get("archivo").getAsString(), dbl(s, "volumen", 1), flag(s, "bucle", false));
+                if (s.has("ticks")) r.wait = num(s, "ticks", 0);
+            }
+            case "voz_parar" -> {
+                String a = s.has("archivo") ? " \"" + s.get("archivo").getAsString() + "\"" : "";
+                for (ServerPlayer p : online(server, r)) run(server, "tacsonido parar " + p.getGameProfile().getName() + a);
             }
             case "sonido" -> sound(server, r, s.get("id").getAsString(), (float) dbl(s, "volumen", 1), (float) dbl(s, "tono", 1));
             case "bloqueo_servidor" -> {
@@ -275,6 +284,12 @@ public final class Director {
             }
             default -> Intro_LOG("Paso desconocido '" + op + "' en '" + r.name + "'");
         }
+    }
+
+    /** sonido .ogg del servidor (config/tacui/sounds) via tacui: los clientes no necesitan tener el archivo */
+    private static void voice(MinecraftServer server, Run r, String file, double vol, boolean loop) {
+        for (ServerPlayer p : online(server, r))
+            run(server, String.format(Locale.ROOT, "tacsonido %s \"%s\" %.2f %b", p.getGameProfile().getName(), file, vol, loop));
     }
 
     private static void sound(MinecraftServer server, Run r, String id, float vol, float pitch) {

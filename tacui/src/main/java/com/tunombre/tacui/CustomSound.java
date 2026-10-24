@@ -21,12 +21,14 @@ import java.util.concurrent.CompletableFuture;
 final class CustomSound extends AbstractSoundInstance {
     private final byte[] data;
 
-    CustomSound(byte[] data, float volume) {
+    CustomSound(byte[] data, float volume) { this(data, volume, false); }
+
+    CustomSound(byte[] data, float volume, boolean loop) {
         super(new ResourceLocation(TacUI.ID, "custom"), SoundSource.MASTER, RandomSource.create());
         this.data = data;
         this.volume = volume;
         this.pitch = 1.0f;
-        this.looping = false;
+        this.looping = loop;
         this.delay = 0;
         this.relative = true;
         this.attenuation = SoundInstance.Attenuation.NONE;
@@ -35,6 +37,7 @@ final class CustomSound extends AbstractSoundInstance {
     @Override
     public CompletableFuture<AudioStream> getStream(SoundBufferLibrary lib, Sound sound, boolean loop) {
         try {
+            if (looping) return CompletableFuture.completedFuture(new net.minecraft.client.sounds.LoopingAudioStream(OggAudioStream::new, new ByteArrayInputStream(data)));
             return CompletableFuture.completedFuture(new OggAudioStream(new ByteArrayInputStream(data)));
         } catch (IOException e) {
             TacUI.LOGGER.warn("tacui: ogg propio no valido: {}", e.toString());
