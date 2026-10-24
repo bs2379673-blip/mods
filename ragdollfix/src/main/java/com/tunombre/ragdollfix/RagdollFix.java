@@ -26,7 +26,7 @@ import java.util.Map;
 
 /**
  * Mientras un jugador esta en modo ragdoll (Ragdollified) no puede pegar, disparar ni usar items.
- * Todo se consulta por reflexion, asi que no hay dependencia dura con Ragdollified, Epic Fight ni TACZ.
+ * Todo se consulta por reflexion, asi que no hay dependencia dura con Ragdollified, Epic Fight, TACZ ni Corpse (ver CorpseCompat).
  */
 @Mod(RagdollFix.MODID)
 public class RagdollFix {
@@ -39,7 +39,11 @@ public class RagdollFix {
 
     public RagdollFix() {
         MinecraftForge.EVENT_BUS.register(this);
-        if (FMLEnvironment.dist == Dist.CLIENT) MinecraftForge.EVENT_BUS.register(new ClientSide());
+        MinecraftForge.EVENT_BUS.register(new CorpseCompat.Server());
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            MinecraftForge.EVENT_BUS.register(new ClientSide());
+            MinecraftForge.EVENT_BUS.register(new CorpseCompat.Client());
+        }
         hookTacz();
     }
 
