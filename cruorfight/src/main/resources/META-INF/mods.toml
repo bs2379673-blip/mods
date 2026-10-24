@@ -1,0 +1,37 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="cruorfight"
+version="${mod_version}"
+displayName="Cruor x Epic Fight"
+description='''Compatibilidad entre Cruor (gore) y Epic Fight: las heridas de sangre se dibujan sobre el cuerpo animado de Epic Fight en vez de sobre el cuerpo vanilla.'''
+
+[[dependencies.cruorfight]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.cruorfight]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.cruorfight]]
+modId="cruor"
+mandatory=true
+versionRange="[0.1,)"
+ordering="AFTER"
+side="CLIENT"
+
+[[dependencies.cruorfight]]
+modId="epicfight"
+mandatory=true
+versionRange="[20.14,)"
+ordering="AFTER"
+side="CLIENT"
