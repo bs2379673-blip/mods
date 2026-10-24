@@ -39,6 +39,7 @@ public class RagdollFix {
 
     public RagdollFix() {
         MinecraftForge.EVENT_BUS.register(this);
+        CorpseCompat.initNet();
         MinecraftForge.EVENT_BUS.register(new CorpseCompat.Server());
         if (FMLEnvironment.dist == Dist.CLIENT) {
             MinecraftForge.EVENT_BUS.register(new ClientSide());

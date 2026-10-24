@@ -8,7 +8,19 @@ import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
+
 import java.lang.reflect.Method;
+import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,8 +32,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * Corpse deja una entidad cadaver con el inventario del muerto; Ragdollified dibuja el cuerpo con fisicas. Para tener las dos cosas:
  *  - cliente: el cadaver de Corpse no se dibuja mientras exista el ragdoll de ese jugador (el ragdoll es el cuerpo visible) y el ragdoll
  *    se hace persistente mientras el cadaver exista; cuando el cadaver desaparece (lo vaciaron o se vencio) se borra tambien el ragdoll.
- *  - servidor: el cadaver (que sigue siendo quien abre el inventario con clic derecho) se mueve hasta donde esta el ragdoll, asi la
- *    hitbox queda sobre el cuerpo que se ve.
+ *  - clic derecho: se hace SOBRE el ragdoll mismo (Ragdollified sabe que parte del cuerpo apunta el jugador). El cliente avisa al
+ *    servidor "abri el cadaver de este jugador" y el servidor ejecuta la interaccion normal de Corpse (con sus reglas de dueño, esqueleto,
+ *    etc.). Asi el inventario se encuentra donde se ve el cuerpo aunque la fisica lo haya llevado lejos de donde cayo el cadaver.
+ *  - servidor: ademas el cadaver se mueve hasta donde esta el ragdoll, para que al desaparecer el ragdoll el cuerpo de Corpse quede ahi.
  */
 public final class CorpseCompat {
     static final String CORPSE = "de.maxhenkel.corpse.entities.CorpseEntity";
@@ -37,6 +51,27 @@ public final class CorpseCompat {
             Optional<UUID> o = (Optional<UUID>) corpse.getClass().getMethod("getCorpseUUID").invoke(corpse);
             return o.orElse(null);
         } catch (Throwable t) { return null; }
+    }
+
+    // ------------------------------------------------------------------------------------------------ red
+    private static final String V = "1";
+    static final SimpleChannel CH = NetworkRegistry.newSimpleChannel(new ResourceLocation(RagdollFix.MODID, "corpse"), () -> V, v -> true, v -> true);
+
+    static void initNet() {
+        CH.registerMessage(0, Open.class, Open::write, Open::read, Open::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+    }
+
+    /** cliente -> servidor: "toque el ragdoll del jugador owner en este punto, abrime su cadaver" */
+    public record Open(UUID owner, double x, double y, double z) {
+        void write(FriendlyByteBuf b) { b.writeUUID(owner); b.writeDouble(x); b.writeDouble(y); b.writeDouble(z); }
+
+        static Open read(FriendlyByteBuf b) { return new Open(b.readUUID(), b.readDouble(), b.readDouble(), b.readDouble()); }
+
+        void handle(Supplier<NetworkEvent.Context> c) {
+            ServerPlayer p = c.get().getSender();
+            c.get().enqueueWork(() -> { if (p != null) Server.open(p, this); });
+            c.get().setPacketHandled(true);
+        }
     }
 
     // ------------------------------------------------------------------------------------------------ servidor
@@ -55,19 +90,46 @@ public final class CorpseCompat {
             if (!e.getLevel().isClientSide) CORPSES.remove(e.getEntity().getId());
         }
 
+        /** el jugador toco el ragdoll de owner: se comprueba que el cuerpo este realmente cerca y se abre el cadaver con la interaccion de Corpse */
+        static void open(ServerPlayer p, Open m) {
+            if (p.isSpectator() || !p.isAlive()) return;
+            if (new Vec3(m.x(), m.y(), m.z()).distanceTo(p.getEyePosition()) > 6.5) return;
+            if (!bodyNear(p, m.owner())) return;
+            Entity best = null;
+            for (Entity c : CORPSES.values()) {
+                if (c.isRemoved() || c.level() != p.level() || !m.owner().equals(owner(c))) continue;
+                if (best == null || c.tickCount < best.tickCount) best = c;   // el mas reciente
+            }
+            if (best != null) best.interact(p, InteractionHand.MAIN_HAND);
+        }
+
+        /** Ragdollified conoce un cuerpo de owner cerca del jugador (o no se puede consultar: se confia en la distancia) */
+        private static boolean bodyNear(ServerPlayer p, UUID owner) {
+            if (!init()) return true;
+            try {
+                for (Object b : (List<?>) near.invoke(null, p.level().dimension(), p.position(), 10.0)) if (owner.equals(victim.invoke(b))) return true;
+                return false;
+            } catch (Throwable t) { return true; }
+        }
+
+        private static boolean init() {
+            if (broken) return false;
+            if (tried) return true;
+            tried = true;
+            try {
+                Class<?> mgr = Class.forName("com.raiiiden.ragdollified.server.ServerRagdollSyncManager");
+                Class<?> body = Class.forName("com.raiiiden.ragdollified.server.ServerRagdollSyncManager$RetainedBody");
+                near = mgr.getMethod("retainedBodiesNear", net.minecraft.resources.ResourceKey.class, Vec3.class, double.class);
+                victim = body.getMethod("victim");
+                anchor = body.getMethod("anchor");
+                return true;
+            } catch (Throwable t) { broken = true; return false; }
+        }
+
         @SubscribeEvent
         public void onTick(TickEvent.ServerTickEvent e) {
-            if (e.phase != TickEvent.Phase.END || broken || CORPSES.isEmpty() || e.getServer().getTickCount() % 4 != 0) return;
-            try {
-                if (!tried) {
-                    tried = true;
-                    Class<?> mgr = Class.forName("com.raiiiden.ragdollified.server.ServerRagdollSyncManager");
-                    Class<?> body = Class.forName("com.raiiiden.ragdollified.server.ServerRagdollSyncManager$RetainedBody");
-                    near = mgr.getMethod("retainedBodiesNear", net.minecraft.resources.ResourceKey.class, Vec3.class, double.class);
-                    victim = body.getMethod("victim");
-                    anchor = body.getMethod("anchor");
-                }
-            } catch (Throwable t) { broken = true; return; }   // no hay Ragdollified (o cambio su API): no hace nada
+            if (e.phase != TickEvent.Phase.END || CORPSES.isEmpty() || e.getServer().getTickCount() % 4 != 0) return;
+            if (!init()) return;   // no hay Ragdollified (o cambio su API): no hace nada
             for (Entity c : CORPSES.values()) {
                 if (c.isRemoved()) continue;
                 UUID id = owner(c);
@@ -88,7 +150,7 @@ public final class CorpseCompat {
 
     // ------------------------------------------------------------------------------------------------ cliente
     public static final class Client {
-        private static Method ids, playerUuid, setHidden, getHandle, remove;
+        private static Method ids, playerUuid, setHidden, getHandle, remove, raycast, hitId, hitPos, hitDist;
         private static boolean tried, broken;
         /** cadaver (id de entidad) -> id del ragdoll que lo representa */
         private static final Map<Integer, Integer> LINK = new ConcurrentHashMap<>();
@@ -104,6 +166,11 @@ public final class CorpseCompat {
                 setHidden = api.getMethod("setEntityHidden", Entity.class, boolean.class);
                 getHandle = api.getMethod("getHandle", int.class);
                 remove = api.getMethod("remove", int.class);
+                raycast = api.getMethod("raycast", Vec3.class, Vec3.class);
+                Class<?> hit = Class.forName("com.raiiiden.ragdollified.api.RagdollHit");
+                hitId = hit.getMethod("entityId");
+                hitPos = hit.getMethod("position");
+                hitDist = hit.getMethod("distance");
                 return true;
             } catch (Throwable t) { broken = true; return false; }
         }
@@ -138,6 +205,32 @@ public final class CorpseCompat {
                     }
                 } catch (Throwable ignored) { }
             }
+        }
+
+        /** clic derecho sobre un ragdoll de jugador: pide al servidor abrir su cadaver (el inventario esta donde se ve el cuerpo) */
+        @SubscribeEvent(priority = net.minecraftforge.eventbus.api.EventPriority.HIGH)
+        @SuppressWarnings("unchecked")
+        public void onUse(InputEvent.InteractionKeyMappingTriggered e) {
+            if (!e.isUseItem()) return;
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null || mc.level == null || mc.screen != null || mc.player.isSpectator() || !init()) return;
+            try {
+                Vec3 eye = mc.player.getEyePosition();
+                Vec3 end = eye.add(mc.player.getViewVector(1F).scale(4.0));
+                Optional<?> hit = (Optional<?>) raycast.invoke(null, eye, end);
+                if (hit.isEmpty()) return;
+                Object h = hit.get();
+                double dist = (double) hitDist.invoke(h);
+                // lo que este mas cerca (un bloque, otra entidad) tiene prioridad
+                if (mc.hitResult != null && mc.hitResult.getType() != net.minecraft.world.phys.HitResult.Type.MISS
+                        && eye.distanceTo(mc.hitResult.getLocation()) < dist - 0.05) return;
+                Optional<UUID> owner = (Optional<UUID>) playerUuid.invoke(null, (int) hitId.invoke(h));
+                if (owner.isEmpty() || owner.get().equals(mc.player.getUUID())) return;
+                Vec3 pos = (Vec3) hitPos.invoke(h);
+                CH.sendToServer(new Open(owner.get(), pos.x, pos.y, pos.z));
+                e.setCanceled(true);
+                e.setSwingHand(true);
+            } catch (Throwable ignored) { }
         }
 
         @SubscribeEvent
