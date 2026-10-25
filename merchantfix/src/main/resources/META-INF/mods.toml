@@ -1,0 +1,23 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="merchantfix"
+version="${mod_version}"
+displayName="Merchant Fix"
+description='''Arregla las compras y ventas del mercader de Survivors Arsenal: en 1.20.1 el juego solo envia 1 byte por boton de menu y el mercader usa numeros de boton mayores; este mod reconstruye el numero original en el servidor. Solo hace falta en el servidor.'''
+
+[[dependencies.merchantfix]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.merchantfix]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"

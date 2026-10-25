@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.tunombre.merchantfix.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "MerchantTradeMenuMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}
