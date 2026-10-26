@@ -1,0 +1,53 @@
+name: Compilar Terra (Fabric 1.21.11)
+on:
+  push:
+    branches: [terra-build]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  terra:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bajar Terra (rama dev/1.21.11)
+        uses: actions/checkout@v4
+        with:
+          repository: PolyhedralDev/Terra
+          ref: dev/1.21.11
+          fetch-depth: 0
+          path: terra
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Compilar plataforma Fabric
+        working-directory: terra
+        run: |
+          echo "Terra commit: $(git rev-parse HEAD)"
+          chmod +x gradlew
+          set -o pipefail
+          ./gradlew :platforms:fabric:build --no-daemon --stacktrace 2>&1 | tee build.log || {
+            grep -E "error:|What went wrong|FAILED|Execution failed|OutOfMemory|Caused by" -A3 build.log | head -60 | while IFS= read -r l; do echo "::error::${l}"; done
+            exit 1
+          }
+      - name: Elegir el jar final
+        run: |
+          mkdir -p out
+          ls -la terra/platforms/fabric/build/libs
+          cp terra/platforms/fabric/build/libs/Terra-fabric-*.jar out/ || true
+          rm -f out/*-sources.jar out/*-dev*.jar out/*-shadow*.jar
+          ls -la out
+          test -n "$(ls out/*.jar 2>/dev/null)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: terra-fabric-1.21.11
+          path: out/*.jar
+      - name: Publicar en la release "terra-fabric-1.21.11"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete terra-fabric-1.21.11 --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
+          gh release create terra-fabric-1.21.11 out/*.jar -R "$GITHUB_REPOSITORY" --title "Terra Fabric 1.21.11" --notes "Terra (rama dev/1.21.11 de PolyhedralDev) compilado para Fabric 1.21.11. Requiere Fabric API." --target "$GITHUB_SHA"
