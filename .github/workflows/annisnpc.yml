@@ -44,3 +44,7 @@ jobs:
         run: |
           gh release delete annisnpc-fabric-1.21.1 --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
           gh release create annisnpc-fabric-1.21.1 out/*.jar -R "$GITHUB_REPOSITORY" --title "Annis NPC (Fabric 1.21.1)" --notes "Annis NPC compilado automaticamente (commit $GITHUB_SHA). Requiere Fabric API y playerAnimator (viene dentro de Emotecraft)." --target "$GITHUB_SHA"
+      - name: Prueba de humo del servidor (carga, comandos, NPC)
+        continue-on-error: true
+        timeout-minutes: 15
+        run: bash annisnpc/ci/servertest.sh
