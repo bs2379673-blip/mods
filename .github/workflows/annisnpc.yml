@@ -1,0 +1,46 @@
+name: Compilar Annis NPC (Fabric 1.21.1)
+on:
+  push:
+    branches: [annisnpc]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  annisnpc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.12'
+      - name: Compilar annisnpc
+        working-directory: annisnpc
+        run: |
+          set -o pipefail
+          gradle build --no-daemon --stacktrace 2>&1 | tee build.log || {
+            grep -E "error:|What went wrong|FAILED|Execution failed|Could not|Caused by|warning: \[" -A3 build.log | head -80 | while IFS= read -r l; do echo "::error::${l}"; done
+            exit 1
+          }
+      - name: Elegir el jar final
+        run: |
+          mkdir -p out
+          cp annisnpc/build/libs/annisnpc-*.jar out/
+          rm -f out/*-sources.jar out/*-dev.jar
+          ls -la out
+          test -n "$(ls out/*.jar 2>/dev/null)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: annisnpc
+          path: out/*.jar
+      - name: Publicar en la release "annisnpc-fabric-1.21.1"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete annisnpc-fabric-1.21.1 --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
+          gh release create annisnpc-fabric-1.21.1 out/*.jar -R "$GITHUB_REPOSITORY" --title "Annis NPC (Fabric 1.21.1)" --notes "Annis NPC compilado automaticamente (commit $GITHUB_SHA). Requiere Fabric API y playerAnimator (viene dentro de Emotecraft)." --target "$GITHUB_SHA"
