@@ -1,6 +1,7 @@
 package com.annis.npc;
 
 import com.annis.npc.command.NpcCommands;
+import com.annis.npc.net.NpcNetworking;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,8 @@ public class AnnisNpc implements ModInitializer {
     @Override
     public void onInitialize() {
         ModEntities.register();
+        NpcNetworking.registerPayloads();
+        NpcNetworking.registerServer();
         NpcCommands.register();
         LOGGER.info("Annis NPC cargado");
     }

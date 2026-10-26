@@ -1,4 +1,8 @@
 {
   "entity.annisnpc.npc": "NPC de Annis",
-  "item.annisnpc.npc_spawn_egg": "Huevo generador de NPC de Annis"
+  "item.annisnpc.npc_spawn_egg": "Huevo generador de NPC de Annis",
+  "item.annisnpc.npc_wand": "Varita de NPC",
+  "key.annisnpc.editor": "Editar NPC (el que apuntas o el mas cercano)",
+  "key.categories.annisnpc": "Annis NPC",
+  "screen.annisnpc.editor": "Editor de NPC"
 }

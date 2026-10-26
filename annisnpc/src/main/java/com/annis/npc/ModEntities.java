@@ -1,8 +1,9 @@
 package com.annis.npc;
 
 import com.annis.npc.entity.AnnisNpcEntity;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import com.annis.npc.item.NpcWandItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.item.Item;
@@ -22,6 +23,7 @@ public final class ModEntities {
                     .build("npc"));
 
     public static Item NPC_SPAWN_EGG;
+    public static Item NPC_WAND;
 
     private ModEntities() {
     }
@@ -32,6 +34,11 @@ public final class ModEntities {
                 Registries.ITEM,
                 Identifier.of(AnnisNpc.MOD_ID, "npc_spawn_egg"),
                 new SpawnEggItem(NPC, 0x6B4A9E, 0xF2C94C, new Item.Settings()));
+        NPC_WAND = Registry.register(
+                Registries.ITEM,
+                Identifier.of(AnnisNpc.MOD_ID, "npc_wand"),
+                new NpcWandItem(new Item.Settings().maxCount(1)));
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(entries -> entries.add(NPC_SPAWN_EGG));
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> entries.add(NPC_WAND));
     }
 }

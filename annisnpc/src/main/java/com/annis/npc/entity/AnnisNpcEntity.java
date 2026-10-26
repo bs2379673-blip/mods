@@ -6,6 +6,7 @@ import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -30,6 +31,8 @@ public class AnnisNpcEntity extends PathAwareEntity {
             DataTracker.registerData(AnnisNpcEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<Boolean> STATIONARY =
             DataTracker.registerData(AnnisNpcEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> PROTECTED =
+            DataTracker.registerData(AnnisNpcEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
     /** Ticks que el NPC se queda quieto despues de lanzar un emote (solo servidor). */
     private int holdTicks = 0;
@@ -37,7 +40,6 @@ public class AnnisNpcEntity extends PathAwareEntity {
     public AnnisNpcEntity(EntityType<? extends PathAwareEntity> type, World world) {
         super(type, world);
         this.setPersistent();
-        this.setInvulnerable(true);
     }
 
     public static DefaultAttributeContainer.Builder createNpcAttributes() {
@@ -55,6 +57,7 @@ public class AnnisNpcEntity extends PathAwareEntity {
         builder.add(EMOTE, "");
         builder.add(EMOTE_SERIAL, 0);
         builder.add(STATIONARY, false);
+        builder.add(PROTECTED, true);
     }
 
     @Override
@@ -112,6 +115,20 @@ public class AnnisNpcEntity extends PathAwareEntity {
         this.dataTracker.set(STATIONARY, value);
     }
 
+    /** Invencible: no recibe dano. Se guarda en el dato sincronizado para que el editor lo vea. */
+    public boolean isProtected() {
+        return this.dataTracker.get(PROTECTED);
+    }
+
+    public void setProtected(boolean value) {
+        this.dataTracker.set(PROTECTED, value);
+    }
+
+    @Override
+    public boolean isInvulnerableTo(DamageSource damageSource) {
+        return isProtected() || super.isInvulnerableTo(damageSource);
+    }
+
     public boolean isBusy() {
         return isStationary() || this.holdTicks > 0;
     }
@@ -136,6 +153,7 @@ public class AnnisNpcEntity extends PathAwareEntity {
         nbt.putString("Skin", getSkin());
         nbt.putBoolean("Slim", isSlim());
         nbt.putBoolean("Stationary", isStationary());
+        nbt.putBoolean("Protected", isProtected());
     }
 
     @Override
@@ -144,6 +162,7 @@ public class AnnisNpcEntity extends PathAwareEntity {
         setSkin(nbt.getString("Skin"));
         setSlim(nbt.getBoolean("Slim"));
         setStationary(nbt.getBoolean("Stationary"));
+        setProtected(!nbt.contains("Protected") || nbt.getBoolean("Protected"));
     }
 
     /** Caminar al azar, pero solo si el NPC no esta quieto ni haciendo un emote. */
