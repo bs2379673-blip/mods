@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "figuraemf",
+  "version": "${version}",
+  "name": "Figura + EMF Fix",
+  "description": "Hace que los modelos de Figura (sombreros, accesorios pegados a la cabeza, brazos...) sigan las animaciones de Entity Model Features (Fresh Animations Player Extension, Fresh Moves...).",
+  "authors": ["Annis World"],
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.annis.figuraemf.FiguraEmfFix"]
+  },
+  "mixins": ["figuraemf.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.16.5",
+    "minecraft": "~1.21.1",
+    "java": ">=21"
+  },
+  "suggests": {
+    "figura": "*",
+    "entity_model_features": "*"
+  }
+}
