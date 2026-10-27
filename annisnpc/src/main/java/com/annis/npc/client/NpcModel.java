@@ -19,6 +19,10 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
         super.setAngles(npc, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
 
         NpcAnimState state = NpcAnimState.of(npc);
+        boolean overriding = state.isOverriding();
+        EmfCompat.setPaused(npc, overriding);
+        // si EMF anima el modelo (caminar/reposo), su animacion manda cuando no hay emote ni actividad
+        boolean emfDrives = !overriding && EmfCompat.emfAnimates(this);
         if (state.applier.isActive()) {
             state.applier.updatePart("head", this.head);
             state.applier.updatePart("leftArm", this.leftArm);
@@ -27,7 +31,9 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
             state.applier.updatePart("rightLeg", this.rightLeg);
             state.applier.updatePart("torso", this.body);
         } else if (!npc.isSneaking() && !npc.hasVehicle()) {
-            state.applyProcedural(this, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
+            if (!emfDrives) {
+                state.applyProcedural(this, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
+            }
             state.applyActivity(this, animationProgress);
         }
 

@@ -86,6 +86,11 @@ public final class NpcAnimState {
         this.stack.tick();
     }
 
+    /** true mientras un emote o una actividad controlan el cuerpo (incluyendo el fundido de salida). */
+    public boolean isOverriding() {
+        return this.applier.isActive() || !this.activity.isEmpty();
+    }
+
     /** Mezcla la actividad integrada (si hay) sobre la pose actual del modelo. */
     public void applyActivity(NpcModel m, float t) {
         float dt;
