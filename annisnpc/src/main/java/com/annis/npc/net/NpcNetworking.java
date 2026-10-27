@@ -32,8 +32,10 @@ public final class NpcNetworking {
             }
             switch (payload.action()) {
                 case NpcActionPayload.SET_SKIN -> {
-                    npc.setSkin(payload.text());
-                    npc.setSlim(payload.flag());
+                    if (payload.text().length() <= 512) {
+                        npc.setSkin(payload.text());
+                        npc.setSlim(payload.flag());
+                    }
                 }
                 case NpcActionPayload.PLAY_EMOTE -> npc.playEmote(payload.text(), Math.max(0, payload.number()) * 20);
                 case NpcActionPayload.STOP_EMOTE -> npc.stopEmote();

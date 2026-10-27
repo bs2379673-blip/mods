@@ -24,13 +24,23 @@ public final class NpcAnimState {
             Collections.synchronizedMap(new WeakHashMap<>());
 
     public static NpcAnimState of(AnnisNpcEntity npc) {
-        return STATES.computeIfAbsent(npc, n -> new NpcAnimState(n.getEmoteSerial()));
+        return STATES.computeIfAbsent(npc, n -> {
+            NpcAnimState state = new NpcAnimState(n.getEmoteSerial());
+            String name = n.getEmote();
+            if (Activities.has(name) && EmoteLibrary.get(name) == null) {
+                state.activity = name;
+                state.activityTarget = true;
+                state.activityWeight = 1.0f;
+            }
+            return state;
+        });
     }
 
     public final AnimationStack stack = new AnimationStack();
     public final AnimationApplier applier;
     private final ModifierLayer<IAnimation> layer = new ModifierLayer<>();
     private int lastSerial;
+    private boolean activityTarget;
 
     // suavizado procedural
     private boolean init;
@@ -38,6 +48,12 @@ public final class NpcAnimState {
     private float smoothSpeed;
     private float smoothHeadYaw;
     private float smoothHeadPitch;
+
+    // actividades integradas (mezcla suave con la capa procedural)
+    private String activity = "";
+    private float activityWeight;
+    private float lastActT;
+    private boolean actInit;
 
     private NpcAnimState(int serial) {
         this.lastSerial = serial;
@@ -52,6 +68,14 @@ public final class NpcAnimState {
             this.lastSerial = serial;
             String name = npc.getEmote();
             KeyframeAnimation animation = name.isEmpty() ? null : EmoteLibrary.get(name);
+            String act = animation == null && Activities.has(name) ? name : "";
+            if (!act.isEmpty() && !this.activity.isEmpty() && !act.equals(this.activity)) {
+                this.activityWeight = 0.0f;
+            }
+            if (!act.isEmpty()) {
+                this.activity = act;
+            }
+            this.activityTarget = !act.isEmpty();
             AbstractFadeModifier fade = AbstractFadeModifier.standardFadeIn(6, Ease.INOUTSINE);
             if (animation != null) {
                 this.layer.replaceAnimationWithFade(fade, new KeyframeAnimationPlayer(animation));
@@ -60,6 +84,45 @@ public final class NpcAnimState {
             }
         }
         this.stack.tick();
+    }
+
+    /** Mezcla la actividad integrada (si hay) sobre la pose actual del modelo. */
+    public void applyActivity(NpcModel m, float t) {
+        float dt;
+        if (!this.actInit || t < this.lastActT) {
+            dt = 1.0f;
+            this.actInit = true;
+        } else {
+            dt = Math.min(4.0f, t - this.lastActT);
+        }
+        this.lastActT = t;
+        float target = this.activityTarget ? 1.0f : 0.0f;
+        this.activityWeight += (target - this.activityWeight) * rate(0.22f, dt);
+        if (!this.activityTarget && this.activityWeight < 0.01f) {
+            this.activityWeight = 0.0f;
+            this.activity = "";
+        }
+        if (this.activity.isEmpty() || this.activityWeight <= 0.0f) {
+            return;
+        }
+        net.minecraft.client.model.ModelPart[] parts = {m.head, m.body, m.rightArm, m.leftArm, m.rightLeg, m.leftLeg};
+        float[][] before = new float[parts.length][6];
+        for (int i = 0; i < parts.length; i++) {
+            net.minecraft.client.model.ModelPart p = parts[i];
+            before[i] = new float[]{p.pitch, p.yaw, p.roll, p.pivotX, p.pivotY, p.pivotZ};
+        }
+        Activities.apply(this.activity, m, t);
+        float w = this.activityWeight;
+        for (int i = 0; i < parts.length; i++) {
+            net.minecraft.client.model.ModelPart p = parts[i];
+            float[] b = before[i];
+            p.pitch = MathHelper.lerp(w, b[0], p.pitch);
+            p.yaw = MathHelper.lerp(w, b[1], p.yaw);
+            p.roll = MathHelper.lerp(w, b[2], p.roll);
+            p.pivotX = MathHelper.lerp(w, b[3], p.pivotX);
+            p.pivotY = MathHelper.lerp(w, b[4], p.pivotY);
+            p.pivotZ = MathHelper.lerp(w, b[5], p.pivotZ);
+        }
     }
 
     private static float rate(float perTick, float dt) {

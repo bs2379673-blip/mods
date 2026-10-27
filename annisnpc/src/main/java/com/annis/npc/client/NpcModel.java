@@ -28,6 +28,7 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
             state.applier.updatePart("torso", this.body);
         } else if (!npc.isSneaking() && !npc.hasVehicle()) {
             state.applyProcedural(this, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
+            state.applyActivity(this, animationProgress);
         }
 
         // la capa exterior de la skin copia la pose de cada parte

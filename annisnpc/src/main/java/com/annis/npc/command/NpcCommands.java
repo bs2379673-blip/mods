@@ -37,7 +37,7 @@ public final class NpcCommands {
                 dispatcher.register(literal("annisnpc")
                         .requires(source -> source.hasPermissionLevel(2))
                         .then(literal("spawn")
-                                .then(argument("skin", StringArgumentType.word())
+                                .then(argument("skin", StringArgumentType.string())
                                         .executes(ctx -> spawn(ctx, StringArgumentType.getString(ctx, "skin"), false))
                                         .then(argument("slim", BoolArgumentType.bool())
                                                 .executes(ctx -> spawn(ctx,
@@ -45,7 +45,7 @@ public final class NpcCommands {
                                                         BoolArgumentType.getBool(ctx, "slim"))))))
                         .then(literal("skin")
                                 .then(argument("targets", EntityArgumentType.entities())
-                                        .then(argument("skin", StringArgumentType.word())
+                                        .then(argument("skin", StringArgumentType.string())
                                                 .executes(ctx -> skin(ctx, null))
                                                 .then(argument("slim", BoolArgumentType.bool())
                                                         .executes(ctx -> skin(ctx, BoolArgumentType.getBool(ctx, "slim")))))))

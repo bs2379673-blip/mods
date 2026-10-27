@@ -24,7 +24,7 @@ import java.util.Locale;
  * y opciones (modelo, quieto, invencible, nombre, eliminar). Todo con clics.
  */
 public class NpcEditorScreen extends Screen {
-    private static final int[] HOLD_SECONDS = {0, 2, 5, 10, 30, 60};
+    private static final int[] HOLD_SECONDS = {0, 2, 5, 10, 30, 60, 300};
 
     private final int npcId;
     private final List<String> skins = new ArrayList<>();
@@ -57,6 +57,7 @@ public class NpcEditorScreen extends Screen {
     private TextFieldWidget skinSearch;
     private TextFieldWidget emoteSearch;
     private TextFieldWidget nameField;
+    private TextFieldWidget urlField;
     private ButtonWidget slimButton;
     private ButtonWidget stationaryButton;
     private ButtonWidget protectedButton;
@@ -86,7 +87,12 @@ public class NpcEditorScreen extends Screen {
         this.skins.add(""); // predeterminada
         this.skins.addAll(SkinManager.list());
         this.emotes.clear();
-        this.emotes.addAll(EmoteLibrary.list());
+        this.emotes.addAll(Activities.NAMES);
+        for (String name : EmoteLibrary.list()) {
+            if (!this.emotes.contains(name)) {
+                this.emotes.add(name);
+            }
+        }
         applyFilters();
     }
 
@@ -205,7 +211,15 @@ public class NpcEditorScreen extends Screen {
         this.nameField.setPlaceholder(Text.literal("Nombre del NPC (Enter para guardar)"));
         this.nameField.setMaxLength(32);
         this.addDrawableChild(this.nameField);
-        y += 24;
+        y += 22;
+
+        this.urlField = new TextFieldWidget(this.textRenderer, this.centerX, y, this.centerW - 52, 18, Text.literal("URL de skin"));
+        this.urlField.setPlaceholder(Text.literal("Skin por URL (https://...png)"));
+        this.urlField.setMaxLength(400);
+        this.addDrawableChild(this.urlField);
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Usar"), b -> applyUrl())
+                .dimensions(this.centerX + this.centerW - 50, y - 1, 50, 20).build());
+        y += 22;
 
         this.slimButton = ButtonWidget.builder(Text.empty(), b -> {
             AnnisNpcEntity npc = npc();
@@ -263,12 +277,26 @@ public class NpcEditorScreen extends Screen {
         send(NpcActionPayload.SET_SKIN, skin, slim, 0);
     }
 
+    private void applyUrl() {
+        AnnisNpcEntity npc = npc();
+        String url = this.urlField == null ? "" : this.urlField.getText().trim();
+        if (npc == null || !SkinManager.isUrl(url)) {
+            return;
+        }
+        send(NpcActionPayload.SET_SKIN, url, npc.isSlim(), 0);
+    }
+
     private void clickEmote(int row) {
         int index = this.emotePage * this.rows + row;
         if (index >= this.emoteView.size()) {
             return;
         }
-        send(NpcActionPayload.PLAY_EMOTE, this.emoteView.get(index), false, HOLD_SECONDS[this.holdIndex]);
+        String emote = this.emoteView.get(index);
+        int hold = HOLD_SECONDS[this.holdIndex];
+        if (Activities.has(emote) && EmoteLibrary.get(emote) == null) {
+            hold = Math.max(hold, 3600); // las actividades no terminan solas
+        }
+        send(NpcActionPayload.PLAY_EMOTE, emote, false, hold);
     }
 
     private void sendName() {
@@ -290,6 +318,9 @@ public class NpcEditorScreen extends Screen {
             if (index < view.size()) {
                 String value = view.get(index);
                 String label = isSkin && value.isEmpty() ? "Predeterminada" : value;
+                if (!isSkin && Activities.has(value) && EmoteLibrary.get(value) == null) {
+                    label = "★ " + value;
+                }
                 boolean selected = value.equals(current) && (isSkin || !value.isEmpty());
                 String shown = this.textRenderer.trimToWidth(label, this.panelW - 22);
                 Text text = Text.literal((selected ? "» " : "") + shown);
@@ -324,6 +355,9 @@ public class NpcEditorScreen extends Screen {
                 if (npc.hasCustomName()) {
                     this.nameField.setText(npc.getCustomName().getString());
                 }
+                if (SkinManager.isUrl(npc.getSkin())) {
+                    this.urlField.setText(npc.getSkin());
+                }
             }
             this.slimButton.setMessage(Text.literal("Modelo: " + (npc.isSlim() ? "brazos finos (slim)" : "normal")));
             this.stationaryButton.setMessage(Text.literal(npc.isStationary() ? "Camina: no (quieto)" : "Camina: si"));
@@ -351,6 +385,11 @@ public class NpcEditorScreen extends Screen {
                 && (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER)) {
             sendName();
             this.nameField.setFocused(false);
+            return true;
+        }
+        if (this.urlField != null && this.urlField.isFocused()
+                && (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER)) {
+            applyUrl();
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
@@ -391,10 +430,6 @@ public class NpcEditorScreen extends Screen {
             context.drawTextWithShadow(this.textRenderer, Text.literal("Pone PNG 64x64 en"), this.leftX, pageY + 50, 0xFFAA55);
             context.drawTextWithShadow(this.textRenderer, Text.literal("config/annisnpc/skins"), this.leftX, pageY + 61, 0xFFAA55);
         }
-        if (this.emotes.isEmpty()) {
-            context.drawTextWithShadow(this.textRenderer, Text.literal("Pone .json en la"), this.rightX, pageY + 50, 0xFFAA55);
-            context.drawTextWithShadow(this.textRenderer, Text.literal("carpeta emotes/"), this.rightX, pageY + 61, 0xFFAA55);
-        }
 
         AnnisNpcEntity npc = npc();
         if (npc != null) {
@@ -407,7 +442,7 @@ public class NpcEditorScreen extends Screen {
         }
 
         context.drawCenteredTextWithShadow(this.textRenderer,
-                Text.literal("Clic en una skin la aplica. Clic en un emote lo reproduce."),
+                Text.literal("Clic en una skin la aplica. Clic en un emote o actividad (★) lo reproduce."),
                 this.width / 2, this.height - 14, 0x999999);
     }
 }
