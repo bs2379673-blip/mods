@@ -48,3 +48,7 @@ jobs:
         continue-on-error: true
         timeout-minutes: 15
         run: bash annisnpc/ci/servertest.sh
+      - name: Prueba con Minecraft Comes Alive (servidor real)
+        continue-on-error: true
+        timeout-minutes: 12
+        run: bash annisnpc/ci/mcatest.sh
