@@ -1,4 +1,4 @@
-ANNIS INTERACCIONES 0.2.1 (Fabric 1.21.1)
+ANNIS INTERACCIONES 0.3 (Fabric 1.21.1)
 =======================================
 
 Necesita: Fabric API, playerAnimator (viene dentro de Emotecraft) y Annis NPC 0.12.1 o mas nuevo.
@@ -16,11 +16,23 @@ COMO SE USA
 
 INTERACCIONES (la rueda tiene dos paginas: rueda del raton o clic derecho para cambiar)
   Pagina "Especial": Proponer matrimonio (con el anillo de compromiso de MCA en la mano cuenta
-  en MCA), Que me lleve en brazos, Que me lleve a caballito, Baile lento abrazados.
+  en MCA), Que me lleve en brazos, Que me lleve a caballito, Baile lento abrazados,
+  Mimos (tocar con el raton), Apoyarme en su hombro, Besar la mano.
   Pagina "Juntos": Abrazo, Beso en la mejilla, Chocar los cinco, Apreton de manos, Palmadita en el hombro,
   Ir de la mano (el NPC o aldeano camina a tu lado), Llevar en brazos, A caballito,
   Bailar en pareja (vals girando), Mirar las estrellas (tumbados de la mano),
   Sentarse juntos, Ayudar a levantarse.
+
+MIMOS (tocar con el raton)
+- Quien lo pide toca y el otro acepta (como siempre). La camara se pone de costado y el raton queda libre.
+- Clic izquierdo y arrastrar sobre el otro:
+    pelo -> le acaricias el pelo (se acurruca contra tu mano)
+    mejilla -> caricia en la cara; arrastrando le guias la cabeza
+    mano o brazo -> le tomas la mano y le mueves el brazo hacia donde arrastres
+    hombro -> palmaditas
+  El resto del cuerpo no se puede tocar.
+- Rueda del raton o clic derecho arrastrando: girar la camara. Shift o Esc: terminar
+  (el que recibe tambien puede terminar con Shift cuando quiera).
 
 CAIDOS
 - Con dano mortal no mueres: quedas en el suelo 60 s. Otro jugador te levanta con la rueda
@@ -48,7 +60,8 @@ CONFIGURACION: config/annisinteract.json
 Las animaciones tambien se pueden usar sueltas en Annis NPC (rutinas, /annisnpc anim) con
 los nombres: abrazo, beso_mejilla, recibir_beso, chocar_cinco, apreton_manos, palmadita,
 recibir_palmadita, de_la_mano_d, de_la_mano_i, cargar_brazos, en_brazos, llevar_caballito,
-a_caballito, abrazo_cuello, lento_a, lento_b, propuesta, recibir_propuesta, caido_suelo, vals_guia, vals_pareja, estrellas_a, estrellas_b, sentarse_abrazo,
+a_caballito, abrazo_cuello, lento_a, lento_b, propuesta, recibir_propuesta, caido_suelo, mimos_toca, mimos_recibe, hombro_rodea,
+hombro_apoya, besar_mano, recibir_beso_mano, vals_guia, vals_pareja, estrellas_a, estrellas_b, sentarse_abrazo,
 sentarse_apoyo, caido, ayudar_levantar, levantarse.
 
 Todo (codigo y animaciones) es propio de Annis World; no contiene nada de otros mods.

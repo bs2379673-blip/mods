@@ -12,6 +12,22 @@ public final class ClientState {
     public static boolean downed;
     public static int downedSeconds;
     public static String session = "";
+    /** Modo mimos: estado por cada uno que toca (clave = id de quien toca). */
+    public static final Map<Integer, TouchState> TOUCHES = new HashMap<>();
+
+    /** Quien toca a quien, donde, y la version suavizada que dibujan las animaciones. */
+    public static final class TouchState {
+        public int toucher;
+        public int receiver;
+        public int zone;
+        public final float[] target = new float[3];
+        public final float[] start = new float[3];
+        public boolean active;
+        final float[] smooth = new float[3];
+        float w;
+        long last;
+        int shownZone;
+    }
 
     private ClientState() {
     }
@@ -22,5 +38,6 @@ public final class ClientState {
         inviteType = "";
         downed = false;
         session = "";
+        TOUCHES.clear();
     }
 }

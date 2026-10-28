@@ -3,6 +3,8 @@ package com.annis.interact;
 import com.annis.interact.net.AnchorPayload;
 import com.annis.interact.net.InvitePayload;
 import com.annis.interact.net.SessionPayload;
+import com.annis.interact.net.TouchPayload;
+import com.annis.interact.net.TouchSyncPayload;
 import com.annis.npc.entity.AnnisNpcEntity;
 import com.annis.npc.link.EntityLinks;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -347,7 +349,7 @@ public final class Sessions {
             moveTo(b, s.slotB, s.yawB);
         }
         boolean anchored = type.kind() == Interaction.Kind.SCENE || type.kind() == Interaction.Kind.LOOP
-                || type.kind() == Interaction.Kind.REVIVE;
+                || type.kind() == Interaction.Kind.REVIVE || type.kind() == Interaction.Kind.TOUCH;
         if (anchored) {
             anchor(a, s.yawA);
             anchor(b, s.yawB);
@@ -366,6 +368,10 @@ public final class Sessions {
             }
             String hint = type.kind() == Interaction.Kind.CARRY ? " (Shift para bajar)" : " (Shift para terminar)";
             sayBoth(s, type.name() + hint);
+        }
+        if (type.kind() == Interaction.Kind.TOUCH) {
+            // avisa a todos quien toca a quien (el que toca abre la pantalla de mimos)
+            touchBroadcast(s, new TouchSyncPayload(a.getId(), b.getId(), Touch.NONE, 0, 0, 0, 0, 0, 0, false));
         }
         return true;
     }
@@ -418,7 +424,7 @@ public final class Sessions {
             return type.timed() ? "Cancelado" : "";
         }
         switch (type.kind()) {
-            case SCENE, LOOP, REVIVE -> {
+            case SCENE, LOOP, REVIVE, TOUCH -> {
                 if (!hold(a, s.slotA, s.yawA) || !hold(b, s.slotB, s.yawB)) {
                     return type.timed() ? "Se movio" : "";
                 }
@@ -530,6 +536,10 @@ public final class Sessions {
                 }
             }
         }
+        if (s.type.kind() == Interaction.Kind.TOUCH) {
+            TOUCH_RATE.remove(s.a.getUuid());
+            touchBroadcast(s, new TouchSyncPayload(s.a.getId(), -1, Touch.NONE, 0, 0, 0, 0, 0, 0, false));
+        }
         if (s.type == Interaction.PROPOSE && completed) {
             proposalDone(s);
         }
@@ -586,6 +596,59 @@ public final class Sessions {
         }
         INVITES.clear();
         ANCHORS.clear();
+    }
+
+    // ------------------------------------------------------------------ mimos
+
+    private static final Map<UUID, long[]> TOUCH_RATE = new HashMap<>();
+
+    /** El que toca manda donde esta tocando; se reparte a todos los que ven a alguno de los dos. */
+    public static void touch(ServerPlayerEntity player, TouchPayload p) {
+        Session s = BY_ENTITY.get(player.getUuid());
+        if (s == null || s.done || s.type.kind() != Interaction.Kind.TOUCH || s.a != player) {
+            return;
+        }
+        int zone = p.zone();
+        if (zone < 0 || zone >= Touch.COUNT || !finite(p)) {
+            return;
+        }
+        // como mucho unos 25 mensajes por segundo
+        long now = player.getServerWorld().getTime();
+        long[] rate = TOUCH_RATE.computeIfAbsent(player.getUuid(), k -> new long[]{now, 0});
+        if (rate[0] != now) {
+            rate[0] = now;
+            rate[1] = 0;
+        }
+        if (++rate[1] > 2 && p.active()) {
+            return;
+        }
+        float[] pt = Touch.constrain(zone, p.x(), p.y(), p.z());
+        float[] st = Touch.constrain(zone, p.sx(), p.sy(), p.sz());
+        touchBroadcast(s, new TouchSyncPayload(s.a.getId(), s.b.getId(), zone, pt[0], pt[1], pt[2], st[0], st[1], st[2],
+                p.active() && zone != Touch.NONE));
+    }
+
+    private static boolean finite(TouchPayload p) {
+        float[] v = {p.x(), p.y(), p.z(), p.sx(), p.sy(), p.sz()};
+        for (float f : v) {
+            if (!Float.isFinite(f) || Math.abs(f) > 64) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void touchBroadcast(Session s, CustomPayload payload) {
+        java.util.Set<ServerPlayerEntity> to = new java.util.HashSet<>(PlayerLookup.tracking(s.a));
+        to.addAll(PlayerLookup.tracking(s.b));
+        for (LivingEntity e : new LivingEntity[]{s.a, s.b}) {
+            if (e instanceof ServerPlayerEntity p) {
+                to.add(p);
+            }
+        }
+        for (ServerPlayerEntity p : to) {
+            ServerPlayNetworking.send(p, payload);
+        }
     }
 
     // ------------------------------------------------------------------ red

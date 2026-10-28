@@ -50,11 +50,15 @@ public class AnnisInteract implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(AnchorPayload.ID, AnchorPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(DownedPayload.ID, DownedPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SessionPayload.ID, SessionPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(com.annis.interact.net.TouchPayload.ID, com.annis.interact.net.TouchPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(com.annis.interact.net.TouchSyncPayload.ID, com.annis.interact.net.TouchSyncPayload.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(RequestPayload.ID, (p, ctx) ->
                 Sessions.request(ctx.player(), p.interaction(), p.targetId()));
         ServerPlayNetworking.registerGlobalReceiver(AnswerPayload.ID, (p, ctx) ->
                 Sessions.answer(ctx.player(), p.accept()));
+        ServerPlayNetworking.registerGlobalReceiver(com.annis.interact.net.TouchPayload.ID, (p, ctx) ->
+                Sessions.touch(ctx.player(), p));
 
         ServerLivingEntityEvents.ALLOW_DEATH.register(Downed::allowDeath);
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {

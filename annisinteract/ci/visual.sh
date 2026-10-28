@@ -85,6 +85,15 @@ python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'interaccion hacer baile_lento @e[tag=p3,limit=1] @e[tag=p4,limit=1]' \
   'sleep 2' "${T}foto 05b_propuesta_lento${E}" 'sleep 1.4' "${T}foto 05c_propuesta_sorpresa${E}" 'sleep 1.6' "${T}foto 05d_propuesta_mano${E}" \
   'kill @e[type=annisnpc:npc]' 'sleep 1.5' \
+  'summon annisnpc:npc -4.2 -60 3 {Tags:["n","n1"],Rotation:[180f,0f],Protected:0b}' 'summon annisnpc:npc -3.2 -60 3 {Tags:["n","n2"],Rotation:[180f,0f],Protected:0b}' \
+  'summon annisnpc:npc -0.4 -60 2.2 {Tags:["n","n3"],Protected:0b}' 'summon annisnpc:npc 0.4 -60 2.2 {Tags:["n","n4"],Protected:0b}' \
+  'summon annisnpc:npc 2.8 -60 3 {Tags:["n","n5"],Protected:0b}' 'summon annisnpc:npc 3.8 -60 3 {Tags:["n","n6"],Protected:0b}' \
+  'sleep 2' \
+  'interaccion hacer hombro @e[tag=n2,limit=1] @e[tag=n1,limit=1]' \
+  'interaccion hacer abrazo @e[tag=n3,limit=1] @e[tag=n4,limit=1]' \
+  'interaccion hacer besar_mano @e[tag=n5,limit=1] @e[tag=n6,limit=1]' \
+  'sleep 1.9' "${T}foto 05e_hombro_abrazo_besomano${E}" 'sleep 0.8' "${T}foto 05f_hombro_abrazo_besomano${E}" \
+  'kill @e[type=annisnpc:npc]' 'sleep 1.5' \
   'summon annisnpc:npc -3 -60 4 {Tags:["k","k1"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc -3 -60 5 {Tags:["k","k2"],Protected:0b}' \
   'summon annisnpc:npc 0.5 -60 4 {Tags:["k","k3"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc 0.5 -60 5 {Tags:["k","k4"],Protected:0b}' \
   'summon annisnpc:npc 4 -60 4 {Tags:["k","k5"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc 4 -60 6 {Tags:["k","k6"],Protected:0b}' \
@@ -120,6 +129,13 @@ python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' 'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' \
   "${T}foto 17_de_la_mano_caminando${E}" 'sleep 1' "${T}foto 18_de_la_mano_quietos${E}" \
   'execute as @a run interaccion parar' 'sleep 1' \
+  'tp @a 0 -60 0 0 0' 'tp @e[tag=c1] 0 -60 1.2' 'sleep 1' \
+  'interaccion hacer mimos @a[limit=1] @e[tag=c1,limit=1]' 'sleep 1.5' "${T}foto 21_mimos_inicio${E}" \
+  "${T}tocar 1 0.5 -8.6 -1${E}" 'sleep 1.2' "${T}foto 22_mimos_pelo${E}" \
+  "${T}tocar 2 -2.5 -2.6 -4.6${E}" 'sleep 1.2' "${T}foto 23_mimos_mejilla${E}" \
+  "${T}tocar 3 -3 -1 -8${E}" 'sleep 1.2' "${T}foto 24_mimos_mano${E}" \
+  "${T}tocar 8 0 0 0${E}" 'sleep 1.2' "${T}foto 25_mimos_hombro${E}" \
+  "${T}soltar${E}" 'sleep 0.5' 'execute as @a run interaccion parar' 'sleep 1' "${T}camara primera${E}" \
   'tp @a 0 -60 0 0 0' 'tp @e[tag=c1] 0 -60 1.5' 'sleep 1' \
   'interaccion hacer en_brazos @e[tag=c1,limit=1] @a[limit=1]' 'sleep 1.2' "${T}camara atras${E}" \
   'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' 'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' \

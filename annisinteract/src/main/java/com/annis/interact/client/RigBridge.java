@@ -50,7 +50,8 @@ public final class RigBridge {
                 @Override
                 public boolean springy() {
                     // de la mano: la mano sigue al companero real sin retraso
-                    return !name.startsWith("de_la_mano");
+                    // mimos: la mano sigue al raton (ya va suavizada) sin retraso extra
+                    return !name.startsWith("de_la_mano") && !name.startsWith("mimos_");
                 }
 
                 @Override

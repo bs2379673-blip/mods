@@ -68,6 +68,12 @@ public final class PairAnims {
         add("levantarse", PairAnims::getUp, PairAnims::getUpRoot);
         add("propuesta", PairAnims::propose, null);
         add("recibir_propuesta", PairAnims::proposed, null);
+        add("mimos_toca", PairAnims::toucher, null);
+        add("mimos_recibe", PairAnims::touched, null);
+        add("hombro_rodea", PairAnims::shoulderHold, null);
+        add("hombro_apoya", PairAnims::shoulderLean, null);
+        add("besar_mano", PairAnims::handKiss, null);
+        add("recibir_beso_mano", PairAnims::handKissed, null);
     }
 
     private static void add(String name, Pose pose, RootFn root) {
@@ -247,33 +253,47 @@ public final class PairAnims {
         hugBody(r, t, false);
     }
 
+    /** Punto del otro en el abrazo, contando que su torso tambien se inclina hacia su izquierda. */
+    static float[] hf(float d, float lean, float bx, float by, float bz) {
+        return face(d, 0, bx + HUG_SLIDE * lean / HUG_LEAN + (12 - by) * sin(lean), by, bz);
+    }
+
+    static final float HUG_LEAN = 0.18f, HUG_SLIDE = 1.0f;
+
     static void hugBody(Rig r, float t, boolean waist) {
         float e = envB(t, 0, 14, 64, 80);
         float sq = env(t, 16, 30, 46, 60);
         float d = Layout.HUG;
         r.restUpper();
         relaxedLegs(r, t, 1);
-        r.torso(0.06f * e + 0.03f * sq, 0.05f * sin(t * 0.09f) * sq, 0);
+        // el torso se inclina hacia su izquierda: las cabezas quedan una al lado de la otra
+        // sin despegarlas del cuello
+        float lean = HUG_LEAN * e;
+        r.torso(0.06f * e + 0.03f * sq, 0.05f * sin(t * 0.09f) * sq, lean);
+        // y la cadera se corre un poquito (como en Fresh Animations al cambiar el peso)
+        float slide = HUG_SLIDE * e;
+        r.head.x += slide;
+        r.body.x += slide;
+        r.rightArm.x += slide;
+        r.leftArm.x += slide;
         r.drop(-0.5f * sq);
         float pat = env(t, 30, 34, 48, 52) * Math.max(0, sin(t * 0.9f));
         if (waist) {
             // manos en su espalda, a media altura; palmaditas
             // brazos por los costados del otro, cerrandose en su espalda
-            hand(r.rightArm, face(d, 0, 2.4f, 6.0f - 1.2f * pat, 3.2f), -0.9f, 0.3f, 0.2f,
-                    face(d, 0, 4.6f - 0.6f * sq, 7.2f - 1.0f * pat, 3.4f), e);
-            hand(r.leftArm, face(d, 0, -2.4f, 6.0f, 3.2f), 0.9f, 0.3f, 0.2f,
-                    face(d, 0, -4.6f + 0.6f * sq, 7.2f, 3.4f), e);
+            hand(r.rightArm, hf(d, lean, 2.4f, 6.0f - 1.2f * pat, 3.2f), -0.9f, 0.3f, 0.2f,
+                    hf(d, lean, 7.0f - 0.6f * sq, 8.5f - 1.0f * pat, 3.4f), e);
+            hand(r.leftArm, hf(d, lean, -2.4f, 6.0f, 3.2f), 0.9f, 0.3f, 0.2f,
+                    hf(d, lean, -4.6f + 0.6f * sq, 7.2f, 3.4f), e);
         } else {
             // brazos por encima de sus hombros, hasta la nuca
-            hand(r.rightArm, face(d, 0, 2.0f, 0.6f, 3.0f), -0.6f, -0.7f, 0.2f,
-                    face(d, 0, 6.0f, -1.6f, 0.0f), e);
-            hand(r.leftArm, face(d, 0, -2.0f, 0.6f, 3.0f), 0.6f, -0.7f, 0.2f,
-                    face(d, 0, -6.0f, -1.6f, 0.0f), e);
+            hand(r.rightArm, hf(d, lean, 2.0f, 0.6f, 3.0f), -0.6f, -0.7f, 0.2f,
+                    hf(d, lean, 6.0f, -1.6f, 0.0f), e);
+            hand(r.leftArm, hf(d, lean, -2.0f, 0.6f, 3.0f), 0.6f, -0.7f, 0.2f,
+                    hf(d, lean, -6.0f, -1.6f, 0.0f), e);
         }
-        // cabezas una al lado de la otra (cada una hacia su izquierda)
-        r.head.x += 3.6f * e;
-        r.head.y += 0.6f * e;
-        r.head.set(0.12f * e, (0.30f + 0.06f * sin(t * 0.11f) * sq) * e, 0.10f * e);
+        // la cabeza sigue pegada al cuello: gira la cara al costado y se apoya un poco mas
+        r.head.set(0.10f * e, (0.32f + 0.06f * sin(t * 0.11f) * sq) * e, lean + 0.12f * e);
         breathe(r, t, 1 + sq);
     }
 
@@ -851,5 +871,197 @@ public final class PairAnims {
         handL(r, new float[]{0.4f + c, 5.0f, -5.0f}, null, clap);
         r.drop(-0.8f * clap * Math.abs(sin(t * 0.7f)));
         breathe(r, t, 1.5f);
+    }
+
+    // ================================================================= mimos (tocar con el raton)
+
+    /** Contacto actual del modo mimos (lo da el cliente con las posiciones reales). */
+    public record Contact(int zone, float[] point, float[] start, float w) {
+    }
+
+    public interface TouchLink {
+        /** Para quien toca: punto donde va su mano (en SU modelo), o null. */
+        Contact asToucher();
+
+        /** Para quien recibe: punto de contacto (en SU modelo), o null. */
+        Contact asReceiver();
+    }
+
+    public static TouchLink touchLink;
+
+    static void toucher(Rig r, float t) {
+        float d = Layout.TOUCH;
+        r.restUpper();
+        relaxedLegs(r, t, 1);
+        breathe(r, t, 1.2f);
+        sway(r, t, 0.6f);
+        Contact c = touchLink == null ? null : touchLink.asToucher();
+        float w = c == null ? 0 : c.w();
+        // sin tocar: lo mira, manos sueltas
+        r.look(0, -4.0f, -d * PX, 0.8f * (1 - w));
+        if (c == null || w <= 0.001f) {
+            return;
+        }
+        float[] p = c.point().clone();
+        int z = c.zone();
+        // pequeno vaiven propio para que la caricia no se vea quieta
+        if (z == com.annis.interact.Touch.PELO || z == com.annis.interact.Touch.MEJILLA) {
+            p[0] += 0.5f * sin(t * 0.45f);
+            p[1] += 0.3f * sin(t * 0.9f);
+        } else if (z == com.annis.interact.Touch.HOMBRO_D || z == com.annis.interact.Touch.HOMBRO_I) {
+            p[1] -= 1.6f * Math.max(0, sin(t * 0.8f));
+        }
+        if (z == com.annis.interact.Touch.PELO || z == com.annis.interact.Touch.MEJILLA) {
+            // la mano se apoya encima, no dentro: un poco hacia fuera desde el centro de su cabeza
+            float nx = p[0], ny = p[1] + 4.0f, nz = p[2] + d * PX;
+            float nl = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);
+            if (nl > 0.01f) {
+                p[0] += 1.7f * nx / nl;
+                p[1] += 1.7f * ny / nl;
+                p[2] += 1.7f * nz / nl;
+            }
+        }
+        // se inclina hacia lo que toca, y gira un poco hacia ese lado
+        float reach = Math.max(0, -p[2] - 4.0f) / 8.0f + Math.max(0, -p[1]) / 14.0f;
+        r.torso((0.04f + 0.12f * Math.min(1, reach)) * w, -0.12f * clampS(p[0] / 6.0f) * w, 0);
+        boolean useRight = p[0] <= 1.0f;
+        Rig.P arm = useRight ? r.rightArm : r.leftArm;
+        float side = useRight ? -1 : 1;
+        hand(arm, p, 0.6f * side, 0.6f, 0.4f, null, w);
+        r.look(p[0], p[1], p[2], 0.9f * w);
+    }
+
+    static float clampS(float v) {
+        return Math.max(-1, Math.min(1, v));
+    }
+
+    static void touched(Rig r, float t) {
+        float d = Layout.TOUCH;
+        r.restUpper();
+        relaxedLegs(r, t, 1);
+        breathe(r, t, 1.2f);
+        sway(r, t, 0.6f);
+        Contact c = touchLink == null ? null : touchLink.asReceiver();
+        r.look(0, -4.0f, -d * PX, 0.7f);
+        if (c == null || c.w() <= 0.001f) {
+            return;
+        }
+        float w = c.w();
+        float[] p = c.point();
+        int z = c.zone();
+        switch (z) {
+            case com.annis.interact.Touch.PELO -> {
+                // se acurruca contra la mano
+                r.head.pitch += 0.14f * w;
+                r.head.roll += 0.10f * clampS(p[0] / 4.0f) * w;
+                r.torso(0.04f * w, 0, 0);
+                r.drop(0.3f * w);
+            }
+            case com.annis.interact.Touch.MEJILLA -> {
+                // apoya la cara en la mano; arrastrando se le guia la cabeza
+                float[] s = c.start();
+                float gx = s == null ? 0 : p[0] - s[0], gy = s == null ? 0 : p[1] - s[1];
+                r.head.roll += 0.20f * clampS(p[0] / 4.0f) * w;
+                r.head.yaw += Math.max(-0.6f, Math.min(0.6f, gx * 0.09f)) * w;
+                r.head.pitch += Math.max(-0.4f, Math.min(0.4f, gy * 0.09f)) * w;
+            }
+            case com.annis.interact.Touch.HOMBRO_D, com.annis.interact.Touch.HOMBRO_I -> {
+                boolean right = z == com.annis.interact.Touch.HOMBRO_D;
+                float hit = Math.max(0, -sin(t * 0.8f));
+                Rig.P arm = right ? r.rightArm : r.leftArm;
+                arm.y += 0.5f * hit * w;
+                r.head.roll += (right ? -0.10f : 0.10f) * w;
+            }
+            default -> {
+                if (com.annis.interact.Touch.isHand(z)) {
+                    // el brazo va adonde lo lleva la mano del otro
+                    boolean right = com.annis.interact.Touch.rightSide(z);
+                    Rig.P arm = right ? r.rightArm : r.leftArm;
+                    hand(arm, p, right ? -0.5f : 0.5f, 0.7f, 0.4f, null, w);
+                    r.look(p[0], p[1], p[2], 0.5f * w);
+                }
+            }
+        }
+    }
+
+    // ================================================================= apoyarse en el hombro
+
+    /** El de la izquierda le rodea la cintura al otro (que esta a su derecha) y se inclina hacia el. */
+    static void shoulderHold(Rig r, float t) {
+        float l = Layout.LEAN_SIDE;
+        float e = envB(t, 0, 16, 1.0e9f, 1.0e9f);
+        r.restUpper();
+        relaxedLegs(r, t, 1);
+        r.torso(0.03f * e, 0, -SL_LEAN_A * e);
+        // brazo derecho por detras, la mano en su cintura
+        float[] waist = right(l, SL_HX, SL_HY, SL_HZ);
+        hand(r.rightArm, waist, -0.3f, 0.4f, 1.0f, null, e);
+        r.leftArm.set(0.04f * sin(t * 0.05f), 0, 0.06f);
+        // cabeza hacia la suya
+        r.head.set(0.06f * e, -0.20f * e, -(SL_LEAN_A + 0.16f) * e);
+        breathe(r, t, 1.2f);
+    }
+
+    static final float SL_LEAN_A = 0.10f, SL_LEAN_B = 0.14f, SL_SLIDE = 0.8f;
+    static final float SL_HX = 1.5f, SL_HY = 6.0f, SL_HZ = 6.0f;
+
+    /** El de la derecha apoya la cabeza hacia el hombro del otro; su brazo cae por delante. */
+    static void shoulderLean(Rig r, float t) {
+        float e = envB(t, 4, 22, 1.0e9f, 1.0e9f);
+        r.restUpper();
+        relaxedLegs(r, t, 1);
+        r.torso(0.04f * e, 0.04f * e, SL_LEAN_B * e);
+        float slide = SL_SLIDE * e;
+        r.head.x += slide;
+        r.body.x += slide;
+        r.rightArm.x += slide;
+        r.leftArm.x += slide;
+        r.head.set(0.10f * e, 0.16f * e, (SL_LEAN_B + 0.28f) * e + 0.02f * sin(t * 0.04f));
+        // el brazo del lado del otro, un poco adelante (el suyo pasa por detras)
+        r.leftArm.set(-0.22f * e, 0, (-0.04f - SL_LEAN_B) * e);
+        r.rightArm.set(-0.05f * e, 0.10f * e, 0.04f);
+        breathe(r, t, 1.3f);
+    }
+
+    // ================================================================= besar la mano
+
+    /** Donde se encuentran la mano del que recibe y la boca del que besa (en el modelo del que besa). */
+    static float[] kissPoint(float t) {
+        float lift = ramp(t, 14, 26);
+        return new float[]{1.2f, lerp(6.0f, 1.0f, lift), -Layout.HAND_KISS * PX + 5.6f};
+    }
+
+    static void handKiss(Rig r, float t) {
+        float e = envB(t, 2, 12, 56, 68);
+        float bow = env(t, 22, 32, 42, 52);
+        r.restUpper();
+        relaxedLegs(r, t, 1);
+        r.torso(0.30f * bow + 0.05f * e, -0.05f * e, 0);
+        // toma su mano desde abajo y la levanta un poco
+        float[] k = kissPoint(t);
+        hand(r.rightArm, new float[]{k[0] - 0.4f, k[1] + 1.4f, k[2] + 0.4f}, -0.3f, 1.0f, 0.3f, null, env(t, 6, 14, 54, 64));
+        // la otra mano a la espalda, como un caballero
+        handL(r, new float[]{1.4f, 9.0f, 3.6f}, null, e);
+        r.look(k[0], k[1], k[2], 0.9f * e);
+        r.head.pitch += 0.35f * bow;
+        breathe(r, t, 1);
+    }
+
+    static void handKissed(Rig r, float t) {
+        float e = envB(t, 2, 14, 56, 68);
+        float shy = env(t, 34, 40, 56, 64);
+        r.restUpper();
+        relaxedLegs(r, t, 1);
+        // ofrece la mano derecha
+        float[] k = kissPoint(t);
+        float[] mine = face(Layout.HAND_KISS, 0, k[0], k[1], k[2]);
+        hand(r.rightArm, mine, -0.4f, 0.8f, 0.4f, null, env(t, 4, 14, 54, 64));
+        // timidez: la otra mano al pecho y la cabeza ladeada
+        handL(r, new float[]{1.0f, 4.0f, -4.4f}, null, shy);
+        r.look(0, -2.0f, -Layout.HAND_KISS * PX, 0.8f * e);
+        r.head.roll += 0.16f * shy;
+        r.head.pitch += 0.08f * shy;
+        r.drop(-0.6f * shy * Math.abs(sin(t * 0.5f)));
+        breathe(r, t, 1.2f);
     }
 }

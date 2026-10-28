@@ -36,7 +36,9 @@ public record Interaction(String id, String name, String animA, String animB, Pl
         /** En brazos o a caballito. */
         CARRY,
         /** Levantar a un caido. */
-        REVIVE
+        REVIVE,
+        /** Mimos: uno toca al otro con el raton hasta que alguien pulse Shift. */
+        TOUCH
     }
 
     private static final Map<String, Interaction> BY_ID = new LinkedHashMap<>();
@@ -75,6 +77,12 @@ public record Interaction(String id, String name, String animA, String animB, Pl
             Place.CARRY_BACK, 0, Kind.CARRY, false, 25, 1, 1, true));
     public static final Interaction SLOW = add(new Interaction("baile_lento", "Baile lento abrazados", "lento_a", "lento_b",
             Place.FACE, 0, Kind.LOOP, true, 45, 1, 1, false));
+    public static final Interaction TOUCH = add(new Interaction("mimos", "Mimos (tocar con el raton)", "mimos_toca", "mimos_recibe",
+            Place.FACE, 0, Kind.TOUCH, true, 40, 1, 1, false));
+    public static final Interaction LEAN = add(new Interaction("hombro", "Apoyarme en su hombro", "hombro_rodea", "hombro_apoya",
+            Place.RIGHT, 0, Kind.LOOP, true, 30, 1, 1, true));
+    public static final Interaction HAND_KISS = add(new Interaction("besar_mano", "Besar la mano", "besar_mano", "recibir_beso_mano",
+            Place.FACE, 70, Kind.SCENE, true, 35, 2, 1, false));
 
     private static Interaction add(Interaction i) {
         BY_ID.put(i.id, i);
@@ -103,6 +111,9 @@ public record Interaction(String id, String name, String animA, String animB, Pl
             case "ayudar" -> Layout.HELP;
             case "propuesta" -> Layout.PROPOSE;
             case "baile_lento" -> Layout.SLOW;
+            case "mimos" -> Layout.TOUCH;
+            case "hombro" -> Layout.LEAN_SIDE;
+            case "besar_mano" -> Layout.HAND_KISS;
             default -> 0.0f;
         };
     }

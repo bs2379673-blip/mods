@@ -39,6 +39,18 @@ public final class TestDriver {
                     default -> Perspective.FIRST_PERSON;
                 });
                 case "hud" -> mc.options.hudHidden = cmd.length > 1 && cmd[1].equals("no");
+                case "tocar" -> {
+                    if (mc.currentScreen instanceof TouchScreen ts && cmd.length >= 5) {
+                        ts.testTouch(Integer.parseInt(cmd[1]), Float.parseFloat(cmd[2]), Float.parseFloat(cmd[3]), Float.parseFloat(cmd[4]));
+                    } else {
+                        AnnisInteract.LOGGER.warn("[TEST] tocar: la pantalla de mimos no esta abierta ({})", mc.currentScreen);
+                    }
+                }
+                case "soltar" -> {
+                    if (mc.currentScreen instanceof TouchScreen ts) {
+                        ts.testRelease();
+                    }
+                }
                 default -> {
                 }
             }

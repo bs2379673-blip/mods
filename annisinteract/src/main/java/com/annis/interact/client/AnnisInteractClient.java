@@ -39,6 +39,7 @@ public class AnnisInteractClient implements ClientModInitializer {
     public void onInitializeClient() {
         RigBridge.registerAll();
         com.annis.interact.client.anim.PairAnims.handLink = new HandLinkImpl();
+        com.annis.interact.client.anim.PairAnims.touchLink = new TouchLinkImpl();
         CarryPose.clientAnim = AnnisInteractClient::animOf;
 
         WHEEL = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.annisinteract.wheel",
@@ -65,6 +66,7 @@ public class AnnisInteractClient implements ClientModInitializer {
             ClientState.downedSeconds = p.seconds();
         });
         ClientPlayNetworking.registerGlobalReceiver(SessionPayload.ID, (p, ctx) -> ClientState.session = p.interaction());
+        ClientPlayNetworking.registerGlobalReceiver(com.annis.interact.net.TouchSyncPayload.ID, (p, ctx) -> onTouch(p));
         ClientPlayConnectionEvents.DISCONNECT.register((h, c) -> ClientState.reset());
 
         HudRenderCallback.EVENT.register(InteractHud::render);
@@ -93,6 +95,44 @@ public class AnnisInteractClient implements ClientModInitializer {
                 }
             }
         });
+    }
+
+    /** Modo mimos: alguien empieza, toca, suelta o termina. */
+    static void onTouch(com.annis.interact.net.TouchSyncPayload p) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        boolean mine = mc.player != null && p.toucher() == mc.player.getId();
+        if (p.receiver() < 0) {
+            ClientState.TOUCHES.remove(p.toucher());
+            return;
+        }
+        ClientState.TouchState s = ClientState.TOUCHES.get(p.toucher());
+        boolean fresh = s == null;
+        boolean startMsg = p.zone() == com.annis.interact.Touch.NONE && !p.active();
+        if (mine && fresh && !startMsg) {
+            // eco tardio despues de cerrar la pantalla: no reabrir
+            return;
+        }
+        if (fresh) {
+            s = new ClientState.TouchState();
+            ClientState.TOUCHES.put(p.toucher(), s);
+        }
+        s.toucher = p.toucher();
+        s.receiver = p.receiver();
+        if (mine && !fresh) {
+            // lo que hago yo ya se ve al instante; el eco del servidor llega tarde
+            return;
+        }
+        s.zone = p.zone();
+        s.active = p.active();
+        s.target[0] = p.x();
+        s.target[1] = p.y();
+        s.target[2] = p.z();
+        s.start[0] = p.sx();
+        s.start[1] = p.sy();
+        s.start[2] = p.sz();
+        if (mine && fresh) {
+            TouchScreen.openFor(p.receiver());
+        }
     }
 
     /** Animacion que este cliente ve en una entidad (para colocar al que va en brazos). */
