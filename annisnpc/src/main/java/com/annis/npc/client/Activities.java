@@ -43,6 +43,11 @@ public final class Activities {
         default boolean springy() {
             return true;
         }
+
+        /** false = esta parte (0 cabeza, 1 torso, 2-3 brazos, 4-5 piernas) pasa tal cual, sin inercia. */
+        default boolean springPart(int i) {
+            return true;
+        }
     }
 
     private static final Map<String, Custom> CUSTOM = new LinkedHashMap<>();
@@ -84,6 +89,12 @@ public final class Activities {
     public static boolean springy(String name) {
         Custom c = name == null ? null : CUSTOM.get(name.toLowerCase(Locale.ROOT));
         return c != null && c.springy();
+    }
+
+    /** true si la parte i de la animacion se suaviza con inercia. */
+    public static boolean springPart(String name, int i) {
+        Custom c = name == null ? null : CUSTOM.get(name.toLowerCase(Locale.ROOT));
+        return c == null || c.springPart(i);
     }
 
     /** Pose de cuerpo entero de la animacion (o null si no mueve el cuerpo entero). */

@@ -18,11 +18,36 @@ public final class Rig {
         public float[] rigid;
         public boolean touched;
         final float rx, ry, rz;
+        /** Pose que traia la parte (la de caminar de vanilla o de EMF) antes de la animacion. */
+        float inPitch, inYaw, inRoll, inX, inY, inZ;
 
         P(float rx, float ry, float rz) {
             this.rx = rx;
             this.ry = ry;
             this.rz = rz;
+            this.inX = rx;
+            this.inY = ry;
+            this.inZ = rz;
+            this.x = rx;
+            this.y = ry;
+            this.z = rz;
+        }
+
+        /**
+         * Conserva la pose que traia la parte (por ejemplo el paso al caminar) y la marca como
+         * controlada; los ajustes que se hagan despues se suman a ella.
+         */
+        public P keep() {
+            this.bend = 0;
+            this.rigid = null;
+            this.pitch = this.inPitch;
+            this.yaw = this.inYaw;
+            this.roll = this.inRoll;
+            this.x = this.inX;
+            this.y = this.inY;
+            this.z = this.inZ;
+            this.touched = true;
+            return this;
         }
 
         public P set(float pitch, float yaw, float roll) {
@@ -49,6 +74,12 @@ public final class Rig {
         }
 
         public void load(float pitch, float yaw, float roll, float x, float y, float z) {
+            this.inPitch = pitch;
+            this.inYaw = yaw;
+            this.inRoll = roll;
+            this.inX = x;
+            this.inY = y;
+            this.inZ = z;
             this.pitch = pitch;
             this.yaw = yaw;
             this.roll = roll;
@@ -191,6 +222,9 @@ public final class Rig {
                     forward + (o.forward - forward) * w, up + (o.up - up) * w, left + (o.left - left) * w);
         }
     }
+
+    /** true si las piernas conservan el paso de caminar (no se suavizan con inercia). */
+    public boolean walkLegs;
 
     public final P head = new P(0, 0, 0);
     public final P body = new P(0, 0, 0);

@@ -203,16 +203,20 @@ public final class PairAnims {
         r.head.x += 0.30f * s;
     }
 
-    /** Piernas relajadas de pie: una rodilla un poco floja segun el peso. */
+    /**
+     * Piernas relajadas de pie: se suman a lo que traen (el paso de caminar de vanilla o de EMF),
+     * asi que si el personaje camina sus piernas siguen moviendose y quietas quedan sueltas.
+     */
     static void relaxedLegs(Rig r, float t, float amount) {
         float s = sin(t * 0.034f);
-        r.rightLeg.rest();
-        r.leftLeg.rest();
+        r.walkLegs = true;
+        r.rightLeg.keep();
+        r.leftLeg.keep();
         // la pierna que descansa se adelanta un poco y se abre (Fresh: piezas rigidas sueltas)
-        r.rightLeg.pitch = (-0.03f - 0.07f * Math.max(0, s)) * amount;
-        r.leftLeg.pitch = (-0.03f - 0.07f * Math.max(0, -s)) * amount;
-        r.rightLeg.roll = (0.035f + 0.02f * Math.max(0, -s)) * amount;
-        r.leftLeg.roll = (-0.035f - 0.02f * Math.max(0, s)) * amount;
+        r.rightLeg.pitch += (-0.03f - 0.07f * Math.max(0, s)) * amount;
+        r.leftLeg.pitch += (-0.03f - 0.07f * Math.max(0, -s)) * amount;
+        r.rightLeg.roll += (0.035f + 0.02f * Math.max(0, -s)) * amount;
+        r.leftLeg.roll += (-0.035f - 0.02f * Math.max(0, s)) * amount;
         r.rightLeg.z -= 0.3f * Math.max(0, s) * amount;
         r.leftLeg.z -= 0.3f * Math.max(0, -s) * amount;
     }
@@ -287,9 +291,9 @@ public final class PairAnims {
         handR(r, new float[]{-1.6f, 9.6f, 3.6f}, null, hb);
         handL(r, new float[]{1.6f, 9.6f, 3.6f}, null, hb);
         // un pie se levanta hacia atras en el momento del beso
-        r.leftLeg.rest();
-        r.leftLeg.pitch = 0.55f * pop;
-        r.leftLeg.roll = -0.06f * pop;
+        r.leftLeg.keep();
+        r.leftLeg.pitch += 0.55f * pop;
+        r.leftLeg.roll += -0.06f * pop;
         // la cabeza gira hacia la mejilla izquierda del otro
         float turn = env(t, 2, 14, 44, 56);
         r.head.set(0.12f * e, -0.95f * turn, 0.10f * e);

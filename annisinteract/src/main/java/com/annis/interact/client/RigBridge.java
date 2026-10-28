@@ -24,6 +24,7 @@ public final class RigBridge {
                 public void apply(NpcModel m, float t) {
                     ModelPart[] parts = {m.head, m.body, m.rightArm, m.leftArm, m.rightLeg, m.leftLeg};
                     Rig.P[] ps = this.rig.parts();
+                    this.rig.walkLegs = false;
                     for (int i = 0; i < 6; i++) {
                         ModelPart p = parts[i];
                         ps[i].load(p.pitch, p.yaw, p.roll, p.pivotX, p.pivotY, p.pivotZ);
@@ -50,6 +51,12 @@ public final class RigBridge {
                 public boolean springy() {
                     // de la mano: la mano sigue al companero real sin retraso
                     return !name.startsWith("de_la_mano");
+                }
+
+                @Override
+                public boolean springPart(int i) {
+                    // las piernas que siguen el paso de caminar no se suavizan: perderian el vaiven
+                    return !(i >= 4 && this.rig.walkLegs);
                 }
 
                 @Override

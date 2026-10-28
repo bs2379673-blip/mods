@@ -1,7 +1,7 @@
-ANNIS INTERACCIONES 0.2 (Fabric 1.21.1)
+ANNIS INTERACCIONES 0.2.1 (Fabric 1.21.1)
 =======================================
 
-Necesita: Fabric API, playerAnimator (viene dentro de Emotecraft) y Annis NPC 0.12 o mas nuevo.
+Necesita: Fabric API, playerAnimator (viene dentro de Emotecraft) y Annis NPC 0.12.1 o mas nuevo.
 Opcional: Minecraft Comes Alive (aldeanos), Entity Model Features / Fresh Animations.
 Va en el cliente y en el servidor.
 
@@ -27,6 +27,13 @@ CAIDOS
   ("Ayudar a levantarse"). Los NPC que te siguen y los aldeanos de MCA que te quieren mucho
   vienen solos a levantarte. Manten Shift 3 s para rendirte. El totem de la inmortalidad
   funciona como siempre. Los monstruos dejan en paz a los caidos.
+
+PIERNAS Y EMF / FRESH ANIMATIONS
+- Las piernas ya no se quedan quietas: las interacciones solo les suman un ajuste suave encima del paso
+  que traen (el de vanilla o el de EMF), asi quien camina (de la mano, llevar en brazos, a caballito)
+  sigue moviendo las piernas.
+- Mientras dura una interaccion se pausan las animaciones de EMF de esos dos para que no se pisen
+  (EMF no deja pausar solo algunas partes). Al terminar vuelven solas.
 
 COMANDOS
   /interaccion aceptar | rechazar | parar | lista

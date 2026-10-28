@@ -120,6 +120,12 @@ python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' 'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' \
   "${T}foto 17_de_la_mano_caminando${E}" 'sleep 1' "${T}foto 18_de_la_mano_quietos${E}" \
   'execute as @a run interaccion parar' 'sleep 1' \
+  'tp @a 0 -60 0 0 0' 'tp @e[tag=c1] 0 -60 1.5' 'sleep 1' \
+  'interaccion hacer en_brazos @e[tag=c1,limit=1] @a[limit=1]' 'sleep 1.2' "${T}camara atras${E}" \
+  'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' 'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' \
+  'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' 'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' \
+  "${T}foto 20_npc_carga_caminando${E}" 'sleep 0.5' \
+  'execute as @a run interaccion parar' 'sleep 1' \
   'gamerule doImmediateRespawn true' 'interaccion caer @a[limit=1]' 'sleep 1.5' 'kill @a' 'sleep 3' "${T}camara frente${E}" 'sleep 1' "${T}foto 19_tras_reaparecer${E}" \
   'sleep 1' 'stop' 2>&1 | tee rcon-visual.txt
 sleep 8

@@ -251,7 +251,21 @@ public final class NpcAnimState {
             float[] v = {
                     MathHelper.lerp(w, b[0], p.pitch), MathHelper.lerp(w, b[1], p.yaw), MathHelper.lerp(w, b[2], p.roll),
                     MathHelper.lerp(w, b[3], p.pivotX), MathHelper.lerp(w, b[4], p.pivotY), MathHelper.lerp(w, b[5], p.pivotZ)};
-            if (spring) {
+            // una parte que la animacion no toco (o que debe seguir el paso de caminar) pasa tal cual
+            boolean untouched = true;
+            for (int c = 0; c < 6; c++) {
+                if (v[c] != b[c]) {
+                    untouched = false;
+                    break;
+                }
+            }
+            if (spring && (untouched || i < 6 && !Activities.springPart(this.activity, i))) {
+                if (this.springs != null) {
+                    for (int c = 0; c < 6; c++) {
+                        this.springs[i][c].reset(v[c]);
+                    }
+                }
+            } else if (spring) {
                 Spring[] sp = this.springs[i];
                 if (!sp[0].ready() || sdt <= 0) {
                     for (int c = 0; c < 6; c++) {

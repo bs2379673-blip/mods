@@ -22,7 +22,7 @@
     "minecraft": "~1.21.1",
     "java": ">=21",
     "fabric-api": "*",
-    "annisnpc": ">=0.12.0"
+    "annisnpc": ">=0.12.1"
   },
   "suggests": {
     "mca": "*",
