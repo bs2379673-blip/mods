@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.annis.interact.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["EntityRidingMixin"],
+  "client": ["client.AnchorRenderMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

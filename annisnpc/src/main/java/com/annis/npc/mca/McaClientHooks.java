@@ -51,32 +51,8 @@ public final class McaClientHooks {
 
     /** Llamado al final de setAngles del modelo de MCA. */
     public static void afterSetAngles(BipedEntityModel<?> model, LivingEntity entity, float animationProgress) {
-        NpcAnimState state = NpcAnimState.peek(entity);
-        ClientLinks.Anim anim = ClientLinks.anim(entity);
-        if (state == null || anim == null) {
-            EmfCompat.setPaused(entity, false);
-            return;
-        }
-        boolean overriding = state.isOverriding();
-        EmfCompat.setPaused(entity, overriding);
-        if (!overriding) {
-            return;
-        }
-        NpcModel p = proxy();
-        copy(model, p);
-        float partial = animationProgress - entity.age;
-        float shared = partial;
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world != null) {
-            long elapsed = mc.world.getTime() - anim.start();
-            if (elapsed >= 0 && elapsed < 20L * 60 * 60 * 24) {
-                shared = elapsed + partial;
-            }
-        }
-        state.applier.setTickDelta(partial);
-        state.applyOverlay(p, shared);
-        copyBack(p, model);
-        if (model instanceof VillagerEntityModelMCA<?> mca) {
+        if (com.annis.npc.client.AnimOverlay.afterSetAngles(model, entity, animationProgress)
+                && model instanceof VillagerEntityModelMCA<?> mca) {
             mca.syncWearParts();
         }
     }

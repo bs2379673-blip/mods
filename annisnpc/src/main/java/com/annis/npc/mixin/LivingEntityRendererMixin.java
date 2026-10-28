@@ -21,4 +21,11 @@ public abstract class LivingEntityRendererMixin {
             ci.cancel();
         }
     }
+
+    /** Pose de cuerpo entero de las animaciones (tumbarse, ir en brazos...) en jugadores y aldeanos. */
+    @Inject(method = "setupTransforms", at = @At("TAIL"))
+    private void annisnpc$rootPose(LivingEntity entity, MatrixStack matrices, float animationProgress, float bodyYaw,
+                                   float tickDelta, float scale, CallbackInfo ci) {
+        com.annis.npc.client.NpcRenderer.applyRoot(matrices, com.annis.npc.client.AnimOverlay.root(entity, tickDelta));
+    }
 }

@@ -53,6 +53,22 @@ public class NpcRenderer extends LivingEntityRenderer<AnnisNpcEntity, PlayerEnti
         if (yaw != 0.0f) {
             matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotation(yaw));
         }
+        applyRoot(matrices, NpcAnimState.of(npc).rootPose(npc, tickDelta));
+    }
+
+    /**
+     * Pose de cuerpo entero en el marco del render (antes del volteo del modelo: delante = -Z, su
+     * izquierda = -X, arriba = +Y). Mismo criterio que la capa "body" de playerAnimator.
+     */
+    public static void applyRoot(MatrixStack matrices, Activities.RootPose rp) {
+        if (rp == null) {
+            return;
+        }
+        matrices.translate(-rp.left(), rp.up() + 0.7f, -rp.forward());
+        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Z.rotation(rp.roll()));
+        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotation(rp.yaw()));
+        matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_X.rotation(rp.pitch()));
+        matrices.translate(0.0f, -0.7f, 0.0f);
     }
 
     @Override

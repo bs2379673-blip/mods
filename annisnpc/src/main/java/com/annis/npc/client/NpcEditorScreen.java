@@ -87,7 +87,7 @@ public class NpcEditorScreen extends Screen {
         this.skins.add(""); // predeterminada
         this.skins.addAll(SkinManager.list());
         this.emotes.clear();
-        this.emotes.addAll(Activities.NAMES);
+        this.emotes.addAll(Activities.names());
         for (String name : MoveLibrary.list()) {
             if (!this.emotes.contains(name)) {
                 this.emotes.add(name);

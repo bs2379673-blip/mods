@@ -4,6 +4,6 @@
   "package": "com.annis.npc.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [],
-  "client": ["LimbAnimatorAccessor", "LivingEntityRendererMixin"],
+  "client": ["LimbAnimatorAccessor", "LivingEntityRendererMixin", "PlayerModelMixin"],
   "injectors": { "defaultRequire": 1 }
 }

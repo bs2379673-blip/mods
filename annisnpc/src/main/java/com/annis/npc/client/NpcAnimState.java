@@ -139,6 +139,28 @@ public final class NpcAnimState {
         return MoveLibrary.has(name) || Activities.has(name);
     }
 
+    /** Pose de cuerpo entero (tumbado, en brazos...) de la actividad actual, ya mezclada. */
+    public Activities.RootPose rootPose(AnnisNpcEntity npc, float tickDelta) {
+        return rootPose(npc.getEmoteStart(), tickDelta);
+    }
+
+    /** Igual, para cualquier entidad: start = tick de inicio del reloj comun. */
+    public Activities.RootPose rootPose(int start, float tickDelta) {
+        if (this.activity.isEmpty() || this.activityWeight <= 0.0f) {
+            return null;
+        }
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.world == null) {
+            return null;
+        }
+        long elapsed = mc.world.getTime() - start;
+        if (elapsed < 0 || elapsed > 20L * 60 * 60 * 24) {
+            return null;
+        }
+        Activities.RootPose rp = Activities.root(this.activity, elapsed + tickDelta);
+        return rp == null ? null : rp.scaled(this.activityWeight);
+    }
+
     /** Giro del cuerpo entero del movimiento actual (bailes importados que dan vueltas), ya mezclado. */
     public float rootYaw(AnnisNpcEntity npc, float tickDelta) {
         if (this.activity.isEmpty() || this.activityWeight <= 0.0f) {

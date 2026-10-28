@@ -14,6 +14,7 @@ curl -sSL -o $R/mods/fabric-api.jar "https://maven.fabricmc.net/net/fabricmc/fab
 cp libs/playeranimator-2.0.1+1.21.1.jar $R/mods/
 cp libs/test/mca-fabric-7.7.36-beta.3+1.21.1-original.jar $R/mods/mca.jar
 cp ../out/annisnpc-*.jar $R/mods/
+cp ../out/annisinteract-*.jar $R/mods/ 2>/dev/null
 ls -la $R/mods
 echo "eula=true" > $R/eula.txt
 cat > $R/server.properties <<EOP
@@ -41,6 +42,18 @@ if grep -q 'Done (' server.log; then
     'summon mca:male_villager 4 -60 4' \
     'annisnpc spawn steve' \
     'sleep 3' \
+    'interaccion lista' \
+    'interaccion hacer abrazo @e[type=annisnpc:npc,limit=1] @e[type=mca:female_villager,limit=1]' \
+    'sleep 5' \
+    'interaccion hacer en_brazos @e[type=annisnpc:npc,limit=1] @e[type=mca:female_villager,limit=1]' \
+    'sleep 2' \
+    'data get entity @e[type=mca:female_villager,limit=1] RootVehicle' \
+    'interaccion caer @e[type=annisnpc:npc,limit=1]' \
+    'sleep 1' \
+    'data get entity @e[type=annisnpc:npc,limit=1] Health' \
+    'interaccion hacer ayudar @e[type=mca:male_villager,limit=1] @e[type=annisnpc:npc,limit=1]' \
+    'sleep 4' \
+    'data get entity @e[type=annisnpc:npc,limit=1] Health' \
     'annisnpc mca acciones' \
     'annisnpc mca accion boda tocar_tambor 8' \
     'annisnpc anim @e[type=mca:female_villager] bailar 5' \

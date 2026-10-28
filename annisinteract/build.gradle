@@ -1,0 +1,54 @@
+plugins {
+    id 'fabric-loom' version '1.9-SNAPSHOT'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // Annis NPC (se compila antes en la misma accion) y playerAnimator, que usa
+    modImplementation fileTree(dir: '../annisnpc/build/libs', include: 'annisnpc-*.jar', exclude: ['*-sources.jar', '*-dev.jar'])
+    modImplementation files('../annisnpc/libs/playeranimator-2.0.1+1.21.1.jar')
+
+    // Minecraft Comes Alive (GPL-3.0): solo para compilar la parte opcional; no va dentro del jar.
+    modCompileOnly files('../annisnpc/libs/mca-fabric-7.7.36-beta.3+1.21.1.jar')
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+    it.options.encoding = 'UTF-8'
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+// Prueba visual automatica (solo con -PannisTest): el cliente entra solo al servidor de prueba
+if (project.hasProperty('annisTest')) {
+    loom {
+        runs {
+            client {
+                vmArg '-Dannis.test=1'
+                programArgs '--quickPlayMultiplayer', 'localhost:25565', '--width', '1280', '--height', '720'
+            }
+        }
+    }
+}

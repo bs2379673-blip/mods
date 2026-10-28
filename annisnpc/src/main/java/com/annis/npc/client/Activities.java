@@ -2,8 +2,11 @@ package com.annis.npc.client;
 
 import net.minecraft.util.math.MathHelper;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Actividades integradas (no necesitan archivos): poses y movimientos en bucle estilo "escena".
@@ -18,11 +21,54 @@ public final class Activities {
 
     private static final float PI = (float) Math.PI;
 
+    /**
+     * Pose del cuerpo entero (tumbarse, ser llevado en brazos...): giros en radianes alrededor de la
+     * cadera y desplazamiento en bloques (forward = hacia donde mira, up = arriba, left = su izquierda).
+     */
+    public record RootPose(float pitch, float yaw, float roll, float forward, float up, float left) {
+        public RootPose scaled(float w) {
+            return new RootPose(pitch * w, yaw * w, roll * w, forward * w, up * w, left * w);
+        }
+    }
+
+    /** Animacion registrada por otro mod (por ejemplo Annis Interacciones). */
+    public interface Custom {
+        void apply(NpcModel m, float t);
+
+        default RootPose root(float t) {
+            return null;
+        }
+    }
+
+    private static final Map<String, Custom> CUSTOM = new LinkedHashMap<>();
+
     private Activities() {
     }
 
+    /** API: registrar una animacion procedural con nombre (se puede usar en NPC, aldeanos y jugadores). */
+    public static synchronized void register(String name, Custom custom) {
+        CUSTOM.put(name.toLowerCase(Locale.ROOT), custom);
+    }
+
+    /** Integradas + registradas por otros mods. */
+    public static synchronized List<String> names() {
+        List<String> all = new ArrayList<>(NAMES);
+        all.addAll(CUSTOM.keySet());
+        return all;
+    }
+
     public static boolean has(String name) {
-        return name != null && NAMES.contains(name.toLowerCase(Locale.ROOT));
+        if (name == null) {
+            return false;
+        }
+        String n = name.toLowerCase(Locale.ROOT);
+        return NAMES.contains(n) || CUSTOM.containsKey(n);
+    }
+
+    /** Pose de cuerpo entero de la animacion (o null si no mueve el cuerpo entero). */
+    public static RootPose root(String name, float t) {
+        Custom c = name == null ? null : CUSTOM.get(name.toLowerCase(Locale.ROOT));
+        return c == null ? null : c.root(t);
     }
 
     private static void rot(net.minecraft.client.model.ModelPart p, float pitch, float yaw, float roll) {
@@ -120,6 +166,11 @@ public final class Activities {
         MoveLibrary.Move move = MoveLibrary.get(name);
         if (move != null) {
             MoveLibrary.apply(move, m, t);
+            return;
+        }
+        Custom custom = CUSTOM.get(name.toLowerCase(Locale.ROOT));
+        if (custom != null) {
+            custom.apply(m, t);
             return;
         }
         switch (name.toLowerCase(Locale.ROOT)) {

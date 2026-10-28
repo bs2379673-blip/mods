@@ -346,6 +346,11 @@ public class AnnisNpcEntity extends PathAwareEntity {
 
     // ---- extension: modo, dialogo, figura, rutina ----
 
+    /** Dueno (quien lo puso en seguir/guardia), o null. */
+    public java.util.UUID getOwnerUuid() {
+        return this.owner;
+    }
+
     public int getMode() {
         return this.dataTracker.get(MODE);
     }

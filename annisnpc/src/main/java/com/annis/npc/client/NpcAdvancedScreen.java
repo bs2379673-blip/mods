@@ -42,7 +42,7 @@ public class NpcAdvancedScreen extends Screen {
         super(Text.literal("Opciones avanzadas"));
         this.npcId = npcId;
         this.activities.add("");
-        this.activities.addAll(Activities.NAMES);
+        this.activities.addAll(Activities.names());
     }
 
     private AnnisNpcEntity npc() {

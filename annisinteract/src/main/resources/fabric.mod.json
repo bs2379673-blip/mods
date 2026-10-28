@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "annisinteract",
+  "version": "${version}",
+  "name": "Annis Interacciones",
+  "description": "Interacciones especiales entre jugadores, NPC de Annis NPC y aldeanos de MCA: abrazo, beso en la mejilla, chocar los cinco, apreton de manos, palmadita, ir de la mano, llevar en brazos, a caballito, bailar en pareja, mirar las estrellas, sentarse juntos, caidos y ayudar a levantarse. Animaciones propias, compatibles con EMF.",
+  "authors": [
+    "Annis World"
+  ],
+  "license": "All-Rights-Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.annis.interact.AnnisInteract"
+    ],
+    "client": [
+      "com.annis.interact.client.AnnisInteractClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.5",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*",
+    "annisnpc": ">=0.11.0"
+  },
+  "suggests": {
+    "mca": "*",
+    "entity_model_features": "*"
+  },
+  "mixins": [
+    "annisinteract.mixins.json"
+  ]
+}
