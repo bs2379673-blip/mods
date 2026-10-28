@@ -63,6 +63,14 @@ public class AnnisNpcEntity extends PathAwareEntity {
     private static final TrackedData<Boolean> ROUTINE_ON =
             DataTracker.registerData(AnnisNpcEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
+    private static final TrackedData<Integer> EMOTE_START =
+            DataTracker.registerData(AnnisNpcEntity.class, TrackedDataHandlerRegistry.INTEGER);
+    private static final TrackedData<String> SCENE =
+            DataTracker.registerData(AnnisNpcEntity.class, TrackedDataHandlerRegistry.STRING);
+    private static final TrackedData<String> ACCESSORIES =
+            DataTracker.registerData(AnnisNpcEntity.class, TrackedDataHandlerRegistry.STRING);
+    public static final int MAX_ACCESSORIES = 12;
+
     public static final int MODE_PASSIVE = 0;
     public static final int MODE_FOLLOW = 1;
     public static final int MODE_GUARD = 2;
@@ -111,6 +119,9 @@ public class AnnisNpcEntity extends PathAwareEntity {
         builder.add(MODE, 0);
         builder.add(ROUTINE, "");
         builder.add(ROUTINE_ON, true);
+        builder.add(EMOTE_START, 0);
+        builder.add(SCENE, "");
+        builder.add(ACCESSORIES, "");
     }
 
     @Override
@@ -209,6 +220,85 @@ public class AnnisNpcEntity extends PathAwareEntity {
     public boolean isBusy() {
         return isStationary() || this.holdTicks > 0 || this.talkTicks > 0
                 || getMode() == MODE_FOLLOW || (isRoutineOn() && !getStops().isEmpty());
+    }
+
+    /** Tick del mundo en que empezo el emote actual: el reloj comun que sincroniza a todos los NPC. */
+    public int getEmoteStart() {
+        return this.dataTracker.get(EMOTE_START);
+    }
+
+    /** Reinicia el emote actual en un tick concreto (para arrancar un grupo entero a la vez). */
+    public void restartEmote(int worldTick) {
+        if (getEmote().isEmpty()) {
+            return;
+        }
+        this.dataTracker.set(EMOTE_START, worldTick);
+        this.dataTracker.set(EMOTE_SERIAL, getEmoteSerial() + 1);
+    }
+
+    public String getScene() {
+        return this.dataTracker.get(SCENE);
+    }
+
+    public void setScene(String group) {
+        String g = group == null ? "" : group.trim().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_-]", "");
+        this.dataTracker.set(SCENE, g.length() > 32 ? g.substring(0, 32) : g);
+    }
+
+    public String getAccessories() {
+        return this.dataTracker.get(ACCESSORIES);
+    }
+
+    public void setAccessories(String raw) {
+        String r = raw == null ? "" : raw;
+        if (r.length() > 3000) {
+            return;
+        }
+        String[] entries = r.isEmpty() ? new String[0] : r.split(";");
+        if (entries.length > MAX_ACCESSORIES) {
+            return;
+        }
+        this.dataTracker.set(ACCESSORIES, r);
+    }
+
+    /** Pone la entrada index (o la anade si index < 0 o fuera de rango). Entrada vacia = quitar. */
+    public void setAccessory(int index, String entry) {
+        List<String> list = new ArrayList<>();
+        for (String e : getAccessories().split(";")) {
+            if (!e.isEmpty()) {
+                list.add(e);
+            }
+        }
+        String clean = entry == null ? "" : entry.replace(";", "");
+        if (index >= 0 && index < list.size()) {
+            if (clean.isEmpty()) {
+                list.remove(index);
+            } else {
+                list.set(index, clean);
+            }
+        } else if (!clean.isEmpty() && list.size() < MAX_ACCESSORIES) {
+            list.add(clean);
+        }
+        setAccessories(String.join(";", list));
+    }
+
+    /** Copia el aspecto y la configuracion de otro NPC (no copia la rutina ni la posicion). */
+    public void copyFrom(AnnisNpcEntity other) {
+        setSkin(other.getSkin());
+        setSlim(other.isSlim());
+        setDialog(other.getDialog());
+        setFigura(other.getFigura());
+        setScene(other.getScene());
+        setAccessories(other.getAccessories());
+        setProtected(other.isProtected());
+        setStationary(other.isStationary());
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            equipStack(slot, other.getEquippedStack(slot).copy());
+        }
+        if (!other.getEmote().isEmpty()) {
+            playEmote(other.getEmote(), 3600 * 20);
+            restartEmote(other.getEmoteStart());
+        }
     }
 
     public boolean isTalking() {
@@ -374,6 +464,7 @@ public class AnnisNpcEntity extends PathAwareEntity {
 
     /** Lanza un emote en los clientes. El NPC se queda quieto holdTicks ticks. */
     public void playEmote(String name, int holdTicks) {
+        this.dataTracker.set(EMOTE_START, (int) this.getWorld().getTime());
         this.dataTracker.set(EMOTE, name == null ? "" : name);
         this.dataTracker.set(EMOTE_SERIAL, getEmoteSerial() + 1);
         this.holdTicks = Math.max(0, holdTicks);
@@ -398,6 +489,9 @@ public class AnnisNpcEntity extends PathAwareEntity {
         nbt.putInt("Mode", getMode());
         nbt.putString("Routine", getRoutine());
         nbt.putBoolean("RoutineOn", isRoutineOn());
+        nbt.putString("Scene", getScene());
+        nbt.putString("Accessories", getAccessories());
+        nbt.putString("Emote", getEmote());
         if (this.owner != null) {
             nbt.putUuid("Owner", this.owner);
         }
@@ -416,6 +510,14 @@ public class AnnisNpcEntity extends PathAwareEntity {
         this.dataTracker.set(ROUTINE, nbt.getString("Routine"));
         this.dataTracker.set(ROUTINE_ON, !nbt.contains("RoutineOn") || nbt.getBoolean("RoutineOn"));
         this.owner = nbt.containsUuid("Owner") ? nbt.getUuid("Owner") : null;
+        setScene(nbt.getString("Scene"));
+        setAccessories(nbt.getString("Accessories"));
+        // las actividades en bucle (bailar, tocar...) sobreviven al reinicio del servidor
+        if (!nbt.getString("Emote").isEmpty()) {
+            this.dataTracker.set(EMOTE, nbt.getString("Emote"));
+            this.dataTracker.set(EMOTE_SERIAL, getEmoteSerial() + 1);
+            this.holdTicks = 20 * 60 * 60;
+        }
     }
 
     /** Seguir al jugador que puso el modo "seguirme". */

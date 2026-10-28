@@ -25,7 +25,11 @@ public record NpcActionPayload(int entityId, int action, String text, boolean fl
     public static final int ROUTINE_CLEAR = 12;
     public static final int ROUTINE_REMOVE_LAST = 13;
     public static final int ROUTINE_ENABLE = 14;
-    public static final int CLEAR_EQUIP = 15;   // flag (invencible)
+    public static final int CLEAR_EQUIP = 15;
+    public static final int SET_SCENE = 16;       // text = grupo
+    public static final int SYNC_SCENE = 17;      // reinicia a la vez todos los NPC del grupo
+    public static final int SET_ACCESSORY = 18;   // number = indice (-1 = anadir), text = entrada (vacia = quitar)
+    public static final int COPY_FROM = 19;       // number = id del NPC origen   // flag (invencible)
 
     public static final CustomPayload.Id<NpcActionPayload> ID =
             new CustomPayload.Id<>(Identifier.of(AnnisNpc.MOD_ID, "npc_action"));

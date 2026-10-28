@@ -64,10 +64,42 @@ public final class NpcNetworking {
                 case NpcActionPayload.ROUTINE_REMOVE_LAST -> npc.removeLastStop();
                 case NpcActionPayload.ROUTINE_ENABLE -> npc.setRoutineOn(payload.flag());
                 case NpcActionPayload.CLEAR_EQUIP -> npc.clearEquipment(player);
+                case NpcActionPayload.SET_SCENE -> npc.setScene(payload.text());
+                case NpcActionPayload.SYNC_SCENE -> {
+                    int n = syncScene(npc);
+                    player.sendMessage(Text.literal(n + " NPC sincronizados"), true);
+                }
+                case NpcActionPayload.SET_ACCESSORY -> npc.setAccessory(payload.number(), payload.text());
+                case NpcActionPayload.COPY_FROM -> {
+                    Entity source = player.getWorld().getEntityById(payload.number());
+                    if (source instanceof AnnisNpcEntity other && other != npc) {
+                        npc.copyFrom(other);
+                        player.sendMessage(Text.literal("Configuracion pegada"), true);
+                    }
+                }
                 default -> {
                 }
             }
         });
+    }
+
+    /**
+     * Reinicia en el mismo tick el emote/actividad de todos los NPC del grupo de este NPC
+     * (o solo este si no tiene grupo). Devuelve cuantos se sincronizaron.
+     */
+    public static int syncScene(AnnisNpcEntity npc) {
+        int tick = (int) npc.getWorld().getTime();
+        String group = npc.getScene();
+        if (group.isEmpty()) {
+            npc.restartEmote(tick);
+            return 1;
+        }
+        java.util.List<AnnisNpcEntity> members = npc.getWorld().getEntitiesByClass(AnnisNpcEntity.class,
+                npc.getBoundingBox().expand(160.0), other -> group.equals(other.getScene()));
+        for (AnnisNpcEntity other : members) {
+            other.restartEmote(tick);
+        }
+        return members.size();
     }
 
     public static void openDialog(ServerPlayerEntity player, AnnisNpcEntity npc) {

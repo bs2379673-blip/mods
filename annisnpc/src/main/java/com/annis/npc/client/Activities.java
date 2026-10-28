@@ -40,6 +40,11 @@ public final class Activities {
 
     /** Pone la pose de la actividad en el modelo. t = ticks con parte decimal. */
     public static void apply(String name, NpcModel m, float t) {
+        MoveLibrary.Move move = MoveLibrary.get(name);
+        if (move != null) {
+            MoveLibrary.apply(move, m, t);
+            return;
+        }
         switch (name.toLowerCase(Locale.ROOT)) {
             case "saludar" -> {
                 float wave = MathHelper.sin(t * 0.45f);

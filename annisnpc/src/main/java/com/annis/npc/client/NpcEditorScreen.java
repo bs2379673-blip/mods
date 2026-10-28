@@ -88,6 +88,11 @@ public class NpcEditorScreen extends Screen {
         this.skins.addAll(SkinManager.list());
         this.emotes.clear();
         this.emotes.addAll(Activities.NAMES);
+        for (String name : MoveLibrary.list()) {
+            if (!this.emotes.contains(name)) {
+                this.emotes.add(name);
+            }
+        }
         for (String name : EmoteLibrary.list()) {
             if (!this.emotes.contains(name)) {
                 this.emotes.add(name);
@@ -199,6 +204,7 @@ public class NpcEditorScreen extends Screen {
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Recargar"), b -> {
             SkinManager.clear();
             EmoteLibrary.clear();
+            MoveLibrary.clear();
             reloadLists();
         }).dimensions(this.leftX, controlsY, this.panelW, 20).build());
 
@@ -265,7 +271,15 @@ public class NpcEditorScreen extends Screen {
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Mas opciones..."), b -> {
             sendName();
             MinecraftClient.getInstance().setScreen(new NpcAdvancedScreen(this.npcId));
-        }).dimensions(8, 4, 100, 16).build());
+        }).dimensions(8, 4, 92, 16).build());
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Accesorios..."), b -> {
+            sendName();
+            MinecraftClient.getInstance().setScreen(new NpcAccessoryScreen(this.npcId));
+        }).dimensions(104, 4, 80, 16).build());
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Escena y grabar..."), b -> {
+            sendName();
+            MinecraftClient.getInstance().setScreen(new NpcSceneScreen(this.npcId));
+        }).dimensions(188, 4, 100, 16).build());
 
         this.nameLoaded = false;
     }
@@ -298,7 +312,7 @@ public class NpcEditorScreen extends Screen {
         }
         String emote = this.emoteView.get(index);
         int hold = HOLD_SECONDS[this.holdIndex];
-        if (Activities.has(emote) && EmoteLibrary.get(emote) == null) {
+        if (NpcAnimState.isProcedural(emote)) {
             hold = Math.max(hold, 3600); // las actividades no terminan solas
         }
         send(NpcActionPayload.PLAY_EMOTE, emote, false, hold);
@@ -323,8 +337,12 @@ public class NpcEditorScreen extends Screen {
             if (index < view.size()) {
                 String value = view.get(index);
                 String label = isSkin && value.isEmpty() ? "Predeterminada" : value;
-                if (!isSkin && Activities.has(value) && EmoteLibrary.get(value) == null) {
-                    label = "★ " + value;
+                if (!isSkin && EmoteLibrary.get(value) == null) {
+                    if (MoveLibrary.has(value)) {
+                        label = "● " + value;
+                    } else if (Activities.has(value)) {
+                        label = "★ " + value;
+                    }
                 }
                 boolean selected = value.equals(current) && (isSkin || !value.isEmpty());
                 String shown = this.textRenderer.trimToWidth(label, this.panelW - 22);
@@ -420,7 +438,9 @@ public class NpcEditorScreen extends Screen {
         refreshState();
         super.render(context, mouseX, mouseY, delta);
 
-        context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("Editor de NPC"), this.width / 2, 10, 0xFFFFFF);
+        if (this.width > 420) {
+            context.drawTextWithShadow(this.textRenderer, Text.literal("Editor de NPC"), this.width - 8 - this.textRenderer.getWidth("Editor de NPC"), 8, 0xFFFFFF);
+        }
         context.drawTextWithShadow(this.textRenderer, Text.literal("Skins").formatted(Formatting.GOLD), this.leftX, 22, 0xFFFFFF);
         context.drawTextWithShadow(this.textRenderer, Text.literal("Emotes").formatted(Formatting.GOLD), this.rightX, 22, 0xFFFFFF);
 
@@ -447,7 +467,7 @@ public class NpcEditorScreen extends Screen {
         }
 
         context.drawCenteredTextWithShadow(this.textRenderer,
-                Text.literal("Clic en una skin la aplica. Clic en un emote o actividad (★) lo reproduce."),
+                Text.literal("Clic en una skin la aplica. Emotes: ★ actividad, ● movimiento grabado."),
                 this.width / 2, this.height - 14, 0x999999);
     }
 }

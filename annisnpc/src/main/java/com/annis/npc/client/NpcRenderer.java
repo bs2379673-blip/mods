@@ -31,6 +31,7 @@ public class NpcRenderer extends LivingEntityRenderer<AnnisNpcEntity, PlayerEnti
                 ctx.getModelManager()));
         this.addFeature(new HeldItemFeatureRenderer<>(this, ctx.getHeldItemRenderer()));
         this.addFeature(new HeadFeatureRenderer<>(this, ctx.getModelLoader(), ctx.getHeldItemRenderer()));
+        this.addFeature(new AccessoryFeature(this, ctx.getHeldItemRenderer()));
     }
 
     @Override

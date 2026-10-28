@@ -34,7 +34,17 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
             if (!emfDrives) {
                 state.applyProcedural(this, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
             }
-            state.applyActivity(this, animationProgress);
+            // reloj comun: todos los NPC con la misma actividad se mueven al mismo compas
+            float partial = animationProgress - npc.age;
+            float shared = partial;
+            net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+            if (mc.world != null) {
+                long elapsed = mc.world.getTime() - npc.getEmoteStart();
+                if (elapsed >= 0 && elapsed < 20L * 60 * 60 * 24) {
+                    shared = elapsed + partial;
+                }
+            }
+            state.applyActivity(this, shared);
         }
 
         // la capa exterior de la skin copia la pose de cada parte

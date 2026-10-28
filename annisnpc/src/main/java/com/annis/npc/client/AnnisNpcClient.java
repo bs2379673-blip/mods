@@ -12,6 +12,13 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -33,12 +40,20 @@ public class AnnisNpcClient implements ClientModInitializer {
         // crear las carpetas para que sea facil encontrarlas
         try {
             Files.createDirectories(SkinManager.dir());
+            Files.createDirectories(MoveLibrary.dir());
             for (Path dir : EmoteLibrary.dirs()) {
                 Files.createDirectories(dir);
             }
         } catch (Exception e) {
             AnnisNpc.LOGGER.warn("No se pudieron crear las carpetas de skins y emotes", e);
         }
+
+        // capa invisible en el jugador para el grabador de movimientos
+        LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, helper, context) -> {
+            if (entityRenderer instanceof PlayerEntityRenderer playerRenderer) {
+                helper.register(new RecorderFeature(playerRenderer));
+            }
+        });
 
         // el servidor pide abrir el editor (varita)
         ClientPlayNetworking.registerGlobalReceiver(OpenEditorPayload.ID, (payload, context) ->
@@ -53,8 +68,10 @@ public class AnnisNpcClient implements ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.world == null) {
+                MoveRecorder.cancel();
                 return;
             }
+            MoveRecorder.tick();
             for (Entity entity : client.world.getEntities()) {
                 if (entity instanceof AnnisNpcEntity npc) {
                     NpcAnimState.of(npc).tick(npc);
@@ -67,13 +84,26 @@ public class AnnisNpcClient implements ClientModInitializer {
         });
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+            dispatcher.register(ClientCommandManager.literal("npcrecord")
+                    .then(ClientCommandManager.literal("stop").executes(ctx -> {
+                        MoveRecorder.stop();
+                        return 1;
+                    }))
+                    .then(ClientCommandManager.argument("nombre", StringArgumentType.word())
+                            .executes(ctx -> record(ctx, 8, null))
+                            .then(ClientCommandManager.argument("segundos", IntegerArgumentType.integer(1, 120))
+                                    .executes(ctx -> record(ctx, IntegerArgumentType.getInteger(ctx, "segundos"), null))
+                                    .then(ClientCommandManager.argument("jugador", StringArgumentType.word())
+                                            .executes(ctx -> record(ctx, IntegerArgumentType.getInteger(ctx, "segundos"),
+                                                    StringArgumentType.getString(ctx, "jugador")))))));
             dispatcher.register(ClientCommandManager.literal("npcmenu").executes(ctx -> {
                 return openEditorForNearest(MinecraftClient.getInstance()) ? 1 : 0;
             }));
             dispatcher.register(ClientCommandManager.literal("npcreload").executes(ctx -> {
                 SkinManager.clear();
                 EmoteLibrary.clear();
-                ctx.getSource().sendFeedback(Text.literal("Skins y emotes recargados"));
+                MoveLibrary.clear();
+                ctx.getSource().sendFeedback(Text.literal("Skins, emotes y movimientos recargados"));
                 return 1;
             }));
             dispatcher.register(ClientCommandManager.literal("npcskins").executes(ctx -> {
@@ -91,6 +121,30 @@ public class AnnisNpcClient implements ClientModInitializer {
                 return names.size();
             }));
         });
+    }
+
+    /** /npcrecord nombre [segundos] [jugador]: graba a uno mismo o a otro jugador visible. */
+    private static int record(CommandContext<FabricClientCommandSource> ctx, int seconds, String playerName) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        AbstractClientPlayerEntity target = null;
+        if (playerName != null && mc.world != null) {
+            for (AbstractClientPlayerEntity p : mc.world.getPlayers()) {
+                if (p.getGameProfile().getName().equalsIgnoreCase(playerName)) {
+                    target = p;
+                }
+            }
+            if (target == null) {
+                ctx.getSource().sendError(Text.literal("No veo a ningun jugador llamado " + playerName));
+                return 0;
+            }
+        }
+        String name = StringArgumentType.getString(ctx, "nombre");
+        if (!MoveRecorder.start(name, seconds, true, target)) {
+            ctx.getSource().sendError(Text.literal("No se pudo empezar (ya hay una grabacion o el nombre no vale)"));
+            return 0;
+        }
+        ctx.getSource().sendFeedback(Text.literal("Grabacion en 3 s. /npcrecord stop para terminar antes."));
+        return 1;
     }
 
     /** Abre el editor del NPC al que apuntas; si no hay, el mas cercano (hasta 6 bloques). */

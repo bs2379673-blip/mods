@@ -24,6 +24,9 @@ public final class ModEntities {
 
     public static Item NPC_SPAWN_EGG;
     public static Item NPC_WAND;
+    /** Accesorios de ejemplo (modelos 3D propios) para pegar a los NPC. */
+    public static final String[] ACCESSORY_IDS = {"accesorio_tambor", "accesorio_baqueta", "accesorio_sombrero", "accesorio_trompeta"};
+    public static final java.util.List<Item> ACCESSORIES = new java.util.ArrayList<>();
 
     private ModEntities() {
     }
@@ -39,6 +42,13 @@ public final class ModEntities {
                 Identifier.of(AnnisNpc.MOD_ID, "npc_wand"),
                 new NpcWandItem(new Item.Settings().maxCount(1)));
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(entries -> entries.add(NPC_SPAWN_EGG));
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> entries.add(NPC_WAND));
+        for (String id : ACCESSORY_IDS) {
+            ACCESSORIES.add(Registry.register(Registries.ITEM, Identifier.of(AnnisNpc.MOD_ID, id),
+                    new Item(new Item.Settings().maxCount(16))));
+        }
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
+            entries.add(NPC_WAND);
+            ACCESSORIES.forEach(entries::add);
+        });
     }
 }

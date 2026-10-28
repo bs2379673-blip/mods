@@ -27,7 +27,7 @@ public final class NpcAnimState {
         return STATES.computeIfAbsent(npc, n -> {
             NpcAnimState state = new NpcAnimState(n.getEmoteSerial());
             String name = n.getEmote();
-            if (Activities.has(name) && EmoteLibrary.get(name) == null) {
+            if (isProcedural(name)) {
                 state.activity = name;
                 state.activityTarget = true;
                 state.activityWeight = 1.0f;
@@ -68,7 +68,7 @@ public final class NpcAnimState {
             this.lastSerial = serial;
             String name = npc.getEmote();
             KeyframeAnimation animation = name.isEmpty() ? null : EmoteLibrary.get(name);
-            String act = animation == null && Activities.has(name) ? name : "";
+            String act = animation == null && isProcedural(name) ? name : "";
             if (!act.isEmpty() && !this.activity.isEmpty() && !act.equals(this.activity)) {
                 this.activityWeight = 0.0f;
             }
@@ -78,12 +78,26 @@ public final class NpcAnimState {
             this.activityTarget = !act.isEmpty();
             AbstractFadeModifier fade = AbstractFadeModifier.standardFadeIn(6, Ease.INOUTSINE);
             if (animation != null) {
-                this.layer.replaceAnimationWithFade(fade, new KeyframeAnimationPlayer(animation));
+                // empezar en el punto del reloj comun: los que llegan tarde quedan en sincronia
+                int elapsed = 0;
+                if (net.minecraft.client.MinecraftClient.getInstance().world != null) {
+                    elapsed = (int) net.minecraft.client.MinecraftClient.getInstance().world.getTime() - npc.getEmoteStart();
+                }
+                elapsed = Math.max(0, Math.min(elapsed, 20 * 60 * 30));
+                this.layer.replaceAnimationWithFade(fade, new KeyframeAnimationPlayer(animation, elapsed));
             } else {
                 this.layer.replaceAnimationWithFade(fade, null);
             }
         }
         this.stack.tick();
+    }
+
+    /** Actividad integrada o movimiento grabado (no un emote JSON de Emotecraft). */
+    public static boolean isProcedural(String name) {
+        if (name == null || name.isEmpty() || EmoteLibrary.get(name) != null) {
+            return false;
+        }
+        return MoveLibrary.has(name) || Activities.has(name);
     }
 
     /** true mientras un emote o una actividad controlan el cuerpo (incluyendo el fundido de salida). */

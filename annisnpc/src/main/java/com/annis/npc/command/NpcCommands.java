@@ -61,7 +61,39 @@ public final class NpcCommands {
                         .then(literal("stationary")
                                 .then(argument("targets", EntityArgumentType.entities())
                                         .then(argument("value", BoolArgumentType.bool())
-                                                .executes(NpcCommands::stationary))))));
+                                                .executes(NpcCommands::stationary))))
+                        .then(literal("group")
+                                .then(argument("targets", EntityArgumentType.entities())
+                                        .then(argument("group", StringArgumentType.word())
+                                                .executes(NpcCommands::group))))
+                        .then(literal("sync")
+                                .then(argument("group", StringArgumentType.word())
+                                        .executes(NpcCommands::sync)))));
+    }
+
+    private static int group(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        String group = StringArgumentType.getString(ctx, "group");
+        List<AnnisNpcEntity> list = npcs(ctx);
+        list.forEach(npc -> npc.setScene(group));
+        ctx.getSource().sendFeedback(() -> Text.literal(list.size() + " NPC en el grupo \"" + group + "\""), true);
+        return list.size();
+    }
+
+    /** Arranca a la vez (mismo tick) a todos los NPC cargados del grupo, en todo el mundo. */
+    private static int sync(CommandContext<ServerCommandSource> ctx) {
+        String group = StringArgumentType.getString(ctx, "group").toLowerCase(java.util.Locale.ROOT);
+        ServerWorld world = ctx.getSource().getWorld();
+        int tick = (int) world.getTime();
+        int n = 0;
+        for (Entity e : world.iterateEntities()) {
+            if (e instanceof AnnisNpcEntity npc && group.equals(npc.getScene())) {
+                npc.restartEmote(tick);
+                n++;
+            }
+        }
+        final int count = n;
+        ctx.getSource().sendFeedback(() -> Text.literal(count + " NPC sincronizados"), true);
+        return n;
     }
 
     private static List<AnnisNpcEntity> npcs(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {

@@ -4,5 +4,9 @@
   "item.annisnpc.npc_wand": "Varita de NPC",
   "key.annisnpc.editor": "Editar NPC (el que apuntas o el mas cercano)",
   "key.categories.annisnpc": "Annis NPC",
-  "screen.annisnpc.editor": "Editor de NPC"
+  "screen.annisnpc.editor": "Editor de NPC",
+  "item.annisnpc.accesorio_tambor": "Accesorio: tambor",
+  "item.annisnpc.accesorio_baqueta": "Accesorio: baqueta",
+  "item.annisnpc.accesorio_sombrero": "Accesorio: sombrero de copa",
+  "item.annisnpc.accesorio_trompeta": "Accesorio: trompeta"
 }
