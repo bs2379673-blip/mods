@@ -17,6 +17,10 @@ dependencies {
 
     // playerAnimator de KosmX (MIT), la misma que trae Emotecraft 2.4.x para 1.21.1
     modImplementation files('libs/playeranimator-2.0.1+1.21.1.jar')
+
+    // Minecraft Comes Alive (GPL-3.0, https://github.com/Luke100000/minecraft-comes-alive):
+    // solo para compilar la integracion opcional; no se incluye en nuestro jar.
+    modCompileOnly files('libs/mca-fabric-7.7.36-beta.3+1.21.1.jar')
 }
 
 processResources {

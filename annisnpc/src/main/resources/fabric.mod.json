@@ -26,6 +26,11 @@
   },
   "suggests": {
     "figura": "*",
-    "entity_model_features": "*"
-  }
+    "entity_model_features": "*",
+    "mca": "*"
+  },
+  "mixins": [
+    "annisnpc.mixins.json",
+    "annisnpc.mca.mixins.json"
+  ]
 }

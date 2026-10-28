@@ -93,7 +93,7 @@ public final class JointModel {
         double r00 = c + ax * ax * t;
         double r10 = az * s;
         double r20 = ax * az * t;
-        double r21 = -ax * s;
+        double r21 = ax * s; // Rodrigues: s*ux + t*uz*uy (uy = 0)
         double r22 = c + az * az * t;
         setFromMatrix(p, r00, r10, r20, r21, r22);
     }

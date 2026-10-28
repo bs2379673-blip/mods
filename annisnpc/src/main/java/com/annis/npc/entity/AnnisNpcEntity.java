@@ -229,6 +229,15 @@ public class AnnisNpcEntity extends PathAwareEntity {
     }
 
     /** Tick del mundo en que empezo el emote actual: el reloj comun que sincroniza a todos los NPC. */
+    /** Solo cliente: copia una animacion recibida para otra entidad (aldeano con aspecto Annis). */
+    public void clientSetAnim(String name, int start, int serial) {
+        if (serial != getEmoteSerial()) {
+            this.dataTracker.set(EMOTE, name == null ? "" : name);
+            this.dataTracker.set(EMOTE_START, start);
+            this.dataTracker.set(EMOTE_SERIAL, serial);
+        }
+    }
+
     public int getEmoteStart() {
         return this.dataTracker.get(EMOTE_START);
     }

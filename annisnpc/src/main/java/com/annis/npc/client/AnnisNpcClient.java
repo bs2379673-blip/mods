@@ -56,6 +56,8 @@ public class AnnisNpcClient implements ClientModInitializer {
             }
         });
 
+        ClientLinks.init();
+
         // el servidor pide abrir el editor (varita)
         ClientPlayNetworking.registerGlobalReceiver(OpenEditorPayload.ID, (payload, context) ->
                 context.client().setScreen(new NpcEditorScreen(payload.entityId())));
@@ -73,6 +75,7 @@ public class AnnisNpcClient implements ClientModInitializer {
                 return;
             }
             MoveRecorder.tick();
+            ClientLinks.tick(client);
             for (Entity entity : client.world.getEntities()) {
                 if (entity instanceof AnnisNpcEntity npc) {
                     NpcAnimState.of(npc).tick(npc);

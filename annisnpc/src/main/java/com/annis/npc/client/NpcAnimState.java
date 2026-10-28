@@ -20,11 +20,30 @@ import java.util.WeakHashMap;
  * y los valores suavizados de la capa procedural (respiracion, inclinacion, cabeza...).
  */
 public final class NpcAnimState {
-    private static final Map<AnnisNpcEntity, NpcAnimState> STATES =
+    private static final Map<net.minecraft.entity.LivingEntity, NpcAnimState> STATES =
             Collections.synchronizedMap(new WeakHashMap<>());
 
+    /** Estado de cualquier entidad animada desde el servidor (aldeanos de MCA, etc.). */
+    public static NpcAnimState ofGeneric(net.minecraft.entity.LivingEntity e, int serial, String name) {
+        return STATES.computeIfAbsent(e, n -> {
+            NpcAnimState state = new NpcAnimState(serial);
+            if (isProcedural(name)) {
+                state.activity = name;
+                state.activityTarget = true;
+                state.activityWeight = 1.0f;
+            }
+            return state;
+        });
+    }
+
+    /** Estado si ya existe (no lo crea). */
+    public static NpcAnimState peek(net.minecraft.entity.LivingEntity e) {
+        return STATES.get(e);
+    }
+
     public static NpcAnimState of(AnnisNpcEntity npc) {
-        return STATES.computeIfAbsent(npc, n -> {
+        return STATES.computeIfAbsent(npc, e -> {
+            AnnisNpcEntity n = (AnnisNpcEntity) e;
             NpcAnimState state = new NpcAnimState(n.getEmoteSerial());
             String name = n.getEmote();
             if (isProcedural(name)) {
@@ -63,10 +82,13 @@ public final class NpcAnimState {
 
     /** Se llama una vez por tick de cliente. */
     public void tick(AnnisNpcEntity npc) {
-        int serial = npc.getEmoteSerial();
+        tick(npc.getEmote(), npc.getEmoteSerial(), npc.getEmoteStart());
+    }
+
+    /** Version general: nombre de la animacion, contador de cambios y tick de inicio (reloj comun). */
+    public void tick(String name, int serial, int start) {
         if (serial != this.lastSerial) {
             this.lastSerial = serial;
-            String name = npc.getEmote();
             KeyframeAnimation animation = name.isEmpty() ? null : EmoteLibrary.get(name);
             String act = animation == null && isProcedural(name) ? name : "";
             if (!act.isEmpty() && !this.activity.isEmpty() && !act.equals(this.activity)) {
@@ -81,7 +103,7 @@ public final class NpcAnimState {
                 // empezar en el punto del reloj comun: los que llegan tarde quedan en sincronia
                 int elapsed = 0;
                 if (net.minecraft.client.MinecraftClient.getInstance().world != null) {
-                    elapsed = (int) net.minecraft.client.MinecraftClient.getInstance().world.getTime() - npc.getEmoteStart();
+                    elapsed = (int) net.minecraft.client.MinecraftClient.getInstance().world.getTime() - start;
                 }
                 elapsed = Math.max(0, Math.min(elapsed, 20 * 60 * 30));
                 this.layer.replaceAnimationWithFade(fade, new KeyframeAnimationPlayer(animation, elapsed));
@@ -90,6 +112,23 @@ public final class NpcAnimState {
             }
         }
         this.stack.tick();
+    }
+
+    /**
+     * Pone encima de una pose ya calculada (por ejemplo la de MCA) el emote o la actividad actual,
+     * con la misma mezcla suave. shared = tiempo del reloj comun en ticks.
+     */
+    public void applyOverlay(NpcModel m, float shared) {
+        if (this.applier.isActive()) {
+            this.applier.updatePart("head", m.head);
+            this.applier.updatePart("leftArm", m.leftArm);
+            this.applier.updatePart("rightArm", m.rightArm);
+            this.applier.updatePart("leftLeg", m.leftLeg);
+            this.applier.updatePart("rightLeg", m.rightLeg);
+            this.applier.updatePart("torso", m.body);
+        } else {
+            applyActivity(m, shared);
+        }
     }
 
     /** Actividad integrada o movimiento grabado (no un emote JSON de Emotecraft). */

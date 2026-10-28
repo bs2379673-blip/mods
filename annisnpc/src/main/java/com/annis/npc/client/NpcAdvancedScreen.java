@@ -35,6 +35,8 @@ public class NpcAdvancedScreen extends Screen {
     private ButtonWidget routineToggle;
     private ButtonWidget activityButton;
     private ButtonWidget secondsButton;
+    private ButtonWidget mcaButton;
+    private long mcaArmedAt;
 
     public NpcAdvancedScreen(int npcId) {
         super(Text.literal("Opciones avanzadas"));
@@ -107,6 +109,19 @@ public class NpcAdvancedScreen extends Screen {
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Vaciar equipo (te lo devuelve)"), b -> send(NpcActionPayload.CLEAR_EQUIP, "", false, 0))
                 .dimensions(lx, 196, colW, 20).build());
+
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("mca")) {
+            this.mcaButton = ButtonWidget.builder(Text.empty(), b -> {
+                long now = System.currentTimeMillis();
+                if (now - this.mcaArmedAt < 4000) {
+                    send(NpcActionPayload.CONVERT_MCA, "", false, 0);
+                    MinecraftClient.getInstance().setScreen(null);
+                } else {
+                    this.mcaArmedAt = now;
+                }
+            }).dimensions(lx, 244, colW, 20).build();
+            this.addDrawableChild(this.mcaButton);
+        }
 
         // --- derecha: rutina ---
         this.routineToggle = ButtonWidget.builder(Text.empty(), b -> {
@@ -189,6 +204,12 @@ public class NpcAdvancedScreen extends Screen {
             }
             this.modeButton.setMessage(Text.literal("Modo: " + MODES[Math.max(0, Math.min(2, npc.getMode()))]));
             this.routineToggle.setMessage(Text.literal("Rutina: " + (npc.isRoutineOn() ? "activada" : "apagada")));
+        }
+        if (this.mcaButton != null) {
+            boolean armed = System.currentTimeMillis() - this.mcaArmedAt < 4000;
+            this.mcaButton.setMessage(armed
+                    ? Text.literal("¿Seguro? Pasa a ser aldeano de MCA").formatted(Formatting.RED)
+                    : Text.literal("Convertir en persona de MCA").formatted(Formatting.LIGHT_PURPLE));
         }
         String act = this.activities.get(this.activityIndex);
         this.activityButton.setMessage(Text.literal("Actividad: " + (act.isEmpty() ? "solo caminar" : act)));

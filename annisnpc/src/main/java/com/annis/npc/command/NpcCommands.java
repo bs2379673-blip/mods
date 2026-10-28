@@ -33,8 +33,60 @@ public final class NpcCommands {
     }
 
     public static void register() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
-                dispatcher.register(literal("annisnpc")
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            var root = literal("annisnpc").requires(source -> source.hasPermissionLevel(2))
+                    .then(literal("anim")
+                            .then(argument("targets", EntityArgumentType.entities())
+                                    .then(literal("stop").executes(ctx -> {
+                                        int n = 0;
+                                        for (Entity e : EntityArgumentType.getEntities(ctx, "targets")) {
+                                            if (e instanceof net.minecraft.entity.LivingEntity le) {
+                                                com.annis.npc.link.EntityLinks.stop(le);
+                                                n++;
+                                            }
+                                        }
+                                        return n;
+                                    }))
+                                    .then(argument("animacion", StringArgumentType.string())
+                                            .executes(ctx -> anim(ctx, 0))
+                                            .then(argument("segundos", IntegerArgumentType.integer(0, 3600))
+                                                    .executes(ctx -> anim(ctx, IntegerArgumentType.getInteger(ctx, "segundos")))))))
+                    .then(literal("look")
+                            .then(argument("targets", EntityArgumentType.entities())
+                                    .then(literal("clear").executes(ctx -> {
+                                        int n = 0;
+                                        for (Entity e : EntityArgumentType.getEntities(ctx, "targets")) {
+                                            if (e instanceof net.minecraft.entity.LivingEntity le && !(e instanceof AnnisNpcEntity)) {
+                                                com.annis.npc.link.EntityLinks.setLook(le, null);
+                                                n++;
+                                            }
+                                        }
+                                        final int c = n;
+                                        ctx.getSource().sendFeedback(() -> Text.literal("Aspecto quitado de " + c + " entidades"), true);
+                                        return n;
+                                    }))
+                                    .then(argument("npc", EntityArgumentType.entity()).executes(ctx -> {
+                                        Entity src = EntityArgumentType.getEntity(ctx, "npc");
+                                        if (!(src instanceof AnnisNpcEntity npc)) {
+                                            ctx.getSource().sendError(Text.literal("El origen tiene que ser un NPC de Annis"));
+                                            return 0;
+                                        }
+                                        int n = 0;
+                                        for (Entity e : EntityArgumentType.getEntities(ctx, "targets")) {
+                                            if (e instanceof net.minecraft.entity.LivingEntity le && !(e instanceof AnnisNpcEntity)) {
+                                                com.annis.npc.link.EntityLinks.setLook(le, com.annis.npc.link.EntityLinks.lookOf(npc));
+                                                n++;
+                                            }
+                                        }
+                                        final int c = n;
+                                        ctx.getSource().sendFeedback(() -> Text.literal("Aspecto de NPC puesto a " + c + " entidades"), true);
+                                        return n;
+                                    }))));
+            if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("mca")) {
+                root = root.then(com.annis.npc.mca.McaCommands.build());
+            }
+            dispatcher.register(root);
+            dispatcher.register(literal("annisnpc")
                         .requires(source -> source.hasPermissionLevel(2))
                         .then(literal("spawn")
                                 .then(argument("skin", StringArgumentType.string())
@@ -78,7 +130,22 @@ public final class NpcCommands {
                                                 }))))
                         .then(literal("sync")
                                 .then(argument("group", StringArgumentType.word())
-                                        .executes(NpcCommands::sync)))));
+                                        .executes(NpcCommands::sync))));
+        });
+    }
+
+    private static int anim(CommandContext<ServerCommandSource> ctx, int seconds) throws CommandSyntaxException {
+        String name = StringArgumentType.getString(ctx, "animacion");
+        int n = 0;
+        for (Entity e : EntityArgumentType.getEntities(ctx, "targets")) {
+            if (e instanceof net.minecraft.entity.LivingEntity le) {
+                com.annis.npc.link.EntityLinks.play(le, name, seconds * 20);
+                n++;
+            }
+        }
+        final int c = n;
+        ctx.getSource().sendFeedback(() -> Text.literal("Animacion \"" + name + "\" en " + c + " entidades"), true);
+        return n;
     }
 
     private static int group(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {

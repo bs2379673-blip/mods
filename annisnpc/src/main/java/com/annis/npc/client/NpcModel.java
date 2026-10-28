@@ -100,6 +100,7 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
                 bend(state, "leftArm", this.leftForearm);
                 bend(state, "rightLeg", this.rightShin);
                 bend(state, "leftLeg", this.leftShin);
+                torsoBend(state);
             }
         } else if (!npc.isSneaking() && !npc.hasVehicle()) {
             if (!emfDrives) {
@@ -144,6 +145,82 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
         }
     }
 
+    // ---- matrices 3x3 (por filas) para la espalda ----
+    private static double[] rot(ModelPart p) {
+        double cx = Math.cos(p.pitch), sx = Math.sin(p.pitch);
+        double cy = Math.cos(p.yaw), sy = Math.sin(p.yaw);
+        double cz = Math.cos(p.roll), sz = Math.sin(p.roll);
+        return new double[]{
+                cz * cy, cz * sy * sx - sz * cx, cz * sy * cx + sz * sx,
+                sz * cy, sz * sy * sx + cz * cx, sz * sy * cx - cz * sx,
+                -sy, cy * sx, cy * cx};
+    }
+
+    private static double[] mm(double[] a, double[] b) {
+        double[] r = new double[9];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                r[i * 3 + j] = a[i * 3] * b[j] + a[i * 3 + 1] * b[3 + j] + a[i * 3 + 2] * b[6 + j];
+            }
+        }
+        return r;
+    }
+
+    private static double[] tr(double[] m) {
+        return new double[]{m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]};
+    }
+
+    private static double[] mv(double[] m, double x, double y, double z) {
+        return new double[]{m[0] * x + m[1] * y + m[2] * z, m[3] * x + m[4] * y + m[5] * z, m[6] * x + m[7] * y + m[8] * z};
+    }
+
+    private static void setRot(ModelPart p, double[] m) {
+        JointModel.setFromMatrix(p, m[0], m[3], m[6], m[7], m[8]);
+    }
+
+    private static double[] axisRot(float axisAngle, float angle) {
+        double ax = Math.cos(axisAngle), az = Math.sin(axisAngle);
+        double c = Math.cos(angle), s = Math.sin(angle), t = 1 - c;
+        return new double[]{
+                c + ax * ax * t, -az * s, ax * az * t,
+                az * s, c, -ax * s,
+                ax * az * t, ax * s, c + az * az * t};
+    }
+
+    /**
+     * Doblez de torso de Emotecraft en el modelo articulado: la cintura queda donde estaba y el pecho
+     * se dobla en la mitad, llevandose la cabeza y los brazos (como bendy-lib).
+     */
+    private void torsoBend(NpcAnimState state) {
+        Pair<Float, Float> b = state.applier.getBend("torso");
+        if (b == null || b.getRight() == null || Math.abs(b.getRight()) < 1e-4f) {
+            return;
+        }
+        double[] rb = rot(this.body);
+        double[] bend = axisRot(b.getLeft(), b.getRight());
+        double[] rc = mm(rb, bend);
+        double[] d = mm(rc, tr(rb));
+        float split = JointModel.SPLIT;
+        double[] q = mv(rb, 0, 12, 0);
+        double[] c6 = mv(rc, 0, split, 0);
+        double[] b6 = mv(rb, 0, 12 - split, 0);
+        double npx = this.body.pivotX + q[0] - c6[0] - b6[0];
+        double npy = this.body.pivotY + q[1] - c6[1] - b6[1];
+        double npz = this.body.pivotZ + q[2] - c6[2] - b6[2];
+        for (ModelPart p : new ModelPart[]{this.head, this.rightArm, this.leftArm}) {
+            double[] off = mv(d, p.pivotX - this.body.pivotX, p.pivotY - this.body.pivotY, p.pivotZ - this.body.pivotZ);
+            p.pivotX = (float) (npx + off[0]);
+            p.pivotY = (float) (npy + off[1]);
+            p.pivotZ = (float) (npz + off[2]);
+            setRot(p, mm(d, rot(p)));
+        }
+        this.body.pivotX = (float) npx;
+        this.body.pivotY = (float) npy;
+        this.body.pivotZ = (float) npz;
+        setRot(this.body, rc);
+        setRot(this.waist, tr(bend));
+    }
+
     /** Dobleces naturales al caminar y en reposo: rodilla atras al levantar el pie, codos un poco flexionados. */
     private void naturalBends(float limbDistance) {
         float speed = MathHelper.clamp(limbDistance, 0.0f, 1.0f);
@@ -154,6 +231,10 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
         float elbow = -0.12f - 0.35f * speed;
         this.rightForearm.pitch = elbow + Math.min(0.0f, this.rightArm.pitch) * 0.4f;
         this.leftForearm.pitch = elbow + Math.min(0.0f, this.leftArm.pitch) * 0.4f;
+        // espalda: la cadera compensa el giro y la inclinacion del pecho (se ve el torso retorcerse)
+        this.waist.yaw = -this.body.yaw;
+        this.waist.roll = -this.body.roll * 0.8f;
+        this.waist.pitch = -this.body.pitch * 0.5f;
     }
 
     @Override

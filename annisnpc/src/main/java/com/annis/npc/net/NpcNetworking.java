@@ -18,6 +18,8 @@ public final class NpcNetworking {
         PayloadTypeRegistry.playC2S().register(NpcActionPayload.ID, NpcActionPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenEditorPayload.ID, OpenEditorPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenDialogPayload.ID, OpenDialogPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(com.annis.npc.link.EntityAnimPayload.ID, com.annis.npc.link.EntityAnimPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(com.annis.npc.link.EntityLookPayload.ID, com.annis.npc.link.EntityLookPayload.CODEC);
     }
 
     public static void registerServer() {
@@ -74,6 +76,14 @@ public final class NpcNetworking {
                 case NpcActionPayload.SET_MUSIC -> npc.setMusic(payload.text());
                 case NpcActionPayload.STOP_MUSIC -> stopMusic(npc);
                 case NpcActionPayload.SET_JOINTED -> npc.setJointed(payload.flag());
+                case NpcActionPayload.CONVERT_MCA -> {
+                    if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("mca")
+                            && com.annis.npc.mca.McaCommands.convertNpc(npc)) {
+                        player.sendMessage(Text.literal("Ahora es una persona de MCA (mismo aspecto). Puedes hablar, regalar y casarte."), false);
+                    } else {
+                        player.sendMessage(Text.literal("MCA no esta instalado en el servidor"), true);
+                    }
+                }
                 case NpcActionPayload.COPY_FROM -> {
                     Entity source = player.getWorld().getEntityById(payload.number());
                     if (source instanceof AnnisNpcEntity other && other != npc) {

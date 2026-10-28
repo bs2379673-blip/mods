@@ -16,6 +16,11 @@ public class AnnisNpc implements ModInitializer {
         NpcNetworking.registerPayloads();
         NpcNetworking.registerServer();
         NpcCommands.register();
+        com.annis.npc.link.EntityLinks.init();
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("mca")) {
+            com.annis.npc.mca.McaIntegration.init();
+            LOGGER.info("Integracion con Minecraft Comes Alive activada");
+        }
         LOGGER.info("Annis NPC cargado");
     }
 }
