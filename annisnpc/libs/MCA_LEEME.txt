@@ -1,0 +1,4 @@
+Minecraft Comes Alive (MCA Reborn) - GPL-3.0
+https://github.com/Luke100000/minecraft-comes-alive
+Copia usada SOLO para compilar la integracion opcional (sin class tweaker ni mixins).
+No se incluye en el jar de Annis NPC.
