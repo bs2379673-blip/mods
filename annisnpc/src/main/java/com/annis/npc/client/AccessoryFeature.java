@@ -55,7 +55,7 @@ public class AccessoryFeature extends FeatureRenderer<AnnisNpcEntity, PlayerEnti
             part.rotate(matrices);
             float ay = a.y;
             // modelo articulado: lo que va en la mano o el pie sigue al antebrazo / la espinilla
-            if (model instanceof NpcModel nm && nm.jointed && !a.bone.equals("head") && !a.bone.equals("body")) {
+            if (model instanceof NpcModel nm && nm.jointed && !a.bone.equals("head")) {
                 ModelPart lower = part.getChild("lower");
                 if (ay > lower.pivotY - 0.5f) {
                     lower.rotate(matrices);

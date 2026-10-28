@@ -30,6 +30,8 @@ public final class MoveLibrary {
     public static final int VALUES = PARTS * 6;
     /** Formato articulado (v3): 16 valores mas = brazo/pierna (pitch, yaw, roll, doblez) x 4. */
     public static final int JOINT_VALUES = VALUES + 16;
+    /** Formato con espalda (v4): pecho (pitch, yaw, roll) + cintura relativa al pecho (pitch, yaw, roll). */
+    public static final int SPINE_VALUES = JOINT_VALUES + 6;
 
     /** yaw: giro del cuerpo entero por frame (radianes, positivo = hacia su izquierda), puede ser null. */
     public record Move(float[][] frames, boolean loop, float[] yaw) {
@@ -76,7 +78,7 @@ public final class MoveLibrary {
                 if (f.size() < VALUES) {
                     continue;
                 }
-                int count = f.size() >= JOINT_VALUES ? JOINT_VALUES : VALUES;
+                int count = f.size() >= SPINE_VALUES ? SPINE_VALUES : f.size() >= JOINT_VALUES ? JOINT_VALUES : VALUES;
                 float[] v = new float[count];
                 for (int i = 0; i < count; i++) {
                     v[i] = f.get(i).getAsFloat();
@@ -191,7 +193,78 @@ public final class MoveLibrary {
                 lowers[l].yaw = 0.0f;
                 lowers[l].roll = 0.0f;
             }
+            boolean spine = fr[i0].length >= SPINE_VALUES && fr[i1].length >= SPINE_VALUES
+                    && fr[i2].length >= SPINE_VALUES && fr[i3].length >= SPINE_VALUES;
+            if (spine) {
+                float[] v = new float[6];
+                for (int k = 0; k < 6; k++) {
+                    int b = JOINT_VALUES + k;
+                    v[k] = catmull(fr[i0][b], fr[i1][b], fr[i2][b], fr[i3][b], f);
+                }
+                applySpine(m, v);
+            }
         }
+    }
+
+    private static float[] mat(float pitch, float yaw, float roll) {
+        // R = Rz(roll) * Ry(yaw) * Rx(pitch), por filas
+        float cx = (float) Math.cos(pitch), sx = (float) Math.sin(pitch);
+        float cy = (float) Math.cos(yaw), sy = (float) Math.sin(yaw);
+        float cz = (float) Math.cos(roll), sz = (float) Math.sin(roll);
+        return new float[]{
+                cz * cy, cz * sy * sx - sz * cx, cz * sy * cx + sz * sx,
+                sz * cy, sz * sy * sx + cz * cx, sz * sy * cx - cz * sx,
+                -sy, cy * sx, cy * cx};
+    }
+
+    private static float[] mul(float[] m, float x, float y, float z) {
+        return new float[]{m[0] * x + m[1] * y + m[2] * z, m[3] * x + m[4] * y + m[5] * z, m[6] * x + m[7] * y + m[8] * z};
+    }
+
+    /**
+     * Espalda: el pecho (body) y la cintura (hijo) toman su giro, y la parte de arriba entera
+     * (cabeza, torso y brazos) se desplaza para que la cintura acabe justo encima de las piernas.
+     * Asi la cadera queda fija y el pecho se dobla sobre ella como una persona de verdad.
+     */
+    private static void applySpine(NpcModel m, float[] v) {
+        float bob = m.head.pivotY; // los frames guardan el rebote de cadera en el pivote de la cabeza
+        m.body.pitch = v[0];
+        m.body.yaw = v[1];
+        m.body.roll = v[2];
+        m.waist.pitch = v[3];
+        m.waist.yaw = v[4];
+        m.waist.roll = v[5];
+        float[] rc = mat(v[0], v[1], v[2]);
+        float[] rw = mat(v[3], v[4], v[5]);
+        float[] low = mul(rw, 0.0f, JointModel.SPLIT, 0.0f);
+        float[] bottom = mul(rc, low[0], JointModel.SPLIT + low[1], low[2]);
+        float px = m.body.pivotX + bottom[0];
+        float py = m.body.pivotY + bottom[1];
+        float pz = m.body.pivotZ + bottom[2];
+        float hipY = 12.0f + bob;
+        float dx = -px;
+        float dy = hipY - py;
+        float dz = -pz;
+        // hombros pegados al pecho girado (si el pecho se tuerce o se inclina, los brazos van con el)
+        float[] offR = {m.rightArm.pivotX - m.body.pivotX, m.rightArm.pivotY - m.body.pivotY, m.rightArm.pivotZ - m.body.pivotZ};
+        float[] offL = {m.leftArm.pivotX - m.body.pivotX, m.leftArm.pivotY - m.body.pivotY, m.leftArm.pivotZ - m.body.pivotZ};
+        m.body.pivotX += dx;
+        m.body.pivotY += dy;
+        m.body.pivotZ += dz;
+        m.head.pivotX = m.body.pivotX;
+        m.head.pivotY = m.body.pivotY;
+        m.head.pivotZ = m.body.pivotZ;
+        float[] r = mul(rc, offR[0], offR[1], offR[2]);
+        m.rightArm.pivotX = m.body.pivotX + r[0];
+        m.rightArm.pivotY = m.body.pivotY + r[1];
+        m.rightArm.pivotZ = m.body.pivotZ + r[2];
+        float[] l = mul(rc, offL[0], offL[1], offL[2]);
+        m.leftArm.pivotX = m.body.pivotX + l[0];
+        m.leftArm.pivotY = m.body.pivotY + l[1];
+        m.leftArm.pivotZ = m.body.pivotZ + l[2];
+        // las piernas bajan con la cadera (las rodillas dobladas acortan la pierna)
+        m.rightLeg.pivotY = hipY;
+        m.leftLeg.pivotY = hipY;
     }
 
     /** Giro del cuerpo entero en el tiempo t (0 si el movimiento no tiene). */

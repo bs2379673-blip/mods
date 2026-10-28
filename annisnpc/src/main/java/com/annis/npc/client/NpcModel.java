@@ -19,6 +19,9 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
     public final ModelPart leftForearm;
     public final ModelPart rightShin;
     public final ModelPart leftShin;
+    /** Cintura (mitad de abajo del torso): la espalda se dobla entre pecho y cintura. */
+    public final ModelPart waist;
+    private final ModelPart jacketLower;
     private final ModelPart rightSleeveLower;
     private final ModelPart leftSleeveLower;
     private final ModelPart rightPantsLower;
@@ -37,8 +40,10 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
             this.leftSleeveLower = this.leftSleeve.getChild("lower");
             this.rightPantsLower = this.rightPants.getChild("lower");
             this.leftPantsLower = this.leftPants.getChild("lower");
+            this.waist = this.body.getChild("lower");
+            this.jacketLower = this.jacket.getChild("lower");
             this.animParts = new ModelPart[]{this.head, this.body, this.rightArm, this.leftArm, this.rightLeg, this.leftLeg,
-                    this.rightForearm, this.leftForearm, this.rightShin, this.leftShin};
+                    this.rightForearm, this.leftForearm, this.rightShin, this.leftShin, this.waist};
         } else {
             this.rightForearm = null;
             this.leftForearm = null;
@@ -48,6 +53,8 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
             this.leftSleeveLower = null;
             this.rightPantsLower = null;
             this.leftPantsLower = null;
+            this.waist = null;
+            this.jacketLower = null;
             this.animParts = new ModelPart[]{this.head, this.body, this.rightArm, this.leftArm, this.rightLeg, this.leftLeg};
         }
     }
@@ -72,6 +79,7 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
             zero(this.leftForearm);
             zero(this.rightShin);
             zero(this.leftShin);
+            zero(this.waist);
         }
 
         NpcAnimState state = NpcAnimState.of(npc);
@@ -125,6 +133,7 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
             this.leftSleeveLower.copyTransform(this.leftForearm);
             this.rightPantsLower.copyTransform(this.rightShin);
             this.leftPantsLower.copyTransform(this.leftShin);
+            this.jacketLower.copyTransform(this.waist);
         }
     }
 

@@ -27,6 +27,7 @@ final class BvhReader {
     private static final String[][] ROLE_PATTERNS = {
             {"hips", "^hips$", "pelvis", "hip$", "root$"},
             {"neck", "neck"},
+            {"spine", "^spine$", "^spine_?0?1$", "abdomen", "lowerback", "^waist$", "^torso$"},
             {"head", "^head$", "head"},
             {"armL", "upperarm_?l$", "leftarm$", "l_?upperarm", "left_?upper_?arm", "^arm_?l$", "leftshoulder"},
             {"armR", "upperarm_?r$", "rightarm$", "r_?upperarm", "right_?upper_?arm", "^arm_?r$", "rightshoulder"},

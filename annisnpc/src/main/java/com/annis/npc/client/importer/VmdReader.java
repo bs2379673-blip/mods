@@ -157,6 +157,7 @@ final class VmdReader {
         p.pos.put("handR", gp.get("右手首"));
         p.pos.put("neck", gp.get("首"));
         p.pos.put("head", gp.get("頭"));
+        p.pos.put("spine", gp.get("上半身")); // la espalda de MMD se dobla en "上半身", justo encima de la cadera
         p.pos.put("elbowL", gp.get("左ひじ"));
         p.pos.put("elbowR", gp.get("右ひじ"));
         double[] lowerFwd = V.mv(gr.get("下半身"), V.v(0, 0, -1));

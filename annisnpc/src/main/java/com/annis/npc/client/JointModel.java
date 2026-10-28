@@ -63,8 +63,9 @@ public final class JointModel {
         Map<String, ModelPart> c = new HashMap<>();
         c.put("head", part(List.of(box(0, 0, -4, -8, -4, 8, 8, 8, 0.0f, ALL)), Map.of(), 0, 0, 0));
         c.put("hat", part(List.of(box(32, 0, -4, -8, -4, 8, 8, 8, 0.5f, ALL)), Map.of(), 0, 0, 0));
-        c.put("body", part(List.of(box(16, 16, -4, 0, -2, 8, 12, 4, 0.0f, ALL)), Map.of(), 0, 0, 0));
-        c.put("jacket", part(List.of(box(16, 32, -4, 0, -2, 8, 12, 4, 0.25f, ALL)), Map.of(), 0, 0, 0));
+        // torso partido en pecho (arriba) y cintura (hijo "lower"): articulacion de la espalda
+        c.put("body", limb(16, 16, -4.0f, 0.0f, 8.0f, 0.0f, 0.0f, 0.0f, 0.0f));
+        c.put("jacket", limb(16, 32, -4.0f, 0.0f, 8.0f, 0.25f, 0.0f, 0.0f, 0.0f));
         float aw = slim ? 3.0f : 4.0f;
         float ay = slim ? 2.5f : 2.0f;
         float rx0 = slim ? -2.0f : -3.0f;
