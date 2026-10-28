@@ -17,6 +17,7 @@ public final class NpcNetworking {
     public static void registerPayloads() {
         PayloadTypeRegistry.playC2S().register(NpcActionPayload.ID, NpcActionPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenEditorPayload.ID, OpenEditorPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(OpenDialogPayload.ID, OpenDialogPayload.CODEC);
     }
 
     public static void registerServer() {
@@ -50,10 +51,27 @@ public final class NpcNetworking {
                 }
                 case NpcActionPayload.REMOVE -> npc.discard();
                 case NpcActionPayload.SET_PROTECTED -> npc.setProtected(payload.flag());
+                case NpcActionPayload.SET_MODE -> npc.setMode(payload.number(), player.getUuid());
+                case NpcActionPayload.SET_DIALOG -> npc.setDialog(payload.text());
+                case NpcActionPayload.SET_FIGURA -> npc.setFigura(payload.text());
+                case NpcActionPayload.ROUTINE_ADD -> {
+                    net.minecraft.util.math.Vec3d at = payload.flag() ? player.getPos() : npc.getPos();
+                    if (!npc.addStop(at.x, at.y, at.z, payload.text(), payload.number())) {
+                        player.sendMessage(Text.literal("Maximo de paradas alcanzado"), true);
+                    }
+                }
+                case NpcActionPayload.ROUTINE_CLEAR -> npc.clearStops();
+                case NpcActionPayload.ROUTINE_REMOVE_LAST -> npc.removeLastStop();
+                case NpcActionPayload.ROUTINE_ENABLE -> npc.setRoutineOn(payload.flag());
+                case NpcActionPayload.CLEAR_EQUIP -> npc.clearEquipment(player);
                 default -> {
                 }
             }
         });
+    }
+
+    public static void openDialog(ServerPlayerEntity player, AnnisNpcEntity npc) {
+        ServerPlayNetworking.send(player, new OpenDialogPayload(npc.getId()));
     }
 
     public static void openEditor(ServerPlayerEntity player, AnnisNpcEntity npc) {

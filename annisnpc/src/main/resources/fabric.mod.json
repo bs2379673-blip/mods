@@ -3,13 +3,19 @@
   "id": "annisnpc",
   "version": "${version}",
   "name": "Annis NPC",
-  "description": "NPCs con cuerpo de jugador, skins a gusto, emotes de Emotecraft y movimiento fluido. Para Annis World.",
-  "authors": ["Annis World"],
+  "description": "NPCs con cuerpo de jugador: skins por archivo o URL, emotes de Emotecraft, actividades, rutinas, dialogos, combate y avatares de Figura. Para Annis World.",
+  "authors": [
+    "Annis World"
+  ],
   "license": "All-Rights-Reserved",
   "environment": "*",
   "entrypoints": {
-    "main": ["com.annis.npc.AnnisNpc"],
-    "client": ["com.annis.npc.client.AnnisNpcClient"]
+    "main": [
+      "com.annis.npc.AnnisNpc"
+    ],
+    "client": [
+      "com.annis.npc.client.AnnisNpcClient"
+    ]
   },
   "depends": {
     "fabricloader": ">=0.16.5",
@@ -17,5 +23,9 @@
     "java": ">=21",
     "fabric-api": "*",
     "playeranimator": ">=2.0.0"
+  },
+  "suggests": {
+    "figura": "*",
+    "entity_model_features": "*"
   }
 }

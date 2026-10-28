@@ -262,6 +262,11 @@ public class NpcEditorScreen extends Screen {
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Listo"), b -> this.close())
                 .dimensions(this.centerX + halfCenter + 2, y, halfCenter - 2, 20).build());
 
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Mas opciones..."), b -> {
+            sendName();
+            MinecraftClient.getInstance().setScreen(new NpcAdvancedScreen(this.npcId));
+        }).dimensions(8, 4, 100, 16).build());
+
         this.nameLoaded = false;
     }
 

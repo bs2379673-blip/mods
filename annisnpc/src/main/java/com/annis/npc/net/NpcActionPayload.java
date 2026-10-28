@@ -17,7 +17,15 @@ public record NpcActionPayload(int entityId, int action, String text, boolean fl
     public static final int SET_STATIONARY = 3;  // flag
     public static final int SET_NAME = 4;        // text (vacio = sin nombre)
     public static final int REMOVE = 5;
-    public static final int SET_PROTECTED = 6;   // flag (invencible)
+    public static final int SET_PROTECTED = 6;
+    public static final int SET_MODE = 8;
+    public static final int SET_DIALOG = 9;
+    public static final int SET_FIGURA = 10;
+    public static final int ROUTINE_ADD = 11;
+    public static final int ROUTINE_CLEAR = 12;
+    public static final int ROUTINE_REMOVE_LAST = 13;
+    public static final int ROUTINE_ENABLE = 14;
+    public static final int CLEAR_EQUIP = 15;   // flag (invencible)
 
     public static final CustomPayload.Id<NpcActionPayload> ID =
             new CustomPayload.Id<>(Identifier.of(AnnisNpc.MOD_ID, "npc_action"));

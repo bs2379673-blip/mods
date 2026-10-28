@@ -3,6 +3,7 @@ package com.annis.npc.client;
 import com.annis.npc.AnnisNpc;
 import com.annis.npc.ModEntities;
 import com.annis.npc.entity.AnnisNpcEntity;
+import com.annis.npc.net.OpenDialogPayload;
 import com.annis.npc.net.OpenEditorPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -43,6 +44,9 @@ public class AnnisNpcClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(OpenEditorPayload.ID, (payload, context) ->
                 context.client().setScreen(new NpcEditorScreen(payload.entityId())));
 
+        ClientPlayNetworking.registerGlobalReceiver(OpenDialogPayload.ID, (payload, context) ->
+                context.client().setScreen(new NpcDialogScreen(payload.entityId())));
+
         // tecla para editar el NPC apuntado o el mas cercano
         openEditorKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.annisnpc.editor", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_N, "key.categories.annisnpc"));
@@ -54,6 +58,7 @@ public class AnnisNpcClient implements ClientModInitializer {
             for (Entity entity : client.world.getEntities()) {
                 if (entity instanceof AnnisNpcEntity npc) {
                     NpcAnimState.of(npc).tick(npc);
+                    FiguraBridge.sync(npc);
                 }
             }
             while (openEditorKey.wasPressed()) {
