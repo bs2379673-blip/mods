@@ -243,7 +243,7 @@ public final class NpcAnimState {
                 }
             }
         }
-        float dt = this.springT < 0 || t < this.springT ? 0 : (t - this.springT) / 20.0f;
+        float sdt = this.springT < 0 || t < this.springT ? 0 : (t - this.springT) / 20.0f;
         this.springT = t;
         for (int i = 0; i < parts.length; i++) {
             net.minecraft.client.model.ModelPart p = parts[i];
@@ -253,7 +253,7 @@ public final class NpcAnimState {
                     MathHelper.lerp(w, b[3], p.pivotX), MathHelper.lerp(w, b[4], p.pivotY), MathHelper.lerp(w, b[5], p.pivotZ)};
             if (spring) {
                 Spring[] sp = this.springs[i];
-                if (!sp[0].ready() || dt <= 0) {
+                if (!sp[0].ready() || sdt <= 0) {
                     for (int c = 0; c < 6; c++) {
                         if (!sp[c].ready()) {
                             sp[c].reset(v[c]);
@@ -261,7 +261,7 @@ public final class NpcAnimState {
                     }
                 }
                 for (int c = 0; c < 6; c++) {
-                    v[c] = sp[c].update(v[c], dt);
+                    v[c] = sp[c].update(v[c], sdt);
                 }
             }
             p.pitch = v[0];
