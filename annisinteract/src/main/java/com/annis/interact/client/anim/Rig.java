@@ -226,6 +226,27 @@ public final class Rig {
         return new float[]{limb.x + v[0], limb.y + v[1], limb.z + v[2]};
     }
 
+    /**
+     * Pieza rigida (sin codo ni rodilla): apunta recta al punto. Si el punto queda mas cerca que
+     * el largo del brazo, el hombro se corre un poco hacia atras (como hace Fresh Animations).
+     */
+    public static void straighten(P p) {
+        if (p.rigid != null) {
+            float[] t = p.rigid;
+            float dx = t[0] - p.x, dy = t[1] - p.y, dz = t[2] - p.z;
+            float d = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+            float slack = 10.0f - d;
+            if (d > 1.0e-3f && slack > 0) {
+                float slide = Math.min(slack, 1.5f) / d;
+                p.x -= dx * slide;
+                p.y -= dy * slide;
+                p.z -= dz * slide;
+            }
+            p.aim(t[0], t[1], t[2]);
+        }
+        p.bend = 0;
+    }
+
     /** Todo el cuerpo en reposo (de pie, brazos abajo). */
     public Rig restAll() {
         for (P p : parts()) {

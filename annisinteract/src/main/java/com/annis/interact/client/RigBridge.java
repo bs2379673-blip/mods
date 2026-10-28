@@ -29,20 +29,10 @@ public final class RigBridge {
                         ps[i].load(p.pitch, p.yaw, p.roll, p.pivotX, p.pivotY, p.pivotZ);
                     }
                     anim.pose().apply(this.rig, t);
-                    ModelPart[] lowers = {null, null, m.rightForearm, m.leftForearm, m.rightShin, m.leftShin};
-                    boolean jointed = m.rightForearm != null;
                     for (int i = 0; i < 6; i++) {
                         Rig.P r = ps[i];
                         if (r.touched && i >= 2) {
-                            if (jointed) {
-                                ModelPart lo = lowers[i];
-                                lo.pitch = r.bend;
-                                lo.yaw = 0;
-                                lo.roll = 0;
-                            } else if (r.rigid != null) {
-                                // sin codos ni rodillas: recto hacia el punto
-                                r.aim(r.rigid[0], r.rigid[1], r.rigid[2]);
-                            }
+                            Rig.straighten(r);
                         }
                         if (r.touched) {
                             ModelPart p = parts[i];

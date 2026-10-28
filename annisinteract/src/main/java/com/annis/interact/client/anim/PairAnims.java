@@ -208,25 +208,28 @@ public final class PairAnims {
         float s = sin(t * 0.034f);
         r.rightLeg.rest();
         r.leftLeg.rest();
-        r.rightLeg.bend = (0.06f + 0.10f * Math.max(0, s)) * amount;
-        r.leftLeg.bend = (0.06f + 0.10f * Math.max(0, -s)) * amount;
-        r.rightLeg.pitch = -0.04f * amount;
-        r.leftLeg.pitch = -0.04f * amount;
-        r.rightLeg.roll = 0.03f * amount;
-        r.leftLeg.roll = -0.03f * amount;
+        // la pierna que descansa se adelanta un poco y se abre (Fresh: piezas rigidas sueltas)
+        r.rightLeg.pitch = (-0.03f - 0.07f * Math.max(0, s)) * amount;
+        r.leftLeg.pitch = (-0.03f - 0.07f * Math.max(0, -s)) * amount;
+        r.rightLeg.roll = (0.035f + 0.02f * Math.max(0, -s)) * amount;
+        r.leftLeg.roll = (-0.035f - 0.02f * Math.max(0, s)) * amount;
+        r.rightLeg.z -= 0.3f * Math.max(0, s) * amount;
+        r.leftLeg.z -= 0.3f * Math.max(0, -s) * amount;
     }
 
     /** Arrodillarse: pie derecho adelante (rodilla arriba), rodilla izquierda al suelo. */
     static void kneel(Rig r, float k) {
-        float drop = 5.0f * k;
+        // piernas rigidas: una adelante, otra atras; el cuerpo baja lo que bajan las caderas
+        float a = 0.95f * k;
+        float drop = 12.0f * (1 - cos(a));
         r.body.y += drop;
         r.head.y += drop;
         r.rightArm.y += drop;
         r.leftArm.y += drop;
         r.rightLeg.at(-1.9f, 12 + drop, 0);
         r.leftLeg.at(1.9f, 12 + drop, 0);
-        foot(r.rightLeg, -2.0f, lerp(23.9f, 23.5f, k), lerp(0, -5.5f, k), 0, -0.3f, -1);
-        foot(r.leftLeg, 2.0f, lerp(23.9f, 22.6f, k), lerp(0, 6.5f, k), 0, 0.8f, -1);
+        r.rightLeg.set(-a, 0.12f * k, 0.05f * k);
+        r.leftLeg.set(a * 0.85f, -0.08f * k, -0.05f * k);
     }
 
     // ================================================================= abrazo
@@ -251,10 +254,11 @@ public final class PairAnims {
         float pat = env(t, 30, 34, 48, 52) * Math.max(0, sin(t * 0.9f));
         if (waist) {
             // manos en su espalda, a media altura; palmaditas
+            // brazos por los costados del otro, cerrandose en su espalda
             hand(r.rightArm, face(d, 0, 2.4f, 6.0f - 1.2f * pat, 3.2f), -0.9f, 0.3f, 0.2f,
-                    face(d, 0, -5.0f, 7.5f, 0.6f), e);
+                    face(d, 0, 4.6f - 0.6f * sq, 7.2f - 1.0f * pat, 3.4f), e);
             hand(r.leftArm, face(d, 0, -2.4f, 6.0f, 3.2f), 0.9f, 0.3f, 0.2f,
-                    face(d, 0, 5.0f, 7.5f, 0.6f), e);
+                    face(d, 0, -4.6f + 0.6f * sq, 7.2f, 3.4f), e);
         } else {
             // brazos por encima de sus hombros, hasta la nuca
             hand(r.rightArm, face(d, 0, 2.0f, 0.6f, 3.0f), -0.6f, -0.7f, 0.2f,
@@ -284,8 +288,8 @@ public final class PairAnims {
         handL(r, new float[]{1.6f, 9.6f, 3.6f}, null, hb);
         // un pie se levanta hacia atras en el momento del beso
         r.leftLeg.rest();
-        r.leftLeg.pitch = 0.25f * pop;
-        r.leftLeg.bend = 1.25f * pop;
+        r.leftLeg.pitch = 0.55f * pop;
+        r.leftLeg.roll = -0.06f * pop;
         // la cabeza gira hacia la mejilla izquierda del otro
         float turn = env(t, 2, 14, 44, 56);
         r.head.set(0.12f * e, -0.95f * turn, 0.10f * e);
@@ -304,8 +308,9 @@ public final class PairAnims {
         // manos juntas delante del pecho
         handR(r, new float[]{-0.7f, 7.6f, -4.4f}, null, hands);
         handL(r, new float[]{0.7f, 7.6f, -4.4f}, null, hands);
-        // despues: la mano a la mejilla donde le dieron el beso
-        handL(r, new float[]{4.7f, -2.4f, -2.2f}, null, after);
+        // despues: hombros arriba de alegria
+        r.rightArm.y -= 0.8f * after;
+        r.leftArm.y -= 0.8f * after;
         float bounce = after * Math.abs(sin(t * 0.45f));
         r.drop(-0.5f * bounce);
         r.torso(-0.03f * after, 0.04f * sin(t * 0.5f) * after, 0.04f * sin(t * 0.5f) * after);
@@ -452,6 +457,11 @@ public final class PairAnims {
         r.restUpper();
         relaxedLegs(r, t, 0.6f);
         r.torso(-0.07f, 0, 0);
+        // hombros un poco adelante y abajo, como sosteniendo peso
+        r.rightArm.z -= 1.4f;
+        r.leftArm.z -= 1.4f;
+        r.rightArm.y += 0.8f;
+        r.leftArm.y += 0.8f;
         // brazo derecho bajo las rodillas, izquierdo bajo la espalda (los codos abajo)
         float[] kn = mul(rot(CARRIED_THIGH, 0, 0), 0, 5.0f, 4.2f);
         float[] knees = carriedPoint(-1.9f + kn[0], 12 + kn[1], kn[2]);
@@ -469,15 +479,16 @@ public final class PairAnims {
         r.restAll();
         // muslos sobre el brazo, piernas colgando desde la rodilla
         float kick = sin(t * 0.11f);
-        r.rightLeg.set(CARRIED_THIGH + 0.04f * kick, 0, 0.04f);
-        r.leftLeg.set(CARRIED_THIGH + 0.06f - 0.04f * kick, 0, -0.04f);
+        // piernas colgando sobre el brazo, pataleando un poquito
+        r.rightLeg.set(0.30f + 0.06f * kick, 0, 0.05f);
+        r.leftLeg.set(0.36f - 0.06f * kick, 0, -0.05f);
         r.rightLeg.bend = CARRIED_KNEE + 0.12f * kick;
         r.leftLeg.bend = CARRIED_KNEE - 0.12f * kick;
         // brazo derecho (pegado al pecho del que carga) alrededor de su cuello
         float[] neck = carrierInRider(CARRIED, Layout.CARRY_FWD, Layout.CARRY_UP, Layout.CARRY_LEFT, 2.2f, -1.4f, 3.2f);
         hand(r.rightArm, neck, 0, 0.0f, -1.0f, null, 1);
-        // el otro sobre la panza
-        hand(r.leftArm, new float[]{-0.8f, 7.5f, -3.2f}, 1, 0.2f, 0, null, 1);
+        // el otro descansa sobre la panza
+        r.leftArm.set(-0.30f + 0.04f * kick, 0.45f, 0);
         float[] face = carrierInRider(CARRIED, Layout.CARRY_FWD, Layout.CARRY_UP, Layout.CARRY_LEFT, 0, -4, -3);
         r.look(face[0], face[1], face[2], 0.7f);
         breathe(r, t, 1.3f);
@@ -612,14 +623,14 @@ public final class PairAnims {
             // a veces senala una estrella, el resto del tiempo la mano en el pecho
             float point = envB(t % 300, 90, 112, 170, 190);
             float trace = 2.5f * sin(t * 0.05f);
-            handL(r, new float[]{1.0f, 6.0f, -3.2f}, null, 1 - point);
+            r.leftArm.set(-0.35f * (1 - point), 0.40f * (1 - point), 0);
             hand(r.leftArm, new float[]{4.0f + trace, -4.0f, -9.0f}, 1, 0.2f, 0.4f, null, point);
             // una rodilla levantada
-            foot(r.rightLeg, -2.2f, 20.0f, 0.2f, 0, 0, -1);
+            r.rightLeg.set(-0.30f, 0, 0.06f);
             r.leftLeg.set(0, 0, -0.04f);
         } else {
             hand(r.leftArm, new float[]{-midX, 11.6f, 0.6f}, 0.4f, 0, 1, null, 1);
-            handR(r, new float[]{-1.0f, 7.0f, -3.2f}, null, 1);
+            r.rightArm.set(-0.35f, -0.40f, 0);
             // tobillos cruzados
             r.rightLeg.set(0, 0.06f, 0.10f);
             r.leftLeg.set(0, -0.04f, -0.06f);
@@ -634,10 +645,10 @@ public final class PairAnims {
 
     /** Sentado con las rodillas arriba (los pies en el suelo, delante). */
     static void sitKnees(Rig r, float spread, float t) {
-        float floor = 14.4f;
-        float s = 0.3f * sin(t * 0.03f);
-        foot(r.rightLeg, -2.6f - spread, floor, -9.2f + s, -0.2f, -1, -0.3f);
-        foot(r.leftLeg, 2.6f + spread, floor, -9.2f - s, 0.2f, -1, -0.3f);
+                float s = 0.3f * sin(t * 0.03f);
+        // piernas estiradas hacia delante, un poco abiertas, moviendo los pies
+        r.rightLeg.set(-PI / 2 + 0.12f + 0.03f * s, 0.14f + spread * 0.2f, 0);
+        r.leftLeg.set(-PI / 2 + 0.12f - 0.03f * s, -0.14f - spread * 0.2f, 0);
     }
 
     static void sitHug(Rig r, float t) {
@@ -693,7 +704,7 @@ public final class PairAnims {
         hand(r.rightArm, new float[]{-6.0f, 4.0f - 5.0f * ask, -4.0f - 5.0f * ask}, -1, 0.3f, 0.5f, null, 0.4f + 0.6f * ask);
         r.leftArm.set(0.05f, 0, -0.30f);
         r.leftArm.bend = -0.35f;
-        foot(r.rightLeg, -2.4f, 21.0f, 0.4f, -0.3f, 0, -1);
+        r.rightLeg.set(-0.25f, 0, 0.10f);
         r.leftLeg.set(0.05f, 0, -0.08f);
         r.head.set(-0.10f, 0.45f * sin(t * 0.015f), 0.05f);
         breathe(r, t, 2.5f);
@@ -806,7 +817,8 @@ public final class PairAnims {
         float[] o = offer(t);
         float nervous = 0.25f * sin(t * 1.3f) * env(t, 30, 34, 60, 66);
         hand(r.rightArm, new float[]{o[0], o[1] + nervous, o[2]}, -0.4f, 1.0f, 0.3f, null, env(t, 14, 26, 82, 94));
-        handL(r, new float[]{1.6f, 3.6f, -3.0f}, null, env(t, 18, 26, 80, 90));
+        float heart = env(t, 18, 26, 80, 90);
+        r.leftArm.set(-0.75f * heart, 0.55f * heart, 0.05f);
         r.look(0, -6.0f, -Layout.PROPOSE * PX, 0.9f * k);
         breathe(r, t, 1.8f);
     }
@@ -820,8 +832,8 @@ public final class PairAnims {
         float clap = env(t, 82, 86, 96, 100);
         // sorpresa: manos a la boca y un pasito atras
         r.torso(-0.08f * wow, 0, 0);
-        handR(r, new float[]{-1.0f, -2.4f, -4.6f}, null, wow);
-        handL(r, new float[]{1.0f, -2.4f, -4.6f}, null, wow * (1 - give));
+        handR(r, new float[]{-1.5f, 1.0f, -9.0f}, null, wow);
+        handL(r, new float[]{1.5f, 1.0f, -9.0f}, null, wow * (1 - give));
         // asiente
         r.look(0, 6.0f, -Layout.PROPOSE * PX, 0.8f);
         r.head.pitch += 0.22f * yes * sin(t * 0.9f);

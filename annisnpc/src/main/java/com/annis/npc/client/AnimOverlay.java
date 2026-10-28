@@ -16,24 +16,11 @@ import net.minecraft.entity.LivingEntity;
  */
 public final class AnimOverlay {
     private static NpcModel scratch;
-    private static NpcModel jointScratch;
-    /** bendy-lib (viene con Emotecraft): los jugadores pueden doblar codos y rodillas. */
-    private static final boolean BENDY = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("bendylib");
 
     private AnimOverlay() {
     }
 
     private static NpcModel scratch(boolean canBend) {
-        if (canBend && BENDY && jointScratch == null) {
-            try {
-                jointScratch = new NpcModel(JointModel.build(false), false);
-            } catch (Throwable t) {
-                jointScratch = null;
-            }
-        }
-        if (canBend && BENDY && jointScratch != null) {
-            return jointScratch;
-        }
         if (scratch == null) {
             ModelPart root = TexturedModelData.of(PlayerEntityModel.getTexturedModelData(Dilation.NONE, false), 64, 64).createModel();
             scratch = new NpcModel(root, false);
@@ -57,7 +44,7 @@ public final class AnimOverlay {
         if (!overriding) {
             return false;
         }
-        NpcModel p = scratch(model instanceof PlayerEntityModel<?>);
+        NpcModel p = scratch(false);
         if (p.rightForearm != null) {
             for (net.minecraft.client.model.ModelPart lo : new net.minecraft.client.model.ModelPart[]{
                     p.rightForearm, p.leftForearm, p.rightShin, p.leftShin, p.waist}) {
@@ -98,9 +85,6 @@ public final class AnimOverlay {
             pm.leftSleeve.copyTransform(pm.leftArm);
             pm.rightPants.copyTransform(pm.rightLeg);
             pm.leftPants.copyTransform(pm.leftLeg);
-            if (p.rightForearm != null) {
-                Bends.apply(pm, p);
-            }
         }
         return true;
     }

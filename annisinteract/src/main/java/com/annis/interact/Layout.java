@@ -15,7 +15,7 @@ public final class Layout {
     public static final float PROPOSE = 0.85f;
     public static final float SLOW = 0.62f;
     // en brazos: pies del que es llevado respecto al que carga
-    public static final float CARRY_FWD = 0.41f, CARRY_UP = 0.56f, CARRY_LEFT = 0.0f;
+    public static final float CARRY_FWD = 0.41f, CARRY_UP = 0.69f, CARRY_LEFT = 0.0f;
     public static final float BACK_FWD = -0.28f, BACK_UP = 0.20f, BACK_LEFT = -0.22f;
 
     private Layout() {
