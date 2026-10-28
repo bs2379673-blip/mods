@@ -26,8 +26,11 @@ jobs:
       - name: Convertir
         run: |
           cd prueba
-          python ../tools/video_a_baile/video_a_baile.py calle.avi --salida calle.bvh --calidad full --suavizado 2 --preview 2>&1 | tee registro.txt
-          head -c 600 calle.bvh
+          set +e
+          python ../tools/video_a_baile/video_a_baile.py calle.avi --salida calle.bvh --calidad full --suavizado 2 --preview > registro.txt 2>&1
+          rc=$?
+          tail -30 registro.txt | while IFS= read -r l; do echo "::warning::$l"; done
+          exit $rc
       - name: Publicar resultado
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
