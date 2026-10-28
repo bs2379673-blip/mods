@@ -79,7 +79,7 @@ public record Interaction(String id, String name, String animA, String animB, Pl
             Place.FACE, 0, Kind.LOOP, true, 45, 1, 1, false));
     public static final Interaction TOUCH = add(new Interaction("mimos", "Mimos (tocar con el raton)", "mimos_toca", "mimos_recibe",
             Place.FACE, 0, Kind.TOUCH, true, 40, 1, 1, false));
-    public static final Interaction LEAN = add(new Interaction("hombro", "Apoyarme en su hombro", "hombro_rodea", "hombro_apoya",
+    public static final Interaction LEAN = add(new Interaction("hombro", "Apoyarme en su hombro", "hombro_apoya", "hombro_rodea",
             Place.RIGHT, 0, Kind.LOOP, true, 30, 1, 1, true));
     public static final Interaction HAND_KISS = add(new Interaction("besar_mano", "Besar la mano", "besar_mano", "recibir_beso_mano",
             Place.FACE, 70, Kind.SCENE, true, 35, 2, 1, false));
