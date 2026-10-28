@@ -102,8 +102,9 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
                 bend(state, "leftLeg", this.leftShin);
                 torsoBend(state);
             }
-        } else if (!npc.isSneaking() && !npc.hasVehicle()) {
-            if (!emfDrives) {
+        } else {
+            // capa procedural solo de pie; las actividades tambien montado o agachado (en brazos...)
+            if (!emfDrives && !npc.isSneaking() && !npc.hasVehicle()) {
                 state.applyProcedural(this, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
                 if (this.jointed) {
                     naturalBends(limbDistance);

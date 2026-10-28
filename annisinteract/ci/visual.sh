@@ -68,30 +68,39 @@ python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'interaccion hacer chocar_cinco @e[tag=a3,limit=1] @e[tag=b3,limit=1]' \
   'interaccion hacer apreton @e[tag=a4,limit=1] @e[tag=b4,limit=1]' \
   'sleep 0.7' "${T}foto 01_escenas_a${E}" 'sleep 0.6' "${T}foto 02_escenas_b${E}" 'sleep 1.2' "${T}foto 03_escenas_c${E}" \
-  'sleep 2.5' 'kill @e[tag=s]' 'sleep 1' \
-  'summon annisnpc:npc -4.4 -60 4 {Tags:["l","a5"]}' 'summon annisnpc:npc -3.6 -60 4 {Tags:["l","b5"]}' \
-  'summon annisnpc:npc -0.6 -60 4.5 {Tags:["l","a6"],Rotation:[90f,0f]}' 'summon annisnpc:npc -0.6 -60 3.5 {Tags:["l","b6"]}' \
-  'summon annisnpc:npc 3.6 -60 4 {Tags:["l","a7"],Rotation:[180f,0f]}' 'summon annisnpc:npc 4.6 -60 4 {Tags:["l","b7"]}' \
+  'sleep 2.5' 'execute as @e[type=annisnpc:npc] run data merge entity @s {Protected:0b}' 'kill @e[type=annisnpc:npc]' 'sleep 1.5' \
+  'summon annisnpc:npc -4.4 -60 4 {Tags:["l","a5"],Protected:0b}' 'summon annisnpc:npc -3.6 -60 4 {Tags:["l","b5"],Protected:0b}' \
+  'summon annisnpc:npc -0.6 -60 4.5 {Tags:["l","a6"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc -0.6 -60 3.5 {Tags:["l","b6"],Protected:0b}' \
+  'summon annisnpc:npc 3.6 -60 4 {Tags:["l","a7"],Rotation:[180f,0f],Protected:0b}' 'summon annisnpc:npc 4.6 -60 4 {Tags:["l","b7"],Protected:0b}' \
   'sleep 2' \
   'interaccion hacer vals @e[tag=a5,limit=1] @e[tag=b5,limit=1]' \
   'interaccion hacer estrellas @e[tag=a6,limit=1] @e[tag=b6,limit=1]' \
   'interaccion hacer sentarse @e[tag=a7,limit=1] @e[tag=b7,limit=1]' \
   'sleep 2' "${T}foto 04_vals_estrellas_sentarse${E}" 'sleep 1.5' "${T}foto 05_vals_giro${E}" \
-  'kill @e[tag=l]' 'sleep 1' \
-  'tp @a 0 -60 0 0 0' 'summon annisnpc:npc 0 -60 1 {Tags:["c","c1"]}' 'sleep 1.5' \
-  "${T}camara frente${E}" \
-  'interaccion hacer en_brazos @a[limit=1] @e[tag=c1,limit=1]' 'sleep 2' "${T}foto 06_en_brazos${E}" \
-  "${T}camara atras${E}" 'sleep 0.5' "${T}foto 07_en_brazos_atras${E}" \
-  'interaccion parar' 'execute as @a run interaccion parar' 'sleep 1' \
-  "${T}camara frente${E}" \
-  'interaccion hacer caballito @a[limit=1] @e[tag=c1,limit=1]' 'sleep 2' "${T}foto 08_caballito${E}" \
-  "${T}camara atras${E}" 'sleep 0.5' "${T}foto 09_caballito_atras${E}" \
+  'kill @e[type=annisnpc:npc]' 'sleep 1.5' \
+  'summon annisnpc:npc -3 -60 4 {Tags:["k","k1"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc -3 -60 5 {Tags:["k","k2"],Protected:0b}' \
+  'summon annisnpc:npc 0.5 -60 4 {Tags:["k","k3"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc 0.5 -60 5 {Tags:["k","k4"],Protected:0b}' \
+  'summon annisnpc:npc 4 -60 4 {Tags:["k","k5"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc 4 -60 6 {Tags:["k","k6"],Protected:0b}' \
+  'sleep 2' \
+  'interaccion hacer en_brazos @e[tag=k1,limit=1] @e[tag=k2,limit=1]' \
+  'interaccion hacer caballito @e[tag=k3,limit=1] @e[tag=k4,limit=1]' \
+  'interaccion caer @e[tag=k5,limit=1]' \
+  'sleep 2' "${T}foto 06_brazos_caballito_caido${E}" \
+  'data get entity @e[tag=k1,limit=1] Pos' 'data get entity @e[tag=k2,limit=1] Pos' 'data get entity @e[tag=k3,limit=1] Pos' 'data get entity @e[tag=k4,limit=1] Pos' \
+  'interaccion hacer ayudar @e[tag=k6,limit=1] @e[tag=k5,limit=1]' \
+  'sleep 0.8' "${T}foto 07_ayudar_a${E}" 'sleep 0.6' "${T}foto 08_ayudar_b${E}" 'sleep 0.6' "${T}foto 09_ayudar_c${E}" \
+  'sleep 2' 'data get entity @e[tag=k5,limit=1] Health' \
+  'kill @e[type=annisnpc:npc]' 'sleep 1.5' \
+  'tp @a 0 -60 0 0 0' 'summon annisnpc:npc 0 -60 1 {Tags:["c","c1"],Protected:0b}' 'sleep 1.5' \
+  'interaccion hacer abrazo @a[limit=1] @e[tag=c1,limit=1]' 'sleep 0.3' 'execute as @a at @s run tp @s ~ ~ ~ 90 15' \
+  "${T}camara atras${E}" 'sleep 1' "${T}foto 10_abrazo_jugador${E}" \
+  'sleep 4' 'interaccion hacer chocar_cinco @a[limit=1] @e[tag=c1,limit=1]' 'sleep 0.3' 'execute as @a at @s run tp @s ~ ~ ~ 90 15' \
+  'sleep 0.4' "${T}foto 11_cinco_jugador${E}" 'sleep 2' \
+  'interaccion hacer en_brazos @a[limit=1] @e[tag=c1,limit=1]' 'sleep 1.5' \
+  'data get entity @a[limit=1] Pos' 'data get entity @e[tag=c1,limit=1] Pos' "${T}foto 12_jugador_en_brazos${E}" \
   'execute as @a run interaccion parar' 'sleep 1' \
-  'interaccion hacer de_la_mano @a[limit=1] @e[tag=c1,limit=1]' 'sleep 1.5' "${T}foto 10_de_la_mano${E}" \
-  'execute as @a run interaccion parar' 'sleep 1' \
-  "${T}camara frente${E}" 'interaccion hacer abrazo @a[limit=1] @e[tag=c1,limit=1]' 'sleep 1.2' "${T}foto 11_abrazo_jugador${E}" \
-  'sleep 4' 'interaccion caer @a[limit=1]' 'sleep 2' "${T}foto 12_caido${E}" \
-  'interaccion hacer ayudar @e[tag=c1,limit=1] @a[limit=1]' 'sleep 0.9' "${T}foto 13_ayudar_a${E}" 'sleep 0.6' "${T}foto 14_ayudar_b${E}" 'sleep 0.6' "${T}foto 15_ayudar_c${E}" \
+  'interaccion caer @a[limit=1]' 'sleep 0.5' 'execute as @a at @s run tp @s ~ ~ ~ ~ 35' 'sleep 1.5' "${T}foto 13_jugador_caido${E}" \
+  'interaccion hacer ayudar @e[tag=c1,limit=1] @a[limit=1]' 'sleep 0.9' "${T}foto 14_jugador_ayudado${E}" 'sleep 1.2' "${T}foto 15_jugador_ayudado_b${E}" \
   'sleep 2' 'data get entity @a[limit=1] Health' \
   'sleep 1' 'stop' 2>&1 | tee rcon-visual.txt
 sleep 8

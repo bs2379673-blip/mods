@@ -1,0 +1,45 @@
+ANNIS INTERACCIONES 0.1 (Fabric 1.21.1)
+=======================================
+
+Necesita: Fabric API, playerAnimator (viene dentro de Emotecraft) y Annis NPC 0.11 o mas nuevo.
+Opcional: Minecraft Comes Alive (aldeanos), Entity Model Features / Fresh Animations.
+Va en el cliente y en el servidor.
+
+COMO SE USA
+- Mira a alguien (jugador, NPC de Annis o aldeano de MCA) y MANTEN G: sale la rueda.
+  Mueve el raton hacia una opcion y suelta G (o haz clic).
+- Si es otro jugador le llega una invitacion: Y = aceptar, X = rechazar (o los botones del chat).
+- Los NPC aceptan siempre. Los aldeanos de MCA aceptan segun los corazones que te tengan
+  (tu pareja acepta todo; con ninos nada romantico). Cada interaccion completa suma corazones.
+- Las que no terminan solas (de la mano, en brazos, a caballito, vals, estrellas, sentarse)
+  se terminan con Shift.
+
+INTERACCIONES
+  Abrazo, Beso en la mejilla, Chocar los cinco, Apreton de manos, Palmadita en el hombro,
+  Ir de la mano (el NPC o aldeano camina a tu lado), Llevar en brazos, A caballito,
+  Bailar en pareja (vals girando), Mirar las estrellas (tumbados de la mano),
+  Sentarse juntos, Ayudar a levantarse.
+
+CAIDOS
+- Con dano mortal no mueres: quedas en el suelo 60 s. Otro jugador te levanta con la rueda
+  ("Ayudar a levantarse"). Los NPC que te siguen y los aldeanos de MCA que te quieren mucho
+  vienen solos a levantarte. Manten Shift 3 s para rendirte. El totem de la inmortalidad
+  funciona como siempre. Los monstruos dejan en paz a los caidos.
+
+COMANDOS
+  /interaccion aceptar | rechazar | parar | lista
+  /interaccion hacer <tipo> <a> <b>     (op: para escenas, sin invitacion ni corazones)
+  /interaccion caer <quien> | levantar <quien>   (op)
+  /interaccion recargar                 (op: relee config/annisinteract.json)
+
+CONFIGURACION: config/annisinteract.json
+  caidos, npcsCaen, segundosCaido, vidaAlLevantar, monstruosIgnoranCaidos, ayudaAutomatica,
+  corazonesParaAyudar, segundosInvitacion, parejaAceptaTodo y "corazones" por interaccion.
+
+Las animaciones tambien se pueden usar sueltas en Annis NPC (rutinas, /annisnpc anim) con
+los nombres: abrazo, beso_mejilla, recibir_beso, chocar_cinco, apreton_manos, palmadita,
+recibir_palmadita, de_la_mano_d, de_la_mano_i, cargar_brazos, en_brazos, llevar_caballito,
+a_caballito, vals_guia, vals_pareja, estrellas_a, estrellas_b, sentarse_abrazo,
+sentarse_apoyo, caido, ayudar_levantar, levantarse.
+
+Todo (codigo y animaciones) es propio de Annis World; no contiene nada de otros mods.
