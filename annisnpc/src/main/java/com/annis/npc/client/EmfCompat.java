@@ -84,7 +84,7 @@ public final class EmfCompat {
     }
 
     /** Pausa o reanuda las animaciones de EMF para este NPC. */
-    public static void setPaused(AnnisNpcEntity npc, boolean pause) {
+    public static void setPaused(net.minecraft.entity.Entity npc, boolean pause) {
         if (!loaded()) {
             return;
         }
