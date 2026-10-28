@@ -63,6 +63,10 @@ public class NpcAdvancedScreen extends Screen {
 
     private void sendFigura() {
         send(NpcActionPayload.SET_FIGURA, this.figuraField.getText().trim(), false, 0);
+        AnnisNpcEntity npc = npc();
+        if (npc != null) {
+            FiguraBridge.reload(npc); // "Aplicar" con el mismo nombre vuelve a cargar el avatar
+        }
     }
 
     @Override
@@ -88,7 +92,7 @@ public class NpcAdvancedScreen extends Screen {
                 .dimensions(lx, 100, colW, 20).build());
 
         this.figuraField = new TextFieldWidget(this.textRenderer, lx, 142, colW, 18, Text.literal("Avatar de Figura"));
-        this.figuraField.setPlaceholder(Text.literal("Carpeta en figura/avatars"));
+        this.figuraField.setPlaceholder(Text.literal("Nombre del avatar (carpeta o .zip)"));
         this.figuraField.setMaxLength(64);
         this.addDrawableChild(this.figuraField);
         int third = colW / 3;

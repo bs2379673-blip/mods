@@ -3,23 +3,32 @@ package com.annis.npc.client;
 import com.annis.npc.AnnisNpc;
 import com.annis.npc.entity.AnnisNpcEntity;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.Text;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 /**
  * Avatares de Figura en los NPC, por reflexion (no hace falta Figura para compilar).
- * Cada NPC guarda el nombre de una carpeta de figura/avatars; cada cliente la carga localmente
- * y se la asigna al NPC con la API de avatares de entidad de Figura.
+ * Cada NPC guarda el nombre de un avatar (carpeta con avatar.json o archivo .zip, en cualquier
+ * subcarpeta de la carpeta de avatares de Figura); cada cliente lo carga localmente y se lo asigna
+ * al NPC con la API de avatares de entidad de Figura.
  */
 public final class FiguraBridge {
     private static final boolean LOADED = FabricLoader.getInstance().isModLoaded("figura");
@@ -38,6 +47,7 @@ public final class FiguraBridge {
 
     private static final Map<AnnisNpcEntity, String> APPLIED = Collections.synchronizedMap(new WeakHashMap<>());
     private static final Map<AnnisNpcEntity, Pending> PENDING = Collections.synchronizedMap(new WeakHashMap<>());
+    private static final Map<Path, FileSystem> ZIPS = new HashMap<>();
 
     private static Class<?> managerClass;
     private static Class<?> userClass;
@@ -45,6 +55,11 @@ public final class FiguraBridge {
     private static Method loadEntityAvatar;
     private static Method loadAvatar;
     private static Method getMainAvatar;
+    private static Method avatarsDirMethod;
+    private static Method resetWatchKeys;
+    private static Method addWatchKey;
+    private static Field lastLoadedPath;
+    private static Field watchKeys;
     private static Field nbtField;
     private static Field cemField;
 
@@ -55,21 +70,103 @@ public final class FiguraBridge {
         return LOADED && !broken;
     }
 
+    private static void tell(String msg) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.player != null) {
+            mc.player.sendMessage(Text.literal(msg), false);
+        }
+    }
+
+    /** Carpeta de avatares de Figura (respeta la carpeta configurada en Figura). */
     public static Path avatarsDir() {
+        try {
+            init();
+            if (avatarsDirMethod != null) {
+                return (Path) avatarsDirMethod.invoke(null);
+            }
+        } catch (Throwable ignored) {
+        }
         return FabricLoader.getInstance().getGameDir().resolve("figura").resolve("avatars");
     }
 
+    private static String baseName(String s) {
+        String n = s.trim();
+        if (n.toLowerCase(Locale.ROOT).endsWith(".zip")) {
+            n = n.substring(0, n.length() - 4);
+        }
+        return n;
+    }
+
+    /** Todos los avatares que se pueden usar (nombre de carpeta o de .zip). */
     public static List<String> list() {
-        List<String> names = new ArrayList<>();
+        TreeSet<String> names = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         Path dir = avatarsDir();
         if (Files.isDirectory(dir)) {
-            try (Stream<Path> stream = Files.list(dir)) {
-                stream.filter(Files::isDirectory).map(p -> p.getFileName().toString()).sorted().forEach(names::add);
+            try (Stream<Path> stream = Files.walk(dir, 6)) {
+                stream.forEach(p -> {
+                    String file = p.getFileName() == null ? "" : p.getFileName().toString();
+                    if (Files.isDirectory(p) && Files.isRegularFile(p.resolve("avatar.json"))) {
+                        names.add(file);
+                    } else if (file.toLowerCase(Locale.ROOT).endsWith(".zip") && Files.isRegularFile(p)) {
+                        names.add(baseName(file));
+                    }
+                });
             } catch (Exception e) {
                 AnnisNpc.LOGGER.warn("No se pudo listar los avatares de Figura", e);
             }
         }
-        return names;
+        return new ArrayList<>(names);
+    }
+
+    /** Busca el avatar por nombre (sin distinguir mayusculas), en carpetas o .zip. */
+    private static Path resolve(String name) {
+        String want = baseName(name);
+        Path dir = avatarsDir();
+        if (!Files.isDirectory(dir)) {
+            return null;
+        }
+        List<Path> candidates = new ArrayList<>();
+        try (Stream<Path> stream = Files.walk(dir, 6)) {
+            stream.forEach(candidates::add);
+        } catch (Exception e) {
+            return null;
+        }
+        for (Path p : candidates) {
+            if (Files.isDirectory(p) && p.getFileName() != null && p.getFileName().toString().equalsIgnoreCase(want)
+                    && Files.isRegularFile(p.resolve("avatar.json"))) {
+                return p;
+            }
+        }
+        for (Path p : candidates) {
+            String file = p.getFileName() == null ? "" : p.getFileName().toString();
+            if (Files.isRegularFile(p) && file.toLowerCase(Locale.ROOT).endsWith(".zip") && baseName(file).equalsIgnoreCase(want)) {
+                Path inside = openZip(p);
+                if (inside != null) {
+                    return inside;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static Path openZip(Path zip) {
+        try {
+            FileSystem fs = ZIPS.get(zip);
+            if (fs == null || !fs.isOpen()) {
+                fs = FileSystems.newFileSystem(zip);
+                ZIPS.put(zip, fs);
+            }
+            Path root = fs.getPath("/");
+            if (Files.isRegularFile(root.resolve("avatar.json"))) {
+                return root;
+            }
+            try (Stream<Path> s = Files.walk(root, 4)) {
+                return s.filter(p -> Files.isDirectory(p) && Files.isRegularFile(p.resolve("avatar.json"))).findFirst().orElse(null);
+            }
+        } catch (Exception e) {
+            AnnisNpc.LOGGER.warn("No se pudo abrir el avatar {}", zip, e);
+            return null;
+        }
     }
 
     private static void init() throws Exception {
@@ -94,8 +191,41 @@ public final class FiguraBridge {
         nbtField = avatarClass.getField("nbt");
         cemField = managerClass.getDeclaredField("LOADED_CEM");
         cemField.setAccessible(true);
+        try {
+            avatarsDirMethod = Class.forName("org.figuramc.figura.avatar.local.LocalAvatarFetcher").getMethod("getLocalAvatarDirectory");
+        } catch (Throwable ignored) {
+            avatarsDirMethod = null;
+        }
+        // para no romper la recarga automatica del avatar del propio jugador
+        try {
+            resetWatchKeys = loaderClass.getMethod("resetWatchKeys");
+            addWatchKey = loaderClass.getDeclaredMethod("addWatchKey", Path.class, BiConsumer.class);
+            addWatchKey.setAccessible(true);
+            lastLoadedPath = loaderClass.getDeclaredField("lastLoadedPath");
+            lastLoadedPath.setAccessible(true);
+            watchKeys = loaderClass.getDeclaredField("KEYS");
+            watchKeys.setAccessible(true);
+        } catch (Throwable ignored) {
+            resetWatchKeys = null;
+        }
         if (loadEntityAvatar == null || loadAvatar == null) {
             throw new NoSuchMethodException("API de avatares de Figura no encontrada");
+        }
+    }
+
+    /** Carga el avatar del NPC sin tocar lo que Figura vigila para el avatar del jugador. */
+    @SuppressWarnings("unchecked")
+    private static void loadKeepingPlayer(Path path, Object user) throws Exception {
+        Path previous = lastLoadedPath != null ? (Path) lastLoadedPath.get(null) : null;
+        loadAvatar.invoke(null, path, user);
+        if (resetWatchKeys != null) {
+            resetWatchKeys.invoke(null);
+            if (previous != null) {
+                lastLoadedPath.set(null, previous);
+                Map<Path, Object> keys = (Map<Path, Object>) watchKeys.get(null);
+                BiConsumer<Path, Object> put = keys::put;
+                addWatchKey.invoke(null, previous, put);
+            }
         }
     }
 
@@ -112,7 +242,6 @@ public final class FiguraBridge {
 
             if (!want.equals(have)) {
                 init();
-                // quitar el avatar anterior de este NPC
                 Map<Object, Object> cem = (Map<Object, Object>) cemField.get(null);
                 Object old = cem.remove(npc);
                 if (old != null) {
@@ -123,13 +252,14 @@ public final class FiguraBridge {
                 if (want.isEmpty()) {
                     return;
                 }
-                Path path = avatarsDir().resolve(want);
-                if (!Files.isDirectory(path)) {
-                    AnnisNpc.LOGGER.warn("No existe el avatar de Figura {}", path);
+                Path path = resolve(want);
+                if (path == null) {
+                    tell("[Annis NPC] No encontre el avatar de Figura \"" + want + "\" en " + avatarsDir()
+                            + " (tiene que ser una carpeta con avatar.json o un .zip)");
                     return;
                 }
                 Object user = userClass.getConstructor(UUID.class).newInstance(npc.getUuid());
-                loadAvatar.invoke(null, path, user);
+                loadKeepingPlayer(path, user);
                 PENDING.put(npc, new Pending(user, want));
                 return;
             }
@@ -137,7 +267,7 @@ public final class FiguraBridge {
             if (pending != null) {
                 if (++pending.ticks > 1200) {
                     PENDING.remove(npc);
-                    AnnisNpc.LOGGER.warn("El avatar de Figura {} tardo demasiado en cargar", pending.name);
+                    tell("[Annis NPC] El avatar de Figura \"" + pending.name + "\" no termino de cargar (mira si Figura mostro un error)");
                     return;
                 }
                 Object avatar = getMainAvatar.invoke(pending.user);
@@ -145,11 +275,21 @@ public final class FiguraBridge {
                 if (nbt != null) {
                     PENDING.remove(npc);
                     loadEntityAvatar.invoke(null, npc, nbt);
+                    MinecraftClient mc = MinecraftClient.getInstance();
+                    if (mc.player != null) {
+                        mc.player.sendMessage(Text.literal("Avatar de Figura \"" + pending.name + "\" cargado en el NPC"), true);
+                    }
                 }
             }
         } catch (Throwable t) {
             broken = true;
-            AnnisNpc.LOGGER.warn("Integracion con Figura desactivada: {}", t.toString());
+            AnnisNpc.LOGGER.warn("Integracion con Figura desactivada", t);
+            tell("[Annis NPC] La integracion con Figura fallo: " + t);
         }
+    }
+
+    /** Fuerza recargar el avatar de un NPC (tras editar sus archivos). */
+    public static void reload(AnnisNpcEntity npc) {
+        APPLIED.remove(npc);
     }
 }
