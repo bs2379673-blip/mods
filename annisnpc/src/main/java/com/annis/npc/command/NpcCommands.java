@@ -66,6 +66,16 @@ public final class NpcCommands {
                                 .then(argument("targets", EntityArgumentType.entities())
                                         .then(argument("group", StringArgumentType.word())
                                                 .executes(NpcCommands::group))))
+                        .then(literal("music")
+                                .then(argument("targets", EntityArgumentType.entities())
+                                        .then(argument("sound", net.minecraft.command.argument.IdentifierArgumentType.identifier())
+                                                .executes(ctx -> {
+                                                    String id = net.minecraft.command.argument.IdentifierArgumentType.getIdentifier(ctx, "sound").toString();
+                                                    List<AnnisNpcEntity> list = npcs(ctx);
+                                                    list.forEach(n -> n.setMusic(id));
+                                                    ctx.getSource().sendFeedback(() -> Text.literal("Musica " + id + " en " + list.size() + " NPC"), true);
+                                                    return list.size();
+                                                }))))
                         .then(literal("sync")
                                 .then(argument("group", StringArgumentType.word())
                                         .executes(NpcCommands::sync)))));
@@ -85,11 +95,18 @@ public final class NpcCommands {
         ServerWorld world = ctx.getSource().getWorld();
         int tick = (int) world.getTime();
         int n = 0;
+        AnnisNpcEntity musicSource = null;
         for (Entity e : world.iterateEntities()) {
             if (e instanceof AnnisNpcEntity npc && group.equals(npc.getScene())) {
                 npc.restartEmote(tick);
+                if (musicSource == null && !npc.getMusic().isEmpty()) {
+                    musicSource = npc;
+                }
                 n++;
             }
+        }
+        if (musicSource != null) {
+            com.annis.npc.net.NpcNetworking.playMusic(musicSource, musicSource.getMusic());
         }
         final int count = n;
         ctx.getSource().sendFeedback(() -> Text.literal(count + " NPC sincronizados"), true);

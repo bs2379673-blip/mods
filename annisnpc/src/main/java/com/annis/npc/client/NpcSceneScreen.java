@@ -1,5 +1,6 @@
 package com.annis.npc.client;
 
+import com.annis.npc.client.importer.MotionImporter;
 import com.annis.npc.entity.AnnisNpcEntity;
 import com.annis.npc.net.NpcActionPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -13,26 +14,37 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.lwjgl.glfw.GLFW;
 
-/** Grupo de escena (sincronizar), copiar/pegar NPC y grabador de movimientos. */
+import java.util.List;
+
+/** Escena: grupo sincronizado, musica, copiar/pegar, grabador e importador de bailes (BVH / MMD). */
 public class NpcSceneScreen extends Screen {
     private static final int[] SECONDS = {3, 5, 8, 10, 15, 20, 30, 60};
     /** Portapapeles: id del NPC copiado. */
     static int clipboard = -1;
+    private static volatile boolean importing;
 
     private final int npcId;
     private boolean loaded;
     private int age;
     private int secondsIndex = 2;
     private boolean loopMove = true;
+    private int fileIndex;
+    private List<String> files = List.of();
 
     private TextFieldWidget sceneField;
+    private TextFieldWidget musicField;
     private TextFieldWidget recordName;
     private ButtonWidget secondsButton;
     private ButtonWidget loopButton;
     private ButtonWidget pasteButton;
+    private ButtonWidget fileButton;
+    private ButtonWidget importButton;
+    private int lx;
+    private int rx;
+    private int w;
 
     public NpcSceneScreen(int npcId) {
-        super(Text.literal("Escena y grabacion"));
+        super(Text.literal("Escena"));
         this.npcId = npcId;
     }
 
@@ -48,60 +60,119 @@ public class NpcSceneScreen extends Screen {
         ClientPlayNetworking.send(new NpcActionPayload(this.npcId, action, text, flag, number));
     }
 
+    private static void tell(String msg, boolean actionBar) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.player != null) {
+            mc.player.sendMessage(Text.literal(msg), actionBar);
+        }
+    }
+
     @Override
     protected void init() {
-        int w = Math.min(260, this.width - 40);
-        int x = this.width / 2 - w / 2;
-        int half = w / 2;
+        this.w = Math.min(220, (this.width - 36) / 2);
+        this.lx = this.width / 2 - this.w - 6;
+        this.rx = this.width / 2 + 6;
+        int half = this.w / 2;
+        this.files = MotionImporter.list();
+        this.fileIndex = Math.min(this.fileIndex, Math.max(0, this.files.size() - 1));
 
-        this.sceneField = new TextFieldWidget(this.textRenderer, x, 44, w, 18, Text.literal("Grupo"));
-        this.sceneField.setPlaceholder(Text.literal("Nombre del grupo (ej: banda, plaza)"));
+        // ---- izquierda: grupo y copiar ----
+        this.sceneField = new TextFieldWidget(this.textRenderer, lx, 44, w, 18, Text.literal("Grupo"));
+        this.sceneField.setPlaceholder(Text.literal("Grupo (ej: banda, plaza)"));
         this.sceneField.setMaxLength(32);
         this.addDrawableChild(this.sceneField);
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Guardar grupo"), b ->
-                send(NpcActionPayload.SET_SCENE, this.sceneField.getText(), false, 0)).dimensions(x, 64, half - 2, 20).build());
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("▶ Sincronizar grupo"), b -> {
+                send(NpcActionPayload.SET_SCENE, this.sceneField.getText(), false, 0)).dimensions(lx, 64, half - 2, 20).build());
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("▶ Sincronizar"), b -> {
             send(NpcActionPayload.SET_SCENE, this.sceneField.getText(), false, 0);
+            send(NpcActionPayload.SET_MUSIC, this.musicField.getText(), false, 0);
             send(NpcActionPayload.SYNC_SCENE, "", false, 0);
-        }).dimensions(x + half, 64, w - half, 20).build());
+        }).dimensions(lx + half, 64, w - half, 20).build());
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Copiar este NPC"), b -> {
             clipboard = this.npcId;
-            if (MinecraftClient.getInstance().player != null) {
-                MinecraftClient.getInstance().player.sendMessage(Text.literal("NPC copiado: abre otro NPC y pulsa Pegar"), true);
-            }
-        }).dimensions(x, 118, half - 2, 20).build());
+            tell("NPC copiado: abre otro NPC y pulsa Pegar", true);
+        }).dimensions(lx, 128, half - 2, 20).build());
         this.pasteButton = ButtonWidget.builder(Text.literal("Pegar aqui"), b -> {
             if (clipboard >= 0 && clipboard != this.npcId) {
                 send(NpcActionPayload.COPY_FROM, "", false, clipboard);
             }
-        }).dimensions(x + half, 118, w - half, 20).build();
+        }).dimensions(lx + half, 128, w - half, 20).build();
         this.addDrawableChild(this.pasteButton);
 
-        this.recordName = new TextFieldWidget(this.textRenderer, x, 162, w, 18, Text.literal("Nombre"));
-        this.recordName.setPlaceholder(Text.literal("Nombre del movimiento (ej: tocar_tambor)"));
+        // ---- izquierda abajo: grabador ----
+        this.recordName = new TextFieldWidget(this.textRenderer, lx, 172, w, 18, Text.literal("Nombre"));
+        this.recordName.setPlaceholder(Text.literal("Nombre del movimiento"));
         this.recordName.setMaxLength(40);
         this.addDrawableChild(this.recordName);
         this.secondsButton = ButtonWidget.builder(Text.empty(), b -> this.secondsIndex = (this.secondsIndex + 1) % SECONDS.length)
-                .dimensions(x, 182, half - 2, 20).build();
+                .dimensions(lx, 192, half - 2, 20).build();
         this.addDrawableChild(this.secondsButton);
         this.loopButton = ButtonWidget.builder(Text.empty(), b -> this.loopMove = !this.loopMove)
-                .dimensions(x + half, 182, w - half, 20).build();
+                .dimensions(lx + half, 192, w - half, 20).build();
         this.addDrawableChild(this.loopButton);
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("● Grabarme (cuenta atras de 3 s)"), b -> {
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("● Grabarme (3 s de cuenta atras)"), b -> {
             String name = MoveRecorder.sanitize(this.recordName.getText());
             if (name.isEmpty()) {
-                this.recordName.setFocused(true);
+                this.setFocused(this.recordName);
                 return;
             }
             if (MoveRecorder.start(name, SECONDS[this.secondsIndex], this.loopMove, null)) {
                 MinecraftClient.getInstance().setScreen(null);
             }
-        }).dimensions(x, 204, w, 20).build());
+        }).dimensions(lx, 214, w, 20).build());
 
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Volver"), b -> this.close())
-                .dimensions(this.width / 2 - 50, this.height - 28, 100, 20).build());
+        // ---- derecha: musica ----
+        this.musicField = new TextFieldWidget(this.textRenderer, rx, 44, w, 18, Text.literal("Musica"));
+        this.musicField.setPlaceholder(Text.literal("annisnpc:musica.mi_cancion"));
+        this.musicField.setMaxLength(100);
+        this.addDrawableChild(this.musicField);
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Guardar musica"), b ->
+                send(NpcActionPayload.SET_MUSIC, this.musicField.getText(), false, 0)).dimensions(rx, 64, half - 2, 20).build());
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("■ Parar musica"), b ->
+                send(NpcActionPayload.STOP_MUSIC, "", false, 0)).dimensions(rx + half, 64, w - half, 20).build());
+
+        // ---- derecha abajo: importar ----
+        this.fileButton = ButtonWidget.builder(Text.empty(), b -> {
+            this.files = MotionImporter.list();
+            if (!this.files.isEmpty()) {
+                this.fileIndex = (this.fileIndex + 1) % this.files.size();
+            }
+        }).dimensions(rx, 128, w, 20).build();
+        this.addDrawableChild(this.fileButton);
+        this.importButton = ButtonWidget.builder(Text.literal("⇩ Importar como movimiento"), b -> startImport())
+                .dimensions(rx, 150, w, 20).build();
+        this.addDrawableChild(this.importButton);
+
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("< Volver"), b -> this.close())
+                .dimensions(8, 4, 70, 16).build());
         this.loaded = false;
+    }
+
+    private void startImport() {
+        if (this.files.isEmpty() || importing) {
+            return;
+        }
+        String file = this.files.get(this.fileIndex);
+        boolean loop = this.loopMove;
+        importing = true;
+        tell("Importando " + file + "...", true);
+        Thread t = new Thread(() -> {
+            String msg;
+            try {
+                msg = "Baile " + MotionImporter.importFile(file, null, loop) + ". Ya esta en la lista de emotes (●).";
+            } catch (Exception e) {
+                msg = "No se pudo importar " + file + ": " + e.getMessage();
+                com.annis.npc.AnnisNpc.LOGGER.warn("Error importando {}", file, e);
+            }
+            final String m = msg;
+            MinecraftClient.getInstance().execute(() -> {
+                importing = false;
+                tell(m, false);
+            });
+        }, "annisnpc-import");
+        t.setDaemon(true);
+        t.start();
     }
 
     @Override
@@ -124,11 +195,20 @@ public class NpcSceneScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if ((keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) && this.sceneField.isFocused()) {
+        boolean enter = keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER;
+        if (enter && this.sceneField.isFocused()) {
             send(NpcActionPayload.SET_SCENE, this.sceneField.getText(), false, 0);
             return true;
         }
+        if (enter && this.musicField.isFocused()) {
+            send(NpcActionPayload.SET_MUSIC, this.musicField.getText(), false, 0);
+            return true;
+        }
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    private void label(DrawContext c, String s, int x, int y, boolean title) {
+        c.drawTextWithShadow(this.textRenderer, title ? Text.literal(s).formatted(Formatting.GOLD) : Text.literal(s).formatted(Formatting.GRAY), x, y, 0xFFFFFF);
     }
 
     @Override
@@ -137,22 +217,37 @@ public class NpcSceneScreen extends Screen {
         if (npc != null && !this.loaded) {
             this.loaded = true;
             this.sceneField.setText(npc.getScene());
+            this.musicField.setText(npc.getMusic());
         }
         this.secondsButton.setMessage(Text.literal("Duracion: " + SECONDS[this.secondsIndex] + " s"));
         this.loopButton.setMessage(Text.literal(this.loopMove ? "En bucle: si" : "En bucle: no"));
         this.pasteButton.active = clipboard >= 0 && clipboard != this.npcId;
+        if (this.files.isEmpty()) {
+            this.fileButton.setMessage(Text.literal("(no hay archivos)"));
+            this.fileButton.active = false;
+        } else {
+            String f = this.textRenderer.trimToWidth("Archivo: " + this.files.get(this.fileIndex), this.w - 10);
+            this.fileButton.setMessage(Text.literal(f));
+            this.fileButton.active = true;
+        }
+        this.importButton.active = !this.files.isEmpty() && !importing;
 
         super.render(context, mouseX, mouseY, delta);
 
-        int w = Math.min(260, this.width - 40);
-        int x = this.width / 2 - w / 2;
-        context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("Escena y grabacion"), this.width / 2, 10, 0xFFFFFF);
-        context.drawTextWithShadow(this.textRenderer, Text.literal("Grupo de escena").formatted(Formatting.GOLD), x, 32, 0xFFFFFF);
-        context.drawTextWithShadow(this.textRenderer, Text.literal("Pon a cada NPC su actividad y el mismo grupo;").formatted(Formatting.GRAY), x, 87, 0xFFFFFF);
-        context.drawTextWithShadow(this.textRenderer, Text.literal("Sincronizar los arranca a todos en el mismo tick.").formatted(Formatting.GRAY), x, 96, 0xFFFFFF);
-        context.drawTextWithShadow(this.textRenderer, Text.literal("Copiar / pegar (aspecto, equipo, accesorios, dialogo)").formatted(Formatting.GOLD), x, 108, 0xFFFFFF);
-        context.drawTextWithShadow(this.textRenderer, Text.literal("Grabador de movimientos").formatted(Formatting.GOLD), x, 150, 0xFFFFFF);
-        context.drawTextWithShadow(this.textRenderer, Text.literal("Graba tu cuerpo tal cual se ve (Fresh Animations,").formatted(Formatting.GRAY), x, 228, 0xFFFFFF);
-        context.drawTextWithShadow(this.textRenderer, Text.literal("emotes...). Para otro jugador: /npcrecord ... <jugador>").formatted(Formatting.GRAY), x, 238, 0xFFFFFF);
+        context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("Escena"), this.width / 2, 10, 0xFFFFFF);
+        label(context, "Grupo de escena", lx, 32, true);
+        label(context, "Mismo grupo + Sincronizar = todos", lx, 88, false);
+        label(context, "empiezan a la vez (y suena la musica).", lx, 98, false);
+        label(context, "Copiar / pegar NPC", lx, 116, true);
+        label(context, "Grabador de movimientos", lx, 160, true);
+        label(context, "Graba tu cuerpo tal cual se ve.", lx, 238, false);
+
+        label(context, "Musica de la escena", rx, 32, true);
+        label(context, "Id de un sonido de tu resource pack;", rx, 88, false);
+        label(context, "suena desde el NPC al sincronizar.", rx, 98, false);
+        label(context, "Importar baile (BVH o MMD .vmd)", rx, 116, true);
+        label(context, "Pon los archivos en", rx, 174, false);
+        label(context, "config/annisnpc/import", rx, 184, false);
+        label(context, "Clic en Archivo para elegir otro.", rx, 194, false);
     }
 }

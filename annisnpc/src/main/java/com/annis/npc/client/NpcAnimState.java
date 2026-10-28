@@ -100,6 +100,23 @@ public final class NpcAnimState {
         return MoveLibrary.has(name) || Activities.has(name);
     }
 
+    /** Giro del cuerpo entero del movimiento actual (bailes importados que dan vueltas), ya mezclado. */
+    public float rootYaw(AnnisNpcEntity npc, float tickDelta) {
+        if (this.activity.isEmpty() || this.activityWeight <= 0.0f) {
+            return 0.0f;
+        }
+        MoveLibrary.Move move = MoveLibrary.get(this.activity);
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (move == null || move.yaw() == null || mc.world == null) {
+            return 0.0f;
+        }
+        long elapsed = mc.world.getTime() - npc.getEmoteStart();
+        if (elapsed < 0 || elapsed > 20L * 60 * 60 * 24) {
+            return 0.0f;
+        }
+        return MoveLibrary.yawAt(move, elapsed + tickDelta) * this.activityWeight;
+    }
+
     /** true mientras un emote o una actividad controlan el cuerpo (incluyendo el fundido de salida). */
     public boolean isOverriding() {
         return this.applier.isActive() || !this.activity.isEmpty();

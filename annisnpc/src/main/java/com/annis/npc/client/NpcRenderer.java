@@ -44,6 +44,16 @@ public class NpcRenderer extends LivingEntityRenderer<AnnisNpcEntity, PlayerEnti
     }
 
     @Override
+    protected void setupTransforms(AnnisNpcEntity npc, MatrixStack matrices, float animationProgress,
+                                   float bodyYaw, float tickDelta, float scale) {
+        super.setupTransforms(npc, matrices, animationProgress, bodyYaw, tickDelta, scale);
+        float yaw = NpcAnimState.of(npc).rootYaw(npc, tickDelta);
+        if (yaw != 0.0f) {
+            matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotation(yaw));
+        }
+    }
+
+    @Override
     public void render(AnnisNpcEntity npc, float yaw, float tickDelta, MatrixStack matrices,
                        VertexConsumerProvider vertexConsumers, int light) {
         NpcAnimState.of(npc).applier.setTickDelta(tickDelta);

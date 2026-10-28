@@ -71,6 +71,8 @@ public final class NpcNetworking {
                 }
                 case NpcActionPayload.SET_ACCESSORY -> npc.setAccessory(payload.number(), payload.text());
                 case NpcActionPayload.SET_ALL_ACCESSORIES -> npc.setAccessories(payload.text());
+                case NpcActionPayload.SET_MUSIC -> npc.setMusic(payload.text());
+                case NpcActionPayload.STOP_MUSIC -> stopMusic(npc);
                 case NpcActionPayload.COPY_FROM -> {
                     Entity source = player.getWorld().getEntityById(payload.number());
                     if (source instanceof AnnisNpcEntity other && other != npc) {
@@ -93,14 +95,49 @@ public final class NpcNetworking {
         String group = npc.getScene();
         if (group.isEmpty()) {
             npc.restartEmote(tick);
+            playMusic(npc, npc.getMusic());
             return 1;
         }
         java.util.List<AnnisNpcEntity> members = npc.getWorld().getEntitiesByClass(AnnisNpcEntity.class,
                 npc.getBoundingBox().expand(160.0), other -> group.equals(other.getScene()));
+        String music = npc.getMusic();
         for (AnnisNpcEntity other : members) {
             other.restartEmote(tick);
+            if (music.isEmpty()) {
+                music = other.getMusic();
+            }
         }
+        playMusic(npc, music);
         return members.size();
+    }
+
+    /** Hace sonar la musica de la escena desde el NPC (se oye a unos 64 bloques), cortando la anterior. */
+    public static void playMusic(AnnisNpcEntity npc, String id) {
+        if (id == null || id.isEmpty() || !(npc.getWorld() instanceof net.minecraft.server.world.ServerWorld world)) {
+            return;
+        }
+        net.minecraft.util.Identifier ident = net.minecraft.util.Identifier.tryParse(id);
+        if (ident == null) {
+            return;
+        }
+        stopMusicId(world, npc, ident);
+        world.playSound(null, npc.getX(), npc.getY() + 1.0, npc.getZ(),
+                net.minecraft.sound.SoundEvent.of(ident), net.minecraft.sound.SoundCategory.RECORDS, 4.0f, 1.0f);
+    }
+
+    public static void stopMusic(AnnisNpcEntity npc) {
+        net.minecraft.util.Identifier ident = net.minecraft.util.Identifier.tryParse(npc.getMusic());
+        if (ident != null && npc.getWorld() instanceof net.minecraft.server.world.ServerWorld world) {
+            stopMusicId(world, npc, ident);
+        }
+    }
+
+    private static void stopMusicId(net.minecraft.server.world.ServerWorld world, AnnisNpcEntity npc, net.minecraft.util.Identifier ident) {
+        for (ServerPlayerEntity p : world.getPlayers()) {
+            if (p.squaredDistanceTo(npc) < 160.0 * 160.0) {
+                p.networkHandler.sendPacket(new net.minecraft.network.packet.s2c.play.StopSoundS2CPacket(ident, net.minecraft.sound.SoundCategory.RECORDS));
+            }
+        }
     }
 
     public static void openDialog(ServerPlayerEntity player, AnnisNpcEntity npc) {

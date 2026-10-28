@@ -29,7 +29,8 @@ public final class MoveLibrary {
     public static final int PARTS = 6;
     public static final int VALUES = PARTS * 6;
 
-    public record Move(float[][] frames, boolean loop) {
+    /** yaw: giro del cuerpo entero por frame (radianes, positivo = hacia su izquierda), puede ser null. */
+    public record Move(float[][] frames, boolean loop, float[] yaw) {
     }
 
     private static final Map<String, Move> CACHE = new HashMap<>();
@@ -83,7 +84,17 @@ public final class MoveLibrary {
                 MISSING.add(name);
                 return null;
             }
-            Move move = new Move(frames.toArray(new float[0][]), loop);
+            float[] yaw = null;
+            if (root.has("yaw")) {
+                JsonArray ya = root.getAsJsonArray("yaw");
+                if (ya.size() >= frames.size()) {
+                    yaw = new float[frames.size()];
+                    for (int i = 0; i < yaw.length; i++) {
+                        yaw[i] = ya.get(i).getAsFloat();
+                    }
+                }
+            }
+            Move move = new Move(frames.toArray(new float[0][]), loop, yaw);
             CACHE.put(name, move);
             return move;
         } catch (Exception e) {
@@ -158,6 +169,25 @@ public final class MoveLibrary {
             part.pivotY = v[4];
             part.pivotZ = v[5];
         }
+    }
+
+    /** Giro del cuerpo entero en el tiempo t (0 si el movimiento no tiene). */
+    public static float yawAt(Move move, float t) {
+        float[] y = move.yaw();
+        if (y == null || y.length == 0) {
+            return 0.0f;
+        }
+        int n = y.length;
+        float ft = move.loop() ? ((t % n) + n) % n : Math.max(0.0f, Math.min(t, n - 1));
+        int i0 = (int) Math.floor(ft);
+        int i1 = idx(i0 + 1, n, move.loop());
+        float f = ft - i0;
+        float a = y[idx(i0, n, move.loop())];
+        float b = y[i1];
+        if (move.loop() && i1 == 0) {
+            b = a; // al dar la vuelta al bucle no interpolar el salto
+        }
+        return a + (b - a) * f;
     }
 
     private static int idx(int i, int n, boolean loop) {

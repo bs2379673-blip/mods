@@ -41,6 +41,7 @@ public class AnnisNpcClient implements ClientModInitializer {
         try {
             Files.createDirectories(SkinManager.dir());
             Files.createDirectories(MoveLibrary.dir());
+            Files.createDirectories(com.annis.npc.client.importer.MotionImporter.dir());
             for (Path dir : EmoteLibrary.dirs()) {
                 Files.createDirectories(dir);
             }
@@ -96,6 +97,18 @@ public class AnnisNpcClient implements ClientModInitializer {
                                     .then(ClientCommandManager.argument("jugador", StringArgumentType.word())
                                             .executes(ctx -> record(ctx, IntegerArgumentType.getInteger(ctx, "segundos"),
                                                     StringArgumentType.getString(ctx, "jugador")))))));
+            dispatcher.register(ClientCommandManager.literal("npcimport")
+                    .executes(ctx -> {
+                        List<String> files = com.annis.npc.client.importer.MotionImporter.list();
+                        ctx.getSource().sendFeedback(Text.literal(files.isEmpty()
+                                ? "Pon archivos .bvh o .vmd en " + com.annis.npc.client.importer.MotionImporter.dir()
+                                : "Archivos: " + String.join(", ", files)));
+                        return files.size();
+                    })
+                    .then(ClientCommandManager.argument("archivo", StringArgumentType.string())
+                            .executes(ctx -> importCmd(ctx, null))
+                            .then(ClientCommandManager.argument("nombre", StringArgumentType.word())
+                                    .executes(ctx -> importCmd(ctx, StringArgumentType.getString(ctx, "nombre"))))));
             dispatcher.register(ClientCommandManager.literal("npcmenu").executes(ctx -> {
                 return openEditorForNearest(MinecraftClient.getInstance()) ? 1 : 0;
             }));
@@ -121,6 +134,30 @@ public class AnnisNpcClient implements ClientModInitializer {
                 return names.size();
             }));
         });
+    }
+
+    /** /npcimport "archivo" [nombre]: convierte un BVH o VMD en segundo plano. */
+    private static int importCmd(CommandContext<FabricClientCommandSource> ctx, String name) {
+        String file = StringArgumentType.getString(ctx, "archivo");
+        ctx.getSource().sendFeedback(Text.literal("Importando " + file + "..."));
+        Thread t = new Thread(() -> {
+            String msg;
+            try {
+                msg = "Baile " + com.annis.npc.client.importer.MotionImporter.importFile(file, name, true);
+            } catch (Exception e) {
+                msg = "No se pudo importar: " + e.getMessage();
+                AnnisNpc.LOGGER.warn("Error importando {}", file, e);
+            }
+            final String m = msg;
+            MinecraftClient.getInstance().execute(() -> {
+                if (MinecraftClient.getInstance().player != null) {
+                    MinecraftClient.getInstance().player.sendMessage(Text.literal(m), false);
+                }
+            });
+        }, "annisnpc-import");
+        t.setDaemon(true);
+        t.start();
+        return 1;
     }
 
     /** /npcrecord nombre [segundos] [jugador]: graba a uno mismo o a otro jugador visible. */

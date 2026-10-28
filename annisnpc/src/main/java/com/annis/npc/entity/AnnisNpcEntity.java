@@ -70,6 +70,8 @@ public class AnnisNpcEntity extends PathAwareEntity {
     private static final TrackedData<String> ACCESSORIES =
             DataTracker.registerData(AnnisNpcEntity.class, TrackedDataHandlerRegistry.STRING);
     public static final int MAX_ACCESSORIES = 12;
+    private static final TrackedData<String> MUSIC =
+            DataTracker.registerData(AnnisNpcEntity.class, TrackedDataHandlerRegistry.STRING);
 
     public static final int MODE_PASSIVE = 0;
     public static final int MODE_FOLLOW = 1;
@@ -122,6 +124,7 @@ public class AnnisNpcEntity extends PathAwareEntity {
         builder.add(EMOTE_START, 0);
         builder.add(SCENE, "");
         builder.add(ACCESSORIES, "");
+        builder.add(MUSIC, "");
     }
 
     @Override
@@ -245,6 +248,19 @@ public class AnnisNpcEntity extends PathAwareEntity {
         this.dataTracker.set(SCENE, g.length() > 32 ? g.substring(0, 32) : g);
     }
 
+    /** Id del sonido (resource pack) que suena al sincronizar la escena, ej: annisnpc:musica.mi_cancion. */
+    public String getMusic() {
+        return this.dataTracker.get(MUSIC);
+    }
+
+    public void setMusic(String id) {
+        String m = id == null ? "" : id.trim().toLowerCase(Locale.ROOT);
+        if (!m.isEmpty() && net.minecraft.util.Identifier.tryParse(m) == null) {
+            return;
+        }
+        this.dataTracker.set(MUSIC, m.length() > 100 ? "" : m);
+    }
+
     public String getAccessories() {
         return this.dataTracker.get(ACCESSORIES);
     }
@@ -289,6 +305,7 @@ public class AnnisNpcEntity extends PathAwareEntity {
         setDialog(other.getDialog());
         setFigura(other.getFigura());
         setScene(other.getScene());
+        setMusic(other.getMusic());
         setAccessories(other.getAccessories());
         setProtected(other.isProtected());
         setStationary(other.isStationary());
@@ -491,6 +508,7 @@ public class AnnisNpcEntity extends PathAwareEntity {
         nbt.putBoolean("RoutineOn", isRoutineOn());
         nbt.putString("Scene", getScene());
         nbt.putString("Accessories", getAccessories());
+        nbt.putString("Music", getMusic());
         nbt.putString("Emote", getEmote());
         if (this.owner != null) {
             nbt.putUuid("Owner", this.owner);
@@ -512,6 +530,7 @@ public class AnnisNpcEntity extends PathAwareEntity {
         this.owner = nbt.containsUuid("Owner") ? nbt.getUuid("Owner") : null;
         setScene(nbt.getString("Scene"));
         setAccessories(nbt.getString("Accessories"));
+        setMusic(nbt.getString("Music"));
         // las actividades en bucle (bailar, tocar...) sobreviven al reinicio del servidor
         if (!nbt.getString("Emote").isEmpty()) {
             this.dataTracker.set(EMOTE, nbt.getString("Emote"));
