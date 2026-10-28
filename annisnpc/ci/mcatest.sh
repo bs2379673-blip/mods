@@ -5,7 +5,11 @@ set +e
 cd "$(dirname "$0")/.."
 R=mcarun
 rm -rf $R && mkdir -p $R/mods
-curl -sSL -o $R/server.jar "https://meta.fabricmc.net/v2/versions/loader/1.21.1/0.16.5/1.0.1/server/jar"
+# MCA 7.7 usa "class tweakers": necesita un Fabric Loader reciente
+LOADER=$(curl -sSL https://meta.fabricmc.net/v2/versions/loader | python3 -c "import sys,json; print([v['version'] for v in json.load(sys.stdin) if v.get('stable')][0])")
+INSTALLER=$(curl -sSL https://meta.fabricmc.net/v2/versions/installer | python3 -c "import sys,json; print([v['version'] for v in json.load(sys.stdin) if v.get('stable')][0])")
+echo "::notice::MCA> Fabric Loader $LOADER, instalador $INSTALLER"
+curl -sSL -o $R/server.jar "https://meta.fabricmc.net/v2/versions/loader/1.21.1/$LOADER/$INSTALLER/server/jar"
 curl -sSL -o $R/mods/fabric-api.jar "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/0.104.0+1.21.1/fabric-api-0.104.0+1.21.1.jar"
 cp libs/playeranimator-2.0.1+1.21.1.jar $R/mods/
 cp libs/test/mca-fabric-7.7.36-beta.3+1.21.1-original.jar $R/mods/mca.jar
