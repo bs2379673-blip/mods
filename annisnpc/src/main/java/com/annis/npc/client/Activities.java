@@ -12,7 +12,9 @@ import java.util.Locale;
 public final class Activities {
     public static final List<String> NAMES = List.of(
             "saludar", "charlar", "pescar", "mercado", "combate",
-            "sentarse", "bailar", "pensar", "aplaudir");
+            "sentarse", "bailar", "pensar", "aplaudir",
+            "tocar_tambor", "desfile_tambor", "tocar_trompeta", "saludo_sombrero",
+            "presentar", "dirigir", "marchar");
 
     private static final float PI = (float) Math.PI;
 
@@ -36,6 +38,81 @@ public final class Activities {
         m.rightArm.pivotY += amount;
         m.leftLeg.pivotY += amount;
         m.rightLeg.pivotY += amount;
+    }
+
+    private static float smooth(float x) {
+        x = MathHelper.clamp(x, 0.0f, 1.0f);
+        return x * x * (3.0f - 2.0f * x);
+    }
+
+    private static float frac(float x) {
+        return x - (float) Math.floor(x);
+    }
+
+    /** 0 antes de a, sube suave hasta b, 1 hasta c, baja suave hasta d, 0 despues. */
+    private static float env(float t, float a, float b, float c, float d) {
+        if (t <= a || t >= d) {
+            return 0.0f;
+        }
+        if (t < b) {
+            return smooth((t - a) / (b - a));
+        }
+        if (t <= c) {
+            return 1.0f;
+        }
+        return 1.0f - smooth((t - c) / (d - c));
+    }
+
+    /** Golpe: sube rapido despues del impacto y cae rapido al siguiente (0 = impacto). */
+    private static float stroke(float phase) {
+        return MathHelper.sin(PI * (float) Math.pow(phase, 1.6));
+    }
+
+    /** Mueve juntos cabeza, torso y brazos (asi los accesorios de cabeza y manos siguen encajando). */
+    private static void upper(NpcModel m, float dx, float dy, float dz) {
+        m.head.pivotX += dx;
+        m.body.pivotX += dx;
+        m.rightArm.pivotX += dx;
+        m.leftArm.pivotX += dx;
+        m.head.pivotY += dy;
+        m.body.pivotY += dy;
+        m.rightArm.pivotY += dy;
+        m.leftArm.pivotY += dy;
+        m.head.pivotZ += dz;
+        m.body.pivotZ += dz;
+        m.rightArm.pivotZ += dz;
+        m.leftArm.pivotZ += dz;
+    }
+
+    /** Reverencia como la del agacharse vanilla, con peso w (0..1). */
+    private static void bow(NpcModel m, float w) {
+        m.body.pitch += 0.5f * w;
+        m.body.pivotY += 3.2f * w;
+        m.head.pivotY += 4.2f * w;
+        m.head.pitch += 0.35f * w;
+        m.rightArm.pivotY += 3.2f * w;
+        m.leftArm.pivotY += 3.2f * w;
+        m.rightLeg.pivotZ += 4.0f * w;
+        m.leftLeg.pivotZ += 4.0f * w;
+        m.rightLeg.pivotY += 0.2f * w;
+        m.leftLeg.pivotY += 0.2f * w;
+    }
+
+    /** Brazos del tambor: baquetas alternas que golpean el parche (geometria calculada con el tambor y las baquetas del conjunto). */
+    private static void drumArms(NpcModel m, float t) {
+        final float beat = 8.0f;
+        float cyc = t / (2.0f * beat);
+        float amp = 0.55f * (1.0f + 0.25f * MathHelper.sin(t * 2.0f * PI / (8.0f * beat)));
+        float sr = stroke(frac(cyc));
+        float sl = stroke(frac(cyc + 0.5f));
+        rot(m.rightArm, -1.25f - amp * sr, -0.6f + 0.05f * sr, 0.0f);
+        rot(m.leftArm, -1.25f - amp * sl, 0.6f - 0.05f * sl, 0.0f);
+        float hit = 1.0f - Math.abs(MathHelper.sin(PI * t / beat));
+        hit = hit * hit;
+        upper(m, 0.0f, 0.35f * hit, 0.0f);
+        m.head.pitch = 0.12f + 0.06f * hit;
+        m.head.yaw = MathHelper.sin(t * 0.04f) * 0.15f;
+        m.body.roll += MathHelper.sin(t * PI / (2.0f * beat)) * 0.03f;
     }
 
     /** Pone la pose de la actividad en el modelo. t = ticks con parte decimal. */
@@ -142,6 +219,87 @@ public final class Activities {
                 rot(m.leftArm, -1.4f, -spread * 0.6f, 0.0f);
                 m.head.pitch += 0.05f;
                 m.body.pitch += clap * 0.03f;
+            }
+            case "tocar_tambor" -> {
+                drumArms(m, t);
+                // golpecito del pie cada dos tiempos
+                float tap = (float) Math.pow(Math.max(0.0f, MathHelper.sin(PI * t / 16.0f)), 6);
+                rot(m.rightLeg, -0.12f * tap, 0.05f, 0.03f);
+                rot(m.leftLeg, 0.0f, -0.05f, -0.03f);
+            }
+            case "desfile_tambor" -> {
+                drumArms(m, t);
+                float step = MathHelper.sin(2.0f * PI * t / 32.0f);
+                // pasos cortos: con el tambor delante las rodillas no pueden subir mucho
+                rot(m.rightLeg, -0.42f * (float) Math.pow(Math.max(0.0f, step), 1.5), 0.0f, 0.06f);
+                rot(m.leftLeg, -0.42f * (float) Math.pow(Math.max(0.0f, -step), 1.5), 0.0f, -0.06f);
+                upper(m, 0.0f, -0.45f * Math.abs(step), 0.0f);
+            }
+            case "tocar_trompeta" -> {
+                float phrase = (float) Math.pow(Math.max(0.0f, MathHelper.sin(t * 0.045f)), 2);
+                float lift = -0.14f * phrase;
+                float sway = MathHelper.sin(t * 0.05f);
+                rot(m.head, -0.15f + lift, 0.0f, sway * 0.04f);
+                rot(m.rightArm, -2.1f + lift * 1.1f, -0.74f, 0.03f * MathHelper.sin(t * 1.3f) * (1.0f - phrase));
+                rot(m.leftArm, -1.86f + lift * 1.1f, 0.68f, 0.0f);
+                upper(m, sway * 0.7f, MathHelper.sin(t * 0.3f) * 0.25f, 0.0f);
+                m.body.roll += sway * 0.03f;
+                m.body.pitch += lift * 0.3f;
+                float tap = (float) Math.pow(Math.max(0.0f, MathHelper.sin(PI * t / 10.0f)), 4);
+                rot(m.leftLeg, -0.15f * tap, -0.05f, -0.03f - sway * 0.02f);
+                rot(m.rightLeg, 0.0f, 0.05f, 0.03f - sway * 0.02f);
+            }
+            case "saludo_sombrero" -> {
+                float c = ((t % 70.0f) + 70.0f) % 70.0f;
+                float raise = env(c, 0, 12, 52, 64);
+                float b = env(c, 14, 26, 38, 50);
+                m.rightArm.pitch = MathHelper.lerp(raise, m.rightArm.pitch, -2.66f);
+                m.rightArm.yaw = MathHelper.lerp(raise, m.rightArm.yaw, -0.76f);
+                m.rightArm.roll = MathHelper.lerp(raise, m.rightArm.roll, 0.0f);
+                m.leftArm.pitch = MathHelper.lerp(b, m.leftArm.pitch, 0.35f);
+                m.leftArm.roll = MathHelper.lerp(b, m.leftArm.roll, -0.12f);
+                bow(m, b);
+            }
+            case "presentar" -> {
+                float c = ((t % 100.0f) + 100.0f) % 100.0f;
+                float open = env(c, 5, 30, 70, 90);
+                float b = env(c, 72, 80, 84, 92) * 0.5f;
+                rot(m.rightArm,
+                        MathHelper.lerp(open, -0.3f, -1.45f),
+                        MathHelper.lerp(open, -0.2f, 0.35f) + MathHelper.sin(c * 0.15f) * 0.08f * open,
+                        MathHelper.lerp(open, 0.1f, 0.5f));
+                rot(m.leftArm, -0.25f, 0.2f, -0.75f); // mano en la cintura
+                m.head.yaw = MathHelper.lerp(open, m.head.yaw, 0.45f);
+                m.head.pitch = MathHelper.lerp(open, m.head.pitch, -0.08f);
+                m.body.pitch -= 0.05f * open;
+                m.body.yaw += 0.12f * open;
+                bow(m, b);
+            }
+            case "dirigir" -> {
+                final float beat = 11.0f;
+                float[][] pts = {{-0.8f, -0.15f}, {-1.15f, -0.55f}, {-1.15f, 0.35f}, {-1.75f, -0.1f}};
+                float bt = t / beat;
+                int i = Math.floorMod((int) Math.floor(bt), 4);
+                float f = smooth(frac(bt));
+                float[] a = pts[i];
+                float[] n = pts[(i + 1) % 4];
+                float ictus = (float) Math.pow(1.0f - frac(bt), 3);
+                float pitch = MathHelper.lerp(f, a[0], n[0]) + 0.12f * ictus;
+                float yaw = MathHelper.lerp(f, a[1], n[1]);
+                rot(m.rightArm, pitch, yaw, 0.05f);
+                rot(m.leftArm, -0.9f + 0.35f * MathHelper.sin(t * 0.025f), 0.25f, -0.1f);
+                m.head.pitch += (i == 0 ? 0.06f : 0.02f) * ictus;
+                m.head.yaw += yaw * 0.2f;
+                m.body.yaw += yaw * 0.1f;
+            }
+            case "marchar" -> {
+                float step = MathHelper.sin(2.0f * PI * t / 24.0f);
+                rot(m.rightLeg, -0.85f * (float) Math.pow(Math.max(0.0f, step), 1.3), 0.0f, 0.02f);
+                rot(m.leftLeg, -0.85f * (float) Math.pow(Math.max(0.0f, -step), 1.3), 0.0f, -0.02f);
+                rot(m.rightArm, 0.55f * step, 0.0f, 0.06f);
+                rot(m.leftArm, -0.55f * step, 0.0f, -0.06f);
+                upper(m, 0.0f, -0.7f * Math.abs(step), 0.0f);
+                m.head.pitch = -0.05f;
             }
             default -> {
             }

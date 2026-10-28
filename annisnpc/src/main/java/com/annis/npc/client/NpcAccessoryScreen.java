@@ -38,6 +38,8 @@ public class NpcAccessoryScreen extends Screen {
     private int rightX;
     private int rightW;
     private ButtonWidget boneButton;
+    private ButtonWidget outfitButton;
+    private int outfitIndex;
 
     public NpcAccessoryScreen(int npcId) {
         super(Text.literal("Accesorios"));
@@ -104,12 +106,25 @@ public class NpcAccessoryScreen extends Screen {
             sendIndex(-1);
         }).dimensions(8, 30, this.leftW, 20).build());
 
-        int rows = Math.max(3, Math.min(AnnisNpcEntity.MAX_ACCESSORIES, (this.height - 110) / 20));
+        int rows = Math.max(3, Math.min(AnnisNpcEntity.MAX_ACCESSORIES, (this.height - 160) / 20));
         for (int i = 0; i < rows; i++) {
             final int row = i;
             this.listButtons.add(this.addDrawableChild(ButtonWidget.builder(Text.empty(), b -> this.selected = row)
                     .dimensions(8, 56 + i * 20, this.leftW, 18).build()));
         }
+        this.outfitButton = ButtonWidget.builder(Text.empty(), b -> this.outfitIndex = (this.outfitIndex + 1) % Outfits.ALL.size())
+                .dimensions(8, this.height - 100, this.leftW, 20).build();
+        this.addDrawableChild(this.outfitButton);
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Aplicar conjunto").formatted(Formatting.GREEN), b -> {
+            Outfits.Outfit o = Outfits.ALL.get(this.outfitIndex);
+            ClientPlayNetworking.send(new NpcActionPayload(this.npcId, NpcActionPayload.SET_ALL_ACCESSORIES, o.accessories(), false, 0));
+            ClientPlayNetworking.send(new NpcActionPayload(this.npcId, NpcActionPayload.PLAY_EMOTE, o.activity(), false, 3600));
+            this.working.clear();
+            for (Accessory a : Accessory.parseAll(o.accessories())) {
+                this.working.add(a.copy());
+            }
+            this.selected = this.working.isEmpty() ? -1 : 0;
+        }).dimensions(8, this.height - 78, this.leftW, 20).build());
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Quitar seleccionado").formatted(Formatting.RED), b -> {
             if (sel() != null) {
                 int idx = this.selected;
@@ -234,6 +249,7 @@ public class NpcAccessoryScreen extends Screen {
                 b.visible = false;
             }
         }
+        this.outfitButton.setMessage(Text.literal("Conjunto: " + Outfits.ALL.get(this.outfitIndex).name()));
         Accessory a = sel();
         this.boneButton.setMessage(Text.literal("Hueso: " + (a == null ? "-" : Accessory.BONE_NAMES[Accessory.boneIndex(a.bone)])));
 

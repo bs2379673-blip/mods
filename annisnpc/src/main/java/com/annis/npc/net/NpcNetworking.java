@@ -70,6 +70,7 @@ public final class NpcNetworking {
                     player.sendMessage(Text.literal(n + " NPC sincronizados"), true);
                 }
                 case NpcActionPayload.SET_ACCESSORY -> npc.setAccessory(payload.number(), payload.text());
+                case NpcActionPayload.SET_ALL_ACCESSORIES -> npc.setAccessories(payload.text());
                 case NpcActionPayload.COPY_FROM -> {
                     Entity source = player.getWorld().getEntityById(payload.number());
                     if (source instanceof AnnisNpcEntity other && other != npc) {
