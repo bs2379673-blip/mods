@@ -230,7 +230,11 @@ public class NpcEditorScreen extends Screen {
         this.slimButton = ButtonWidget.builder(Text.empty(), b -> {
             AnnisNpcEntity npc = npc();
             if (npc != null) {
-                send(NpcActionPayload.SET_SKIN, npc.getSkin(), !npc.isSlim(), 0);
+                // ciclo: normal -> slim -> normal articulado -> slim articulado
+                int state = (npc.isJointed() ? 2 : 0) + (npc.isSlim() ? 1 : 0);
+                int next = (state + 1) % 4;
+                send(NpcActionPayload.SET_SKIN, npc.getSkin(), (next & 1) != 0, 0);
+                send(NpcActionPayload.SET_JOINTED, "", (next & 2) != 0, 0);
             }
         }).dimensions(this.centerX, y, this.centerW, 20).build();
         this.addDrawableChild(this.slimButton);
@@ -382,7 +386,8 @@ public class NpcEditorScreen extends Screen {
                     this.urlField.setText(npc.getSkin());
                 }
             }
-            this.slimButton.setMessage(Text.literal("Modelo: " + (npc.isSlim() ? "brazos finos (slim)" : "normal")));
+            this.slimButton.setMessage(Text.literal("Modelo: " + (npc.isSlim() ? "slim" : "normal")
+                    + (npc.isJointed() ? " + articulaciones" : " (rigido)")));
             this.stationaryButton.setMessage(Text.literal(npc.isStationary() ? "Camina: no (quieto)" : "Camina: si"));
             this.protectedButton.setMessage(Text.literal("Invencible: " + (npc.isProtected() ? "si" : "no")));
         }

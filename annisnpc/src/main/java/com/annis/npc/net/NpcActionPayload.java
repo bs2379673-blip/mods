@@ -32,7 +32,8 @@ public record NpcActionPayload(int entityId, int action, String text, boolean fl
     public static final int COPY_FROM = 19;       // number = id del NPC origen
     public static final int SET_ALL_ACCESSORIES = 20; // text = lista completa
     public static final int SET_MUSIC = 21;       // text = id de sonido
-    public static final int STOP_MUSIC = 22;   // flag (invencible)
+    public static final int STOP_MUSIC = 22;
+    public static final int SET_JOINTED = 23;     // flag   // flag (invencible)
 
     public static final CustomPayload.Id<NpcActionPayload> ID =
             new CustomPayload.Id<>(Identifier.of(AnnisNpc.MOD_ID, "npc_action"));

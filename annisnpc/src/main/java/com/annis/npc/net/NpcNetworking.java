@@ -73,6 +73,7 @@ public final class NpcNetworking {
                 case NpcActionPayload.SET_ALL_ACCESSORIES -> npc.setAccessories(payload.text());
                 case NpcActionPayload.SET_MUSIC -> npc.setMusic(payload.text());
                 case NpcActionPayload.STOP_MUSIC -> stopMusic(npc);
+                case NpcActionPayload.SET_JOINTED -> npc.setJointed(payload.flag());
                 case NpcActionPayload.COPY_FROM -> {
                     Entity source = player.getWorld().getEntityById(payload.number());
                     if (source instanceof AnnisNpcEntity other && other != npc) {

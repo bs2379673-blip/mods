@@ -53,7 +53,7 @@ final class PoseConverter {
         double h0 = V.dot(hips0, U);
         double[] headFwdLocal = headLocal != null ? headLocal : V.mv(V.transpose(p0.headRot), F0);
 
-        double[][] raw = new double[n][21];
+        double[][] raw = new double[n][32];
         double[] yaw = new double[n];
         for (int i = 0; i < n; i++) {
             Pose p = poses.get(i);
@@ -82,9 +82,17 @@ final class PoseConverter {
             r[14] = sway[0];
             r[15] = sway[2];
             yaw[i] = Math.atan2(V.dot(F, L0), V.dot(F, F0));
+            // modelo articulado: tramo de arriba + doblez (si hay codos/rodillas en el esqueleto)
+            joint(p, "armR", "elbowR", "handR", false, L, U, F, r, 16);
+            joint(p, "armL", "elbowL", "handL", false, L, U, F, r, 20);
+            joint(p, "legR", "kneeR", "footR", true, L, U, F, r, 24);
+            joint(p, "legL", "kneeL", "footL", true, L, U, F, r, 28);
         }
         // desenrollar angulos para que no salten de +pi a -pi
-        for (int c = 0; c < 13; c++) {
+        for (int c = 0; c < 32; c++) {
+            if (c >= 13 && c < 16) {
+                continue; // rebote y balanceo no son angulos
+            }
             for (int i = 1; i < n; i++) {
                 raw[i][c] = unwrap(raw[i - 1][c], raw[i][c]);
             }
@@ -100,7 +108,7 @@ final class PoseConverter {
         float[] yawOut = new float[out];
         for (int k = 0; k < out; k++) {
             double src = k / 20.0 * fps;
-            double[] v = new double[16];
+            double[] v = new double[32];
             double y = 0;
             double wsum = 0;
             for (int o = -1; o <= 1; o++) {
@@ -109,13 +117,13 @@ final class PoseConverter {
                 int i0 = (int) Math.floor(s);
                 int i1 = Math.min(n - 1, i0 + 1);
                 double f = s - i0;
-                for (int c = 0; c < 16; c++) {
+                for (int c = 0; c < 32; c++) {
                     v[c] += w * (raw[i0][c] + (raw[i1][c] - raw[i0][c]) * f);
                 }
                 y += w * (yaw[i0] + (yaw[i1] - yaw[i0]) * f);
                 wsum += w;
             }
-            for (int c = 0; c < 16; c++) {
+            for (int c = 0; c < 32; c++) {
                 v[c] /= wsum;
             }
             y /= wsum;
@@ -128,7 +136,11 @@ final class PoseConverter {
                     (float) v[5], 0f, (float) v[6], -5f + sx, 2f + bob, sz,
                     (float) v[7], 0f, (float) v[8], 5f + sx, 2f + bob, sz,
                     (float) v[9], 0f, (float) v[10], -1.9f, 12f, 0.1f,
-                    (float) v[11], 0f, (float) v[12], 1.9f, 12f, 0.1f});
+                    (float) v[11], 0f, (float) v[12], 1.9f, 12f, 0.1f,
+                    (float) v[16], (float) v[17], (float) v[18], (float) v[19],
+                    (float) v[20], (float) v[21], (float) v[22], (float) v[23],
+                    (float) v[24], (float) v[25], (float) v[26], (float) v[27],
+                    (float) v[28], (float) v[29], (float) v[30], (float) v[31]});
             yawOut[k] = (float) y;
         }
         return new Result(frames, yawOut);
@@ -138,6 +150,51 @@ final class PoseConverter {
         double[] d = V.norm(mc(V.sub(p.pos.get(to), p.pos.get(from)), L, U, F));
         r[at] = Math.asin(clamp(d[2], -1, 1));
         r[at + 1] = Math.atan2(-d[0], d[1]);
+    }
+
+    /**
+     * Tramo de arriba (pitch, yaw, roll de ModelPart) girado para que la bisagra doble en el plano del
+     * codo/rodilla, mas el angulo de doblez (codo hacia delante negativo, rodilla hacia atras positivo).
+     */
+    private static void joint(Pose p, String a, String b, String c, boolean knee,
+                              double[] L, double[] U, double[] F, double[] r, int at) {
+        double[] pa = p.pos.get(a);
+        double[] pb = p.pos.get(b);
+        double[] pc = p.pos.get(c);
+        if (pb == null) {
+            // sin codo/rodilla en el esqueleto: miembro recto como en el modelo rigido
+            pb = V.mid(pa, pc);
+        }
+        double[] d1 = V.norm(mc(V.sub(pb, pa), L, U, F));
+        double[] d2 = V.norm(mc(V.sub(pc, pb), L, U, F));
+        double ca = clamp(V.dot(d1, d2), -1, 1);
+        double al = Math.acos(ca);
+        double[] back = V.v(0, 0, 1);
+        double[] zc = V.sub(back, V.mul(d1, V.dot(back, d1)));
+        if (V.len(zc) < 1e-3) {
+            double[] upv = V.v(0, -1, 0);
+            zc = V.sub(upv, V.mul(d1, V.dot(upv, d1)));
+        }
+        zc = V.norm(zc);
+        double[] zp = V.sub(d2, V.mul(d1, ca));
+        double[] z;
+        if (V.len(zp) > 1e-6) {
+            double[] plane = V.mul(V.norm(zp), knee ? 1 : -1);
+            double t = clamp((al - 0.15) / 0.30, 0, 1);
+            double w = t * t * (3 - 2 * t);
+            z = V.add(V.mul(plane, w), V.mul(zc, 1 - w));
+            if (V.len(z) < 1e-3) {
+                z = plane;
+            }
+        } else {
+            z = zc;
+        }
+        z = V.norm(V.sub(z, V.mul(d1, V.dot(z, d1))));
+        double[] x = V.cross(d1, z);
+        r[at] = Math.atan2(d1[2], z[2]);
+        r[at + 1] = Math.asin(clamp(-x[2], -1, 1));
+        r[at + 2] = Math.atan2(x[1], x[0]);
+        r[at + 3] = knee ? al : -al;
     }
 
     private static double[][] frame(Pose p, double[] U) {

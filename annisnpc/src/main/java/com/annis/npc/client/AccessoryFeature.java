@@ -51,8 +51,18 @@ public class AccessoryFeature extends FeatureRenderer<AnnisNpcEntity, PlayerEnti
                 continue;
             }
             matrices.push();
-            bone(model, a.bone).rotate(matrices);
-            matrices.translate(a.x / 16.0f, a.y / 16.0f, a.z / 16.0f);
+            ModelPart part = bone(model, a.bone);
+            part.rotate(matrices);
+            float ay = a.y;
+            // modelo articulado: lo que va en la mano o el pie sigue al antebrazo / la espinilla
+            if (model instanceof NpcModel nm && nm.jointed && !a.bone.equals("head") && !a.bone.equals("body")) {
+                ModelPart lower = part.getChild("lower");
+                if (ay > lower.pivotY - 0.5f) {
+                    lower.rotate(matrices);
+                    ay -= lower.pivotY;
+                }
+            }
+            matrices.translate(a.x / 16.0f, ay / 16.0f, a.z / 16.0f);
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0f));
             matrices.scale(a.scale, -a.scale, -a.scale);
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(a.ry));

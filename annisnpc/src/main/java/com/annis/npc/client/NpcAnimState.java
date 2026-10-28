@@ -141,7 +141,7 @@ public final class NpcAnimState {
         if (this.activity.isEmpty() || this.activityWeight <= 0.0f) {
             return;
         }
-        net.minecraft.client.model.ModelPart[] parts = {m.head, m.body, m.rightArm, m.leftArm, m.rightLeg, m.leftLeg};
+        net.minecraft.client.model.ModelPart[] parts = m.animParts();
         float[][] before = new float[parts.length][6];
         for (int i = 0; i < parts.length; i++) {
             net.minecraft.client.model.ModelPart p = parts[i];

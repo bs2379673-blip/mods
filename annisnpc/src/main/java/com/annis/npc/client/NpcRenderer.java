@@ -19,6 +19,8 @@ public class NpcRenderer extends LivingEntityRenderer<AnnisNpcEntity, PlayerEnti
 
     private final NpcModel classicModel;
     private final NpcModel slimModel;
+    private final NpcModel jointClassic = new NpcModel(JointModel.build(false), false);
+    private final NpcModel jointSlim = new NpcModel(JointModel.build(true), true);
 
     public NpcRenderer(EntityRendererFactory.Context ctx) {
         super(ctx, new NpcModel(ctx.getPart(EntityModelLayers.PLAYER), false), 0.5f);
@@ -57,7 +59,11 @@ public class NpcRenderer extends LivingEntityRenderer<AnnisNpcEntity, PlayerEnti
     public void render(AnnisNpcEntity npc, float yaw, float tickDelta, MatrixStack matrices,
                        VertexConsumerProvider vertexConsumers, int light) {
         NpcAnimState.of(npc).applier.setTickDelta(tickDelta);
-        this.model = npc.isSlim() ? this.slimModel : this.classicModel;
+        if (npc.isJointed()) {
+            this.model = npc.isSlim() ? this.jointSlim : this.jointClassic;
+        } else {
+            this.model = npc.isSlim() ? this.slimModel : this.classicModel;
+        }
         super.render(npc, yaw, tickDelta, matrices, vertexConsumers, light);
     }
 }

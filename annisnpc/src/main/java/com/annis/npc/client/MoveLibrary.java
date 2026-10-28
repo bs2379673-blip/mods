@@ -28,6 +28,8 @@ public final class MoveLibrary {
     /** Orden de huesos en cada frame; cada hueso son 6 valores: pitch, yaw, roll, pivotX, pivotY, pivotZ. */
     public static final int PARTS = 6;
     public static final int VALUES = PARTS * 6;
+    /** Formato articulado (v3): 16 valores mas = brazo/pierna (pitch, yaw, roll, doblez) x 4. */
+    public static final int JOINT_VALUES = VALUES + 16;
 
     /** yaw: giro del cuerpo entero por frame (radianes, positivo = hacia su izquierda), puede ser null. */
     public record Move(float[][] frames, boolean loop, float[] yaw) {
@@ -74,8 +76,9 @@ public final class MoveLibrary {
                 if (f.size() < VALUES) {
                     continue;
                 }
-                float[] v = new float[VALUES];
-                for (int i = 0; i < VALUES; i++) {
+                int count = f.size() >= JOINT_VALUES ? JOINT_VALUES : VALUES;
+                float[] v = new float[count];
+                for (int i = 0; i < count; i++) {
                     v[i] = f.get(i).getAsFloat();
                 }
                 frames.add(v);
@@ -155,6 +158,8 @@ public final class MoveLibrary {
         int i3 = idx(i1 + 2, n, move.loop());
         i1 = idx(i1, n, move.loop());
         ModelPart[] parts = {m.head, m.body, m.rightArm, m.leftArm, m.rightLeg, m.leftLeg};
+        boolean joints = m.jointed && fr[i1].length >= JOINT_VALUES && fr[i0].length >= JOINT_VALUES
+                && fr[i2].length >= JOINT_VALUES && fr[i3].length >= JOINT_VALUES;
         for (int p = 0; p < PARTS; p++) {
             int b = p * 6;
             float[] v = new float[6];
@@ -168,6 +173,24 @@ public final class MoveLibrary {
             part.pivotX = v[3];
             part.pivotY = v[4];
             part.pivotZ = v[5];
+        }
+        if (joints) {
+            // brazos y piernas: direccion del tramo de arriba + doblez de codo/rodilla
+            ModelPart[] limbs = {m.rightArm, m.leftArm, m.rightLeg, m.leftLeg};
+            ModelPart[] lowers = {m.rightForearm, m.leftForearm, m.rightShin, m.leftShin};
+            for (int l = 0; l < 4; l++) {
+                int b = VALUES + l * 4;
+                float[] v = new float[4];
+                for (int k = 0; k < 4; k++) {
+                    v[k] = catmull(fr[i0][b + k], fr[i1][b + k], fr[i2][b + k], fr[i3][b + k], f);
+                }
+                limbs[l].pitch = v[0];
+                limbs[l].yaw = v[1];
+                limbs[l].roll = v[2];
+                lowers[l].pitch = v[3];
+                lowers[l].yaw = 0.0f;
+                lowers[l].roll = 0.0f;
+            }
         }
     }
 

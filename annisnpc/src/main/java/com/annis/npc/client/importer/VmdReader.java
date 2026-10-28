@@ -157,8 +157,32 @@ final class VmdReader {
         p.pos.put("handR", gp.get("右手首"));
         p.pos.put("neck", gp.get("首"));
         p.pos.put("head", gp.get("頭"));
-        p.pos.put("footL", keys.containsKey("左足ＩＫ") ? gp.get("左足ＩＫ") : gp.get("左足首"));
-        p.pos.put("footR", keys.containsKey("右足ＩＫ") ? gp.get("右足ＩＫ") : gp.get("右足首"));
+        p.pos.put("elbowL", gp.get("左ひじ"));
+        p.pos.put("elbowR", gp.get("右ひじ"));
+        double[] lowerFwd = V.mv(gr.get("下半身"), V.v(0, 0, -1));
+        for (String side : new String[]{"左", "右"}) {
+            String key = side.equals("左") ? "L" : "R";
+            if (keys.containsKey(side + "足ＩＫ")) {
+                // pierna con IK: tobillo en el objetivo y rodilla resuelta (2 huesos) hacia delante
+                double[] hip = gp.get(side + "足");
+                double[] target = gp.get(side + "足ＩＫ");
+                double l1 = V.len(V.sub(REST.get(side + "ひざ").rest, REST.get(side + "足").rest));
+                double l2 = V.len(V.sub(REST.get(side + "足首").rest, REST.get(side + "ひざ").rest));
+                double[] toT = V.sub(target, hip);
+                double d = Math.min(V.len(toT), (l1 + l2) * 0.9999);
+                double[] u = V.norm(toT);
+                double a = (l1 * l1 - l2 * l2 + d * d) / (2 * d);
+                double h = Math.sqrt(Math.max(0, l1 * l1 - a * a));
+                double[] pole = V.sub(lowerFwd, V.mul(u, V.dot(lowerFwd, u)));
+                pole = V.len(pole) < 1e-6 ? V.v(0, 0, -1) : V.norm(pole);
+                double[] knee = V.add(hip, V.add(V.mul(u, a), V.mul(pole, h)));
+                p.pos.put("knee" + key, knee);
+                p.pos.put("foot" + key, V.add(hip, V.mul(u, d)));
+            } else {
+                p.pos.put("knee" + key, gp.get(side + "ひざ"));
+                p.pos.put("foot" + key, gp.get(side + "足首"));
+            }
+        }
         p.headRot = gr.get("頭");
         return p;
     }
