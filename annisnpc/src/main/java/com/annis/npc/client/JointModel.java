@@ -17,8 +17,10 @@ import java.util.Set;
 public final class JointModel {
     private static final Set<Direction> ALL = EnumSet.allOf(Direction.class);
     private static final Set<Direction> SIDES = EnumSet.of(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST);
-    private static final Set<Direction> SIDES_UP = EnumSet.of(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST, Direction.UP);
-    private static final Set<Direction> DOWN = EnumSet.of(Direction.DOWN);
+    // Ojo: en ModelPart.Cuboid la cara DOWN esta en la Y minima del modelo (el modelo tiene Y hacia abajo),
+    // o sea es la tapa de ARRIBA del miembro y usa la textura "superior"; UP es la de abajo (palma / suela).
+    private static final Set<Direction> SIDES_TOP = EnumSet.of(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST, Direction.DOWN);
+    private static final Set<Direction> BOTTOM = EnumSet.of(Direction.UP);
 
     /** Mitad del miembro donde va la bisagra (pixeles desde arriba del cubo). */
     public static final float SPLIT = 6.0f;
@@ -49,11 +51,11 @@ public final class JointModel {
         float rest = 12.0f - split;
         ModelPart lower = part(List.of(
                         box(u, (int) (v + split - 1), x0, -1.0f, -2.0f, w, rest + 1.0f, 4.0f, dil, SIDES),
-                        box(u, v, x0, -split, -2.0f, w, 12.0f, 4.0f, dil, DOWN)),
+                        box(u, v, x0, -split, -2.0f, w, 12.0f, 4.0f, dil, BOTTOM)),
                 Map.of(), 0.0f, yTop + split, 0.0f);
         Map<String, ModelPart> ch = new HashMap<>();
         ch.put("lower", lower);
-        return part(List.of(box(u, v, x0, yTop, -2.0f, w, split, 4.0f, dil, SIDES_UP)), ch, px, py, pz);
+        return part(List.of(box(u, v, x0, yTop, -2.0f, w, split, 4.0f, dil, SIDES_TOP)), ch, px, py, pz);
     }
 
     /** Raiz con todas las partes que espera PlayerEntityModel. */
