@@ -41,5 +41,7 @@ public class McaMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+        org.slf4j.LoggerFactory.getLogger("annisnpc").info("Enganche con MCA aplicado: {} -> {}",
+                mixinClassName.substring(mixinClassName.lastIndexOf('.') + 1), targetClassName);
     }
 }

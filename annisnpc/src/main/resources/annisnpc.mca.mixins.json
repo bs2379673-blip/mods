@@ -6,5 +6,5 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": ["DialoguesMixin", "ActionsMixin", "VillagerCommandHandlerMixin"],
   "client": ["VillagerModelMixin"],
-  "injectors": { "defaultRequire": 0 }
+  "injectors": { "defaultRequire": 1 }
 }

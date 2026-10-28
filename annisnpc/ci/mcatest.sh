@@ -51,6 +51,7 @@ if grep -q 'Done (' server.log; then
     'execute if entity @e[type=mca:male_villager]' \
     'data get entity @e[type=mca:male_villager,limit=1] fabric:attachments' \
     'annisnpc anim @e[type=mca:male_villager] stop' \
+    'annisnpc mca es_aldeano @e[type=mca:female_villager,limit=1]' \
     'sleep 3' \
     'stop' 2>&1 | tee rcon-out.txt
 else
@@ -59,4 +60,5 @@ fi
 wait $GP
 echo "::notice::MCA> $(tr '\n' '|' < rcon-out.txt | cut -c1-4000)"
 echo "::warning::MCA log> $(grep -E "Mixin apply|mixin.*annisnpc|annisnpc.*(ERROR|Exception)|InvalidInjection|Caused by|Exception|ERROR" server.log | head -30 | tr '\n' '|' | cut -c1-6000)"
+echo "::notice::MCA> $(grep -o 'Enganche con MCA aplicado: [A-Za-z]*' server.log | sort -u | tr '\n' '|')"
 grep -q "Integracion con Minecraft Comes Alive activada" server.log && echo "::notice::MCA> integracion activada"
