@@ -1,0 +1,30 @@
+VIDEO A BAILE - Annis World
+===========================
+
+Convierte un video de una persona bailando en un baile para los NPC de Annis NPC
+(con codos, rodillas, cabeza y giros del cuerpo).
+
+INSTALAR (una sola vez)
+1. Instala Python 3.12 desde https://www.python.org (marca "Add Python to PATH").
+2. Doble clic en Iniciar.bat. La primera vez instala lo necesario (unos minutos).
+
+USAR
+1. Iniciar.bat > "Elegir..." el video.
+2. "Guardar en": la carpeta  .minecraft/config/annisnpc/import  (o la de tu launcher).
+3. Si el baile es solo una parte del video, pon "Desde" y "Hasta" en segundos.
+4. Convertir. Se crea  nombre.bvh  y, si lo marcaste, nombre_comprobacion.mp4 con el
+   esqueleto dibujado para ver si detecto bien a la persona.
+5. En el juego: Editor del NPC > Escena > Importar baile, y pon el NPC en modo
+   "articulaciones" para ver codos y rodillas.
+
+PARA QUE SALGA BIEN
+- Una sola persona, cuerpo entero (de la cabeza a los pies) siempre en pantalla.
+- Camara fija, buena luz, ropa que no tape mucho las piernas.
+- Calidad "heavy" es la mas precisa (mas lenta); "lite" la mas rapida.
+- Suavizado: 2 va bien para casi todo; sube a 3 si tiembla, baja a 1 si pierde rapidez.
+
+LIMITES
+- Una camara no ve la profundidad perfecta: movimientos hacia/desde la camara son los
+  que mas se equivocan.
+- Los dedos y las munecas no se usan (Minecraft no los tiene).
+- Los saltos se convierten en rebote de cadera (el NPC no se despega del suelo).

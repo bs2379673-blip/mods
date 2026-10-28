@@ -1,0 +1,36 @@
+name: Probar herramienta video a baile
+on:
+  push:
+    branches: [annisnpc]
+    paths: ['tools/video_a_baile/**', '.github/workflows/videotool.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar
+        run: pip install -r tools/video_a_baile/requirements.txt
+      - name: Video de prueba
+        run: |
+          mkdir -p prueba
+          curl -sSL -o prueba/calle.avi https://raw.githubusercontent.com/CMU-Perceptual-Computing-Lab/openpose/master/examples/media/video.avi
+          ls -la prueba
+      - name: Convertir
+        run: |
+          cd prueba
+          python ../tools/video_a_baile/video_a_baile.py calle.avi --salida calle.bvh --calidad full --suavizado 2 --preview 2>&1 | tee registro.txt
+          head -c 600 calle.bvh
+      - name: Publicar resultado
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete videotool-test --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
+          gh release create videotool-test prueba/calle.bvh prueba/calle_comprobacion.mp4 prueba/registro.txt -R "$GITHUB_REPOSITORY" --title "Prueba video a baile" --notes "Prueba automatica" --target "$GITHUB_SHA" --prerelease
