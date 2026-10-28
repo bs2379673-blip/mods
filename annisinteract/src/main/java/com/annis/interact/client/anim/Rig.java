@@ -12,6 +12,10 @@ public final class Rig {
 
     public static final class P {
         public float pitch, yaw, roll, x, y, z;
+        /** Doblez del codo / rodilla (giro de la mitad de abajo, como el pitch de la parte baja). */
+        public float bend;
+        /** Si se uso IK: punto al que apuntar recto cuando el modelo no se puede doblar. */
+        public float[] rigid;
         public boolean touched;
         final float rx, ry, rz;
 
@@ -39,6 +43,8 @@ public final class Rig {
 
         /** Vuelve al reposo (pivote y giros) y la marca como controlada por la animacion. */
         public P rest() {
+            this.bend = 0;
+            this.rigid = null;
             return at(this.rx, this.ry, this.rz).set(0, 0, 0);
         }
 
@@ -49,6 +55,8 @@ public final class Rig {
             this.x = x;
             this.y = y;
             this.z = z;
+            this.bend = 0;
+            this.rigid = null;
             this.touched = false;
         }
 
@@ -75,6 +83,77 @@ public final class Rig {
             return set(p, (float) Math.atan2(ux, uz), 0);
         }
 
+        /**
+         * Dos huesos (brazo o pierna): la punta llega a (tx,ty,tz) doblando el codo o la rodilla.
+         * pole = hacia donde apunta el codo/rodilla; foldBack = la parte de abajo se dobla hacia
+         * atras (rodillas) en vez de hacia delante (codos). rigidTarget = a donde apuntar recto si
+         * el modelo no tiene articulaciones (null = al mismo punto).
+         */
+        public P ik(float tx, float ty, float tz, float px, float py, float pz, boolean foldBack,
+                    float l1, float l2, float[] rigidTarget) {
+            float dx = tx - this.x, dy = ty - this.y, dz = tz - this.z;
+            float d = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+            if (d < 1.0e-3f) {
+                return this;
+            }
+            float ux = dx / d, uy = dy / d, uz = dz / d;
+            float dc = Math.max(Math.abs(l1 - l2) + 0.3f, Math.min(l1 + l2 - 0.02f, d));
+            float cosF = (dc * dc - l1 * l1 - l2 * l2) / (2 * l1 * l2);
+            float fold = (float) Math.acos(Math.max(-1f, Math.min(1f, cosF)));
+            float cosA = (l1 * l1 + dc * dc - l2 * l2) / (2 * l1 * dc);
+            float alpha = (float) Math.acos(Math.max(-1f, Math.min(1f, cosA)));
+            // polo perpendicular al objetivo
+            float pd = px * ux + py * uy + pz * uz;
+            float qx = px - pd * ux, qy = py - pd * uy, qz = pz - pd * uz;
+            float ql = (float) Math.sqrt(qx * qx + qy * qy + qz * qz);
+            if (ql < 1.0e-3f) {
+                // cualquiera perpendicular
+                qx = uy;
+                qy = -ux;
+                qz = 0;
+                ql = (float) Math.sqrt(qx * qx + qy * qy);
+                if (ql < 1.0e-3f) {
+                    qx = 0;
+                    qy = uz;
+                    qz = -uy;
+                    ql = (float) Math.sqrt(qy * qy + qz * qz);
+                }
+            }
+            qx /= ql;
+            qy /= ql;
+            qz /= ql;
+            float ca = (float) Math.cos(alpha), sa = (float) Math.sin(alpha);
+            // eje del hueso de arriba (Y local)
+            float yx = ca * ux + sa * qx, yy = ca * uy + sa * qy, yz = ca * uz + sa * qz;
+            // hacia donde se dobla la parte de abajo: hacia el objetivo, lejos del polo
+            // w = componente del objetivo perpendicular a Y
+            float td = ux * yx + uy * yy + uz * yz;
+            float wx = ux - td * yx, wy, wz;
+            wy = uy - td * yy;
+            wz = uz - td * yz;
+            float wl = (float) Math.sqrt(wx * wx + wy * wy + wz * wz);
+            if (wl < 1.0e-3f) {
+                wx = -qx;
+                wy = -qy;
+                wz = -qz;
+            } else {
+                wx /= wl;
+                wy /= wl;
+                wz /= wl;
+            }
+            // Z local: codos se doblan hacia -Z (delante), rodillas hacia +Z (atras)
+            float zx = foldBack ? wx : -wx, zy = foldBack ? wy : -wy, zz = foldBack ? wz : -wz;
+            // X = Y x Z
+            float xx = yy * zz - yz * zy, xy = yz * zx - yx * zz, xz = yx * zy - yy * zx;
+            float yaw = (float) Math.asin(Math.max(-1f, Math.min(1f, -xz)));
+            float pitch = (float) Math.atan2(yz, zz);
+            float roll = (float) Math.atan2(xy, xx);
+            set(pitch, yaw, roll);
+            this.bend = foldBack ? fold : -fold;
+            this.rigid = rigidTarget != null ? rigidTarget : new float[]{tx, ty, tz};
+            return this;
+        }
+
         /** Mezcla hacia otra pose (w = 0 se queda como esta, 1 = la otra). */
         public void blend(P o, float w) {
             this.pitch += (o.pitch - this.pitch) * w;
@@ -83,6 +162,7 @@ public final class Rig {
             this.x += (o.x - this.x) * w;
             this.y += (o.y - this.y) * w;
             this.z += (o.z - this.z) * w;
+            this.bend += (o.bend - this.bend) * w;
             this.touched |= o.touched;
         }
 
@@ -93,6 +173,8 @@ public final class Rig {
             this.x = o.x;
             this.y = o.y;
             this.z = o.z;
+            this.bend = o.bend;
+            this.rigid = o.rigid;
             this.touched = o.touched;
         }
     }
@@ -119,6 +201,29 @@ public final class Rig {
 
     public P[] parts() {
         return new P[]{head, body, rightArm, leftArm, rightLeg, leftLeg};
+    }
+
+    // largos: hombro->codo 4, codo->palma 5.5; cadera->rodilla 6, rodilla->planta 6
+    public static final float ARM1 = 4.0f, ARM2 = 5.5f, LEG1 = 6.0f, LEG2 = 5.8f;
+
+    /** Mano a un punto con el codo hacia "pole" (direccion en el modelo). */
+    public static void hand(P arm, float[] t, float px, float py, float pz, float[] rigidTarget) {
+        arm.ik(t[0], t[1], t[2], px, py, pz, false, ARM1, ARM2, rigidTarget);
+    }
+
+    /** Pie a un punto con la rodilla hacia "pole". */
+    public static void foot(P leg, float[] t, float px, float py, float pz) {
+        leg.ik(t[0], t[1], t[2], px, py, pz, true, LEG1, LEG2, null);
+    }
+
+    /** Punta (palma o planta) de un miembro con su doblez. */
+    public static float[] tip(P limb, boolean arm) {
+        float l1 = arm ? ARM1 : LEG1, l2 = arm ? ARM2 : LEG2;
+        float[] m = rot(limb.pitch, limb.yaw, limb.roll);
+        float c = (float) Math.cos(limb.bend), s = (float) Math.sin(limb.bend);
+        // codo en (0,l1,0); antebrazo (0,l2,0) girado por Rx(bend)
+        float[] v = mul(m, 0, l1 + l2 * c, l2 * s);
+        return new float[]{limb.x + v[0], limb.y + v[1], limb.z + v[2]};
     }
 
     /** Todo el cuerpo en reposo (de pie, brazos abajo). */

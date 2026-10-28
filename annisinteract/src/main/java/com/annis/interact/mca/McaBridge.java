@@ -45,6 +45,13 @@ public final class McaBridge {
         return false;
     }
 
+    /** Entrega lo que tiene en la mano (el anillo) por el sistema de regalos de MCA. */
+    public static void giveHeldGift(Entity e, net.minecraft.server.network.ServerPlayerEntity player) {
+        if (e instanceof VillagerEntityMCA v) {
+            v.getRelationships().giveGift(player, v.getVillagerBrain().getMemoriesForPlayer(player));
+        }
+    }
+
     public static boolean isBusy(Entity e) {
         if (e instanceof VillagerEntityMCA v) {
             return v.isSleeping() || v.getVillagerBrain().isPanicking();

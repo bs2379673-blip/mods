@@ -157,8 +157,28 @@ public final class NpcAnimState {
         if (elapsed < 0 || elapsed > 20L * 60 * 60 * 24) {
             return null;
         }
-        Activities.RootPose rp = Activities.root(this.activity, elapsed + tickDelta);
-        return rp == null ? null : rp.scaled(this.activityWeight);
+        float t = elapsed + tickDelta;
+        Activities.RootPose rp = Activities.root(this.activity, t);
+        if (rp == null) {
+            return null;
+        }
+        rp = rp.scaled(this.activityWeight);
+        if (!Activities.springy(this.activity)) {
+            return rp;
+        }
+        if (this.rootSprings == null) {
+            this.rootSprings = new Spring[6];
+            for (int c = 0; c < 6; c++) {
+                this.rootSprings[c] = new Spring(1.9f, 0.7f, 0.6f, c < 3);
+            }
+        }
+        float dt = this.rootT < 0 || t < this.rootT ? 0 : (t - this.rootT) / 20.0f;
+        this.rootT = t;
+        float[] v = {rp.pitch(), rp.yaw(), rp.roll(), rp.forward(), rp.up(), rp.left()};
+        for (int c = 0; c < 6; c++) {
+            v[c] = this.rootSprings[c].update(v[c], dt);
+        }
+        return new Activities.RootPose(v[0], v[1], v[2], v[3], v[4], v[5]);
     }
 
     /** Giro del cuerpo entero del movimiento actual (bailes importados que dan vueltas), ya mezclado. */
@@ -198,6 +218,8 @@ public final class NpcAnimState {
         if (!this.activityTarget && this.activityWeight < 0.01f) {
             this.activityWeight = 0.0f;
             this.activity = "";
+            this.springs = null;
+            this.rootSprings = null;
         }
         if (this.activity.isEmpty() || this.activityWeight <= 0.0f) {
             return;
@@ -210,17 +232,51 @@ public final class NpcAnimState {
         }
         Activities.apply(this.activity, m, t);
         float w = this.activityWeight;
+        boolean spring = Activities.springy(this.activity);
+        if (spring && (this.springs == null || this.springs.length != parts.length)) {
+            this.springs = new Spring[parts.length][6];
+            for (int i = 0; i < parts.length; i++) {
+                // cabeza y torso mas lentos, manos y piernas mas rapidas, codos y rodillas aun mas
+                float f = i == 0 ? 2.2f : i == 1 ? 1.7f : i < 4 ? 2.5f : i < 6 ? 2.8f : 3.0f;
+                for (int c = 0; c < 6; c++) {
+                    this.springs[i][c] = new Spring(f, 0.62f, 0.9f, c < 3);
+                }
+            }
+        }
+        float dt = this.springT < 0 || t < this.springT ? 0 : (t - this.springT) / 20.0f;
+        this.springT = t;
         for (int i = 0; i < parts.length; i++) {
             net.minecraft.client.model.ModelPart p = parts[i];
             float[] b = before[i];
-            p.pitch = MathHelper.lerp(w, b[0], p.pitch);
-            p.yaw = MathHelper.lerp(w, b[1], p.yaw);
-            p.roll = MathHelper.lerp(w, b[2], p.roll);
-            p.pivotX = MathHelper.lerp(w, b[3], p.pivotX);
-            p.pivotY = MathHelper.lerp(w, b[4], p.pivotY);
-            p.pivotZ = MathHelper.lerp(w, b[5], p.pivotZ);
+            float[] v = {
+                    MathHelper.lerp(w, b[0], p.pitch), MathHelper.lerp(w, b[1], p.yaw), MathHelper.lerp(w, b[2], p.roll),
+                    MathHelper.lerp(w, b[3], p.pivotX), MathHelper.lerp(w, b[4], p.pivotY), MathHelper.lerp(w, b[5], p.pivotZ)};
+            if (spring) {
+                Spring[] sp = this.springs[i];
+                if (!sp[0].ready() || dt <= 0) {
+                    for (int c = 0; c < 6; c++) {
+                        if (!sp[c].ready()) {
+                            sp[c].reset(v[c]);
+                        }
+                    }
+                }
+                for (int c = 0; c < 6; c++) {
+                    v[c] = sp[c].update(v[c], dt);
+                }
+            }
+            p.pitch = v[0];
+            p.yaw = v[1];
+            p.roll = v[2];
+            p.pivotX = v[3];
+            p.pivotY = v[4];
+            p.pivotZ = v[5];
         }
     }
+
+    private Spring[][] springs;
+    private float springT = -1;
+    private Spring[] rootSprings;
+    private float rootT = -1;
 
     private static float rate(float perTick, float dt) {
         return 1.0f - (float) Math.exp(-perTick * dt);

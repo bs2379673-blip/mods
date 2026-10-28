@@ -155,6 +155,8 @@ public final class Downed {
         DOWNED.remove(e.getUuid());
         modifier(e, false);
         Sessions.unanchor(e);
+        // sin esto, al reaparecer seguia viendose tumbado
+        EntityLinks.stop(e);
         if (e instanceof ServerPlayerEntity p) {
             ServerPlayNetworking.send(p, new DownedPayload(0, false));
         }
@@ -312,6 +314,24 @@ public final class Downed {
             }
         }
         return best;
+    }
+
+    /** Al reaparecer (nueva entidad, misma id): nada de caido, ni animacion ni anclaje. */
+    public static void onRespawn(ServerPlayerEntity oldP, ServerPlayerEntity newP) {
+        DOWNED.remove(oldP.getUuid());
+        modifier(newP, false);
+        Sessions.unanchor(newP);
+        EntityLinks.play(newP, "", 0);
+        ServerPlayNetworking.send(newP, new DownedPayload(0, false));
+        ServerPlayNetworking.send(newP, new com.annis.interact.net.SessionPayload(""));
+    }
+
+    /** Murio por otra cosa estando caido (lo remataron). */
+    public static void onDeath(LivingEntity e) {
+        if (isDowned(e)) {
+            Sessions.endFor(e, null);
+            clear(e);
+        }
     }
 
     public static void onDisconnect(ServerPlayerEntity p) {

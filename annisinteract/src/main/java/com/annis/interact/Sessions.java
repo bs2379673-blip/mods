@@ -315,6 +315,15 @@ public final class Sessions {
     }
 
     public static boolean start(Interaction type, LivingEntity a, LivingEntity b) {
+        String animA = type.animA(), animB = type.animB();
+        if (type.swap()) {
+            // "que me lleve": el que pide va encima; en la sesion "a" es siempre quien carga
+            LivingEntity tmp = a;
+            a = b;
+            b = tmp;
+            animA = type.animB();
+            animB = type.animA();
+        }
         ServerWorld world = (ServerWorld) a.getWorld();
         Session s = new Session(type, a, b, world.getTime());
         if (!place(s)) {
@@ -344,8 +353,8 @@ public final class Sessions {
             anchor(b, s.yawB);
         }
         int hold = type.timed() ? type.ticks() + 40 : 0;
-        EntityLinks.play(a, type.animA(), hold);
-        EntityLinks.play(b, type.animB(), hold);
+        EntityLinks.play(a, animA, hold);
+        EntityLinks.play(b, animB, hold);
         ACTIVE.add(s);
         BY_ENTITY.put(a.getUuid(), s);
         BY_ENTITY.put(b.getUuid(), s);
@@ -465,28 +474,28 @@ public final class Sessions {
         if (!(mate instanceof MobEntity m)) {
             return;
         }
-        float yaw = lead.getYaw();
+        float yaw = lead.bodyYaw;
         Vec3d side = left(yaw).multiply(mateRight ? -Layout.HAND_SIDE : Layout.HAND_SIDE);
         Vec3d want = lead.getPos().add(side);
-        double d2 = m.getPos().squaredDistanceTo(want);
-        if (d2 > 4.0 * 4.0 && fits(m, want)) {
+        Vec3d gap = want.subtract(m.getPos());
+        double d = gap.horizontalLength();
+        m.getNavigation().stop();
+        if (d > 4.0 && fits(m, want)) {
             m.refreshPositionAndAngles(want.x, want.y, want.z, yaw, m.getPitch());
             return;
         }
-        double leadSpeed = lead.getVelocity().horizontalLength();
-        if (d2 > 0.09) {
-            if (now % 4 == 0 || m.getNavigation().isIdle()) {
-                double speed = MathHelper.clamp(0.8 + leadSpeed * 6.0 + Math.sqrt(d2) * 0.3, 0.8, 1.8);
-                m.getNavigation().startMovingTo(want.x, want.y, want.z, speed);
-            }
-        } else {
-            m.getNavigation().stop();
-            if (leadSpeed < 0.01) {
-                m.setYaw(yaw);
-                m.setBodyYaw(yaw);
-                m.setHeadYaw(yaw);
+        // camina pegado al otro: cada tick recorre casi todo lo que falta (con choques normales)
+        double step = Math.min(d, 0.12 + lead.getVelocity().horizontalLength() * 1.6 + d * 0.5);
+        if (d > 0.01) {
+            Vec3d move = new Vec3d(gap.x, 0, gap.z).normalize().multiply(step);
+            m.move(net.minecraft.entity.MovementType.SELF, new Vec3d(move.x, m.getVelocity().y, move.z));
+            if (m.horizontalCollision && m.isOnGround()) {
+                m.getJumpControl().setActive();
             }
         }
+        m.setYaw(yaw);
+        m.setBodyYaw(yaw);
+        m.setHeadYaw(lead.getHeadYaw());
     }
 
     // ------------------------------------------------------------------ terminar
@@ -521,6 +530,9 @@ public final class Sessions {
                 }
             }
         }
+        if (s.type == Interaction.PROPOSE && completed) {
+            proposalDone(s);
+        }
         boolean revived = false;
         if (s.type.kind() == Interaction.Kind.REVIVE && completed && Downed.isDowned(s.b)) {
             Downed.revive(s.b, s.a);
@@ -530,7 +542,7 @@ public final class Sessions {
             unanchor(e);
             if (e.isAlive()) {
                 if (Downed.isDowned(e)) {
-                    EntityLinks.play(e, "caido", 0);
+                    EntityLinks.play(e, "caido_suelo", 0);
                     anchor(e, Downed.yawOf(e) == null ? e.bodyYaw : Downed.yawOf(e));
                 } else {
                     EntityLinks.stop(e);
@@ -552,6 +564,20 @@ public final class Sessions {
         if (why != null && !revived) {
             sayBoth(s, why);
         }
+    }
+
+    /** Si el que propone lleva un anillo de MCA, lo usa con el aldeano (MCA decide si acepta). */
+    private static void proposalDone(Session s) {
+        if (!(s.a instanceof ServerPlayerEntity p) || !AnnisInteract.MCA || !com.annis.interact.mca.McaBridge.isVillager(s.b)) {
+            return;
+        }
+        net.minecraft.item.ItemStack stack = p.getMainHandStack();
+        net.minecraft.util.Identifier id = net.minecraft.registry.Registries.ITEM.getId(stack.getItem());
+        if ("mca".equals(id.getNamespace()) && id.getPath().contains("ring")) {
+            com.annis.interact.mca.McaBridge.giveHeldGift(s.b, p);
+            return;
+        }
+        say(p, "Para que cuente en MCA, propon con el anillo de compromiso en la mano");
     }
 
     public static void endAll() {

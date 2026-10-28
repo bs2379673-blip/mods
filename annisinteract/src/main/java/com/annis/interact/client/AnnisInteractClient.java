@@ -38,6 +38,7 @@ public class AnnisInteractClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         RigBridge.registerAll();
+        com.annis.interact.client.anim.PairAnims.handLink = new HandLinkImpl();
         CarryPose.clientAnim = AnnisInteractClient::animOf;
 
         WHEEL = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.annisinteract.wheel",
@@ -104,7 +105,8 @@ public class AnnisInteractClient implements ClientModInitializer {
     }
 
     static boolean isDowned(Entity e) {
-        return "caido".equals(animOf(e));
+        String a = animOf(e);
+        return "caido".equals(a) || "caido_suelo".equals(a);
     }
 
     /** A quien se puede invitar: jugadores, NPC Annis, aldeanos de MCA y entidades con aspecto Annis. */

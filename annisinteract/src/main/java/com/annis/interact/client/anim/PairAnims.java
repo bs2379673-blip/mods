@@ -10,9 +10,9 @@ import static com.annis.interact.client.anim.Rig.*;
 /**
  * Animaciones de pareja de Annis Interacciones (propias, hechas a mano).
  *
- * Cada pareja comparte el mismo reloj (t en ticks desde el inicio), asi los contactos (manos que
- * chocan, brazos que abrazan) coinciden. La colocacion de cada pareja la hace el servidor con las
- * mismas medidas que se usan aqui ({@link Layout}).
+ * Estilo "suelto": codos y rodillas con IK, respiracion y balanceo, anticipacion y rebote.
+ * Annis NPC ademas pasa todo por resortes (inercia), asi nada se mueve rigido.
+ * Cada pareja comparte el mismo reloj (t en ticks desde el inicio), asi los contactos coinciden.
  */
 public final class PairAnims {
     public interface Pose {
@@ -29,6 +29,8 @@ public final class PairAnims {
     public static final Map<String, Anim> ALL = new LinkedHashMap<>();
 
     private static final float PX = 16.0f;
+    /** Altura del suelo en el modelo (pies en reposo). */
+    private static final float GROUND = 24.0f;
     private static final Root LYING = new Root(PI / 2, 0, 0, 0, -0.575f, 0);
     private static final Root SITTING = new Root(0, 0, 0, 0, -0.575f, 0);
     private static final Root CARRIED = new Root(PI / 2, -PI / 2, 0, 0, 0, 0);
@@ -39,6 +41,7 @@ public final class PairAnims {
 
     static {
         add("abrazo", PairAnims::hug, null);
+        add("abrazo_cuello", PairAnims::hugNeck, null);
         add("beso_mejilla", PairAnims::kiss, null);
         add("recibir_beso", PairAnims::kissed, null);
         add("chocar_cinco", PairAnims::highFive, null);
@@ -53,24 +56,29 @@ public final class PairAnims {
         add("a_caballito", PairAnims::piggyRider, t -> PIGGY);
         add("vals_guia", (r, t) -> waltz(r, t, true), PairAnims::waltzRoot);
         add("vals_pareja", (r, t) -> waltz(r, t, false), PairAnims::waltzRoot);
+        add("lento_a", (r, t) -> slow(r, t, true), PairAnims::slowRoot);
+        add("lento_b", (r, t) -> slow(r, t, false), PairAnims::slowRoot);
         add("estrellas_a", (r, t) -> stars(r, t, true), t -> LYING);
         add("estrellas_b", (r, t) -> stars(r, t, false), t -> LYING);
         add("sentarse_abrazo", PairAnims::sitHug, t -> SITTING);
         add("sentarse_apoyo", PairAnims::sitLean, t -> SITTING);
-        add("caido", PairAnims::downed, PairAnims::downedRoot);
+        add("caido", (r, t) -> downed(r, t, true), t -> downedRoot(t, true));
+        add("caido_suelo", (r, t) -> downed(r, t, false), t -> downedRoot(t, false));
         add("ayudar_levantar", PairAnims::helper, null);
         add("levantarse", PairAnims::getUp, PairAnims::getUpRoot);
+        add("propuesta", PairAnims::propose, null);
+        add("recibir_propuesta", PairAnims::proposed, null);
     }
 
     private static void add(String name, Pose pose, RootFn root) {
         ALL.put(name, new Anim(pose, root));
     }
 
-    // ---------------------------------------------------------------- utilidades
+    // ================================================================= utilidades
 
     private static final Rig.P TMP = new Rig().head;
 
-    /** Lleva el brazo hacia un punto con peso w (0 = como estaba). */
+    /** Brazo recto hacia un punto con peso w (para modelos sin codo y gestos simples). */
     static void reach(Rig.P arm, float x, float y, float z, float w) {
         if (w <= 0.0f) {
             return;
@@ -96,7 +104,55 @@ public final class PairAnims {
         return a + d * w;
     }
 
-    /** Punto del companero de enfrente (a D bloques, desplazado lat bloques a mi izquierda). */
+    static float[] lerp3(float[] a, float[] b, float w) {
+        return new float[]{lerp(a[0], b[0], w), lerp(a[1], b[1], w), lerp(a[2], b[2], w)};
+    }
+
+    /** Sube con un pequeno rebote al final (se pasa y vuelve). */
+    static float backOut(float x) {
+        x = clamp01(x);
+        float c1 = 1.70158f, c3 = c1 + 1;
+        return 1 + c3 * (x - 1) * (x - 1) * (x - 1) + c1 * (x - 1) * (x - 1);
+    }
+
+    static float easeIn(float x) {
+        x = clamp01(x);
+        return x * x;
+    }
+
+    /** Sube con rebote entre a y b, baja suave entre c y d. */
+    static float envB(float t, float a, float b, float c, float d) {
+        return Math.min(backOut((t - a) / (b - a)), 1 - ramp(t, c, d));
+    }
+
+    /**
+     * Mano a un punto doblando el codo, mezclado con la pose actual (w). La punta actual sirve
+     * de inicio, asi el brazo "viaja" en vez de saltar. rigid = destino si el modelo no tiene codos.
+     */
+    static void hand(Rig.P arm, float[] target, float px, float py, float pz, float[] rigid, float w) {
+        if (w <= 0.001f) {
+            return;
+        }
+        float[] from = Rig.tip(arm, true);
+        float[] t = w >= 0.999f ? target : lerp3(from, target, w);
+        float[] rt = rigid == null ? t : (w >= 0.999f ? rigid : lerp3(from, rigid, w));
+        Rig.hand(arm, t, px, py, pz, rt);
+    }
+
+    static void handR(Rig r, float[] target, float[] rigid, float w) {
+        hand(r.rightArm, target, -0.45f, 0.8f, 0.35f, rigid, w);
+    }
+
+    static void handL(Rig r, float[] target, float[] rigid, float w) {
+        hand(r.leftArm, target, 0.45f, 0.8f, 0.35f, rigid, w);
+    }
+
+    /** Pie a un punto (rodilla hacia delante por defecto). */
+    static void foot(Rig.P leg, float x, float y, float z, float px, float py, float pz) {
+        Rig.foot(leg, new float[]{x, y, z}, px, py, pz);
+    }
+
+    /** Punto del companero de enfrente (a d bloques, desplazado lat bloques a mi izquierda). */
     static float[] face(float d, float lat, float bx, float by, float bz) {
         return new float[]{-bx + lat * PX, by, -d * PX - bz};
     }
@@ -104,12 +160,6 @@ public final class PairAnims {
     /** Punto del companero a mi derecha (mismo sentido), a lat bloques. */
     static float[] right(float lat, float bx, float by, float bz) {
         return new float[]{bx - lat * PX, by, bz};
-    }
-
-    /** Punto de un cuerpo con raiz, en coordenadas de modelo "sin raiz" del mismo cuerpo. */
-    static float[] unroot(Root root, float x, float y, float z) {
-        float[] r = modelToRender(root, x, y, z);
-        return renderToModel(null, r[0], r[1], r[2]);
     }
 
     /** Punto en coordenadas sin raiz -> coordenadas propias del cuerpo con raiz (para apuntar). */
@@ -130,168 +180,259 @@ public final class PairAnims {
         return renderToModel(riderRoot, r[0] + left, r[1] - up, r[2] + fwd);
     }
 
-    static void aimAt(Rig.P arm, float[] p, float w) {
-        reach(arm, p[0], p[1], p[2], w);
-    }
-
+    /** Respiracion: el pecho sube, los hombros acompanan con un pequeno retraso. */
     static void breathe(Rig r, float t, float amount) {
-        float b = sin(t * 0.07f) * amount;
-        r.body.pitch += b * 0.012f;
-        r.head.pitch += b * 0.01f;
+        float b = sin(t * 0.075f) * amount;
+        float b2 = sin(t * 0.075f - 0.7f) * amount;
+        r.body.pitch += b * 0.014f;
+        r.head.pitch -= b * 0.012f;
+        r.body.y -= 0.10f * b;
+        r.head.y -= 0.12f * b;
+        r.rightArm.y -= 0.12f * b2;
+        r.leftArm.y -= 0.12f * b2;
+        r.rightArm.roll += 0.018f * b2;
+        r.leftArm.roll -= 0.018f * b2;
     }
 
-    // ---------------------------------------------------------------- abrazo (los dos igual)
+    /** Cambio de peso lento de un pie al otro. */
+    static void sway(Rig r, float t, float amount) {
+        float s = sin(t * 0.034f) * amount;
+        r.body.roll += 0.025f * s;
+        r.head.roll -= 0.03f * s;
+        r.body.x += 0.25f * s;
+        r.head.x += 0.30f * s;
+    }
 
-    /** Abrazo cruzado: cada uno pasa el brazo derecho por encima del hombro y el izquierdo por la cintura. */
+    /** Piernas relajadas de pie: una rodilla un poco floja segun el peso. */
+    static void relaxedLegs(Rig r, float t, float amount) {
+        float s = sin(t * 0.034f);
+        r.rightLeg.rest();
+        r.leftLeg.rest();
+        r.rightLeg.bend = (0.06f + 0.10f * Math.max(0, s)) * amount;
+        r.leftLeg.bend = (0.06f + 0.10f * Math.max(0, -s)) * amount;
+        r.rightLeg.pitch = -0.04f * amount;
+        r.leftLeg.pitch = -0.04f * amount;
+        r.rightLeg.roll = 0.03f * amount;
+        r.leftLeg.roll = -0.03f * amount;
+    }
+
+    /** Arrodillarse: pie derecho adelante (rodilla arriba), rodilla izquierda al suelo. */
+    static void kneel(Rig r, float k) {
+        float drop = 5.0f * k;
+        r.body.y += drop;
+        r.head.y += drop;
+        r.rightArm.y += drop;
+        r.leftArm.y += drop;
+        r.rightLeg.at(-1.9f, 12 + drop, 0);
+        r.leftLeg.at(1.9f, 12 + drop, 0);
+        foot(r.rightLeg, -2.0f, lerp(23.9f, 23.5f, k), lerp(0, -5.5f, k), 0, -0.3f, -1);
+        foot(r.leftLeg, 2.0f, lerp(23.9f, 22.6f, k), lerp(0, 6.5f, k), 0, 0.8f, -1);
+    }
+
+    // ================================================================= abrazo
+
+    /** Abrazo: el que abraza rodea la espalda; el otro le echa los brazos al cuello. Cabezas al lado. */
     static void hug(Rig r, float t) {
-        float e = env(t, 0, 12, 66, 80);
-        float sq = env(t, 16, 28, 48, 60);
-        r.restUpper();
-        r.torso(0.04f * e, 0, 0);
+        hugBody(r, t, true);
+    }
+
+    static void hugNeck(Rig r, float t) {
+        hugBody(r, t, false);
+    }
+
+    static void hugBody(Rig r, float t, boolean waist) {
+        float e = envB(t, 0, 14, 64, 80);
+        float sq = env(t, 16, 30, 46, 60);
         float d = Layout.HUG;
-        // derecho por encima del hombro izquierdo del otro, hacia su espalda
-        float[] hi = face(d, 0, 6.5f - 0.8f * sq, -3.4f, 1.0f);
-        aimAt(r.rightArm, hi, e);
-        // izquierdo rodeando la cintura (su lado derecho)
-        float[] lo = face(d, 0, -5.0f + 0.7f * sq, 8.5f, 0.6f + 0.4f * sq);
-        aimAt(r.leftArm, lo, e);
-        // palmaditas en la espalda
-        float pat = env(t, 30, 34, 50, 54) * Math.max(0, sin(t * 0.9f));
-        r.leftArm.pitch -= 0.10f * pat;
-        // cabeza hacia la derecha, por encima de su hombro
-        r.head.set(0.10f * e, -0.25f * e, -0.10f * e);
+        r.restUpper();
+        relaxedLegs(r, t, 1);
+        r.torso(0.06f * e + 0.03f * sq, 0.05f * sin(t * 0.09f) * sq, 0);
+        r.drop(-0.5f * sq);
+        float pat = env(t, 30, 34, 48, 52) * Math.max(0, sin(t * 0.9f));
+        if (waist) {
+            // manos en su espalda, a media altura; palmaditas
+            hand(r.rightArm, face(d, 0, 2.4f, 6.0f - 1.2f * pat, 3.2f), -0.9f, 0.3f, 0.2f,
+                    face(d, 0, -5.0f, 7.5f, 0.6f), e);
+            hand(r.leftArm, face(d, 0, -2.4f, 6.0f, 3.2f), 0.9f, 0.3f, 0.2f,
+                    face(d, 0, 5.0f, 7.5f, 0.6f), e);
+        } else {
+            // brazos por encima de sus hombros, hasta la nuca
+            hand(r.rightArm, face(d, 0, 2.0f, 0.6f, 3.0f), -0.6f, -0.7f, 0.2f,
+                    face(d, 0, 6.0f, -1.6f, 0.0f), e);
+            hand(r.leftArm, face(d, 0, -2.0f, 0.6f, 3.0f), 0.6f, -0.7f, 0.2f,
+                    face(d, 0, -6.0f, -1.6f, 0.0f), e);
+        }
+        // cabezas una al lado de la otra (cada una hacia su izquierda)
+        r.head.x += 3.6f * e;
+        r.head.y += 0.6f * e;
+        r.head.set(0.12f * e, (0.30f + 0.06f * sin(t * 0.11f) * sq) * e, 0.10f * e);
         breathe(r, t, 1 + sq);
     }
 
-    // ---------------------------------------------------------------- beso en la mejilla
+    // ================================================================= beso en la mejilla
 
     static void kiss(Rig r, float t) {
-        float e = env(t, 4, 18, 36, 50);
+        float e = envB(t, 4, 18, 36, 50);
+        float pop = env(t, 14, 20, 34, 42);
         r.restUpper();
+        relaxedLegs(r, t, 1 - pop);
         r.torso(0.10f * e, -0.10f * e, 0);
+        r.drop(-0.6f * pop);
         // manos atras, timido
         float hb = env(t, 0, 10, 48, 60);
-        r.rightArm.set(0.38f * hb, 0, 0.18f * hb);
-        r.leftArm.set(0.38f * hb, 0, -0.18f * hb);
-        // la cabeza gira hacia la mejilla izquierda del otro (a mi izquierda)
+        handR(r, new float[]{-1.6f, 9.6f, 3.6f}, null, hb);
+        handL(r, new float[]{1.6f, 9.6f, 3.6f}, null, hb);
+        // un pie se levanta hacia atras en el momento del beso
+        r.leftLeg.rest();
+        r.leftLeg.pitch = 0.25f * pop;
+        r.leftLeg.bend = 1.25f * pop;
+        // la cabeza gira hacia la mejilla izquierda del otro
         float turn = env(t, 2, 14, 44, 56);
-        r.head.set(0.12f * e, -0.95f * turn, 0.08f * e);
+        r.head.set(0.12f * e, -0.95f * turn, 0.10f * e);
         r.head.z -= 0.6f * e;
         breathe(r, t, 1);
     }
 
     static void kissed(Rig r, float t) {
         float e = env(t, 4, 18, 36, 50);
-        float after = env(t, 44, 50, 56, 60);
+        float after = env(t, 40, 46, 54, 60);
+        float hands = env(t, 0, 10, 40, 48);
         r.restUpper();
-        // ofrece la mejilla girando un poco la cabeza y luego baja la mirada contento
-        r.head.set(-0.05f * e + 0.30f * after, 0.22f * e, -0.10f * e);
-        // manos juntas delante
-        float hands = env(t, 0, 10, 50, 60);
-        r.rightArm.set(-0.38f * hands, -0.40f * hands, 0);
-        r.leftArm.set(-0.38f * hands, 0.40f * hands, 0);
-        // pequeno balanceo de alegria
-        float sway = after * sin(t * 0.5f);
-        r.torso(-0.03f * after, 0.05f * sway, 0.04f * sway);
+        relaxedLegs(r, t, 1);
+        // ofrece la mejilla, luego baja la mirada contento
+        r.head.set(-0.05f * e + 0.30f * after, 0.22f * e - 0.15f * after, -0.10f * e + 0.12f * after);
+        // manos juntas delante del pecho
+        handR(r, new float[]{-0.7f, 7.6f, -4.4f}, null, hands);
+        handL(r, new float[]{0.7f, 7.6f, -4.4f}, null, hands);
+        // despues: la mano a la mejilla donde le dieron el beso
+        handL(r, new float[]{4.7f, -2.4f, -2.2f}, null, after);
+        float bounce = after * Math.abs(sin(t * 0.45f));
+        r.drop(-0.5f * bounce);
+        r.torso(-0.03f * after, 0.04f * sin(t * 0.5f) * after, 0.04f * sin(t * 0.5f) * after);
         breathe(r, t, 1);
     }
 
-    // ---------------------------------------------------------------- chocar los cinco (los dos igual)
+    // ================================================================= chocar los cinco
 
     static void highFive(Rig r, float t) {
         float d = Layout.HIGH_FIVE;
         r.restUpper();
-        float lean = env(t, 6, 13, 18, 28);
-        r.torso(0.08f * lean, -0.08f * lean, 0);
-        // punto de contacto: en el medio, por encima de la cabeza
+        relaxedLegs(r, t, 1);
+        float lean = env(t, 7, 13, 17, 28);
+        r.torso(0.10f * lean, -0.10f * lean, 0);
         float[] hit = {0, -6.0f, -d * PX / 2};
-        float[] up = {-6.5f, -9.5f, 2.0f};
-        float wind = env(t, 0, 7, 9, 13);
-        float strike = env(t, 9, 14, 18, 28);
-        float[] target = up;
-        float w;
-        if (strike > 0) {
-            target = new float[]{lerp(up[0], hit[0], strike), lerp(up[1], hit[1], strike), lerp(up[2], hit[2], strike)};
-            w = 1.0f - ramp(t, 24, 38);
+        float[] wind = {-6.5f, -6.5f, 2.2f};
+        float windW = env(t, 0, 8, 9, 13);
+        float strike = easeIn((t - 9) / 5.0f);
+        float back = ramp(t, 17, 30);
+        float out = 1 - ramp(t, 26, 40);
+        // camino de la mano: atras -> golpe -> sigue hacia abajo cruzando
+        float[] follow = {-2.0f, 6.0f, -5.0f};
+        float[] target;
+        if (t < 9) {
+            target = wind;
+        } else if (t < 17) {
+            target = lerp3(wind, hit, Math.min(1, strike));
         } else {
-            w = wind;
+            target = lerp3(hit, follow, back);
         }
-        aimAt(r.rightArm, target, w);
+        float w = t < 9 ? windW : out;
         // rebote al chocar
         float bump = env(t, 14, 15, 16, 19);
-        r.rightArm.pitch += 0.15f * bump;
-        // el otro brazo celebra un poco despues
-        float cheer = env(t, 20, 26, 34, 42);
-        r.leftArm.set(-0.35f * cheer, 0, -0.25f * cheer);
-        r.look(hit[0], hit[1], hit[2], 0.8f * env(t, 4, 10, 18, 26));
-        r.drop(-0.6f * env(t, 22, 26, 28, 33));
+        target = new float[]{target[0], target[1] - 0.8f * bump, target[2] + 1.5f * bump};
+        hand(r.rightArm, target, -0.5f, 0.6f, 0.4f, null, w);
+        // el otro brazo festeja: puno arriba con el codo doblado
+        float cheer = envB(t, 22, 28, 36, 44);
+        handL(r, new float[]{6.5f, -4.5f, -2.5f}, null, cheer);
+        r.look(hit[0], hit[1], hit[2], 0.85f * env(t, 4, 10, 18, 26));
+        // anticipacion (se agacha) y saltito
+        float crouch = env(t, 20, 23, 23, 25);
+        float hop = env(t, 25, 27, 28, 32);
+        r.drop(0.8f * crouch - 1.2f * hop);
+        r.rightLeg.bend += 0.35f * crouch;
+        r.leftLeg.bend += 0.35f * crouch;
+        breathe(r, t, 1);
     }
 
-    // ---------------------------------------------------------------- apreton de manos (los dos igual)
+    // ================================================================= apreton de manos
 
     static void handshake(Rig r, float t) {
         float d = Layout.SHAKE;
-        float e = env(t, 0, 10, 38, 48);
-        float shake = env(t, 12, 16, 30, 36) * sin((t - 12) * 0.95f) * 1.3f;
+        float e = envB(t, 0, 12, 38, 48);
+        float shake = env(t, 12, 16, 30, 36) * sin((t - 12) * 0.95f) * 1.4f;
         r.restUpper();
-        r.torso(0.04f * e, 0, 0);
-        float[] grip = {0, 8.6f + shake, -d * PX / 2};
-        aimAt(r.rightArm, grip, e);
-        r.leftArm.set(0, 0, -0.05f);
-        // asiente mientras saluda
+        relaxedLegs(r, t, 1);
+        r.torso(0.05f * e, -0.06f * e, 0);
+        float[] grip = {0, 8.4f + shake, -d * PX / 2};
+        hand(r.rightArm, grip, -0.35f, 1.0f, 0.3f, null, e);
+        // la otra mano suelta, codo un poco doblado
+        r.leftArm.set(-0.05f, 0, -0.06f);
+        r.leftArm.bend = -0.25f;
         float nod = env(t, 14, 18, 28, 34) * sin(t * 0.47f);
         r.look(0, -4.0f, -d * PX, 0.9f * e);
         r.head.pitch += 0.10f * nod;
+        breathe(r, t, 1);
     }
 
-    // ---------------------------------------------------------------- palmadita en el hombro
+    // ================================================================= palmadita
 
     static void pat(Rig r, float t) {
         float d = Layout.PAT;
-        float e = env(t, 0, 10, 34, 44);
+        float e = envB(t, 0, 10, 34, 44);
         r.restUpper();
-        // hombro izquierdo del otro (queda delante de mi brazo derecho)
-        float[] shoulder = face(d, 0, 6.0f, -1.6f, 0.5f);
-        aimAt(r.rightArm, shoulder, e);
-        float pats = env(t, 10, 12, 30, 33);
-        r.rightArm.pitch -= 0.16f * pats * Math.max(0, sin((t - 10) * 0.8f));
+        relaxedLegs(r, t, 1);
+        // cada palmadita: la mano sube y cae (el codo hace el trabajo)
+        float k = (t - 10) * 0.8f;
+        float pats = env(t, 10, 12, 30, 33) * (0.5f + 0.5f * sin(k));
+        float[] shoulder = face(d, 0, 6.0f, -1.6f - 2.2f * pats, 0.6f);
+        hand(r.rightArm, shoulder, -0.6f, 0.9f, 0.1f, null, e);
         r.look(0, -4.0f, -d * PX, 0.8f * e);
         r.head.roll += 0.10f * e;
+        r.torso(0.04f * e, -0.05f * e, 0);
         breathe(r, t, 1);
+        sway(r, t, 1);
     }
 
     static void patted(Rig r, float t) {
         float e = env(t, 0, 10, 34, 44);
         r.restUpper();
-        float nods = env(t, 10, 14, 30, 34) * Math.max(0, sin((t - 10) * 0.8f));
+        relaxedLegs(r, t, 1);
+        float k = (t - 10) * 0.8f;
+        float hit = env(t, 10, 12, 30, 33) * Math.max(0, -sin(k));
         r.look(0, -4.0f, -Layout.PAT * PX, 0.8f * e);
-        r.head.pitch += 0.18f * nods;
-        r.head.roll -= 0.08f * e;
-        // los hombros se encogen un poquito con cada palmada
-        r.leftArm.pitch -= 0.04f * nods;
+        r.head.pitch += 0.16f * hit;
+        r.head.roll += 0.12f * e;
+        // el hombro que recibe baja un poco con cada palmada, sonrisa con la cabeza
+        r.leftArm.y += 0.5f * hit;
+        r.leftArm.roll -= 0.05f * hit;
+        r.rightArm.bend = -0.15f;
         breathe(r, t, 1);
+        sway(r, t, 1);
     }
 
-    // ---------------------------------------------------------------- de la mano (solo brazos)
+    // ================================================================= de la mano (solo brazos)
 
-    /** mine = brazo derecho (el que va a la izquierda) o izquierdo (el de la derecha). */
+    /**
+     * En el juego: punto de encuentro de las manos calculado con las posiciones REALES de los dos
+     * (en mi modelo), o null si no se encuentra al companero. Asi nunca quedan desfasados.
+     */
+    public interface HandLink {
+        float[] meet(boolean leftPerson, float t);
+    }
+
+    public static HandLink handLink;
+
     static void holdHand(Rig r, float t, boolean leftPerson) {
         float l = Layout.HAND_SIDE;
-        float sway = 0.07f * sin(t * 0.33f);
-        if (leftPerson) {
-            // el otro esta a mi derecha: mano en el medio
-            float[] hand = right(l, 0, 0, 0);
-            float midX = (-5.0f + (hand[0] + 5.0f)) / 2.0f;
-            r.rightArm.at(-5, 2, 0);
-            reach(r.rightArm, midX, 11.4f, -1.2f, 1);
-            r.rightArm.pitch += sway;
-        } else {
-            // el otro esta a mi izquierda (+x)
-            float midX = (5.0f + (l * PX - 5.0f)) / 2.0f;
-            r.leftArm.at(5, 2, 0);
-            reach(r.leftArm, midX, 11.4f, -1.2f, 1);
-            r.leftArm.pitch += sway;
-        }
+        float swing = 1.2f * sin(t * 0.33f);
+        float midX = -l * PX / 2;
+        float[] meet = handLink == null ? null : handLink.meet(leftPerson, t);
+        Rig.P arm = leftPerson ? r.rightArm : r.leftArm;
+        float side = leftPerson ? -1 : 1;
+        arm.at(5 * side, 2, 0);
+        arm.set(0, 0, 0);
+        float[] target = meet != null ? meet : new float[]{-side * midX, 10.6f, -1.4f + swing};
+        hand(arm, target, 0.6f * side, 0.2f, 0.6f, null, 1);
         // de vez en cuando se miran
         float glance = env(t % 220, 120, 132, 160, 172);
         if (glance > 0) {
@@ -299,9 +440,9 @@ public final class PairAnims {
         }
     }
 
-    // ---------------------------------------------------------------- en brazos (princesa)
+    // ================================================================= en brazos
 
-    static final float LEG_DROOP = 0.30f;
+    static final float CARRIED_THIGH = -0.35f, CARRIED_KNEE = 1.35f;
 
     static float[] carriedPoint(float bx, float by, float bz) {
         return rider(CARRIED, Layout.CARRY_FWD, Layout.CARRY_UP, Layout.CARRY_LEFT, bx, by, bz);
@@ -309,80 +450,83 @@ public final class PairAnims {
 
     static void carrier(Rig r, float t) {
         r.restUpper();
-        r.torso(-0.06f, 0, 0);
-        // brazo derecho debajo de las rodillas, izquierdo debajo de la espalda
-        // debajo de los muslos (las piernas cuelgan LEG_DROOP)
-        float ky = 6.0f * cos(LEG_DROOP) - 4.3f * sin(LEG_DROOP);
-        float kz = 6.0f * sin(LEG_DROOP) + 4.3f * cos(LEG_DROOP);
-        float[] knees = carriedPoint(-1.9f, 12.0f + ky, kz);
-        float[] back = carriedPoint(0, 6.0f, 4.3f);
-        aimAt(r.rightArm, knees, 1);
-        aimAt(r.leftArm, back, 1);
+        relaxedLegs(r, t, 0.6f);
+        r.torso(-0.07f, 0, 0);
+        // brazo derecho bajo las rodillas, izquierdo bajo la espalda (los codos abajo)
+        float[] kn = mul(rot(CARRIED_THIGH, 0, 0), 0, 5.0f, 4.2f);
+        float[] knees = carriedPoint(-1.9f + kn[0], 12 + kn[1], kn[2]);
+        float[] back = carriedPoint(0, 6.5f, 4.2f);
+        hand(r.rightArm, knees, -0.4f, 1.0f, 0.2f, null, 1);
+        hand(r.leftArm, back, 0.4f, 1.0f, 0.2f, null, 1);
         float[] face = carriedPoint(0, -4, 0);
         r.look(face[0], face[1], face[2], 0.6f);
-        breathe(r, t, 1);
+        // lo mece un poquito
+        r.body.roll += 0.03f * sin(t * 0.06f);
+        breathe(r, t, 1.3f);
     }
 
     static void carried(Rig r, float t) {
         r.restAll();
-        // piernas colgando un poco sobre el brazo
-        r.rightLeg.set(LEG_DROOP, 0, 0.04f);
-        r.leftLeg.set(LEG_DROOP + 0.08f, 0, -0.04f);
+        // muslos sobre el brazo, piernas colgando desde la rodilla
+        float kick = sin(t * 0.11f);
+        r.rightLeg.set(CARRIED_THIGH + 0.04f * kick, 0, 0.04f);
+        r.leftLeg.set(CARRIED_THIGH + 0.06f - 0.04f * kick, 0, -0.04f);
+        r.rightLeg.bend = CARRIED_KNEE + 0.12f * kick;
+        r.leftLeg.bend = CARRIED_KNEE - 0.12f * kick;
         // brazo derecho (pegado al pecho del que carga) alrededor de su cuello
-        float[] neck = carrierInRider(CARRIED, Layout.CARRY_FWD, Layout.CARRY_UP, Layout.CARRY_LEFT, 2.5f, 1.2f, 2.6f);
-        aimAt(r.rightArm, neck, 1);
+        float[] neck = carrierInRider(CARRIED, Layout.CARRY_FWD, Layout.CARRY_UP, Layout.CARRY_LEFT, 2.2f, -1.4f, 3.2f);
+        hand(r.rightArm, neck, 0, 0.0f, -1.0f, null, 1);
         // el otro sobre la panza
-        r.leftArm.set(-0.30f, 0.40f, 0);
+        hand(r.leftArm, new float[]{-0.8f, 7.5f, -3.2f}, 1, 0.2f, 0, null, 1);
         float[] face = carrierInRider(CARRIED, Layout.CARRY_FWD, Layout.CARRY_UP, Layout.CARRY_LEFT, 0, -4, -3);
         r.look(face[0], face[1], face[2], 0.7f);
-        float kick = sin(t * 0.11f);
-        r.rightLeg.pitch += 0.06f * kick;
-        r.leftLeg.pitch -= 0.06f * kick;
-        breathe(r, t, 1);
+        breathe(r, t, 1.3f);
     }
 
-    // ---------------------------------------------------------------- a caballito
+    // ================================================================= a caballito
+
+    static final float PIG_LEG_PITCH = -1.15f, PIG_LEG_YAW = 0.75f, PIG_KNEE = 1.25f;
 
     static float[] riderPoint(float bx, float by, float bz) {
         return rider(PIGGY, Layout.BACK_FWD, Layout.BACK_UP, Layout.BACK_LEFT, bx, by, bz);
     }
 
-    static final float PIG_LEG_PITCH = -1.20f, PIG_LEG_YAW = 0.75f;
-
-    /** Debajo del muslo del jinete (lado derecho o izquierdo) en su modelo. */
+    /** Debajo del muslo del jinete, cerca de la rodilla, en su modelo. */
     static float[] thigh(boolean rightSide) {
         float sign = rightSide ? 1 : -1;
         float[] m = rot(PIG_LEG_PITCH, sign * PIG_LEG_YAW, 0);
-        float[] v = mul(m, 0, 5.0f, 4.0f);
+        float[] v = mul(m, 0, 4.5f, 3.8f);
         return new float[]{(rightSide ? -1.9f : 1.9f) + v[0], 12 + v[1], v[2]};
     }
 
     static void piggyCarrier(Rig r, float t) {
         r.restUpper();
-        r.torso(0.55f, 0, 0);
-        // manos debajo de los muslos del que va atras
+        relaxedLegs(r, t, 1.4f);
+        r.torso(0.50f, 0, 0.03f * sin(t * 0.07f));
         float[] rt = thigh(true), lt = thigh(false);
-        aimAt(r.rightArm, riderPoint(rt[0], rt[1], rt[2]), 1);
-        aimAt(r.leftArm, riderPoint(lt[0], lt[1], lt[2]), 1);
-        r.head.set(-0.15f, 0.10f * sin(t * 0.03f), 0);
+        hand(r.rightArm, riderPoint(rt[0], rt[1], rt[2]), -0.8f, 0.2f, 0.6f, null, 1);
+        hand(r.leftArm, riderPoint(lt[0], lt[1], lt[2]), 0.8f, 0.2f, 0.6f, null, 1);
+        r.head.set(-0.20f, 0.10f * sin(t * 0.03f), 0);
         breathe(r, t, 1.5f);
     }
 
     static void piggyRider(Rig r, float t) {
         r.restAll();
-        // piernas abiertas rodeando la cintura
-        float swing = 0.05f * sin(t * 0.12f);
+        float swing = 0.06f * sin(t * 0.12f);
         r.rightLeg.set(PIG_LEG_PITCH + swing, PIG_LEG_YAW, 0);
         r.leftLeg.set(PIG_LEG_PITCH - swing, -PIG_LEG_YAW, 0);
+        r.rightLeg.bend = PIG_KNEE + 2 * swing;
+        r.leftLeg.bend = PIG_KNEE - 2 * swing;
         // brazos por encima de los hombros, las manos se cruzan en su pecho
-        float[] rs = carrierInRider(PIGGY, Layout.BACK_FWD, Layout.BACK_UP, Layout.BACK_LEFT, 2.5f, 0.5f, -5.5f);
-        float[] ls = carrierInRider(PIGGY, Layout.BACK_FWD, Layout.BACK_UP, Layout.BACK_LEFT, -2.5f, 1.0f, -5.5f);
-        aimAt(r.rightArm, rs, 1);
-        aimAt(r.leftArm, ls, 1);
+        float[] rs = carrierInRider(PIGGY, Layout.BACK_FWD, Layout.BACK_UP, Layout.BACK_LEFT, 2.0f, 0.8f, -5.6f);
+        float[] ls = carrierInRider(PIGGY, Layout.BACK_FWD, Layout.BACK_UP, Layout.BACK_LEFT, -2.0f, 1.4f, -5.6f);
+        hand(r.rightArm, rs, -0.6f, -0.6f, 0.2f, null, 1);
+        hand(r.leftArm, ls, 0.6f, -0.6f, 0.2f, null, 1);
         r.head.set(0.10f, 0.25f + 0.20f * sin(t * 0.03f), -0.15f);
+        breathe(r, t, 1);
     }
 
-    // ---------------------------------------------------------------- vals
+    // ================================================================= vals
 
     static final float WALTZ_TURN = 2 * PI / 100.0f;
 
@@ -396,144 +540,216 @@ public final class PairAnims {
 
     static void waltz(Rig r, float t, boolean lead) {
         float d = Layout.WALTZ;
-        float e = ramp(t, 0, 12);
-        r.restUpper();
-        if (lead) {
-            // derecha en su espalda (su lado izquierdo), izquierda tomando su mano derecha a un lado
-            float[] back = face(d, 0, 4.6f, 6.4f, 0.4f);
-            aimAt(r.rightArm, back, e);
-            float[] hold = face(d, 0, -12.0f, -1.0f, -d * PX / 2 + 0.0f);
-            aimAt(r.leftArm, hold, e);
-        } else {
-            // izquierda sobre su hombro derecho, derecha tomando su mano izquierda
-            float[] shoulder = face(d, 0, -6.5f, -2.6f, -1.2f);
-            aimAt(r.leftArm, shoulder, e);
-            float[] hold = face(d, 0, 12.0f, -1.0f, -d * PX / 2);
-            aimAt(r.rightArm, hold, e);
-        }
-        // pasos en 3/4: un pie y luego el otro, con subida y bajada
+        float e = envB(t, 0, 14, 1e9f, 1e9f);
+        r.restAll();
         float beat = t / 10.0f;
-        float step = sin(beat * PI * 2.0f / 3.0f) * e;
-        r.rightLeg.rest();
-        r.leftLeg.rest();
-        r.rightLeg.pitch = -0.30f * step;
-        r.leftLeg.pitch = 0.30f * step;
-        r.rightLeg.roll = 0.05f * e;
-        r.leftLeg.roll = -0.05f * e;
-        r.look(0, -4.5f, -d * PX, 0.6f * e);
-        r.head.roll += (lead ? 0.06f : -0.10f) * e;
-        r.torso(0.0f, 0.0f, 0.03f * sin(beat * PI * 2.0f / 3.0f) * e);
+        float bar = sin(beat * PI * 2.0f / 3.0f);
+        r.torso(lead ? 0.0f : -0.06f * e, 0.0f, 0.03f * bar * e);
+        if (lead) {
+            // derecha en su omoplato izquierdo, izquierda sosteniendo su mano derecha en alto
+            hand(r.rightArm, face(d, 0, 2.6f, 4.0f, 3.2f), -0.7f, 0.6f, 0.2f, face(d, 0, 4.6f, 6.4f, 0.4f), e);
+            hand(r.leftArm, new float[]{9.5f, -1.0f, -d * PX / 2}, 0.2f, 1.0f, 0.3f, null, e);
+        } else {
+            // izquierda sobre su hombro derecho, derecha en su mano
+            hand(r.leftArm, face(d, 0, -5.8f, -0.6f, 0.2f), 0.8f, 0.6f, 0.2f, null, e);
+            hand(r.rightArm, new float[]{-9.5f, -1.0f, -d * PX / 2}, -0.2f, 1.0f, 0.3f, null, e);
+        }
+        // pasos en 3/4: un pie adelante y atras con flexion en el primer tiempo
+        float down = 0.5f + 0.5f * cos(2 * PI * t / 30.0f);
+        r.rightLeg.set(-0.30f * bar * e, 0, 0.05f * e);
+        r.leftLeg.set(0.30f * bar * e, 0, -0.05f * e);
+        r.rightLeg.bend = (0.12f + 0.25f * down * Math.max(0, bar)) * e;
+        r.leftLeg.bend = (0.12f + 0.25f * down * Math.max(0, -bar)) * e;
+        r.drop(0.6f * down * e);
+        r.look(lead ? -3.0f : 0, -4.5f, -d * PX, 0.6f * e);
+        r.head.roll += (lead ? 0.06f : -0.12f) * e;
+        breathe(r, t, 1);
     }
 
-    // ---------------------------------------------------------------- mirar las estrellas
+    // ================================================================= baile lento abrazados
+
+    static Root slowRoot(float t) {
+        float in = ramp(t, 0, 30);
+        float phi = (2 * PI / 300.0f) * Math.max(0, t - 15) * in;
+        float hd = Layout.SLOW / 2;
+        return new Root(0, phi, 0, hd * (1 - cos(phi)), 0, -hd * sin(phi));
+    }
+
+    static void slow(Rig r, float t, boolean lead) {
+        float d = Layout.SLOW;
+        float e = envB(t, 0, 18, 1e9f, 1e9f);
+        float s = sin(t * 0.09f);
+        r.restAll();
+        // se mecen de un pie al otro, juntos (cada uno hacia su lado opuesto en el mundo)
+        float roll = 0.05f * s * (lead ? 1 : -1) * e;
+        r.torso(0.04f * e, 0, roll);
+        r.rightLeg.set(0, 0, 0.04f);
+        r.leftLeg.set(0, 0, -0.04f);
+        r.rightLeg.bend = (0.08f + 0.14f * Math.max(0, s * (lead ? 1 : -1))) * e;
+        r.leftLeg.bend = (0.08f + 0.14f * Math.max(0, -s * (lead ? 1 : -1))) * e;
+        if (lead) {
+            // manos en su cintura
+            hand(r.rightArm, face(d, 0, 4.4f, 8.6f, 0.6f), -0.8f, 0.6f, 0.3f, null, e);
+            hand(r.leftArm, face(d, 0, -4.4f, 8.6f, 0.6f), 0.8f, 0.6f, 0.3f, null, e);
+            r.head.set(0.12f * e, -0.20f * e, -0.10f * e);
+        } else {
+            // brazos alrededor de su cuello
+            hand(r.rightArm, face(d, 0, 2.2f, 0.4f, 3.0f), -0.7f, -0.6f, 0.2f, face(d, 0, 5.5f, -1.6f, 0.0f), e);
+            hand(r.leftArm, face(d, 0, -2.2f, 0.4f, 3.0f), 0.7f, -0.6f, 0.2f, face(d, 0, -5.5f, -1.6f, 0.0f), e);
+            r.head.set(-0.08f * e, 0.22f * e, 0.12f * e);
+        }
+        breathe(r, t, 1.3f);
+    }
+
+    // ================================================================= mirar las estrellas
 
     static void stars(Rig r, float t, boolean leftPerson) {
         r.restAll();
         float l = Layout.STARS_SIDE;
-        // manos juntas entre los dos
+        float midX = -l * PX / 2;
         if (leftPerson) {
-            float midX = (-6.0f + (-l * PX + 6.0f)) / 2.0f;
-            reach(r.rightArm, midX, 12.2f, -0.2f, 1);
-            // a veces senala una estrella
-            float point = env(t % 300, 90, 110, 170, 190);
-            r.leftArm.set(lerp(0, -2.55f, point), lerp(-0.1f, 0.25f + 0.2f * sin(t * 0.05f), point), -0.1f * (1 - point));
-            r.rightLeg.set(0, 0, 0.06f);
+            hand(r.rightArm, new float[]{midX, 11.6f, 0.6f}, -0.4f, 0, 1, null, 1);
+            // a veces senala una estrella, el resto del tiempo la mano en el pecho
+            float point = envB(t % 300, 90, 112, 170, 190);
+            float trace = 2.5f * sin(t * 0.05f);
+            handL(r, new float[]{1.0f, 6.0f, -3.2f}, null, 1 - point);
+            hand(r.leftArm, new float[]{4.0f + trace, -4.0f, -9.0f}, 1, 0.2f, 0.4f, null, point);
+            // una rodilla levantada
+            foot(r.rightLeg, -2.2f, 20.0f, 0.2f, 0, 0, -1);
             r.leftLeg.set(0, 0, -0.04f);
         } else {
-            float midX = (6.0f + (l * PX - 6.0f)) / 2.0f;
-            reach(r.leftArm, midX, 12.2f, -0.2f, 1);
-            r.rightArm.set(-0.62f, -0.55f, 0);
-            // una rodilla un poco levantada
-            r.rightLeg.set(-0.35f, 0, 0.02f);
-            r.leftLeg.set(0, 0, -0.03f);
+            hand(r.leftArm, new float[]{-midX, 11.6f, 0.6f}, 0.4f, 0, 1, null, 1);
+            handR(r, new float[]{-1.0f, 7.0f, -3.2f}, null, 1);
+            // tobillos cruzados
+            r.rightLeg.set(0, 0.06f, 0.10f);
+            r.leftLeg.set(0, -0.04f, -0.06f);
+            r.leftLeg.bend = 0.12f;
         }
         float lookAt = env(t % 260, 60, 75, 120, 135);
-        r.head.set(-0.15f, (leftPerson ? -0.55f : 0.55f) * lookAt, 0);
-        breathe(r, t, 1.5f);
+        r.head.set(-0.15f, (leftPerson ? -0.55f : 0.55f) * lookAt, 0.05f * sin(t * 0.02f));
+        breathe(r, t, 1.6f);
     }
 
-    // ---------------------------------------------------------------- sentarse juntos
+    // ================================================================= sentarse juntos
 
-    static void sitLegs(Rig r) {
-        r.rightLeg.set(-PI / 2 + 0.12f, 0.10f, 0);
-        r.leftLeg.set(-PI / 2 + 0.12f, -0.10f, 0);
+    /** Sentado con las rodillas arriba (los pies en el suelo, delante). */
+    static void sitKnees(Rig r, float spread, float t) {
+        float floor = 14.4f;
+        float s = 0.3f * sin(t * 0.03f);
+        foot(r.rightLeg, -2.6f - spread, floor, -9.2f + s, -0.2f, -1, -0.3f);
+        foot(r.leftLeg, 2.6f + spread, floor, -9.2f - s, 0.2f, -1, -0.3f);
     }
 
     static void sitHug(Rig r, float t) {
         r.restAll();
-        sitLegs(r);
+        sitKnees(r, 0.4f, t);
         float l = Layout.SIT_SIDE;
-        r.torso(0.02f, 0, -0.03f);
-        // brazo derecho por detras de la espalda del otro, a la altura de los hombros
-        float[] back = right(l, 1.0f, 10.0f, 5.6f);
-        reach(r.rightArm, back[0], back[1], back[2], 1);
+        r.torso(0.10f, 0, -0.04f);
+        // brazo por detras de la espalda del otro
+        float[] back = right(l, 2.0f, 6.0f, 4.4f);
+        hand(r.rightArm, back, -0.3f, -0.4f, 1.0f, right(l, 1.0f, 10.0f, 5.6f), 1);
         // la otra mano sobre la rodilla
-        r.leftArm.set(-1.05f, 0.18f, 0);
-        r.head.set(0.12f, -0.30f, -0.10f);
+        handL(r, new float[]{2.8f, 6.5f, -7.0f}, null, 1);
+        r.head.set(0.12f, -0.30f, -0.12f);
         breathe(r, t, 1.4f);
     }
 
     static void sitLean(Rig r, float t) {
         r.restAll();
-        sitLegs(r);
+        sitKnees(r, 0.0f, t);
         // apoya la cabeza en el hombro del otro (a su izquierda)
-        r.torso(0.04f, 0.0f, 0.05f);
+        r.torso(0.12f, 0.0f, 0.06f);
         r.head.set(0.10f, 0.15f, 0.42f);
-        // las manos delante, sobre las rodillas
-        r.rightArm.set(-1.10f, -0.20f, 0);
-        r.leftArm.set(-1.10f, 0.22f, 0);
+        // abrazada a sus rodillas
+        handR(r, new float[]{-1.4f, 8.5f, -9.0f}, null, 1);
+        handL(r, new float[]{1.4f, 8.5f, -9.0f}, null, 1);
         breathe(r, t, 1.4f);
     }
 
-    // ---------------------------------------------------------------- caido y levantarse
+    // ================================================================= caido
 
-    static Root downedRoot(float t) {
-        float roll = 0.12f + 0.03f * sin(t * 0.02f);
-        return new Root(PI / 2, 0, roll, 0, -0.56f, 0);
+    static final float FALL = 20.0f;
+
+    /** Caida: se doblan las rodillas, cae de espaldas con un rebote, y queda tendido. */
+    static Root downedRoot(float t, boolean fall) {
+        Root lying = new Root(PI / 2, 0, 0.12f + 0.03f * sin(t * 0.02f), 0, -0.56f, 0);
+        if (!fall || t >= FALL + 6) {
+            return lying;
+        }
+        float buckle = ramp(t, 0, 5);
+        float f = easeIn((t - 4) / 10.0f);
+        float bounce = t > 14 ? 0.10f * sin(PI * clamp01((t - 14) / 6.0f)) : 0;
+        float pitch = (PI / 2) * f - bounce;
+        float up = lerp(-0.10f * buckle, -0.56f, f) + 0.03f * bounce;
+        float fwd = -0.18f * sin(PI * f);
+        Root r = new Root(pitch, 0, 0.12f * f, fwd, up, 0);
+        return r.lerp(lying, ramp(t, FALL, FALL + 6));
     }
 
-    static void downed(Rig r, float t) {
+    static void downed(Rig r, float t, boolean fall) {
         r.restAll();
-        // un brazo se levanta pidiendo ayuda cada tanto
-        float ask = env(t % 160, 40, 60, 90, 115);
-        r.rightArm.set(-1.25f * ask - 0.05f, 0.25f * ask, 0.15f);
-        r.leftArm.set(0.05f, 0, -0.25f);
-        r.rightLeg.set(-0.25f, 0, 0.10f);
+        // tendido: una rodilla arriba, un brazo que a veces pide ayuda
+        float ask = envB(t % 160, 40, 60, 90, 115);
+        hand(r.rightArm, new float[]{-6.0f, 4.0f - 5.0f * ask, -4.0f - 5.0f * ask}, -1, 0.3f, 0.5f, null, 0.4f + 0.6f * ask);
+        r.leftArm.set(0.05f, 0, -0.30f);
+        r.leftArm.bend = -0.35f;
+        foot(r.rightLeg, -2.4f, 21.0f, 0.4f, -0.3f, 0, -1);
         r.leftLeg.set(0.05f, 0, -0.08f);
-        r.head.set(-0.10f, 0.45f * sin(t * 0.015f), 0);
+        r.head.set(-0.10f, 0.45f * sin(t * 0.015f), 0.05f);
         breathe(r, t, 2.5f);
+        if (!fall || t >= FALL + 6) {
+            return;
+        }
+        // durante la caida
+        Rig fallPose = new Rig().restAll();
+        float buckle = env(t, 0, 4, 8, 14);
+        float fling = env(t, 4, 9, 13, 18);
+        fallPose.torso(0.30f * buckle - 0.20f * fling, 0.10f * buckle, 0);
+        fallPose.rightLeg.bend = 0.9f * buckle;
+        fallPose.leftLeg.bend = 0.6f * buckle;
+        fallPose.rightLeg.pitch = -0.35f * buckle;
+        fallPose.leftLeg.pitch = -0.15f * buckle;
+        fallPose.rightArm.set(-1.6f * fling, 0, 0.5f * buckle + 0.3f * fling);
+        fallPose.leftArm.set(-1.3f * fling, 0, -0.5f * buckle - 0.4f * fling);
+        fallPose.rightArm.bend = -0.6f * fling;
+        fallPose.leftArm.bend = -0.4f * fling;
+        fallPose.head.set(0.35f * buckle - 0.4f * fling, 0, 0);
+        float w = 1 - ramp(t, FALL - 4, FALL + 6);
+        Rig.P[] a = r.parts(), b = fallPose.parts();
+        for (int i = 0; i < a.length; i++) {
+            float keepBend = a[i].bend;
+            float[] rigid = a[i].rigid;
+            a[i].blend(b[i], w);
+            a[i].rigid = w > 0.5f ? null : rigid;
+            if (w > 0.5f) {
+                a[i].bend = lerp(keepBend, b[i].bend, w);
+            }
+        }
     }
+
+    // ================================================================= ayudar a levantarse
 
     /** Punto de agarre (mano con mano) en el modelo del que ayuda, segun el tiempo. */
     static float[] helpGrip(float t) {
         float sit = ramp(t, 16, 27);
         float stand = ramp(t, 27, 37);
-        // distancia desde el caido hacia el que ayuda y altura sobre el suelo (px)
         float db = lerp(lerp(0.5f, 6.0f, sit), 8.8f, stand);
         float h = lerp(lerp(5.0f, 13.0f, sit), 15.4f, stand);
-        return new float[]{0, 24.0f - h, -(Layout.HELP * PX - db)};
+        return new float[]{0, GROUND - h, -(Layout.HELP * PX - db)};
     }
 
     static void helper(Rig r, float t) {
-        float e = env(t, 0, 10, 42, 50);
-        float crouch = lerp(lerp(1.0f, 0.30f, ramp(t, 16, 27)), 0.0f, ramp(t, 27, 37)) * e;
+        float e = envB(t, 0, 10, 42, 50);
+        float k = lerp(lerp(1.0f, 0.35f, ramp(t, 16, 27)), 0.0f, ramp(t, 27, 37)) * e;
         r.restAll();
-        // en cuclillas con un pie adelante; el cuerpo baja lo que bajan las piernas
-        r.rightLeg.set(-0.9f * crouch, 0.75f * crouch, 0);
-        r.leftLeg.set(0.9f * crouch, 0, 0);
-        float drop = 12.0f * (1 - cos(0.9f * crouch));
-        r.torso(1.1f * crouch + 0.08f * e, 0, 0);
-        r.head.y += drop;
-        r.body.y += drop;
-        r.rightArm.y += drop;
-        r.leftArm.y += drop;
-        r.rightLeg.y += drop;
-        r.leftLeg.y += drop;
+        r.torso(0.75f * k + 0.08f * e, 0, 0);
+        kneel(r, k);
         float[] g = helpGrip(t);
-        aimAt(r.rightArm, g, e);
-        // el otro brazo apoyado en la rodilla y luego atras para hacer fuerza
-        r.leftArm.set(-0.9f * crouch + 0.25f * e * (1 - crouch), 0, -0.10f * e);
+        hand(r.rightArm, g, -0.4f, 0.9f, 0.4f, null, e);
+        // la otra mano en la rodilla, luego atras para hacer fuerza
+        handL(r, new float[]{2.4f, 14.0f + 3.0f * k, -6.0f}, null, k);
         r.look(g[0], g[1] - 6.0f, g[2] - 4.0f, 0.85f * e);
+        breathe(r, t, 1.5f);
     }
 
     static Root getUpRoot(float t) {
@@ -549,22 +765,75 @@ public final class PairAnims {
         Root root = getUpRoot(t);
         float sit = ramp(t, 16, 27);
         float stand = ramp(t, 27, 37);
-        // piernas: hacia delante mientras se sienta, luego de pie
+        // piernas: hacia delante mientras se sienta (rodillas que se doblan), luego de pie
         float legs = -(PI / 2 - root.pitch()) * (1 - stand);
         r.rightLeg.set(legs, 0, 0.05f);
         r.leftLeg.set(legs + 0.10f * sit * (1 - stand), 0, -0.05f);
-        // se inclina hacia delante al levantarse
+        float knees = 1.1f * sit * (1 - stand);
+        r.rightLeg.bend = knees;
+        r.leftLeg.bend = knees * 0.7f;
+        r.rightLeg.pitch -= 0.6f * knees;
+        r.leftLeg.pitch -= 0.4f * knees;
         r.torso(0.20f * sit * (1 - stand) + 0.10f * stand * (1 - ramp(t, 37, 46)), 0, 0);
-        // la mano derecha agarra la del que ayuda (mismo punto)
+        // la mano derecha agarra la del que ayuda
         float[] g = helpGrip(t);
         float[] mine = face(Layout.HELP, 0, g[0], g[1], g[2]);
         float[] local = inRoot(root, mine);
         float grab = env(t, 4, 14, 36, 44);
-        aimAt(r.rightArm, local, grab);
+        hand(r.rightArm, local, -0.6f, 0.4f, 0.6f, null, grab);
         // al final se sacude la ropa
         float dust = env(t, 38, 41, 47, 50) * sin(t * 1.6f);
-        r.leftArm.set(-0.4f - 0.25f * dust, 0.3f, 0);
+        handL(r, new float[]{3.0f + dust, 9.0f, -3.4f}, null, env(t, 37, 40, 47, 50));
         r.look(0, -4, -Layout.HELP * PX, 0.5f * grab);
         r.head.pitch += 0.25f * env(t, 40, 43, 46, 50);
+        breathe(r, t, 1.5f);
+    }
+
+    // ================================================================= propuesta de matrimonio
+
+    /** Punto donde se ofrece la mano (anillo), en el modelo del que se arrodilla. */
+    static float[] offer(float t) {
+        float up = ramp(t, 18, 30);
+        return new float[]{-1.0f, lerp(10.0f, 6.2f, up), -Layout.PROPOSE * PX * 0.5f + 0.5f};
+    }
+
+    static void propose(Rig r, float t) {
+        float k = envB(t, 2, 18, 84, 100);
+        r.restAll();
+        r.torso(0.06f * k, 0, 0);
+        kneel(r, k);
+        // mano adelante ofreciendo el anillo; la otra en el corazon
+        float[] o = offer(t);
+        float nervous = 0.25f * sin(t * 1.3f) * env(t, 30, 34, 60, 66);
+        hand(r.rightArm, new float[]{o[0], o[1] + nervous, o[2]}, -0.4f, 1.0f, 0.3f, null, env(t, 14, 26, 82, 94));
+        handL(r, new float[]{1.6f, 3.6f, -3.0f}, null, env(t, 18, 26, 80, 90));
+        r.look(0, -6.0f, -Layout.PROPOSE * PX, 0.9f * k);
+        breathe(r, t, 1.8f);
+    }
+
+    static void proposed(Rig r, float t) {
+        r.restUpper();
+        relaxedLegs(r, t, 1);
+        float wow = envB(t, 10, 22, 52, 62);
+        float yes = env(t, 50, 56, 72, 78);
+        float give = env(t, 58, 66, 84, 94);
+        float clap = env(t, 82, 86, 96, 100);
+        // sorpresa: manos a la boca y un pasito atras
+        r.torso(-0.08f * wow, 0, 0);
+        handR(r, new float[]{-1.0f, -2.4f, -4.6f}, null, wow);
+        handL(r, new float[]{1.0f, -2.4f, -4.6f}, null, wow * (1 - give));
+        // asiente
+        r.look(0, 6.0f, -Layout.PROPOSE * PX, 0.8f);
+        r.head.pitch += 0.22f * yes * sin(t * 0.9f);
+        // da la mano izquierda para el anillo
+        float[] o = offer(t);
+        float[] mine = face(Layout.PROPOSE, 0, o[0], o[1], o[2]);
+        handL(r, mine, null, give);
+        // aplaude de alegria
+        float c = 1.2f * Math.abs(sin(t * 1.4f));
+        handR(r, new float[]{-0.4f - c, 5.0f, -5.0f}, null, clap);
+        handL(r, new float[]{0.4f + c, 5.0f, -5.0f}, null, clap);
+        r.drop(-0.8f * clap * Math.abs(sin(t * 0.7f)));
+        breathe(r, t, 1.5f);
     }
 }

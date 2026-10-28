@@ -16,11 +16,24 @@ import net.minecraft.entity.LivingEntity;
  */
 public final class AnimOverlay {
     private static NpcModel scratch;
+    private static NpcModel jointScratch;
+    /** bendy-lib (viene con Emotecraft): los jugadores pueden doblar codos y rodillas. */
+    private static final boolean BENDY = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("bendylib");
 
     private AnimOverlay() {
     }
 
-    private static NpcModel scratch() {
+    private static NpcModel scratch(boolean canBend) {
+        if (canBend && BENDY && jointScratch == null) {
+            try {
+                jointScratch = new NpcModel(JointModel.build(false), false);
+            } catch (Throwable t) {
+                jointScratch = null;
+            }
+        }
+        if (canBend && BENDY && jointScratch != null) {
+            return jointScratch;
+        }
         if (scratch == null) {
             ModelPart root = TexturedModelData.of(PlayerEntityModel.getTexturedModelData(Dilation.NONE, false), 64, 64).createModel();
             scratch = new NpcModel(root, false);
@@ -44,7 +57,15 @@ public final class AnimOverlay {
         if (!overriding) {
             return false;
         }
-        NpcModel p = scratch();
+        NpcModel p = scratch(model instanceof PlayerEntityModel<?>);
+        if (p.rightForearm != null) {
+            for (net.minecraft.client.model.ModelPart lo : new net.minecraft.client.model.ModelPart[]{
+                    p.rightForearm, p.leftForearm, p.rightShin, p.leftShin, p.waist}) {
+                lo.pitch = 0;
+                lo.yaw = 0;
+                lo.roll = 0;
+            }
+        }
         p.head.copyTransform(model.head);
         p.body.copyTransform(model.body);
         p.rightArm.copyTransform(model.rightArm);
@@ -61,7 +82,9 @@ public final class AnimOverlay {
             }
         }
         state.applier.setTickDelta(partial);
+        Activities.setCurrent(entity);
         state.applyOverlay(p, shared);
+        Activities.setCurrent(null);
         model.head.copyTransform(p.head);
         model.hat.copyTransform(p.head);
         model.body.copyTransform(p.body);
@@ -75,6 +98,9 @@ public final class AnimOverlay {
             pm.leftSleeve.copyTransform(pm.leftArm);
             pm.rightPants.copyTransform(pm.rightLeg);
             pm.leftPants.copyTransform(pm.leftLeg);
+            if (p.rightForearm != null) {
+                Bends.apply(pm, p);
+            }
         }
         return true;
     }

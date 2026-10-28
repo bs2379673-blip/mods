@@ -15,14 +15,44 @@ import java.util.List;
 /** Rueda de interacciones: se abre manteniendo G mirando a alguien y se elige al soltar. */
 public class WheelScreen extends Screen {
     private final LivingEntity target;
-    private final List<Interaction> options;
+    private final List<Interaction> all;
+    private List<Interaction> options;
+    private int page;
+    private int pages;
     private int hovered = -1;
     private boolean sent;
 
     public WheelScreen(LivingEntity target, List<Interaction> options) {
         super(Text.literal("Interacciones"));
         this.target = target;
-        this.options = options;
+        this.all = options;
+        int max = 0;
+        for (Interaction i : options) {
+            max = Math.max(max, i.page());
+        }
+        this.pages = max + 1;
+        setPage(0);
+    }
+
+    private void setPage(int p) {
+        this.page = ((p % this.pages) + this.pages) % this.pages;
+        this.options = new java.util.ArrayList<>();
+        for (Interaction i : this.all) {
+            if (i.page() == this.page) {
+                this.options.add(i);
+            }
+        }
+    }
+
+    private static final String[] PAGE_NAMES = {"Juntos", "Especial"};
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double h, double v) {
+        if (this.pages > 1 && v != 0) {
+            setPage(this.page + (v < 0 ? 1 : -1));
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, h, v);
     }
 
     @Override
@@ -63,7 +93,11 @@ public class WheelScreen extends Screen {
         String who = this.target.getDisplayName().getString();
         ctx.fill(cx - 46, cy - 14, cx + 46, cy + 14, 0xA0101018);
         ctx.drawCenteredTextWithShadow(this.textRenderer, Text.literal(who), cx, cy - 9, 0xFFE8D0FF);
-        ctx.drawCenteredTextWithShadow(this.textRenderer, Text.literal("suelta G"), cx, cy + 3, 0xFF9A9AB0);
+        String sub = this.pages > 1 ? "< " + PAGE_NAMES[Math.min(this.page, PAGE_NAMES.length - 1)] + " >" : "suelta G";
+        ctx.drawCenteredTextWithShadow(this.textRenderer, Text.literal(sub), cx, cy + 3, 0xFF9A9AB0);
+        if (this.pages > 1) {
+            ctx.drawCenteredTextWithShadow(this.textRenderer, Text.literal("rueda del raton o clic derecho: cambiar"), cx, this.height - 20, 0xFF9A9AB0);
+        }
         for (int i = 0; i < n; i++) {
             double ang = Math.PI * 2 * i / n;
             int x = cx + (int) Math.round(Math.sin(ang) * r);
@@ -105,6 +139,10 @@ public class WheelScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 1 && this.pages > 1) {
+            setPage(this.page + 1);
+            return true;
+        }
         int i = pick(mouseX, mouseY);
         if (i >= 0) {
             choose(i);

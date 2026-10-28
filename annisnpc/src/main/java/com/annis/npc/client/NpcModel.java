@@ -120,7 +120,9 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
                     shared = elapsed + partial;
                 }
             }
+            Activities.setCurrent(npc);
             state.applyActivity(this, shared);
+            Activities.setCurrent(null);
         }
 
         // la capa exterior de la skin copia la pose de cada parte

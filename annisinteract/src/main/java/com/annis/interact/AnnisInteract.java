@@ -57,6 +57,12 @@ public class AnnisInteract implements ModInitializer {
                 Sessions.answer(ctx.player(), p.accept()));
 
         ServerLivingEntityEvents.ALLOW_DEATH.register(Downed::allowDeath);
+        ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+            Downed.onDeath(entity);
+            Sessions.endFor(entity, null);
+        });
+        net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents.AFTER_RESPAWN.register((oldP, newP, alive) ->
+                Downed.onRespawn(oldP, newP));
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             Sessions.tick(server);
             Downed.tick(server);

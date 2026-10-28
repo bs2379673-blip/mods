@@ -78,6 +78,13 @@ python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'interaccion hacer sentarse @e[tag=a7,limit=1] @e[tag=b7,limit=1]' \
   'sleep 2' "${T}foto 04_vals_estrellas_sentarse${E}" 'sleep 1.5' "${T}foto 05_vals_giro${E}" \
   'kill @e[type=annisnpc:npc]' 'sleep 1.5' \
+  'summon annisnpc:npc -3.4 -60 4 {Tags:["p","p1"],Protected:0b}' 'summon annisnpc:npc -2.6 -60 4 {Tags:["p","p2"],Protected:0b}' \
+  'summon annisnpc:npc 2.6 -60 4 {Tags:["p","p3"],Protected:0b}' 'summon annisnpc:npc 3.4 -60 4 {Tags:["p","p4"],Protected:0b}' \
+  'sleep 2' \
+  'interaccion hacer propuesta @e[tag=p1,limit=1] @e[tag=p2,limit=1]' \
+  'interaccion hacer baile_lento @e[tag=p3,limit=1] @e[tag=p4,limit=1]' \
+  'sleep 2' "${T}foto 05b_propuesta_lento${E}" 'sleep 1.4' "${T}foto 05c_propuesta_sorpresa${E}" 'sleep 1.6' "${T}foto 05d_propuesta_mano${E}" \
+  'kill @e[type=annisnpc:npc]' 'sleep 1.5' \
   'summon annisnpc:npc -3 -60 4 {Tags:["k","k1"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc -3 -60 5 {Tags:["k","k2"],Protected:0b}' \
   'summon annisnpc:npc 0.5 -60 4 {Tags:["k","k3"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc 0.5 -60 5 {Tags:["k","k4"],Protected:0b}' \
   'summon annisnpc:npc 4 -60 4 {Tags:["k","k5"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc 4 -60 6 {Tags:["k","k6"],Protected:0b}' \
@@ -85,7 +92,8 @@ python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'interaccion hacer en_brazos @e[tag=k1,limit=1] @e[tag=k2,limit=1]' \
   'interaccion hacer caballito @e[tag=k3,limit=1] @e[tag=k4,limit=1]' \
   'interaccion caer @e[tag=k5,limit=1]' \
-  'sleep 2' "${T}foto 06_brazos_caballito_caido${E}" \
+  'sleep 0.3' "${T}foto 06a_cayendo${E}" 'sleep 0.3' "${T}foto 06b_cayendo${E}" \
+  'sleep 1.4' "${T}foto 06_brazos_caballito_caido${E}" \
   'data get entity @e[tag=k1,limit=1] Pos' 'data get entity @e[tag=k2,limit=1] Pos' 'data get entity @e[tag=k3,limit=1] Pos' 'data get entity @e[tag=k4,limit=1] Pos' \
   'interaccion hacer ayudar @e[tag=k6,limit=1] @e[tag=k5,limit=1]' \
   'sleep 0.8' "${T}foto 07_ayudar_a${E}" 'sleep 0.6' "${T}foto 08_ayudar_b${E}" 'sleep 0.6' "${T}foto 09_ayudar_c${E}" \
@@ -102,6 +110,17 @@ python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'interaccion caer @a[limit=1]' 'sleep 0.5' 'execute as @a at @s run tp @s ~ ~ ~ ~ 35' 'sleep 1.5' "${T}foto 13_jugador_caido${E}" \
   'interaccion hacer ayudar @e[tag=c1,limit=1] @a[limit=1]' 'sleep 0.9' "${T}foto 14_jugador_ayudado${E}" 'sleep 1.2' "${T}foto 15_jugador_ayudado_b${E}" \
   'sleep 2' 'data get entity @a[limit=1] Health' \
+  'sleep 2' 'tp @a 0 -60 0 0 0' 'tp @e[tag=c1] 0 -60 2' 'sleep 1' \
+  'interaccion hacer pedir_brazos @a[limit=1] @e[tag=c1,limit=1]' 'sleep 1.5' "${T}camara frente${E}" 'execute as @a at @s run tp @s ~ ~ ~ 90 10' 'sleep 0.5' "${T}foto 16_me_llevan${E}" \
+  'execute as @a run interaccion parar' 'sleep 1.5' \
+  'tp @a 0 -60 0 0 0' 'tp @e[tag=c1] -1.1 -60 0' 'sleep 1' \
+  'interaccion hacer de_la_mano @a[limit=1] @e[tag=c1,limit=1]' 'sleep 1' "${T}camara atras${E}" \
+  'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' 'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' \
+  'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' 'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' \
+  'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' 'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' \
+  "${T}foto 17_de_la_mano_caminando${E}" 'sleep 1' "${T}foto 18_de_la_mano_quietos${E}" \
+  'execute as @a run interaccion parar' 'sleep 1' \
+  'gamerule doImmediateRespawn true' 'interaccion caer @a[limit=1]' 'sleep 1.5' 'kill @a' 'sleep 3' "${T}camara frente${E}" 'sleep 1' "${T}foto 19_tras_reaparecer${E}" \
   'sleep 1' 'stop' 2>&1 | tee rcon-visual.txt
 sleep 8
 kill $CP 2>/dev/null; pkill -f 'runClient' ; sleep 2

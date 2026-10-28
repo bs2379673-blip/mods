@@ -38,9 +38,24 @@ public final class Activities {
         default RootPose root(float t) {
             return null;
         }
+
+        /** Suavizado con inercia (resortes) por encima de la animacion: mas vivo, menos rigido. */
+        default boolean springy() {
+            return true;
+        }
     }
 
     private static final Map<String, Custom> CUSTOM = new LinkedHashMap<>();
+    private static net.minecraft.entity.LivingEntity current;
+
+    /** Entidad que se esta animando ahora mismo (para animaciones que miran al companero). */
+    public static net.minecraft.entity.LivingEntity current() {
+        return current;
+    }
+
+    public static void setCurrent(net.minecraft.entity.LivingEntity e) {
+        current = e;
+    }
 
     private Activities() {
     }
@@ -63,6 +78,12 @@ public final class Activities {
         }
         String n = name.toLowerCase(Locale.ROOT);
         return NAMES.contains(n) || CUSTOM.containsKey(n);
+    }
+
+    /** true si la animacion pide suavizado con inercia. */
+    public static boolean springy(String name) {
+        Custom c = name == null ? null : CUSTOM.get(name.toLowerCase(Locale.ROOT));
+        return c != null && c.springy();
     }
 
     /** Pose de cuerpo entero de la animacion (o null si no mueve el cuerpo entero). */

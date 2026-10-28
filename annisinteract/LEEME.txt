@@ -1,7 +1,7 @@
-ANNIS INTERACCIONES 0.1 (Fabric 1.21.1)
+ANNIS INTERACCIONES 0.2 (Fabric 1.21.1)
 =======================================
 
-Necesita: Fabric API, playerAnimator (viene dentro de Emotecraft) y Annis NPC 0.11 o mas nuevo.
+Necesita: Fabric API, playerAnimator (viene dentro de Emotecraft) y Annis NPC 0.12 o mas nuevo.
 Opcional: Minecraft Comes Alive (aldeanos), Entity Model Features / Fresh Animations.
 Va en el cliente y en el servidor.
 
@@ -14,8 +14,10 @@ COMO SE USA
 - Las que no terminan solas (de la mano, en brazos, a caballito, vals, estrellas, sentarse)
   se terminan con Shift.
 
-INTERACCIONES
-  Abrazo, Beso en la mejilla, Chocar los cinco, Apreton de manos, Palmadita en el hombro,
+INTERACCIONES (la rueda tiene dos paginas: rueda del raton o clic derecho para cambiar)
+  Pagina "Especial": Proponer matrimonio (con el anillo de compromiso de MCA en la mano cuenta
+  en MCA), Que me lleve en brazos, Que me lleve a caballito, Baile lento abrazados.
+  Pagina "Juntos": Abrazo, Beso en la mejilla, Chocar los cinco, Apreton de manos, Palmadita en el hombro,
   Ir de la mano (el NPC o aldeano camina a tu lado), Llevar en brazos, A caballito,
   Bailar en pareja (vals girando), Mirar las estrellas (tumbados de la mano),
   Sentarse juntos, Ayudar a levantarse.
@@ -39,7 +41,7 @@ CONFIGURACION: config/annisinteract.json
 Las animaciones tambien se pueden usar sueltas en Annis NPC (rutinas, /annisnpc anim) con
 los nombres: abrazo, beso_mejilla, recibir_beso, chocar_cinco, apreton_manos, palmadita,
 recibir_palmadita, de_la_mano_d, de_la_mano_i, cargar_brazos, en_brazos, llevar_caballito,
-a_caballito, vals_guia, vals_pareja, estrellas_a, estrellas_b, sentarse_abrazo,
+a_caballito, abrazo_cuello, lento_a, lento_b, propuesta, recibir_propuesta, caido_suelo, vals_guia, vals_pareja, estrellas_a, estrellas_b, sentarse_abrazo,
 sentarse_apoyo, caido, ayudar_levantar, levantarse.
 
 Todo (codigo y animaciones) es propio de Annis World; no contiene nada de otros mods.
