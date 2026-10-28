@@ -111,7 +111,7 @@ python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'interaccion hacer ayudar @e[tag=c1,limit=1] @a[limit=1]' 'sleep 0.9' "${T}foto 14_jugador_ayudado${E}" 'sleep 1.2' "${T}foto 15_jugador_ayudado_b${E}" \
   'sleep 2' 'data get entity @a[limit=1] Health' \
   'sleep 2' 'tp @a 0 -60 0 0 0' 'tp @e[tag=c1] 0 -60 2' 'sleep 1' \
-  'interaccion hacer pedir_brazos @a[limit=1] @e[tag=c1,limit=1]' 'sleep 1.5' "${T}camara frente${E}" 'execute as @a at @s run tp @s ~ ~ ~ 90 10' 'sleep 0.5' "${T}foto 16_me_llevan${E}" \
+  'interaccion hacer pedir_brazos @a[limit=1] @e[tag=c1,limit=1]' 'sleep 1.5' "${T}camara frente${E}" 'sleep 0.5' "${T}foto 16_me_llevan${E}" \
   'execute as @a run interaccion parar' 'sleep 1.5' \
   'tp @a 0 -60 0 0 0' 'tp @e[tag=c1] -1.1 -60 0' 'sleep 1' \
   'interaccion hacer de_la_mano @a[limit=1] @e[tag=c1,limit=1]' 'sleep 1' "${T}camara atras${E}" \
