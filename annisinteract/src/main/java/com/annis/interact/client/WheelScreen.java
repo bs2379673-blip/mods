@@ -44,7 +44,29 @@ public class WheelScreen extends Screen {
         }
     }
 
-    private static final String[] PAGE_NAMES = {"Juntos", "Especial"};
+    private static final String[] PAGE_NAMES = {"Juntos", "Especial", "Bailes"};
+
+    private boolean dancePage() {
+        for (Interaction i : this.options) {
+            if (i.dance()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String roleText() {
+        return ClientState.followRole ? "Mi parte: femenina (sigo)" : "Mi parte: masculina (guio)";
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_R) {
+            ClientState.followRole = !ClientState.followRole;
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double h, double v) {
@@ -98,6 +120,10 @@ public class WheelScreen extends Screen {
         if (this.pages > 1) {
             ctx.drawCenteredTextWithShadow(this.textRenderer, Text.literal("rueda del raton o clic derecho: cambiar"), cx, this.height - 20, 0xFF9A9AB0);
         }
+        if (dancePage()) {
+            ctx.drawCenteredTextWithShadow(this.textRenderer, Text.literal(roleText() + "   (R o clic central: cambiar)"),
+                    cx, this.height - 34, 0xFFFFC8E8);
+        }
         for (int i = 0; i < n; i++) {
             double ang = Math.PI * 2 * i / n;
             int x = cx + (int) Math.round(Math.sin(ang) * r);
@@ -132,13 +158,19 @@ public class WheelScreen extends Screen {
         }
         this.sent = true;
         if (i >= 0 && i < this.options.size()) {
-            ClientPlayNetworking.send(new RequestPayload(this.options.get(i).id(), this.target.getId()));
+            Interaction it = this.options.get(i);
+            String id = it.dance() && ClientState.followRole ? it.id() + Interaction.FOLLOW : it.id();
+            ClientPlayNetworking.send(new RequestPayload(id, this.target.getId()));
         }
         this.close();
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 2 && dancePage()) {
+            ClientState.followRole = !ClientState.followRole;
+            return true;
+        }
         if (button == 1 && this.pages > 1) {
             setPage(this.page + 1);
             return true;

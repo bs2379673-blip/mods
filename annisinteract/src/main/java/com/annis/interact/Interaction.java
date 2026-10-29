@@ -59,8 +59,8 @@ public record Interaction(String id, String name, String animA, String animB, Pl
             Place.CARRY_FRONT, 0, Kind.CARRY, true, 45, 1, 0, false));
     public static final Interaction PIGGY = add(new Interaction("caballito", "A caballito", "llevar_caballito", "a_caballito",
             Place.CARRY_BACK, 0, Kind.CARRY, false, 25, 1, 0, false));
-    public static final Interaction WALTZ = add(new Interaction("vals", "Bailar en pareja", "vals_guia", "vals_pareja",
-            Place.FACE, 0, Kind.LOOP, true, 35, 1, 0, false));
+    public static final Interaction WALTZ = add(new Interaction("vals", "Vals", "vals_guia", "vals_pareja",
+            Place.FACE, 0, Kind.LOOP, true, 35, 1, 2, false));
     public static final Interaction STARS = add(new Interaction("estrellas", "Mirar las estrellas", "estrellas_a", "estrellas_b",
             Place.RIGHT, 0, Kind.LOOP, true, 35, 1, 0, false));
     public static final Interaction SIT = add(new Interaction("sentarse", "Sentarse juntos", "sentarse_abrazo", "sentarse_apoyo",
@@ -76,7 +76,14 @@ public record Interaction(String id, String name, String animA, String animB, Pl
     public static final Interaction ASK_PIGGY = add(new Interaction("pedir_caballito", "Que me lleve a caballito", "a_caballito", "llevar_caballito",
             Place.CARRY_BACK, 0, Kind.CARRY, false, 25, 1, 1, true));
     public static final Interaction SLOW = add(new Interaction("baile_lento", "Baile lento abrazados", "lento_a", "lento_b",
-            Place.FACE, 0, Kind.LOOP, true, 45, 1, 1, false));
+            Place.FACE, 0, Kind.LOOP, true, 45, 1, 2, false));
+    // ---- bailes (pagina 3): se elige la parte que hace cada uno ----
+    public static final Interaction SWING = add(new Interaction("swing", "Swing con vuelta", "swing_guia", "swing_sigue",
+            Place.FACE, 0, Kind.LOOP, false, 20, 1, 2, false));
+    public static final Interaction BACHATA = add(new Interaction("bachata", "Bachata", "bachata_guia", "bachata_sigue",
+            Place.FACE, 0, Kind.LOOP, true, 40, 1, 2, false));
+    public static final Interaction TANGO = add(new Interaction("tango", "Tango", "tango_guia", "tango_sigue",
+            Place.FACE, 0, Kind.LOOP, true, 45, 1, 2, false));
     public static final Interaction TOUCH = add(new Interaction("mimos", "Mimos (tocar con el raton)", "mimos_toca", "mimos_recibe",
             Place.FACE, 0, Kind.TOUCH, true, 40, 1, 1, false));
     public static final Interaction LEAN = add(new Interaction("hombro", "Apoyarme en su hombro", "hombro_apoya", "hombro_rodea",
@@ -114,9 +121,20 @@ public record Interaction(String id, String name, String animA, String animB, Pl
             case "mimos" -> Layout.TOUCH;
             case "hombro" -> Layout.LEAN_SIDE;
             case "besar_mano" -> Layout.HAND_KISS;
+            case "swing" -> Layout.SWING;
+            case "bachata" -> Layout.BACHATA;
+            case "tango" -> Layout.TANGO;
             default -> 0.0f;
         };
     }
+
+    /** Bailes en pareja: cada uno elige si hace la parte que guia o la que sigue. */
+    public boolean dance() {
+        return this.page == 2;
+    }
+
+    /** Sufijo del pedido cuando quien pide hace la parte que sigue. */
+    public static final String FOLLOW = "+sigo";
 
     public boolean timed() {
         return this.kind == Kind.SCENE || this.kind == Kind.REVIVE;

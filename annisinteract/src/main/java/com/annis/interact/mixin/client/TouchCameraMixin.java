@@ -23,6 +23,14 @@ public abstract class TouchCameraMixin {
     @Shadow
     protected abstract void setRotation(float yaw, float pitch);
 
+    /** Primera persona de mimos: el juego cree que es tercera persona y dibuja el propio cuerpo. */
+    @Inject(method = "isThirdPerson", at = @At("HEAD"), cancellable = true)
+    private void annisinteract$showBody(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> cir) {
+        if (TouchCam.active && TouchCam.firstPerson) {
+            cir.setReturnValue(true);
+        }
+    }
+
     @Inject(method = "update", at = @At("TAIL"))
     private void annisinteract$touchCam(BlockView area, Entity focused, boolean thirdPerson, boolean inverseView,
                                         float tickDelta, CallbackInfo ci) {

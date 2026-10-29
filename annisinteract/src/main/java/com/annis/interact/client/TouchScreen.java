@@ -33,6 +33,20 @@ public class TouchScreen extends Screen {
     private boolean endedBySession;
     private int hover = Touch.NONE;
     private int age;
+    private boolean hudBefore;
+
+    /**
+     * Primera persona = la camara normal del juego en primera persona (compatible con mods de camara),
+     * pero dibujando el propio cuerpo sin cabeza; la mano de primera persona se oculta.
+     * De costado = tercera persona con la camara girando alrededor de los dos.
+     */
+    private void applyView() {
+        if (this.client == null) {
+            return;
+        }
+        this.client.options.setPerspective(TouchCam.firstPerson ? Perspective.FIRST_PERSON : Perspective.THIRD_PERSON_BACK);
+        this.client.options.hudHidden = TouchCam.firstPerson || this.hudBefore;
+    }
 
     public TouchScreen(int receiverId) {
         super(Text.literal("Mimos"));
@@ -43,10 +57,11 @@ public class TouchScreen extends Screen {
     protected void init() {
         if (this.before == null && this.client != null) {
             this.before = this.client.options.getPerspective();
-            this.client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
+            this.hudBefore = this.client.options.hudHidden;
         }
         TouchCam.receiver = this.receiverId;
         TouchCam.active = true;
+        applyView();
     }
 
     @Override
@@ -232,6 +247,7 @@ public class TouchScreen extends Screen {
         }
         if (keyCode == GLFW.GLFW_KEY_C || this.client.options.togglePerspectiveKey.matchesKey(keyCode, scanCode)) {
             TouchCam.firstPerson = !TouchCam.firstPerson;
+            applyView();
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
@@ -268,6 +284,7 @@ public class TouchScreen extends Screen {
         if (this.client != null) {
             if (this.before != null) {
                 this.client.options.setPerspective(this.before);
+                this.client.options.hudHidden = this.hudBefore;
             }
             if (this.client.player != null) {
                 ClientState.TOUCHES.remove(this.client.player.getId());
@@ -287,6 +304,7 @@ public class TouchScreen extends Screen {
 
     void testView(boolean first) {
         TouchCam.firstPerson = first;
+        applyView();
     }
 
     void testRelease() {

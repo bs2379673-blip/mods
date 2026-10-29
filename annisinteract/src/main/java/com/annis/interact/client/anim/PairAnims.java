@@ -73,6 +73,12 @@ public final class PairAnims {
         add("hombro_rodea", PairAnims::shoulderHold, null);
         add("hombro_apoya", PairAnims::shoulderLean, null);
         add("besar_mano", PairAnims::handKiss, null);
+        add("swing_guia", (r, t) -> swing(r, t, true), t -> swingRoot(t, true));
+        add("swing_sigue", (r, t) -> swing(r, t, false), t -> swingRoot(t, false));
+        add("bachata_guia", (r, t) -> bachata(r, t, true), t -> bachataRoot(t, true));
+        add("bachata_sigue", (r, t) -> bachata(r, t, false), t -> bachataRoot(t, false));
+        add("tango_guia", (r, t) -> tango(r, t, true), t -> tangoRoot(t, true));
+        add("tango_sigue", (r, t) -> tango(r, t, false), t -> tangoRoot(t, false));
         add("recibir_beso_mano", PairAnims::handKissed, null);
     }
 
@@ -1123,5 +1129,192 @@ public final class PairAnims {
         r.head.pitch += 0.08f * shy;
         r.drop(-0.6f * shy * Math.abs(sin(t * 0.5f)));
         breathe(r, t, 1.2f);
+    }
+
+    // ================================================================= swing (con vuelta)
+
+    static final float SWING_CYCLE = 64.0f;
+
+    /** Cuanto lleva girado quien sigue (0..1 por vuelta). */
+    static float swingSpin(float t) {
+        if (t < 24) {
+            return 0;
+        }
+        float k = (t - 24) % SWING_CYCLE;
+        return smooth(clamp01((k - 40) / 16.0f));
+    }
+
+    static float smooth(float x) {
+        return x * x * (3 - 2 * x);
+    }
+
+    static Root swingRoot(float t, boolean lead) {
+        float bounce = 0.035f * Math.abs(sin(t * PI / 10.0f));
+        float spin = lead ? 0 : swingSpin(t) * 2 * PI;
+        return new Root(0, spin, 0, 0, bounce, 0);
+    }
+
+    static void swing(Rig r, float t, boolean lead) {
+        float d = Layout.SWING;
+        float e = envB(t, 0, 14, 1e9f, 1e9f);
+        r.restAll();
+        float beat = t * PI / 10.0f;
+        // paso de rock: el cuerpo va y viene, una pierna patea en cada tiempo fuerte
+        float rock = sin(beat * 0.5f);
+        r.torso((0.05f + 0.06f * rock) * e, 0.10f * sin(beat * 0.5f) * e, 0);
+        float kick = Math.max(0, sin(beat * 0.5f));
+        float kick2 = Math.max(0, -sin(beat * 0.5f));
+        r.rightLeg.set((-0.45f * kick + 0.10f * kick2) * e, 0, 0.05f);
+        r.leftLeg.set((-0.45f * kick2 + 0.10f * kick) * e, 0, -0.05f);
+        r.drop(0.6f * Math.abs(sin(beat)) * e);
+        // manos unidas: la izquierda del que guia con la derecha del que sigue
+        float spin = swingSpin(t);
+        float raise = env(spin, 0, 0.15f, 0.85f, 1.0f) + (spin > 0 && spin < 1 ? 1 : 0) * 0;
+        float lift = t < 24 ? 0 : env((t - 24) % SWING_CYCLE, 34, 40, 56, 60);
+        float[] joined = {3.0f, lerp(9.0f, -9.5f, lift), -d * PX / 2};
+        if (lead) {
+            hand(r.leftArm, joined, 0.5f, 0.6f, 0.3f, null, e);
+            // la otra mano suelta, marcando el ritmo
+            hand(r.rightArm, new float[]{-6.5f, 9.0f - 1.0f * Math.abs(sin(beat)), -2.5f}, -0.5f, 0.6f, 0.3f, null, e);
+            r.look(0, -4, -d * PX, 0.7f * e);
+        } else {
+            Root root = swingRoot(t, false);
+            float[] mine = inRoot(root, face(d, 0, joined[0], joined[1], joined[2]));
+            hand(r.rightArm, mine, -0.5f, 0.6f, 0.3f, null, e);
+            // brazo libre abierto con estilo
+            r.leftArm.set(-0.4f * e, 0, (-0.9f - 0.2f * lift) * e);
+            r.head.roll -= 0.08f * e;
+        }
+        breathe(r, t, 1);
+        raise *= 0;
+    }
+
+    // ================================================================= bachata
+
+    /** 8 tiempos de 10 ticks: 1-2-3-toque a un lado, 5-6-7-toque al otro. */
+    static float bachataSide(float t) {
+        float k = (t % 80.0f) / 10.0f;
+        float step = 0.11f;
+        if (k < 3) {
+            return step * smooth(k / 3.0f) * 2 - step;
+        }
+        if (k < 4) {
+            return step;
+        }
+        if (k < 7) {
+            return step - step * smooth((k - 4) / 3.0f) * 2;
+        }
+        return -step;
+    }
+
+    static Root bachataRoot(float t, boolean lead) {
+        float in = ramp(t, 0, 20);
+        float side = bachataSide(t) * in;
+        return new Root(0, 0, 0, 0, 0, lead ? side : -side);
+    }
+
+    static void bachata(Rig r, float t, boolean lead) {
+        float d = Layout.BACHATA;
+        float e = envB(t, 0, 16, 1e9f, 1e9f);
+        r.restAll();
+        float k = (t % 80.0f) / 10.0f;
+        // el "toque" (tiempos 4 y 8): la cadera salta y la pierna se apoya de puntillas
+        float tap = env(k, 3, 3.4f, 3.7f, 4) + env(k, 7, 7.4f, 7.7f, 8);
+        boolean tapRight = k >= 3 && k < 4;
+        float hip = 0.07f * sin(t * PI / 10.0f) * e;
+        r.torso(0.04f * e, 0, hip);
+        float slide = 0.8f * sin(t * PI / 10.0f) * e;
+        r.body.x += slide;
+        r.head.x += slide;
+        r.rightArm.x += slide;
+        r.leftArm.x += slide;
+        r.rightLeg.set(0, 0, 0.05f + (tapRight ? 0.12f * tap : 0));
+        r.leftLeg.set(0, 0, -0.05f - (tapRight ? 0 : 0.12f * tap));
+        r.drop(0.4f * Math.abs(sin(t * PI / 10.0f)) * e);
+        if (lead) {
+            // derecha en su espalda, izquierda con su mano derecha a un lado
+            hand(r.rightArm, face(d, 0, 2.6f, 5.0f, 3.0f), -0.7f, 0.6f, 0.2f, face(d, 0, 4.6f, 6.0f, 0.6f), e);
+            hand(r.leftArm, new float[]{8.5f, 3.0f, -d * PX / 2}, 0.2f, 1.0f, 0.3f, null, e);
+            r.look(-3.0f, -4.5f, -d * PX, 0.6f * e);
+        } else {
+            hand(r.leftArm, face(d, 0, -5.8f, -0.4f, 0.2f), 0.8f, 0.6f, 0.2f, null, e);
+            hand(r.rightArm, new float[]{-8.5f, 3.0f, -d * PX / 2}, -0.2f, 1.0f, 0.3f, null, e);
+            r.look(0, -4.5f, -d * PX, 0.5f * e);
+            r.head.roll -= 0.10f * e;
+        }
+        breathe(r, t, 1);
+    }
+
+    // ================================================================= tango
+
+    static final float TANGO_CYCLE = 120.0f;
+
+    /** Avance del que guia (bloques): lento-lento-rapido-rapido-lento, y vuelve. */
+    static float tangoWalk(float t) {
+        float k = t % TANGO_CYCLE;
+        if (k < 40) {
+            return 0.18f * smooth(k / 40.0f);
+        }
+        if (k < 60) {
+            return 0.18f + 0.10f * smooth((k - 40) / 20.0f);
+        }
+        if (k < 84) {
+            return 0.28f;
+        }
+        return 0.28f * (1 - smooth((k - 84) / 36.0f));
+    }
+
+    /** La caida hacia atras de quien sigue (0..1). */
+    static float tangoDip(float t) {
+        return env(t % TANGO_CYCLE, 64, 74, 92, 104);
+    }
+
+    static Root tangoRoot(float t, boolean lead) {
+        float in = ramp(t, 0, 20);
+        float f = tangoWalk(t) * in;
+        float dip = tangoDip(t) * in;
+        if (lead) {
+            return new Root(0, 0, 0, f, -0.06f * dip, 0);
+        }
+        return new Root(0.45f * dip, 0, 0, -f, -0.03f * dip, 0);
+    }
+
+    static void tango(Rig r, float t, boolean lead) {
+        float d = Layout.TANGO;
+        float e = envB(t, 0, 16, 1e9f, 1e9f);
+        r.restAll();
+        float k = t % TANGO_CYCLE;
+        float dip = tangoDip(t) * e;
+        // pasos: piernas largas, como caminando
+        float stepPhase = k < 40 ? k / 20.0f : k < 60 ? 2 + (k - 40) / 10.0f : 4;
+        float walking = k < 60 ? 1 : 0;
+        float sw = sin(stepPhase * PI) * walking;
+        float dir = lead ? 1 : -1;
+        r.rightLeg.set(-0.35f * sw * dir * e, 0, 0.04f);
+        r.leftLeg.set(0.35f * sw * dir * e, 0, -0.04f);
+        // cabeza que "corta" de golpe a un lado en cada acento
+        float snap = (k < 40 || (k >= 84)) ? 1 : -1;
+        if (lead) {
+            r.torso((0.06f + 0.30f * dip) * e, 0, 0);
+            // en la caida: se agacha con una pierna adelante
+            r.rightLeg.pitch += -0.55f * dip;
+            r.leftLeg.pitch += 0.30f * dip;
+            r.drop(1.2f * dip);
+            float back = 3.5f * dip;
+            hand(r.rightArm, face(d, 0, 2.6f, 5.0f + 0.8f * dip, 3.0f + back), -0.7f, 0.6f, 0.2f,
+                    face(d, 0, 4.6f, 6.0f, 0.6f + back), e);
+            hand(r.leftArm, new float[]{8.0f, 0.5f + 2.0f * dip, -d * PX / 2 - 1.0f}, 0.2f, 1.0f, 0.3f, null, e);
+            r.look(0, -4.0f + 3.0f * dip, -d * PX, 0.5f * e);
+            r.head.yaw += 0.45f * snap * (1 - dip) * e;
+        } else {
+            r.torso(-0.04f * e, 0, 0);
+            // en la caida: una pierna se estira hacia el
+            r.leftLeg.pitch += -0.70f * dip;
+            hand(r.leftArm, face(d, 0, -5.8f, -0.4f, 0.2f), 0.8f, 0.6f, 0.2f, null, e * (1 - 0.3f * dip));
+            hand(r.rightArm, new float[]{-8.0f, 0.5f, -d * PX / 2 - 1.0f}, -0.2f, 1.0f, 0.3f, null, e);
+            r.head.yaw -= 0.45f * snap * (1 - dip) * e;
+            r.head.pitch -= 0.25f * dip;
+        }
+        breathe(r, t, 1);
     }
 }

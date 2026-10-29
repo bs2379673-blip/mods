@@ -145,7 +145,9 @@ public class AnnisInteract implements ModInitializer {
 
     /** /interaccion hacer <tipo> <a> <b>: sin invitacion ni corazones (para escenas). */
     private static int force(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        Interaction type = Interaction.get(StringArgumentType.getString(ctx, "tipo"));
+        String id = StringArgumentType.getString(ctx, "tipo");
+        boolean follow = id.endsWith(Interaction.FOLLOW);
+        Interaction type = Interaction.get(follow ? id.substring(0, id.length() - Interaction.FOLLOW.length()) : id);
         Entity a = EntityArgumentType.getEntity(ctx, "a");
         Entity b = EntityArgumentType.getEntity(ctx, "b");
         if (type == null) {
@@ -161,7 +163,7 @@ public class AnnisInteract implements ModInitializer {
             ctx.getSource().sendError(Text.literal(problem));
             return 0;
         }
-        if (!Sessions.start(type, la, lb)) {
+        if (!Sessions.start(type, la, lb, follow)) {
             ctx.getSource().sendError(Text.literal("No se pudo (falta espacio?)"));
             return 0;
         }

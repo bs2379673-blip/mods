@@ -1,4 +1,4 @@
-ANNIS INTERACCIONES 0.3.1 (Fabric 1.21.1)
+ANNIS INTERACCIONES 0.4 (Fabric 1.21.1)
 =======================================
 
 Necesita: Fabric API, playerAnimator (viene dentro de Emotecraft) y Annis NPC 0.12.1 o mas nuevo.
@@ -14,14 +14,16 @@ COMO SE USA
 - Las que no terminan solas (de la mano, en brazos, a caballito, vals, estrellas, sentarse)
   se terminan con Shift.
 
-INTERACCIONES (la rueda tiene dos paginas: rueda del raton o clic derecho para cambiar)
+INTERACCIONES (la rueda tiene tres paginas: rueda del raton o clic derecho para cambiar)
   Pagina "Especial": Proponer matrimonio (con el anillo de compromiso de MCA en la mano cuenta
-  en MCA), Que me lleve en brazos, Que me lleve a caballito, Baile lento abrazados,
-  Mimos (tocar con el raton), Apoyarme en su hombro, Besar la mano.
+  en MCA), Que me lleve en brazos, Que me lleve a caballito, Mimos (tocar con el raton),
+  Apoyarme en su hombro, Besar la mano.
   Pagina "Juntos": Abrazo, Beso en la mejilla, Chocar los cinco, Apreton de manos, Palmadita en el hombro,
   Ir de la mano (el NPC o aldeano camina a tu lado), Llevar en brazos, A caballito,
-  Bailar en pareja (vals girando), Mirar las estrellas (tumbados de la mano),
-  Sentarse juntos, Ayudar a levantarse.
+  Mirar las estrellas (tumbados de la mano), Sentarse juntos, Ayudar a levantarse.
+  Pagina "Bailes": Vals, Baile lento abrazados, Swing con vuelta, Bachata, Tango.
+    En esta pagina eliges tu parte con R (o clic central): masculina (guias) o femenina (sigues);
+    el otro hace la otra. La eleccion se recuerda mientras juegas.
 
 MIMOS (tocar con el raton)
 - Quien lo pide toca y el otro acepta (como siempre). El raton queda libre.
@@ -42,6 +44,11 @@ MIMOS (tocar con el raton)
   las piernas no se pueden tocar.
 - Shift o Esc: terminar (el que recibe tambien puede terminar con Shift cuando quiera).
 
+EN BRAZOS / A CABALLITO
+- Quien va cargado se dibuja pegado al modelo del que carga en cada fotograma: no se queda atras al
+  girar y no le afecta que otros mods (por ejemplo MCA, que corre a los aldeanos a un hombro) muevan
+  su posicion.
+
 CAIDOS
 - Con dano mortal no mueres: quedas en el suelo 60 s. Otro jugador te levanta con la rueda
   ("Ayudar a levantarse"). Los NPC que te siguen y los aldeanos de MCA que te quieren mucho
@@ -57,7 +64,8 @@ PIERNAS Y EMF / FRESH ANIMATIONS
 
 COMANDOS
   /interaccion aceptar | rechazar | parar | lista
-  /interaccion hacer <tipo> <a> <b>     (op: para escenas, sin invitacion ni corazones)
+  /interaccion hacer <tipo> <a> <b>     (op: para escenas, sin invitacion ni corazones;
+                                         en bailes, <tipo>+sigo = "a" hace la parte que sigue)
   /interaccion caer <quien> | levantar <quien>   (op)
   /interaccion recargar                 (op: relee config/annisinteract.json)
 
@@ -69,7 +77,8 @@ Las animaciones tambien se pueden usar sueltas en Annis NPC (rutinas, /annisnpc 
 los nombres: abrazo, beso_mejilla, recibir_beso, chocar_cinco, apreton_manos, palmadita,
 recibir_palmadita, de_la_mano_d, de_la_mano_i, cargar_brazos, en_brazos, llevar_caballito,
 a_caballito, abrazo_cuello, lento_a, lento_b, propuesta, recibir_propuesta, caido_suelo, mimos_toca, mimos_recibe, hombro_rodea,
-hombro_apoya, besar_mano, recibir_beso_mano, vals_guia, vals_pareja, estrellas_a, estrellas_b, sentarse_abrazo,
+hombro_apoya, besar_mano, recibir_beso_mano, swing_guia, swing_sigue, bachata_guia,
+bachata_sigue, tango_guia, tango_sigue, vals_guia, vals_pareja, estrellas_a, estrellas_b, sentarse_abrazo,
 sentarse_apoyo, caido, ayudar_levantar, levantarse.
 
 Todo (codigo y animaciones) es propio de Annis World; no contiene nada de otros mods.

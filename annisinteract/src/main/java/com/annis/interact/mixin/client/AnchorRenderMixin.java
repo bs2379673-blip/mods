@@ -20,6 +20,7 @@ public abstract class AnchorRenderMixin {
             at = @At("HEAD"))
     private void annisinteract$anchor(LivingEntity entity, float yaw, float tickDelta, MatrixStack matrices,
                                       VertexConsumerProvider vcp, int light, CallbackInfo ci) {
+        com.annis.interact.client.CarryRender.apply(entity, tickDelta, matrices);
         Float anchored = ClientState.ANCHORS.get(entity.getId());
         if (anchored != null) {
             entity.bodyYaw = anchored;

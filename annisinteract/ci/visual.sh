@@ -94,6 +94,15 @@ python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'interaccion hacer besar_mano @e[tag=n5,limit=1] @e[tag=n6,limit=1]' \
   'sleep 1.9' "${T}foto 05e_hombro_abrazo_besomano${E}" 'sleep 0.8' "${T}foto 05f_hombro_abrazo_besomano${E}" \
   'kill @e[type=annisnpc:npc]' 'sleep 1.5' \
+  'summon annisnpc:npc -4.4 -60 4 {Tags:["d","d1"],Protected:0b}' 'summon annisnpc:npc -3.6 -60 4 {Tags:["d","d2"],Protected:0b}' \
+  'summon annisnpc:npc -0.4 -60 3 {Tags:["d","d3"],Protected:0b}' 'summon annisnpc:npc 0.4 -60 3 {Tags:["d","d4"],Protected:0b}' \
+  'summon annisnpc:npc 3.6 -60 4 {Tags:["d","d5"],Protected:0b}' 'summon annisnpc:npc 4.4 -60 4 {Tags:["d","d6"],Protected:0b}' \
+  'sleep 2' \
+  'interaccion hacer swing @e[tag=d1,limit=1] @e[tag=d2,limit=1]' \
+  'interaccion hacer bachata+sigo @e[tag=d3,limit=1] @e[tag=d4,limit=1]' \
+  'interaccion hacer tango @e[tag=d5,limit=1] @e[tag=d6,limit=1]' \
+  'sleep 2' "${T}foto 05g_bailes${E}" 'sleep 1.5' "${T}foto 05h_bailes${E}" 'sleep 1.2' "${T}foto 05i_bailes${E}" \
+  'kill @e[type=annisnpc:npc]' 'sleep 1.5' \
   'summon annisnpc:npc -3 -60 4 {Tags:["k","k1"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc -3 -60 5 {Tags:["k","k2"],Protected:0b}' \
   'summon annisnpc:npc 0.5 -60 4 {Tags:["k","k3"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc 0.5 -60 5 {Tags:["k","k4"],Protected:0b}' \
   'summon annisnpc:npc 4 -60 4 {Tags:["k","k5"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc 4 -60 6 {Tags:["k","k6"],Protected:0b}' \
@@ -145,6 +154,10 @@ python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' 'execute as @a at @s run tp @s ~ ~ ~0.25' 'sleep 0.1' \
   "${T}foto 20_npc_carga_caminando${E}" 'sleep 0.5' \
   'execute as @a run interaccion parar' 'sleep 1' \
+  'tp @a 0 -60 0 0 0' 'tp @e[tag=c1] 0 -60 1.2' 'sleep 1' \
+  'interaccion hacer en_brazos @a[limit=1] @e[tag=c1,limit=1]' 'sleep 1.5' "${T}camara frente${E}" 'sleep 0.5' "${T}foto 28_brazos_quieto${E}" \
+  'execute as @a at @s run tp @s ~ ~ ~ ~60 ~' 'sleep 0.05' "${T}foto 29_brazos_girando${E}" 'sleep 1' "${T}foto 30_brazos_girado${E}" \
+  'execute as @a run interaccion parar' 'sleep 1' "${T}camara primera${E}" \
   'gamerule doImmediateRespawn true' 'interaccion caer @a[limit=1]' 'sleep 1.5' 'kill @a' 'sleep 3' "${T}camara frente${E}" 'sleep 1' "${T}foto 19_tras_reaparecer${E}" \
   'sleep 1' 'stop' 2>&1 | tee rcon-visual.txt
 sleep 8

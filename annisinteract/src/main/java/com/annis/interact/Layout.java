@@ -18,6 +18,10 @@ public final class Layout {
     public static final float TOUCH = 0.7f;
     /** Apoyarse en el hombro: uno al lado del otro. */
     public static final float LEAN_SIDE = 0.9f;
+    /** Bailes nuevos (frente a frente). */
+    public static final float SWING = 0.85f;
+    public static final float BACHATA = 0.55f;
+    public static final float TANGO = 0.55f;
     /** Besar la mano. */
     public static final float HAND_KISS = 0.95f;
     // en brazos: pies del que es llevado respecto al que carga

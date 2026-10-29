@@ -12,6 +12,8 @@ public final class ClientState {
     public static boolean downed;
     public static int downedSeconds;
     public static String session = "";
+    /** Bailes: true = hago la parte que sigue (femenina); false = la que guia (masculina). */
+    public static boolean followRole;
     /** Modo mimos: estado por cada uno que toca (clave = id de quien toca). */
     public static final Map<Integer, TouchState> TOUCHES = new HashMap<>();
 

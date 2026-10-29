@@ -54,7 +54,7 @@ public final class Sessions {
         }
     }
 
-    record Invite(UUID from, UUID target, Interaction type, long expires) {
+    record Invite(UUID from, UUID target, Interaction type, long expires, boolean follow) {
     }
 
     private static final List<Session> ACTIVE = new ArrayList<>();
@@ -93,7 +93,13 @@ public final class Sessions {
     // ------------------------------------------------------------------ pedir / responder
 
     public static void request(ServerPlayerEntity player, String id, int targetId) {
+        // en los bailes, "+sigo" = quien pide hace la parte que sigue (femenina)
+        boolean follow = id.endsWith(Interaction.FOLLOW);
+        if (follow) {
+            id = id.substring(0, id.length() - Interaction.FOLLOW.length());
+        }
         Interaction type = Interaction.get(id);
+        follow &= type != null && type.dance();
         Entity target = player.getServerWorld().getEntityById(targetId);
         if (type == null || target == null || target == player || !canTarget(target)) {
             return;
@@ -109,7 +115,7 @@ public final class Sessions {
             return;
         }
         if (t instanceof ServerPlayerEntity other && type.kind() != Interaction.Kind.REVIVE) {
-            invite(player, other, type);
+            invite(player, other, type, follow);
             return;
         }
         if (AnnisInteract.MCA && com.annis.interact.mca.McaBridge.isVillager(t)) {
@@ -119,7 +125,7 @@ public final class Sessions {
                 return;
             }
         }
-        start(type, player, t);
+        start(type, player, t, follow);
     }
 
     /** null si se puede, o el motivo. */
@@ -170,12 +176,13 @@ public final class Sessions {
         return null;
     }
 
-    private static void invite(ServerPlayerEntity from, ServerPlayerEntity to, Interaction type) {
+    private static void invite(ServerPlayerEntity from, ServerPlayerEntity to, Interaction type, boolean follow) {
         long now = from.getServerWorld().getTime();
         int secs = Math.max(5, InteractConfig.get().segundosInvitacion);
-        INVITES.put(to.getUuid(), new Invite(from.getUuid(), to.getUuid(), type, now + secs * 20L));
+        INVITES.put(to.getUuid(), new Invite(from.getUuid(), to.getUuid(), type, now + secs * 20L, follow));
         ServerPlayNetworking.send(to, new InvitePayload(from.getGameProfile().getName(), type.id(), secs));
-        MutableText msg = Text.literal(from.getGameProfile().getName() + ": " + type.name() + "  ").formatted(Formatting.LIGHT_PURPLE)
+        String role = !type.dance() ? "" : follow ? " (tu guias)" : " (tu sigues)";
+        MutableText msg = Text.literal(from.getGameProfile().getName() + ": " + type.name() + role + "  ").formatted(Formatting.LIGHT_PURPLE)
                 .append(button("[Aceptar]", "/interaccion aceptar", Formatting.GREEN))
                 .append(Text.literal(" "))
                 .append(button("[Rechazar]", "/interaccion rechazar", Formatting.RED));
@@ -215,7 +222,7 @@ public final class Sessions {
             say(from, problem);
             return;
         }
-        start(inv.type(), from, to);
+        start(inv.type(), from, to, inv.follow());
     }
 
     // ------------------------------------------------------------------ empezar
@@ -317,7 +324,17 @@ public final class Sessions {
     }
 
     public static boolean start(Interaction type, LivingEntity a, LivingEntity b) {
+        return start(type, a, b, false);
+    }
+
+    /** follow: en los bailes, quien pide (a) hace la parte que sigue. */
+    public static boolean start(Interaction type, LivingEntity a, LivingEntity b, boolean follow) {
         String animA = type.animA(), animB = type.animB();
+        if (follow && type.dance()) {
+            // bailes: quien pide hace la parte que sigue (mismo sitio, se cambian solo las animaciones)
+            animA = type.animB();
+            animB = type.animA();
+        }
         if (type.swap()) {
             // "que me lleve": el que pide va encima; en la sesion "a" es siempre quien carga
             LivingEntity tmp = a;
