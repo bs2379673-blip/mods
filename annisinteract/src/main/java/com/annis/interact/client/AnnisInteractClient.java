@@ -41,6 +41,7 @@ public class AnnisInteractClient implements ClientModInitializer {
         com.annis.interact.client.anim.PairAnims.handLink = new HandLinkImpl();
         com.annis.interact.client.anim.PairAnims.touchLink = new TouchLinkImpl();
         CarryPose.clientAnim = AnnisInteractClient::animOf;
+        CarryPose.clientAnchored = e -> ClientState.ANCHORS.containsKey(e.getId());
 
         WHEEL = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.annisinteract.wheel",
                 InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, "key.categories.annisinteract"));

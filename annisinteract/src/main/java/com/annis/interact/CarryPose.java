@@ -12,6 +12,8 @@ import java.util.function.Function;
 public final class CarryPose {
     /** En el cliente se cambia por la animacion que ve el cliente. */
     public static Function<Entity, String> clientAnim = e -> "";
+    /** En el cliente: true si la entidad esta fija por una interaccion (no se empuja). */
+    public static java.util.function.Predicate<Entity> clientAnchored = e -> false;
 
     private CarryPose() {
     }
