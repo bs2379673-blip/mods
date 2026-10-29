@@ -12,7 +12,7 @@ public final class TouchCam {
     public static boolean firstPerson = true;
     /** Primera persona: cuanto se corre la mirada (grados) respecto de su cara. */
     public static float lookYaw;
-    public static float lookPitch = 12.0f;
+    public static float lookPitch = 4.0f;
 
     private TouchCam() {
     }
