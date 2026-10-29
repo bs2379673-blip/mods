@@ -35,7 +35,7 @@ public final class PairAnims {
     private static final Root SITTING = new Root(0, 0, 0, 0, -0.575f, 0);
     private static final Root CARRIED = new Root(PI / 2, -PI / 2, 0, 0, 0, 0);
     private static final Root PIGGY = new Root(-0.20f, 0, 0, 0, 0, 0);
-    static final float BED_ROLL = 1.35f, BED_UP = 0.45f;
+    static final float BED_ROLL = 1.35f, BED_UP = 0.17f;
     /** En la cama, de costado mirando hacia su izquierda (donde esta el otro). */
     static final Root BED_SIDE_ROOT = new Root(PI / 2, 0, BED_ROLL, 0, -0.575f + BED_UP, 0);
 
