@@ -95,15 +95,19 @@ public final class Touch {
             zone = y > 7.0f ? COSQUILLAS : ESPALDA;
         } else if (which == 0) {
             if (z < -3.8f) {
-                // la cara
-                if (y < -5.4f) {
+                // la cara del skin (de arriba abajo): frente -8..-5, ojos -5..-3.5, nariz -3.5..-2,
+                // boca y barbilla -2..0; las mejillas a los costados de la nariz y la boca
+                float ax = Math.abs(x);
+                if (y < -5.0f || (y < -3.6f && ax < 1.5f)) {
                     zone = FRENTE;
-                } else if (Math.abs(x) < 1.3f && y < -2.4f) {
-                    zone = NARIZ;
-                } else if (Math.abs(x) < 1.6f) {
+                } else if (y > -1.2f && ax < 2.6f) {
                     zone = BARBILLA;
-                } else {
+                } else if (ax < 1.6f && y > -3.9f) {
+                    zone = NARIZ;
+                } else if (y > -4.2f) {
                     zone = MEJILLA;
+                } else {
+                    zone = FRENTE;
                 }
             } else if (Math.abs(x) > 3.8f && y > -6.0f && y < -0.5f) {
                 zone = x < 0 ? OREJA_D : OREJA_I;
@@ -171,13 +175,15 @@ public final class Touch {
                 return new float[]{clamp(cx * k, -4.6f, 4.6f), clamp(cy * k - 4, -8.6f, -2.5f), clamp(cz * k, -4.6f, 4.6f)};
             }
             case MEJILLA -> {
-                return new float[]{clamp(x, -4.4f, 4.4f), clamp(y, -5.0f, -0.8f), -4.6f};
+                // a un costado de la nariz, a la altura de la boca
+                float side = x < 0 ? -1 : 1;
+                return new float[]{side * clamp(Math.abs(x), 2.2f, 4.4f), clamp(y, -3.2f, -0.6f), -4.6f};
             }
             case NARIZ -> {
-                return new float[]{clamp(x, -0.8f, 0.8f), -3.4f, -4.6f};
+                return new float[]{clamp(x, -0.6f, 0.6f), -2.6f, -4.6f};
             }
             case FRENTE -> {
-                return new float[]{clamp(x, -3.5f, 3.5f), clamp(y, -7.6f, -5.4f), -4.6f};
+                return new float[]{clamp(x, -3.5f, 3.5f), clamp(y, -7.4f, -5.0f), -4.6f};
             }
             case BARBILLA -> {
                 // la mano por debajo de la barbilla

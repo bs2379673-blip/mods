@@ -22,6 +22,8 @@ public final class Layout {
     public static final float SWING = 0.85f;
     public static final float BACHATA = 0.55f;
     public static final float TANGO = 0.55f;
+    /** Cama: cada uno a esta distancia del centro de la cama, hacia su lado (bloques). */
+    public static final float BED_SIDE = 0.22f;
     /** Besar la mano. */
     public static final float HAND_KISS = 0.95f;
     // en brazos: pies del que es llevado respecto al que carga

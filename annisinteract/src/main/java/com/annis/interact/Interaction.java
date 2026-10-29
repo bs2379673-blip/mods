@@ -23,7 +23,9 @@ public record Interaction(String id, String name, String animA, String animB, Pl
         /** El otro va a caballito (montado detras). */
         CARRY_BACK,
         /** El que ayuda se pone a los pies del caido. */
-        HELP
+        HELP,
+        /** Los dos en una cama cercana, uno al lado del otro. */
+        BED
     }
 
     public enum Kind {
@@ -88,6 +90,10 @@ public record Interaction(String id, String name, String animA, String animB, Pl
             Place.FACE, 0, Kind.TOUCH, true, 40, 1, 1, false));
     public static final Interaction LEAN = add(new Interaction("hombro", "Apoyarme en su hombro", "hombro_apoya", "hombro_rodea",
             Place.RIGHT, 0, Kind.LOOP, true, 30, 1, 1, true));
+    public static final Interaction BED = add(new Interaction("cama", "Acostarnos en la cama (me abraza)", "cama_abrazado", "cama_abraza",
+            Place.BED, 0, Kind.LOOP, true, 40, 1, 1, false));
+    public static final Interaction BED_ME = add(new Interaction("cama_yo", "Acostarnos en la cama (yo abrazo)", "cama_abraza", "cama_abrazado",
+            Place.BED, 0, Kind.LOOP, true, 40, 1, 1, false));
     public static final Interaction HAND_KISS = add(new Interaction("besar_mano", "Besar la mano", "besar_mano", "recibir_beso_mano",
             Place.FACE, 70, Kind.SCENE, true, 35, 2, 1, false));
 

@@ -35,6 +35,9 @@ public final class PairAnims {
     private static final Root SITTING = new Root(0, 0, 0, 0, -0.575f, 0);
     private static final Root CARRIED = new Root(PI / 2, -PI / 2, 0, 0, 0, 0);
     private static final Root PIGGY = new Root(-0.20f, 0, 0, 0, 0, 0);
+    static final float BED_ROLL = 1.35f, BED_UP = 0.45f;
+    /** En la cama, de costado mirando hacia su izquierda (donde esta el otro). */
+    static final Root BED_SIDE_ROOT = new Root(PI / 2, 0, BED_ROLL, 0, -0.575f + BED_UP, 0);
 
     private PairAnims() {
     }
@@ -73,6 +76,8 @@ public final class PairAnims {
         add("hombro_rodea", PairAnims::shoulderHold, null);
         add("hombro_apoya", PairAnims::shoulderLean, null);
         add("besar_mano", PairAnims::handKiss, null);
+        add("cama_abrazado", PairAnims::bedHugged, t -> LYING);
+        add("cama_abraza", PairAnims::bedHugger, t -> BED_SIDE_ROOT);
         add("swing_guia", (r, t) -> swing(r, t, true), t -> swingRoot(t, true));
         add("swing_sigue", (r, t) -> swing(r, t, false), t -> swingRoot(t, false));
         add("bachata_guia", (r, t) -> bachata(r, t, true), t -> bachataRoot(t, true));
@@ -1317,4 +1322,49 @@ public final class PairAnims {
         }
         breathe(r, t, 1);
     }
+
+    // ================================================================= acostados en la cama
+
+
+    /**
+     * Punto del otro (en SU modelo, con su pose de cuerpo entero) visto desde mi modelo con mi pose.
+     * sep = a cuantos bloques a mi izquierda esta (misma orientacion).
+     */
+    static float[] bedPartner(Root mine, Root his, float sep, float bx, float by, float bz) {
+        float[] w = modelToRender(his, bx, by, bz);
+        return renderToModel(mine, w[0] - sep, w[1], w[2]);
+    }
+
+    /** Boca arriba; el otro (a su derecha) lo abraza. Su brazo derecho le hace de almohada. */
+    static void bedHugged(Rig r, float t) {
+        r.restAll();
+        float sep = -2 * Layout.BED_SIDE;
+        float[] neck = bedPartner(LYING, BED_SIDE_ROOT, sep, 0, 1.0f, 1.5f);
+        hand(r.rightArm, neck, -1.0f, -0.3f, 0.5f, null, 1);
+        // la otra mano sobre el brazo que lo abraza
+        float[] arm = bedPartner(LYING, BED_SIDE_ROOT, sep, -5.0f, 8.0f, 0.0f);
+        hand(r.leftArm, arm, 0.6f, 0.2f, -1.0f, null, 1);
+        float[] face = bedPartner(LYING, BED_SIDE_ROOT, sep, 0, -4.0f, -3.0f);
+        r.look(face[0], face[1], face[2], 0.7f);
+        r.rightLeg.set(0, 0.05f, 0.04f);
+        r.leftLeg.set(-0.10f, -0.05f, -0.06f);
+        breathe(r, t, 1.4f);
+    }
+
+    /** De costado mirando al otro (a su izquierda): un brazo por encima de su pecho, rodillas un poco dobladas. */
+    static void bedHugger(Rig r, float t) {
+        r.restAll();
+        float sep = 2 * Layout.BED_SIDE;
+        float[] chest = bedPartner(BED_SIDE_ROOT, LYING, sep, 0.5f, 5.0f, -2.6f);
+        hand(r.rightArm, chest, -0.4f, -1.0f, 0.2f, null, 1);
+        // el brazo de abajo, doblado bajo su propia cabeza
+        hand(r.leftArm, new float[]{1.5f, -4.0f, -4.0f}, 1.0f, 0.4f, -0.4f, null, 1);
+        float[] face = bedPartner(BED_SIDE_ROOT, LYING, sep, 0, -4.0f, -3.0f);
+        r.look(face[0], face[1], face[2], 0.8f);
+        r.head.roll += 0.05f * sin(t * 0.02f);
+        r.rightLeg.set(-0.45f, 0, 0.05f);
+        r.leftLeg.set(-0.25f, 0, -0.03f);
+        breathe(r, t, 1.4f);
+    }
+
 }

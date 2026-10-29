@@ -158,6 +158,15 @@ python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'interaccion hacer en_brazos @a[limit=1] @e[tag=c1,limit=1]' 'sleep 1.5' "${T}camara frente${E}" 'sleep 0.5' "${T}foto 28_brazos_quieto${E}" \
   'execute as @a at @s run tp @s ~ ~ ~ ~60 ~' 'sleep 0.05' "${T}foto 29_brazos_girando${E}" 'sleep 1' "${T}foto 30_brazos_girado${E}" \
   'execute as @a run interaccion parar' 'sleep 1' "${T}camara primera${E}" \
+  'setblock 3 -60 0 minecraft:red_bed[facing=south,part=foot]' 'setblock 3 -60 1 minecraft:red_bed[facing=south,part=head]' \
+  'tp @a 2 -60 -1 0 0' 'tp @e[tag=c1] 2 -60 0' 'sleep 1' \
+  'interaccion hacer cama @a[limit=1] @e[tag=c1,limit=1]' 'sleep 2' "${T}camara frente${E}" 'sleep 0.5' "${T}foto 31_cama${E}" \
+  'execute as @a at @s run tp @s ~ ~ ~ ~90 ~' 'sleep 0.5' "${T}foto 32_cama_b${E}" \
+  'execute as @a run interaccion parar' 'sleep 1' "${T}camara primera${E}" 'tp @a 0 -60 0 0 0' 'tp @e[tag=c1] 0 -60 1.2' 'sleep 1' \
+  'interaccion hacer mimos @a[limit=1] @e[tag=c1,limit=1]' 'sleep 1.5' \
+  "${T}tocar 2 -3 -2 -4.6${E}" 'sleep 1.2' "${T}foto 33_mejilla_1p${E}" \
+  "${T}tocar 9 0 -2.6 -4.6${E}" 'sleep 1.2' "${T}foto 34_nariz_1p${E}" \
+  "${T}soltar${E}" 'sleep 0.5' 'execute as @a run interaccion parar' 'sleep 1' \
   'gamerule doImmediateRespawn true' 'interaccion caer @a[limit=1]' 'sleep 1.5' 'kill @a' 'sleep 3' "${T}camara frente${E}" 'sleep 1' "${T}foto 19_tras_reaparecer${E}" \
   'sleep 1' 'stop' 2>&1 | tee rcon-visual.txt
 sleep 8

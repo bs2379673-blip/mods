@@ -151,7 +151,8 @@ public final class Sessions {
                 return "No se puede cargar ahora";
             }
         }
-        if (Math.abs(a.getY() - b.getY()) > 0.75 && type.kind() != Interaction.Kind.CARRY) {
+        if (Math.abs(a.getY() - b.getY()) > 0.75 && type.kind() != Interaction.Kind.CARRY
+                && type.place() != Interaction.Place.BED) {
             return "Tienen que estar a la misma altura";
         }
         return null;
@@ -290,6 +291,26 @@ public final class Sessions {
                 s.yawA = yaw;
                 s.yawB = yaw;
             }
+            case BED -> {
+                Bed bed = findBed(a);
+                if (bed == null) {
+                    bed = findBed(b);
+                }
+                if (bed == null) {
+                    return false;
+                }
+                // cadera a 1/4 de bloque del centro del pie hacia la cabecera; mirando hacia los pies
+                // (acostado boca arriba, la cabeza queda hacia la cabecera)
+                Vec3d hip = bed.foot().add(bed.dir().multiply(0.25));
+                float yaw = yawOf(bed.dir().negate());
+                Vec3d side = left(yaw).multiply(Layout.BED_SIDE);
+                // el que es abrazado va a la izquierda; el que abraza a la derecha (mira hacia el otro)
+                boolean aHugged = "cama_abrazado".equals(type.animA());
+                s.slotA = aHugged ? hip.add(side) : hip.subtract(side);
+                s.slotB = aHugged ? hip.subtract(side) : hip.add(side);
+                s.yawA = yaw;
+                s.yawB = yaw;
+            }
             case HELP -> {
                 Float y = Downed.yawOf(b);
                 float yaw = y == null ? b.bodyYaw : y;
@@ -307,6 +328,37 @@ public final class Sessions {
             }
         }
         return true;
+    }
+
+    /** Cama: centro del bloque de los pies (a la altura del colchon) y direccion hacia la cabecera. */
+    record Bed(Vec3d foot, Vec3d dir) {
+    }
+
+    /** La cama libre mas cercana a 4 bloques. */
+    static Bed findBed(LivingEntity e) {
+        net.minecraft.world.World w = e.getWorld();
+        net.minecraft.util.math.BlockPos c = e.getBlockPos();
+        Bed best = null;
+        double bestD = Double.MAX_VALUE;
+        for (net.minecraft.util.math.BlockPos p : net.minecraft.util.math.BlockPos.iterate(c.add(-4, -2, -4), c.add(4, 2, 4))) {
+            net.minecraft.block.BlockState st = w.getBlockState(p);
+            if (!(st.getBlock() instanceof net.minecraft.block.BedBlock)) {
+                continue;
+            }
+            if (st.get(net.minecraft.block.BedBlock.OCCUPIED)) {
+                continue;
+            }
+            net.minecraft.util.math.Direction f = st.get(net.minecraft.block.HorizontalFacingBlock.FACING);
+            net.minecraft.util.math.BlockPos foot = st.get(net.minecraft.block.BedBlock.PART) == net.minecraft.block.enums.BedPart.HEAD
+                    ? p.offset(f.getOpposite()) : p.toImmutable();
+            double d = foot.getSquaredDistance(e.getPos());
+            if (d < bestD) {
+                bestD = d;
+                best = new Bed(new Vec3d(foot.getX() + 0.5, foot.getY() + 0.5625, foot.getZ() + 0.5),
+                        new Vec3d(f.getOffsetX(), 0, f.getOffsetZ()));
+            }
+        }
+        return best;
     }
 
     private static void moveTo(LivingEntity e, Vec3d pos, float yaw) {
@@ -346,7 +398,8 @@ public final class Sessions {
         ServerWorld world = (ServerWorld) a.getWorld();
         Session s = new Session(type, a, b, world.getTime());
         if (!place(s)) {
-            sayBoth(s, "No hay espacio para " + type.name().toLowerCase());
+            sayBoth(s, type.place() == Interaction.Place.BED ? "No hay una cama libre cerca (hasta 4 bloques)"
+                    : "No hay espacio para " + type.name().toLowerCase());
             return false;
         }
         if (type.kind() == Interaction.Kind.CARRY) {
