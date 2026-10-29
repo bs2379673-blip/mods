@@ -131,10 +131,13 @@ python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'execute as @a run interaccion parar' 'sleep 1' \
   'tp @a 0 -60 0 0 0' 'tp @e[tag=c1] 0 -60 1.2' 'sleep 1' \
   'interaccion hacer mimos @a[limit=1] @e[tag=c1,limit=1]' 'sleep 1.5' "${T}foto 21_mimos_inicio${E}" \
-  "${T}tocar 1 0.5 -8.6 -1${E}" 'sleep 1.2' "${T}foto 22_mimos_pelo${E}" \
-  "${T}tocar 2 -2.5 -2.6 -4.6${E}" 'sleep 1.2' "${T}foto 23_mimos_mejilla${E}" \
-  "${T}tocar 3 -3 -1 -8${E}" 'sleep 1.2' "${T}foto 24_mimos_mano${E}" \
-  "${T}tocar 8 0 0 0${E}" 'sleep 1.2' "${T}foto 25_mimos_hombro${E}" \
+  "${T}tocar 1 0.5 -8.6 -1${E}" 'sleep 1.2' "${T}foto 22_mimos_pelo_1p${E}" \
+  "${T}tocar 9 0 -3.4 -4.6${E}" 'sleep 1.2' "${T}foto 23_mimos_nariz_1p${E}" \
+  "${T}tocar 3 -3 -1 -8${E}" 'sleep 1.2' "${T}foto 24_mimos_mano_1p${E}" \
+  "${T}vista costado${E}" "${T}tocar 12 -4.6 -3 0${E}" 'sleep 1.2' "${T}foto 25_mimos_oreja${E}" \
+  "${T}tocar 14 1 4 2.4${E}" 'sleep 1.2' "${T}foto 26_mimos_espalda${E}" \
+  "${T}tocar 15 0 9 2.4${E}" 'sleep 1.0' "${T}foto 27_mimos_cosquillas${E}" \
+  "${T}vista primera${E}" \
   "${T}soltar${E}" 'sleep 0.5' 'execute as @a run interaccion parar' 'sleep 1' "${T}camara primera${E}" \
   'tp @a 0 -60 0 0 0' 'tp @e[tag=c1] 0 -60 1.5' 'sleep 1' \
   'interaccion hacer en_brazos @e[tag=c1,limit=1] @a[limit=1]' 'sleep 1.2' "${T}camara atras${E}" \

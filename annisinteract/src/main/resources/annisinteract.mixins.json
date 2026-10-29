@@ -4,6 +4,6 @@
   "package": "com.annis.interact.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": ["EntityRidingMixin"],
-  "client": ["client.AnchorRenderMixin", "client.TouchCameraMixin"],
+  "client": ["client.AnchorRenderMixin", "client.TouchCameraMixin", "client.TouchHideHeadMixin"],
   "injectors": { "defaultRequire": 1 }
 }

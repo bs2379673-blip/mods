@@ -2,7 +2,8 @@ package com.annis.interact;
 
 /**
  * Modo mimos: zonas que se pueden tocar y como se mueve el punto de contacto.
- * Solo zonas de carino (pelo, mejillas, hombros, brazos y manos); el resto del cuerpo no se puede tocar.
+ * Solo zonas de carino: cabeza y cara, hombros, brazos, manos y espalda (la parte baja de la espalda
+ * da cosquillas). El pecho, la panza, la cadera y las piernas no se pueden tocar.
  *
  * Coordenadas del modelo de quien recibe, en pixeles: x = su izquierda, y = abajo, z = atras.
  */
@@ -16,10 +17,18 @@ public final class Touch {
     public static final int BRAZO_I = 6;
     public static final int HOMBRO_D = 7;
     public static final int HOMBRO_I = 8;
-    public static final int COUNT = 9;
+    public static final int NARIZ = 9;
+    public static final int FRENTE = 10;
+    public static final int BARBILLA = 11;
+    public static final int OREJA_D = 12;
+    public static final int OREJA_I = 13;
+    public static final int ESPALDA = 14;
+    public static final int COSQUILLAS = 15;
+    public static final int COUNT = 16;
 
     private static final String[] NAMES = {"", "Pelo", "Mejilla", "Mano derecha", "Mano izquierda",
-            "Brazo derecho", "Brazo izquierdo", "Hombro derecho", "Hombro izquierdo"};
+            "Brazo derecho", "Brazo izquierdo", "Hombro derecho", "Hombro izquierdo",
+            "Nariz", "Frente", "Barbilla", "Oreja derecha", "Oreja izquierda", "Espalda", "Cosquillas"};
 
     // cajas en reposo: min x,y,z / max x,y,z (la cabeza con la capa del sombrero)
     private static final float[] HEAD = {-4.5f, -8.5f, -4.5f, 4.5f, 0.5f, 4.5f};
@@ -33,6 +42,16 @@ public final class Touch {
 
     public static String name(int zone) {
         return zone > 0 && zone < COUNT ? NAMES[zone] : "";
+    }
+
+    /** Zonas de la cabeza (la mano se apoya por fuera). */
+    public static boolean isHead(int zone) {
+        return zone == PELO || zone == MEJILLA || zone == NARIZ || zone == FRENTE || zone == BARBILLA
+                || zone == OREJA_D || zone == OREJA_I;
+    }
+
+    public static boolean isBack(int zone) {
+        return zone == ESPALDA || zone == COSQUILLAS;
     }
 
     public static boolean isHand(int zone) {
@@ -63,13 +82,34 @@ public final class Touch {
                 which = i;
             }
         }
-        if (which < 0 || which == 1 || which == 4) {
+        if (which < 0 || which == 4) {
             return null;
         }
         float x = ox + dx * best, y = oy + dy * best, z = oz + dz * best;
         int zone;
-        if (which == 0) {
-            zone = z < -3.8f && y > -4.8f ? MEJILLA : PELO;
+        if (which == 1) {
+            // del torso solo la espalda
+            if (z < 1.8f) {
+                return null;
+            }
+            zone = y > 7.0f ? COSQUILLAS : ESPALDA;
+        } else if (which == 0) {
+            if (z < -3.8f) {
+                // la cara
+                if (y < -5.4f) {
+                    zone = FRENTE;
+                } else if (Math.abs(x) < 1.3f && y < -2.4f) {
+                    zone = NARIZ;
+                } else if (Math.abs(x) < 1.6f) {
+                    zone = BARBILLA;
+                } else {
+                    zone = MEJILLA;
+                }
+            } else if (Math.abs(x) > 3.8f && y > -6.0f && y < -0.5f) {
+                zone = x < 0 ? OREJA_D : OREJA_I;
+            } else {
+                zone = PELO;
+            }
         } else {
             boolean right = which == 2;
             if (y > 8.0f) {
@@ -132,6 +172,28 @@ public final class Touch {
             }
             case MEJILLA -> {
                 return new float[]{clamp(x, -4.4f, 4.4f), clamp(y, -5.0f, -0.8f), -4.6f};
+            }
+            case NARIZ -> {
+                return new float[]{clamp(x, -0.8f, 0.8f), -3.4f, -4.6f};
+            }
+            case FRENTE -> {
+                return new float[]{clamp(x, -3.5f, 3.5f), clamp(y, -7.6f, -5.4f), -4.6f};
+            }
+            case BARBILLA -> {
+                // la mano por debajo de la barbilla
+                return new float[]{clamp(x, -1.8f, 1.8f), 0.6f, clamp(z, -3.6f, -2.0f)};
+            }
+            case OREJA_D -> {
+                return new float[]{-4.6f, clamp(y, -5.5f, -1.5f), clamp(z, -2.0f, 2.0f)};
+            }
+            case OREJA_I -> {
+                return new float[]{4.6f, clamp(y, -5.5f, -1.5f), clamp(z, -2.0f, 2.0f)};
+            }
+            case ESPALDA -> {
+                return new float[]{clamp(x, -3.6f, 3.6f), clamp(y, 1.0f, 7.0f), 2.4f};
+            }
+            case COSQUILLAS -> {
+                return new float[]{clamp(x, -3.8f, 3.8f), clamp(y, 7.0f, 11.0f), 2.4f};
             }
             case HOMBRO_D -> {
                 return new float[]{-6.2f, -0.6f, 0.2f};

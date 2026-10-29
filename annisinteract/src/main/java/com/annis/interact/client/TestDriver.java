@@ -46,6 +46,11 @@ public final class TestDriver {
                         AnnisInteract.LOGGER.warn("[TEST] tocar: la pantalla de mimos no esta abierta ({})", mc.currentScreen);
                     }
                 }
+                case "vista" -> {
+                    if (mc.currentScreen instanceof TouchScreen ts) {
+                        ts.testView(cmd.length > 1 && cmd[1].equals("primera"));
+                    }
+                }
                 case "soltar" -> {
                     if (mc.currentScreen instanceof TouchScreen ts) {
                         ts.testRelease();

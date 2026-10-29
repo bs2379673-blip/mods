@@ -1,4 +1,4 @@
-ANNIS INTERACCIONES 0.3 (Fabric 1.21.1)
+ANNIS INTERACCIONES 0.3.1 (Fabric 1.21.1)
 =======================================
 
 Necesita: Fabric API, playerAnimator (viene dentro de Emotecraft) y Annis NPC 0.12.1 o mas nuevo.
@@ -24,15 +24,23 @@ INTERACCIONES (la rueda tiene dos paginas: rueda del raton o clic derecho para c
   Sentarse juntos, Ayudar a levantarse.
 
 MIMOS (tocar con el raton)
-- Quien lo pide toca y el otro acepta (como siempre). La camara se pone de costado y el raton queda libre.
+- Quien lo pide toca y el otro acepta (como siempre). El raton queda libre.
+- Vista: empieza en primera persona (ves tus brazos, sin tu cabeza). C o F5: cambiar a la vista de
+  costado y volver. Clic derecho arrastrando o rueda: mover la vista (de costado, girar alrededor).
 - Clic izquierdo y arrastrar sobre el otro:
-    pelo -> le acaricias el pelo (se acurruca contra tu mano)
+    pelo -> caricia en el pelo (se acurruca contra tu mano)
+    frente -> caricia en la frente
+    nariz -> toquecito (echa la cabeza atras)
     mejilla -> caricia en la cara; arrastrando le guias la cabeza
+    barbilla -> le levantas la barbilla; arrastrando le giras la cara
+    orejas -> se inclina hacia tu mano y sube el hombro
     mano o brazo -> le tomas la mano y le mueves el brazo hacia donde arrastres
     hombro -> palmaditas
-  El resto del cuerpo no se puede tocar.
-- Rueda del raton o clic derecho arrastrando: girar la camara. Shift o Esc: terminar
-  (el que recibe tambien puede terminar con Shift cuando quiera).
+    espalda -> le frotas la espalda (se relaja)
+    parte baja de la espalda -> cosquillas (se retuerce de risa)
+  La espalda se alcanza girando la vista de costado hasta verla. El pecho, la panza, la cadera y
+  las piernas no se pueden tocar.
+- Shift o Esc: terminar (el que recibe tambien puede terminar con Shift cuando quiera).
 
 CAIDOS
 - Con dano mortal no mueres: quedas en el suelo 60 s. Otro jugador te levanta con la rueda

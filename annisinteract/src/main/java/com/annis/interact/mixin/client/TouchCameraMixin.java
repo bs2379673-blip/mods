@@ -36,6 +36,17 @@ public abstract class TouchCameraMixin {
         }
         Vec3d me = focused.getLerpedPos(tickDelta);
         Vec3d you = other.getLerpedPos(tickDelta);
+        if (TouchCam.firstPerson) {
+            // en los ojos, mirando su cara (un poco hacia abajo para ver las manos)
+            Vec3d eye = focused.getCameraPosVec(tickDelta);
+            Vec3d face = you.add(0, other.getStandingEyeHeight() - 0.1, 0).subtract(eye);
+            double h = Math.sqrt(face.x * face.x + face.z * face.z);
+            float fy = (float) Math.toDegrees(Math.atan2(-face.x, face.z)) + TouchCam.lookYaw;
+            float fp = (float) -Math.toDegrees(Math.atan2(face.y, h)) + TouchCam.lookPitch;
+            setRotation(fy, Math.max(-60.0f, Math.min(75.0f, fp)));
+            setPos(eye.x, eye.y, eye.z);
+            return;
+        }
         Vec3d mid = me.add(you).multiply(0.5).add(0, 1.45, 0);
         Vec3d back = new Vec3d(me.x - you.x, 0, me.z - you.z);
         back = back.lengthSquared() < 1.0e-4 ? new Vec3d(0, 0, 1) : back.normalize();

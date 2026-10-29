@@ -905,13 +905,29 @@ public final class PairAnims {
         float[] p = c.point().clone();
         int z = c.zone();
         // pequeno vaiven propio para que la caricia no se vea quieta
-        if (z == com.annis.interact.Touch.PELO || z == com.annis.interact.Touch.MEJILLA) {
+        if (z == com.annis.interact.Touch.NARIZ) {
+            // toquecito: la mano va y viene
+            p[2] -= 1.2f * Math.max(0, sin(t * 0.7f));
+        } else if (z == com.annis.interact.Touch.ESPALDA) {
+            // la mano frota en circulos
+            p[0] += 1.0f * sin(t * 0.35f);
+            p[1] += 0.8f * cos(t * 0.35f);
+        } else if (z == com.annis.interact.Touch.COSQUILLAS) {
+            p[0] += 0.8f * sin(t * 2.2f);
+            p[1] += 0.5f * sin(t * 1.7f);
+        } else if (com.annis.interact.Touch.isHead(z)) {
             p[0] += 0.5f * sin(t * 0.45f);
             p[1] += 0.3f * sin(t * 0.9f);
         } else if (z == com.annis.interact.Touch.HOMBRO_D || z == com.annis.interact.Touch.HOMBRO_I) {
             p[1] -= 1.6f * Math.max(0, sin(t * 0.8f));
         }
-        if (z == com.annis.interact.Touch.PELO || z == com.annis.interact.Touch.MEJILLA) {
+        if (com.annis.interact.Touch.isBack(z)) {
+            // la espalda se alcanza rodeandole el costado (como en un abrazo)
+            float side = p[0] <= 1.0f ? -1 : 1;
+            p[0] = side * Math.max(Math.abs(p[0]), 5.0f);
+            p[2] = Math.max(p[2], -d * PX - 1.0f);
+        }
+        if (com.annis.interact.Touch.isHead(z)) {
             // la mano se apoya encima, no dentro: un poco hacia fuera desde el centro de su cabeza
             float nx = p[0], ny = p[1] + 4.0f, nz = p[2] + d * PX;
             float nl = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);
@@ -922,7 +938,8 @@ public final class PairAnims {
             }
         }
         // se inclina hacia lo que toca, y gira un poco hacia ese lado
-        float reach = Math.max(0, -p[2] - 4.0f) / 8.0f + Math.max(0, -p[1]) / 14.0f;
+        float reach = Math.max(0, -p[2] - 4.0f) / 8.0f + Math.max(0, -p[1]) / 14.0f
+                + (com.annis.interact.Touch.isBack(z) ? 0.6f : 0);
         r.torso((0.04f + 0.12f * Math.min(1, reach)) * w, -0.12f * clampS(p[0] / 6.0f) * w, 0);
         boolean useRight = p[0] <= 1.0f;
         Rig.P arm = useRight ? r.rightArm : r.leftArm;
@@ -964,6 +981,49 @@ public final class PairAnims {
                 r.head.roll += 0.20f * clampS(p[0] / 4.0f) * w;
                 r.head.yaw += Math.max(-0.6f, Math.min(0.6f, gx * 0.09f)) * w;
                 r.head.pitch += Math.max(-0.4f, Math.min(0.4f, gy * 0.09f)) * w;
+            }
+            case com.annis.interact.Touch.NARIZ -> {
+                // boop: echa la cabeza atras y sube los hombros
+                float boop = Math.max(0, sin(t * 0.7f));
+                r.head.pitch -= (0.10f + 0.10f * boop) * w;
+                r.rightArm.y -= 0.6f * w;
+                r.leftArm.y -= 0.6f * w;
+            }
+            case com.annis.interact.Touch.FRENTE -> {
+                r.head.pitch -= 0.08f * w;
+                r.head.roll += 0.06f * sin(t * 0.08f) * w;
+            }
+            case com.annis.interact.Touch.BARBILLA -> {
+                // le levantan la barbilla: mira arriba; arrastrando se le guia la cabeza
+                float[] s = c.start();
+                float gx = s == null ? 0 : p[0] - s[0];
+                r.head.pitch -= 0.30f * w;
+                r.head.yaw += Math.max(-0.5f, Math.min(0.5f, gx * 0.12f)) * w;
+            }
+            case com.annis.interact.Touch.OREJA_D, com.annis.interact.Touch.OREJA_I -> {
+                // se inclina hacia la mano y sube ese hombro (da cosquillas)
+                boolean right = z == com.annis.interact.Touch.OREJA_D;
+                r.head.roll += (right ? -0.24f : 0.24f) * w;
+                Rig.P arm = right ? r.rightArm : r.leftArm;
+                arm.y -= 0.9f * w;
+            }
+            case com.annis.interact.Touch.ESPALDA -> {
+                // se relaja: la espalda se arquea un poco hacia la mano y los hombros bajan
+                r.torso(-0.05f * w, 0, 0);
+                r.head.pitch -= 0.06f * w;
+                r.rightArm.y += 0.4f * w;
+                r.leftArm.y += 0.4f * w;
+            }
+            case com.annis.interact.Touch.COSQUILLAS -> {
+                // se retuerce de risa
+                float wig = sin(t * 1.6f);
+                r.torso(0.06f * w, 0.10f * sin(t * 1.1f) * w, 0.10f * wig * w);
+                r.drop((0.6f + 0.5f * Math.abs(wig)) * w);
+                r.rightArm.roll -= 0.25f * w;
+                r.leftArm.roll += 0.25f * w;
+                r.rightArm.pitch -= 0.4f * w;
+                r.leftArm.pitch -= 0.4f * w;
+                r.head.yaw += 0.18f * sin(t * 1.3f) * w;
             }
             case com.annis.interact.Touch.HOMBRO_D, com.annis.interact.Touch.HOMBRO_I -> {
                 boolean right = z == com.annis.interact.Touch.HOMBRO_D;

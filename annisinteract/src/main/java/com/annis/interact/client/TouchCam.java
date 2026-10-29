@@ -8,6 +8,11 @@ public final class TouchCam {
     public static float orbit = 70.0f;
     /** Distancia al punto medio (bloques). */
     public static float distance = 2.5f;
+    /** Primera persona: camara en los ojos, el propio cuerpo se ve (sin la cabeza) para ver las manos. */
+    public static boolean firstPerson = true;
+    /** Primera persona: cuanto se corre la mirada (grados) respecto de su cara. */
+    public static float lookYaw;
+    public static float lookPitch = 12.0f;
 
     private TouchCam() {
     }

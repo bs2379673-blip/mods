@@ -109,10 +109,11 @@ public class TouchScreen extends Screen {
         int cx = this.width / 2;
         ctx.drawCenteredTextWithShadow(this.textRenderer, Text.literal("Mimos con " + who), cx, 8, 0xFFFFC8E8);
         ctx.drawCenteredTextWithShadow(this.textRenderer,
-                Text.literal("Clic y arrastra: acariciar el pelo o la mejilla, tomar la mano, mover el brazo, palmaditas"),
+                Text.literal("Clic y arrastra sobre la cabeza, la cara, las manos, los brazos, los hombros o la espalda"),
                 cx, 20, 0xFFD8D8E8);
         ctx.drawCenteredTextWithShadow(this.textRenderer,
-                Text.literal("Rueda o clic derecho: girar la camara   -   Shift o Esc: terminar"), cx, 31, 0xFF9A9AB0);
+                Text.literal("C o F5: " + (TouchCam.firstPerson ? "ver de costado" : "primera persona")
+                        + "   -   Clic derecho o rueda: mover la vista   -   Shift o Esc: terminar"), cx, 31, 0xFF9A9AB0);
         if (!this.dragging && !this.orbiting) {
             Touch.Hit h = pick(mouseX, mouseY);
             this.hover = h == null ? Touch.NONE : h.zone();
@@ -164,7 +165,12 @@ public class TouchScreen extends Screen {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
         if (this.orbiting && button == 1) {
-            TouchCam.orbit = (TouchCam.orbit + (float) dx * 0.6f) % 360.0f;
+            if (TouchCam.firstPerson) {
+                TouchCam.lookYaw = Math.max(-50.0f, Math.min(50.0f, TouchCam.lookYaw + (float) dx * 0.4f));
+                TouchCam.lookPitch = Math.max(-30.0f, Math.min(45.0f, TouchCam.lookPitch + (float) dy * 0.4f));
+            } else {
+                TouchCam.orbit = (TouchCam.orbit + (float) dx * 0.6f) % 360.0f;
+            }
             return true;
         }
         if (!this.dragging || button != 0 || this.planePoint == null) {
@@ -210,7 +216,11 @@ public class TouchScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double h, double v) {
-        TouchCam.orbit = (TouchCam.orbit + (float) v * 12.0f) % 360.0f;
+        if (TouchCam.firstPerson) {
+            TouchCam.lookPitch = Math.max(-30.0f, Math.min(45.0f, TouchCam.lookPitch - (float) v * 5.0f));
+        } else {
+            TouchCam.orbit = (TouchCam.orbit + (float) v * 12.0f) % 360.0f;
+        }
         return true;
     }
 
@@ -218,6 +228,10 @@ public class TouchScreen extends Screen {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == GLFW.GLFW_KEY_ESCAPE || this.client.options.sneakKey.matchesKey(keyCode, scanCode)) {
             this.close();
+            return true;
+        }
+        if (keyCode == GLFW.GLFW_KEY_C || this.client.options.togglePerspectiveKey.matchesKey(keyCode, scanCode)) {
+            TouchCam.firstPerson = !TouchCam.firstPerson;
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
@@ -269,6 +283,10 @@ public class TouchScreen extends Screen {
         this.point = this.start.clone();
         this.dragging = true;
         sendNow(true);
+    }
+
+    void testView(boolean first) {
+        TouchCam.firstPerson = first;
     }
 
     void testRelease() {
