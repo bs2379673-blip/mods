@@ -43,6 +43,10 @@ java {
 
 // Prueba visual automatica (solo con -PannisTest): el cliente entra solo al servidor de prueba
 if (project.hasProperty('annisTest')) {
+    dependencies {
+        // en la prueba visual tambien se carga Annis VFX (compilado antes en la misma accion)
+        modRuntimeOnly fileTree(dir: '../annisvfx/build/libs', include: 'annisvfx-*.jar', exclude: ['*-sources.jar', '*-dev.jar'])
+    }
     loom {
         runs {
             client {

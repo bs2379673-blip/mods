@@ -12,6 +12,7 @@ curl -sSL -o $S/server.jar "https://meta.fabricmc.net/v2/versions/loader/1.21.1/
 curl -sSL -o $S/mods/fabric-api.jar "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/0.104.0+1.21.1/fabric-api-0.104.0+1.21.1.jar"
 cp ../annisnpc/libs/playeranimator-2.0.1+1.21.1.jar $S/mods/
 cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar $S/mods/
+cp ../out/annisvfx-*.jar $S/mods/ 2>/dev/null || true
 echo "eula=true" > $S/eula.txt
 cat > $S/server.properties <<EOP
 online-mode=false
@@ -58,6 +59,11 @@ E='"}'
 python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule sendCommandFeedback false' \
   'tp @a 0 -60 -4 0 12' "${T}hud no${E}" \
+  'tp @a 0 -60 -6 0 8' 'summon annisnpc:npc 0 -60 2 {Tags:["v1"],Protected:0b,Rotation:[180f,0f]}' 'sleep 2' \
+  'vfx arbol 0 -60 2 @e[tag=v1,limit=1]' 'sleep 0.2' "${T}foto 00a_vfx_inicio${E}" 'sleep 3' "${T}foto 00b_vfx_hojas${E}" \
+  'sleep 3' "${T}foto 00c_vfx_toca${E}" 'sleep 1.2' "${T}foto 00d_vfx_brillo${E}" 'sleep 2' "${T}foto 00e_vfx_flores${E}" \
+  'sleep 1.4' "${T}foto 00f_vfx_columna${E}" 'sleep 1.2' "${T}foto 00g_vfx_aparece${E}" 'sleep 2.5' "${T}foto 00h_vfx_final${E}" \
+  'vfx parar' 'kill @e[tag=v1]' 'sleep 1' \
   'summon annisnpc:npc -5.3 -60 4 {Tags:["s","a1"]}' 'summon annisnpc:npc -4.5 -60 4 {Tags:["s","b1"]}' \
   'summon annisnpc:npc -1.9 -60 4 {Tags:["s","a2"]}' 'summon annisnpc:npc -1.1 -60 4 {Tags:["s","b2"]}' \
   'summon annisnpc:npc 1.0 -60 4 {Tags:["s","a3"]}' 'summon annisnpc:npc 2.0 -60 4 {Tags:["s","b3"]}' \

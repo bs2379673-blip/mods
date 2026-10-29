@@ -46,12 +46,25 @@ jobs:
           cp build/libs/annisinteract-*.jar ../out2/
           rm -f ../out2/*-sources.jar ../out2/*-dev.jar
           ls -la ../out2
+      - name: Compilar Annis VFX
+        working-directory: annisvfx
+        run: |
+          set -o pipefail
+          gradle build --no-daemon --stacktrace 2>&1 | tee build.log || {
+            grep -E "error:|What went wrong|FAILED|Execution failed|Could not|Caused by|warning: \[" -A3 build.log | head -80 | while IFS= read -r l; do echo "::error::${l}"; done
+            exit 1
+          }
+          mkdir -p ../out3
+          cp build/libs/annisvfx-*.jar ../out3/
+          rm -f ../out3/*-sources.jar ../out3/*-dev.jar
+          ls -la ../out3
       - uses: actions/upload-artifact@v4
         with:
           name: annisnpc
           path: |
             out/*.jar
             out2/*.jar
+            out3/*.jar
       - name: Publicar en la release "annisnpc-fabric-1.21.1"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -60,7 +73,10 @@ jobs:
           gh release create annisnpc-fabric-1.21.1 out/*.jar -R "$GITHUB_REPOSITORY" --title "Annis NPC (Fabric 1.21.1)" --notes "Annis NPC compilado automaticamente (commit $GITHUB_SHA). Requiere Fabric API y playerAnimator (viene dentro de Emotecraft)." --target "$GITHUB_SHA"
           gh release delete annisinteract-fabric-1.21.1 --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
           gh release create annisinteract-fabric-1.21.1 out2/*.jar -R "$GITHUB_REPOSITORY" --title "Annis Interacciones (Fabric 1.21.1)" --notes "Annis Interacciones compilado automaticamente (commit $GITHUB_SHA). Requiere Annis NPC 0.11+, Fabric API y playerAnimator." --target "$GITHUB_SHA"
+          gh release delete annisvfx-fabric-1.21.1 --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
+          gh release create annisvfx-fabric-1.21.1 out3/*.jar -R "$GITHUB_REPOSITORY" --title "Annis VFX (Fabric 1.21.1)" --notes "Annis VFX compilado automaticamente (commit $GITHUB_SHA). Requiere Fabric API." --target "$GITHUB_SHA"
           cp out2/*.jar out/
+          cp out3/*.jar out/
       - name: Prueba de humo del servidor (carga, comandos, NPC)
         continue-on-error: true
         timeout-minutes: 15

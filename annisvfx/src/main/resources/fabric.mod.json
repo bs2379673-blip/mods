@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "annisvfx",
+  "version": "${version}",
+  "name": "Annis VFX",
+  "description": "Efectos visuales para cinematicas de Annis World: hojas que caen, brillos, flores que brotan, columnas de luz y apariciones. Funciona con y sin Iris.",
+  "authors": [
+    "Annis World"
+  ],
+  "license": "All-Rights-Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.annis.vfx.AnnisVfx"
+    ],
+    "client": [
+      "com.annis.vfx.client.AnnisVfxClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.5",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "iris": "*"
+  },
+  "mixins": [
+    "annisvfx.mixins.json"
+  ]
+}

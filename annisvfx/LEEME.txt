@@ -1,0 +1,27 @@
+ANNIS VFX 0.1 (Fabric 1.21.1)
+=============================
+
+Efectos visuales para cinematicas de Annis World. Mod propio (codigo, texturas y efectos hechos
+para Annis World). Necesita Fabric API. Va en el cliente y en el servidor.
+Funciona con y sin Iris (los efectos se dibujan como las entidades del juego).
+
+ESCENA DEL ARBOL DE LA VIDA
+  /vfx arbol <x y z> [quien]
+  1. Cae una hoja del arbol, despacio, meciendose (y otras hojas alrededor).
+  2. A los 6 segundos toca el piso: el piso se enciende con anillos de luz verde y manchas de luz
+     (verdes, turquesas y algo doradas), y la pantalla se tine suave de verde.
+  3. Suben lucecitas en espiral y brotan flores de adentro hacia afuera (tallo, hojitas y el capullo
+     que se abre).
+  4. Baja una columna de luz al centro.
+  5. A los 10 segundos aparece "quien" (jugador, NPC o aldeano): no se ve hasta ese momento y
+     despues crece desde la luz. Si no pones a nadie, la escena se hace igual.
+  Las flores se quedan unos 45 segundos y se apagan solas.
+
+PIEZAS SUELTAS (para armar otras escenas)
+  /vfx hojas <x y z> [cantidad]     hojas cayendo
+  /vfx brillo <x y z> [radio]       el piso se enciende en verde, con lucecitas
+  /vfx flores <x y z> [radio]       flores que brotan
+  /vfx parar                        quita todos los efectos
+
+Los comandos son de operador; se pueden usar en bloques de comandos, funciones o rutinas.
+Todos los jugadores a 160 bloques ven exactamente lo mismo al mismo tiempo.
