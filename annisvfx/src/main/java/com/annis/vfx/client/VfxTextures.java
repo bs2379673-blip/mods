@@ -57,6 +57,14 @@ public final class VfxTextures {
         return (ia << 24) | (ib << 16) | (ig << 8) | ir;
     }
 
+    /**
+     * Para las texturas de luz: la capa de luz SUMA color e ignora la transparencia, asi que el
+     * brillo tiene que ir en el color (negro = nada).
+     */
+    private static int lum(float a) {
+        return abgr(a, a, a, a);
+    }
+
     private static int clamp255(float v) {
         return Math.max(0, Math.min(255, Math.round(v * 255.0f)));
     }
@@ -73,7 +81,7 @@ public final class VfxTextures {
                 float dx = (x + 0.5f) / n * 2 - 1, dy = (y + 0.5f) / n * 2 - 1;
                 float r = (float) Math.sqrt(dx * dx + dy * dy);
                 float a = (float) Math.pow(Math.max(0, 1 - r), 2.2);
-                img.setColor(x, y, abgr(1, 1, 1, a));
+                img.setColor(x, y, lum(a));
             }
         }
         return img;
@@ -88,7 +96,7 @@ public final class VfxTextures {
                 float core = (float) Math.exp(-Math.pow((r - 0.82) / 0.05, 2));
                 float halo = 0.35f * (float) Math.exp(-Math.pow((r - 0.78) / 0.18, 2));
                 float a = Math.min(1, core + halo) * (r < 0.98f ? 1 : 0);
-                img.setColor(x, y, abgr(1, 1, 1, a));
+                img.setColor(x, y, lum(a));
             }
         }
         return img;
@@ -151,7 +159,7 @@ public final class VfxTextures {
                 float v = (y + 0.5f) / h;
                 float side = (float) Math.exp(-Math.pow(u / 0.45, 2));
                 float vert = smooth(0.0f, 0.12f, 1 - v) * (0.25f + 0.75f * (float) Math.pow(1 - v, 0.6) * smooth(0.0f, 0.2f, v));
-                img.setColor(x, y, abgr(1, 1, 1, side * vert));
+                img.setColor(x, y, lum(side * vert));
             }
         }
         return img;
@@ -166,7 +174,7 @@ public final class VfxTextures {
                 float r = (float) Math.sqrt(dx * dx + dy * dy);
                 float core = (float) Math.pow(Math.max(0, 1 - r * 1.6f), 2.5);
                 float cross = (float) (Math.exp(-Math.pow(dx / 0.07, 2)) + Math.exp(-Math.pow(dy / 0.07, 2))) * Math.max(0, 1 - r) * 0.6f;
-                img.setColor(x, y, abgr(1, 1, 1, Math.min(1, core + cross)));
+                img.setColor(x, y, lum(Math.min(1, core + cross)));
             }
         }
         return img;

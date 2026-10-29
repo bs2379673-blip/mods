@@ -34,11 +34,16 @@ public final class Draw {
         this.camRot = camRot;
     }
 
+    /** La ultima capa pedida suma luz (ver quad). */
+    private boolean additive;
+
     public VertexConsumer glow(Identifier tex) {
+        this.additive = true;
         return this.consumers.getBuffer(RenderLayer.getEyes(tex));
     }
 
     public VertexConsumer solid(Identifier tex) {
+        this.additive = false;
         return this.consumers.getBuffer(RenderLayer.getEntityTranslucent(tex));
     }
 
@@ -59,6 +64,14 @@ public final class Draw {
         }
         int r = (color >> 16) & 255, g = (color >> 8) & 255, b = color & 255;
         int a = Math.max(0, Math.min(255, Math.round(alpha * 255)));
+        if (this.additive) {
+            // la capa de luz suma: la transparencia va en el brillo del color
+            float k = Math.min(1, alpha);
+            r = Math.round(r * k);
+            g = Math.round(g * k);
+            b = Math.round(b * k);
+            a = 255;
+        }
         this.matrices.push();
         this.matrices.translate(wx - this.cam.x, wy - this.cam.y, wz - this.cam.z);
         MatrixStack.Entry e = this.matrices.peek();
