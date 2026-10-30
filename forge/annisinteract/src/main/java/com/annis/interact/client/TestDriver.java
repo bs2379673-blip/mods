@@ -35,6 +35,10 @@ public final class TestDriver {
                         com.annis.npc.client.NpcRenderer.rootCalls, com.annis.npc.client.NpcRenderer.rootApplied,
                         st != null, com.annis.npc.client.ClientLinks.anim(mc.player) != null,
                         com.annis.npc.client.AnimOverlay.root(mc.player, 0.0f));
+                if (st != null && com.annis.npc.client.ClientLinks.anim(mc.player) != null) {
+                    AnnisInteract.LOGGER.info("[TEST] estado jugador: {} anim={}", st.debug(com.annis.npc.client.ClientLinks.anim(mc.player).start()),
+                            com.annis.npc.client.ClientLinks.anim(mc.player));
+                }
             }
             if (mc.level != null || joinTried) {
                 return;

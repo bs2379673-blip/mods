@@ -143,6 +143,14 @@ public final class NpcAnimState {
         return rootPose(npc.getEmoteStart(), tickDelta);
     }
 
+    /** Para la prueba automatica. */
+    public String debug(int start) {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        long now = mc.level == null ? -1 : mc.level.getGameTime();
+        return "act=" + this.activity + " peso=" + this.activityWeight + " t=" + (now - start)
+                + " raizDef=" + (this.activity.isEmpty() ? "-" : String.valueOf(Activities.root(this.activity, Math.max(0, now - start))));
+    }
+
     /** Igual, para cualquier entidad: start = tick de inicio del reloj comun. */
     public Activities.RootPose rootPose(int start, float tickDelta) {
         if (this.activity.isEmpty() || this.activityWeight <= 0.0f) {
