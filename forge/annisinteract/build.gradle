@@ -27,9 +27,11 @@ minecraft {
 
 // Prueba visual automatica (solo con -PannisTest): el cliente entra solo al servidor de prueba
 if (project.hasProperty('annisTest')) {
-    dependencies {
-        runtimeOnly fg.deobf("blank:punchymoves:1")
-        runtimeOnly fg.deobf("blank:punchystudio:1")
+    if (!project.hasProperty('sinPunchy')) {
+        dependencies {
+            runtimeOnly fg.deobf("blank:punchymoves:1")
+            runtimeOnly fg.deobf("blank:punchystudio:1")
+        }
     }
     minecraft {
         runs {

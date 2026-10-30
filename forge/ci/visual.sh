@@ -63,7 +63,7 @@ EOO
 mkdir -p run/resourcepacks
 cp ../out/Annis_Animaciones.zip run/resourcepacks/ 2>/dev/null || true
 export LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=4.5
-( timeout 840 xvfb-run -a -s "-screen 0 1280x720x24" gradle :annisinteract:runClient -PannisTest --no-daemon > client.log 2>&1 ) &
+( timeout 840 xvfb-run -a -s "-screen 0 1280x720x24" gradle :annisinteract:runClient -PannisTest ${SIN_PUNCHY:+-PsinPunchy} --no-daemon > client.log 2>&1 ) &
 CP=$!
 for i in $(seq 1 160); do grep -q 'joined the game' $S/server.log 2>/dev/null && break; sleep 3; done
 if ! grep -q 'joined the game' $S/server.log; then

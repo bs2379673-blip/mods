@@ -8,6 +8,9 @@ on:
       cp:
         description: 'volver a subir el classpath'
         required: false
+      sinpunchy:
+        description: 'prueba visual sin Punchy (1 = si)'
+        required: false
 
 permissions:
   contents: write
@@ -91,7 +94,7 @@ jobs:
           set +e
           sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri mesa-utils > /dev/null
           mkdir -p vis
-          bash forge/ci/visual.sh > vis/visual-out.txt 2>&1
+          SIN_PUNCHY="${{ github.event.inputs.sinpunchy }}" bash forge/ci/visual.sh > vis/visual-out.txt 2>&1
           tail -40 vis/visual-out.txt
           cp forge/visrun/install.log vis/ 2>/dev/null; ls -la forge/visrun > vis/visrun-ls.txt 2>&1
           cp forge/visrun/server.log vis/server.log 2>/dev/null; cp forge/run/logs/latest.log vis/client.log 2>/dev/null; cp forge/client.log vis/client-gradle.log 2>/dev/null; cp forge/rcon-visual.txt vis/ 2>/dev/null
