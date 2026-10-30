@@ -57,11 +57,14 @@ guiScale:2
 soundCategory_master:0.0
 renderClouds:"false"
 narrator:0
-resourcePacks:["vanilla","file/Annis_Animaciones.zip"]
+resourcePacks:["vanilla","file/Annis_Animaciones.zip","file/EMF_Prueba.zip"]
 EOO
 # paquete de animaciones exportado (lo lee Annis: asi la prueba usa las animaciones del paquete)
 mkdir -p run/resourcepacks run/mods
 rm -f run/mods/*.jar; cp libs/playeranimator-1.jar libs/punchymoves-1.jar libs/punchystudio-1.jar run/mods/ 2>/dev/null
+# EMF + ETF y un pack de prueba que muestra lo que EMF ve del golpe (swing_progress / is_swinging_right_arm)
+cp libs/emf-1.jar libs/etf-1.jar run/mods/ 2>/dev/null
+(cd ci/emfprueba && zip -qr ../../run/resourcepacks/EMF_Prueba.zip .)
 cp ../out/Annis_Animaciones.zip run/resourcepacks/ 2>/dev/null || true
 export LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=4.5
 ( timeout 840 xvfb-run -a -s "-screen 0 1280x720x24" gradle :annisinteract:runClient -PannisTest --no-daemon > client.log 2>&1 ) &
@@ -85,7 +88,7 @@ python3 ci/rcon.py 25577 annistest \
   'sleep 3' "${T}foto 00c_vfx_toca${E}" 'sleep 1.2' "${T}foto 00d_vfx_brillo${E}" 'sleep 2' "${T}foto 00e_vfx_flores${E}" \
   'sleep 1.4' "${T}foto 00f_vfx_columna${E}" 'sleep 1.2' "${T}foto 00g_vfx_aparece${E}" 'sleep 2.5' "${T}foto 00h_vfx_final${E}" \
   'vfx parar' 'kill @e[tag=v1]' 'sleep 1' \
-  "${T}camara frente${E}" 'sleep 1' "${T}golpe${E}" 'sleep 0.1' "${T}foto 00i_golpe_a${E}" 'sleep 1' "${T}golpe${E}" 'sleep 0.2' "${T}foto 00j_golpe_b${E}" \
+  "${T}camara frente${E}" 'sleep 1' "${T}golpe${E}" 'sleep 0.05' "${T}foto 00i_golpe_a${E}" 'sleep 1' "${T}golpe${E}" 'sleep 0.12' "${T}foto 00j_golpe_b${E}" 'sleep 1' "${T}golpe${E}" 'sleep 0.2' "${T}foto 00j_golpe_c${E}" \
   'sleep 1' "${T}foto 00k_sin_golpe${E}" "${T}camara primera${E}" 'sleep 0.5' \
   'summon annisnpc:npc -5.3 -60 4 {Tags:["s","a1"]}' 'summon annisnpc:npc -4.5 -60 4 {Tags:["s","b1"]}' \
   'summon annisnpc:npc -1.9 -60 4 {Tags:["s","a2"]}' 'summon annisnpc:npc -1.1 -60 4 {Tags:["s","b2"]}' \
