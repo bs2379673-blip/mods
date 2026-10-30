@@ -43,7 +43,11 @@ guiScale:2
 soundCategory_master:0.0
 renderClouds:"false"
 narrator:0
+resourcePacks:["vanilla","file/Annis_Animaciones.zip"]
 EOO
+# paquete de animaciones exportado (lo lee Annis: asi la prueba usa las animaciones del paquete)
+mkdir -p run/resourcepacks
+cp ../out2/Annis_Animaciones.zip run/resourcepacks/ 2>/dev/null || true
 export LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=4.5
 ( timeout 840 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient -PannisTest --no-daemon > client.log 2>&1 ) &
 CP=$!
@@ -180,6 +184,7 @@ kill $CP 2>/dev/null; pkill -f 'runClient' ; sleep 2
 mkdir -p ../out/visual
 cp run/screenshots/*.png ../out/visual/ 2>/dev/null
 ls -la ../out/visual
+echo "::notice::Visual> $(grep -h 'Animaciones de paquetes' run/logs/latest.log 2>/dev/null | tail -1)"
 echo "::notice::Visual> fotos: $(ls ../out/visual 2>/dev/null | tr '\n' ' ')"
 echo "::notice::Visual> $(grep -v '^$' rcon-visual.txt | grep -v '^> ' | tr '\n' '|' | cut -c1-3000)"
 echo "::warning::Visual cliente> $(grep -E 'Mixin|mixin|Exception|ERROR|Caused by' run/logs/latest.log 2>/dev/null | grep -v 'Mixin Config\|mixins.json' | head -30 | tr '\n' '|' | cut -c1-6000)"

@@ -70,6 +70,10 @@ public final class Activities {
         CUSTOM.put(name.toLowerCase(Locale.ROOT), custom);
     }
 
+    public static synchronized void unregister(String name) {
+        CUSTOM.remove(name.toLowerCase(Locale.ROOT));
+    }
+
     /** Integradas + registradas por otros mods. */
     public static synchronized List<String> names() {
         List<String> all = new ArrayList<>(NAMES);

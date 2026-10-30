@@ -35,6 +35,7 @@ public class AnnisNpcClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        com.annis.npc.client.punchy.PunchyClips.init();
         EntityRendererRegistry.register(ModEntities.NPC, NpcRenderer::new);
 
         // crear las carpetas para que sea facil encontrarlas

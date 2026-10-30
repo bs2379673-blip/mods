@@ -46,6 +46,14 @@ jobs:
           cp build/libs/annisinteract-*.jar ../out2/
           rm -f ../out2/*-sources.jar ../out2/*-dev.jar
           ls -la ../out2
+      - name: Paquete "Annis Animaciones" (interacciones exportadas para Punchy Studio)
+        run: |
+          set -e
+          mkdir -p bake/cls
+          javac -d bake/cls $(find annisinteract/src/main/java/com/annis/interact/client/anim -name "*.java") annisinteract/src/main/java/com/annis/interact/Layout.java annisinteract/src/main/java/com/annis/interact/Touch.java annisinteract/tools/BakeAnims.java
+          java -cp bake/cls BakeAnims bake/pack
+          (cd bake/pack && zip -q -r ../../out2/Annis_Animaciones.zip .)
+          ls -la out2
       - name: Compilar Annis VFX
         working-directory: annisvfx
         run: |
@@ -72,7 +80,7 @@ jobs:
           gh release delete annisnpc-fabric-1.21.1 --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
           gh release create annisnpc-fabric-1.21.1 out/*.jar -R "$GITHUB_REPOSITORY" --title "Annis NPC (Fabric 1.21.1)" --notes "Annis NPC compilado automaticamente (commit $GITHUB_SHA). Requiere Fabric API y playerAnimator (viene dentro de Emotecraft)." --target "$GITHUB_SHA"
           gh release delete annisinteract-fabric-1.21.1 --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
-          gh release create annisinteract-fabric-1.21.1 out2/*.jar -R "$GITHUB_REPOSITORY" --title "Annis Interacciones (Fabric 1.21.1)" --notes "Annis Interacciones compilado automaticamente (commit $GITHUB_SHA). Requiere Annis NPC 0.11+, Fabric API y playerAnimator." --target "$GITHUB_SHA"
+          gh release create annisinteract-fabric-1.21.1 out2/*.jar out2/Annis_Animaciones.zip -R "$GITHUB_REPOSITORY" --title "Annis Interacciones (Fabric 1.21.1)" --notes "Annis Interacciones compilado automaticamente (commit $GITHUB_SHA). Requiere Annis NPC 0.11+, Fabric API y playerAnimator." --target "$GITHUB_SHA"
           gh release delete annisvfx-fabric-1.21.1 --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
           gh release create annisvfx-fabric-1.21.1 out3/*.jar -R "$GITHUB_REPOSITORY" --title "Annis VFX (Fabric 1.21.1)" --notes "Annis VFX compilado automaticamente (commit $GITHUB_SHA). Requiere Fabric API." --target "$GITHUB_SHA"
           cp out2/*.jar out/

@@ -20,8 +20,21 @@ public final class RigBridge {
             Activities.register(e.getKey(), new Activities.Custom() {
                 private final Rig rig = new Rig();
 
+                /** Version del paquete (retocada en Punchy Studio), si existe y la animacion no es dinamica. */
+                private com.annis.npc.client.punchy.BedrockClip packClip() {
+                    if (name.startsWith("de_la_mano") || name.startsWith("mimos_")) {
+                        return null;
+                    }
+                    return com.annis.npc.client.punchy.PunchyClips.get("annis_" + name);
+                }
+
                 @Override
                 public void apply(NpcModel m, float t) {
+                    com.annis.npc.client.punchy.BedrockClip pc = packClip();
+                    if (pc != null) {
+                        com.annis.npc.client.punchy.PunchyClips.apply(pc, m, t);
+                        return;
+                    }
                     ModelPart[] parts = {m.head, m.body, m.rightArm, m.leftArm, m.rightLeg, m.leftLeg};
                     Rig.P[] ps = this.rig.parts();
                     this.rig.walkLegs = false;
@@ -62,6 +75,10 @@ public final class RigBridge {
 
                 @Override
                 public Activities.RootPose root(float t) {
+                    com.annis.npc.client.punchy.BedrockClip pc = packClip();
+                    if (pc != null) {
+                        return com.annis.npc.client.punchy.PunchyClips.root(pc, t);
+                    }
                     if (anim.root() == null) {
                         return null;
                     }
