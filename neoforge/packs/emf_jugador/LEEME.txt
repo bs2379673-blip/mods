@@ -1,0 +1,13 @@
+ANNIS - JUGADOR EMF SIN ANIMACIONES
+
+Para usar Punchy Moves + Fluid & Foolish + Touch'n Motion sin Fresh Animations Player.
+
+Touch'n Motion trabaja sobre el modelo EMF del jugador: si ningun pack le da un modelo EMF al
+jugador, no se ven las manos en palancas ni los pies en los bloques. Este pack le da al jugador un
+modelo EMF identico al de vanilla y SIN animaciones, asi:
+  - Punchy Moves (Fluid & Foolish) anima al jugador (pegar, minar, caminar...)
+  - Touch'n Motion le suma lo suyo encima
+  - no hay animaciones de Fresh Animations que pisen a Punchy
+
+Uso: activalo en Paquetes de recursos y desactiva el de Fresh Animations Player
+(Fresh Animations de los mobs se puede dejar).

@@ -1,0 +1,10 @@
+{
+  "pack": {
+    "description": "Annis: jugador EMF sin animaciones\n(para Punchy Moves + Touch'n Motion)",
+    "pack_format": 34,
+    "supported_formats": [
+      15,
+      99
+    ]
+  }
+}
