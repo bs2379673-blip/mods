@@ -33,7 +33,7 @@ jobs:
       - name: Classpath (para compilar rapido afuera)
         working-directory: neoforge
         run: |
-          gradle dumpClasspath --continue --no-daemon --stacktrace 2>&1 | tee ../dump.log | tail -40; find . ~/.gradle -name '*neoforge-21.1*merged*.jar' -o -name 'neoforge-21.1*-client-extra*.jar' 2>/dev/null | head; cp $(find . -path '*moddev*' -name '*.jar' | grep -v sources | head -5) ../cp/ 2>/dev/null; true
+          gradle dumpClasspath --continue --no-daemon --stacktrace 2>&1 | tee ../dump.log | tail -40 || true
           mkdir -p ../cp && cp annisnpc/build/cp/*.jar annisinteract/build/cp/*.jar annisvfx/build/cp/*.jar ../cp/ 2>/dev/null || true
           cp libs/*.jar ../cp/ || true
           ls ../cp | head -80; du -sh ../cp
