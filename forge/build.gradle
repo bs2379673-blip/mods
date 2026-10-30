@@ -1,0 +1,88 @@
+// Proyecto comun de los mods Annis para Forge 1.20.1 (nombres oficiales de Mojang, Java 17).
+// Cada mod tiene su carpeta (annisnpc, annisinteract, annisvfx) con src/ y un mod.properties.
+plugins {
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)' apply false
+    id 'org.spongepowered.mixin' version '0.7.+' apply false
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'net.minecraftforge.gradle'
+    apply plugin: 'org.spongepowered.mixin'
+
+    def props = new Properties()
+    file('mod.properties').withInputStream { props.load(it) }
+    ext.mod_id = props.mod_id
+    ext.mod_version = props.mod_version
+    version = props.mod_version
+    group = 'com.annis'
+    base { archivesName = "${props.mod_id}-forge-1.20.1" }
+
+    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+    minecraft {
+        mappings channel: 'official', version: rootProject.minecraft_version
+        copyIdeResources = true
+        runs {
+            client {
+                workingDirectory rootProject.file('run')
+                property 'forge.logging.console.level', 'info'
+                property 'mixin.env.remapRefMap', 'true'
+                property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+                mods { "${props.mod_id}" { source sourceSets.main } }
+            }
+            server {
+                workingDirectory rootProject.file('run-server')
+                property 'forge.logging.console.level', 'info'
+                property 'mixin.env.remapRefMap', 'true'
+                property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+                args '--nogui'
+                mods { "${props.mod_id}" { source sourceSets.main } }
+            }
+        }
+    }
+
+    mixin {
+        add sourceSets.main, "${props.mod_id}.refmap.json"
+        (props.mixin_configs ?: "${props.mod_id}.mixins.json").split(',').each { config it.trim() }
+    }
+
+    repositories {
+        flatDir { dir rootProject.file('libs') }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    }
+
+    dependencies {
+        minecraft "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
+        annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+        compileOnly 'org.spongepowered:mixin:0.8.5'
+    }
+
+    processResources {
+        inputs.property 'version', props.mod_version
+        filesMatching('META-INF/mods.toml') { expand 'version': props.mod_version }
+    }
+
+    jar {
+        manifest {
+            attributes([
+                    'Specification-Title'   : props.mod_id,
+                    'Implementation-Title'  : props.mod_id,
+                    'Implementation-Version': props.mod_version,
+                    'MixinConfigs'          : (props.mixin_configs ?: "${props.mod_id}.mixins.json")
+            ])
+        }
+        finalizedBy 'reobfJar'
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.release = 17
+    }
+
+    // Para compilar rapido fuera de Gradle: copia el classpath de compilacion a build/cp
+    tasks.register('dumpClasspath', Copy) {
+        from configurations.compileClasspath
+        into layout.buildDirectory.dir('cp')
+    }
+}

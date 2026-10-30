@@ -1,0 +1,38 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="annisnpc"
+version="${version}"
+displayName="Annis NPC"
+authors="Annis World"
+description='''NPCs con cuerpo de jugador: skins por archivo o URL, emotes, actividades, rutinas, dialogos, combate, animaciones de Punchy y avatares de Figura. Para Annis World.'''
+
+[[dependencies.annisnpc]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.annisnpc]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.annisnpc]]
+modId="playeranimator"
+mandatory=true
+versionRange="[1.0.2,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.annisnpc]]
+modId="mca"
+mandatory=false
+versionRange="*"
+ordering="AFTER"
+side="BOTH"

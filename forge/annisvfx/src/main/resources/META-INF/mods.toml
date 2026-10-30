@@ -1,0 +1,25 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="annisvfx"
+version="${version}"
+displayName="Annis VFX"
+authors="Annis World"
+description='''Efectos visuales para cinematicas: el Arbol de la Vida (hojas, brillo, flores y aparicion). Para Annis World.'''
+
+[[dependencies.annisvfx]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.annisvfx]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+

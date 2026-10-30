@@ -1,0 +1,31 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="annisinteract"
+version="${version}"
+displayName="Annis Interacciones"
+authors="Annis World"
+description='''Interacciones entre jugadores y NPC: abrazos, de la mano, cargar, mimos, bailes en pareja, cama y mas. Para Annis World.'''
+
+[[dependencies.annisinteract]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.annisinteract]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.annisinteract]]
+modId="annisnpc"
+mandatory=true
+versionRange="[0.13.0,)"
+ordering="AFTER"
+side="BOTH"

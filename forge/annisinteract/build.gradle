@@ -1,0 +1,5 @@
+dependencies {
+    implementation project(':annisnpc')
+    implementation fg.deobf("blank:playeranimator:1")
+    compileOnly fg.deobf("blank:mca:1")
+}

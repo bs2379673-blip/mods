@@ -1,0 +1,49 @@
+name: Annis Forge 1.20.1
+on:
+  push:
+    branches: [forge-1.20.1]
+    paths: ['forge/**', '.github/workflows/forge.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.8'
+      - name: Bajar mods de Forge 1.20.1 para compilar
+        run: python3 forge/tools/bajar_mods.py forge/libs && ls -la forge/libs
+      - name: Classpath (para compilar rapido afuera)
+        working-directory: forge
+        run: |
+          gradle dumpClasspath --no-daemon -q 2>&1 | tail -20
+          mkdir -p ../cp && cp annisnpc/build/cp/*.jar annisvfx/build/cp/*.jar ../cp/ 2>/dev/null || true
+          cp libs/*.jar ../cp/ || true
+          ls ../cp | head -80; du -sh ../cp
+      - uses: actions/upload-artifact@v4
+        with:
+          name: forge-cp
+          path: cp/*.jar
+          retention-days: 3
+      - name: Compilar
+        working-directory: forge
+        run: |
+          set -o pipefail
+          gradle build --no-daemon --continue 2>&1 | tee build.log || {
+            grep -E "error:|What went wrong|FAILED|Execution failed" -A3 build.log | head -80
+            exit 1
+          }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: annis-forge-jars
+          path: forge/*/build/libs/*.jar

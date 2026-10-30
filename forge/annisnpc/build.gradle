@@ -1,0 +1,6 @@
+dependencies {
+    // playerAnimator de KosmX (MIT) para Forge 1.20.1
+    implementation fg.deobf("blank:playeranimator:1")
+    // Minecraft Comes Alive (GPL-3.0): solo para compilar la integracion opcional
+    compileOnly fg.deobf("blank:mca:1")
+}
