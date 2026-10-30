@@ -20,9 +20,11 @@ public final class NpcNetworking {
         PayloadTypeRegistry.playS2C().register(OpenDialogPayload.ID, OpenDialogPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(com.annis.npc.link.EntityAnimPayload.ID, com.annis.npc.link.EntityAnimPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(com.annis.npc.link.EntityLookPayload.ID, com.annis.npc.link.EntityLookPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(EmoteSyncPayload.ID, EmoteSyncPayload.CODEC);
     }
 
     public static void registerServer() {
+        com.annis.npc.link.EmoteSync.init();
         ServerPlayNetworking.registerGlobalReceiver(NpcActionPayload.ID, (payload, context) -> {
             ServerPlayerEntity player = context.player();
             if (!player.hasPermissionLevel(2)) {
