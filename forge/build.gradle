@@ -81,8 +81,18 @@ subprojects {
     }
 
     // Para compilar rapido fuera de Gradle: copia el classpath de compilacion a build/cp
-    tasks.register('dumpClasspath', Copy) {
-        from configurations.compileClasspath
-        into layout.buildDirectory.dir('cp')
+    tasks.register('dumpClasspath') {
+        doLast {
+            def out = layout.buildDirectory.dir('cp').get().asFile
+            out.mkdirs()
+            sourceSets.main.compileClasspath.files.each { f ->
+                if (f.isFile()) {
+                    java.nio.file.Files.copy(f.toPath(), new File(out, f.name).toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+                } else {
+                    println "classpath dir: ${f}"
+                }
+            }
+            println "classpath: ${out.list().length} jars"
+        }
     }
 }

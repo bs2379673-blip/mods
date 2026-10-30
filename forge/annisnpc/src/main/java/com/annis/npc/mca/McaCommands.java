@@ -4,7 +4,7 @@ import com.annis.npc.entity.AnnisNpcEntity;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import net.conczin.mca.entity.VillagerEntityMCA;
+import forge.net.conczin.mca.entity.VillagerEntityMCA;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;

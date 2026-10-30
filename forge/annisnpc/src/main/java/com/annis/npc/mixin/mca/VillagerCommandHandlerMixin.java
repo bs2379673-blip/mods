@@ -1,9 +1,9 @@
 package com.annis.npc.mixin.mca;
 
 import com.annis.npc.mca.McaIntegration;
-import net.conczin.mca.entity.VillagerEntityMCA;
-import net.conczin.mca.entity.interaction.EntityCommandHandler;
-import net.conczin.mca.entity.interaction.VillagerCommandHandler;
+import forge.net.conczin.mca.entity.VillagerEntityMCA;
+import forge.net.conczin.mca.entity.interaction.EntityCommandHandler;
+import forge.net.conczin.mca.entity.interaction.VillagerCommandHandler;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

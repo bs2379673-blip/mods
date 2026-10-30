@@ -1,7 +1,7 @@
 package com.annis.interact.mca;
 
-import net.conczin.mca.entity.VillagerEntityMCA;
-import net.conczin.mca.entity.ai.relationship.AgeState;
+import forge.net.conczin.mca.entity.VillagerEntityMCA;
+import forge.net.conczin.mca.entity.ai.relationship.AgeState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
