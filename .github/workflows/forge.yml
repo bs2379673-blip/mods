@@ -4,6 +4,10 @@ on:
     branches: [forge-1.20.1]
     paths: ['forge/**', '.github/workflows/forge.yml']
   workflow_dispatch:
+    inputs:
+      cp:
+        description: 'volver a subir el classpath'
+        required: false
 
 permissions:
   contents: write
@@ -21,19 +25,26 @@ jobs:
         with:
           gradle-version: '8.8'
       - name: Bajar mods de Forge 1.20.1 para compilar
-        run: python3 forge/tools/bajar_mods.py forge/libs && ls -la forge/libs
+        id: dl
+        run: |
+          python3 forge/tools/bajar_mods.py forge/libs | tee dl.txt
+          ls -la forge/libs
+          echo "info=$(tr '\n' ' ' < dl.txt)" >> $GITHUB_OUTPUT
       - name: Classpath (para compilar rapido afuera)
         working-directory: forge
         run: |
-          gradle dumpClasspath --no-daemon -q 2>&1 | tail -20
+          gradle dumpClasspath --no-daemon -q 2>&1 | tee cp.log | tail -20
           mkdir -p ../cp && cp annisnpc/build/cp/*.jar annisvfx/build/cp/*.jar ../cp/ 2>/dev/null || true
           cp libs/*.jar ../cp/ || true
           ls ../cp | head -80; du -sh ../cp
-      - uses: actions/upload-artifact@v4
-        with:
-          name: forge-cp
-          path: cp/*.jar
-          retention-days: 3
+      - name: Publicar classpath (release forge-ci)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view forge-ci -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create forge-ci -R "$GITHUB_REPOSITORY" --prerelease --title "Forge CI (interno)" --notes "Archivos internos para compilar la version Forge 1.20.1" --target "$GITHUB_SHA"
+          if ! gh release view forge-ci -R "$GITHUB_REPOSITORY" --json assets -q '.assets[].name' | grep -q '^cp.tgz$' || [ -n "${{ github.event.inputs.cp }}" ]; then
+            tar czf cp.tgz cp && gh release upload forge-ci cp.tgz --clobber -R "$GITHUB_REPOSITORY"
+          fi
       - name: Compilar
         working-directory: forge
         run: |
@@ -42,8 +53,12 @@ jobs:
             grep -E "error:|What went wrong|FAILED|Execution failed" -A3 build.log | head -80
             exit 1
           }
-      - uses: actions/upload-artifact@v4
+      - name: Publicar log y jars (release forge-ci)
         if: always()
-        with:
-          name: annis-forge-jars
-          path: forge/*/build/libs/*.jar
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp forge/build.log build.log 2>/dev/null || echo "sin log" > build.log
+          echo "${{ steps.dl.outputs.info }}" >> build.log
+          gh release upload forge-ci build.log --clobber -R "$GITHUB_REPOSITORY"
+          for j in forge/*/build/libs/*-forge-1.20.1-*.jar; do [ -f "$j" ] && gh release upload forge-ci "$j" --clobber -R "$GITHUB_REPOSITORY"; done; true
