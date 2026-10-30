@@ -1,6 +1,5 @@
 package com.annis.interact.client;
 
-import com.annis.interact.Layout;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -21,19 +20,11 @@ public final class CarryRender {
         if (!(v instanceof LivingEntity carrier)) {
             return;
         }
-        String anim = AnnisInteractClient.animOf(entity);
-        float fwd, up, left;
-        if ("en_brazos".equals(anim)) {
-            fwd = Layout.CARRY_FWD;
-            up = Layout.CARRY_UP;
-            left = Layout.CARRY_LEFT;
-        } else if ("a_caballito".equals(anim)) {
-            fwd = Layout.BACK_FWD;
-            up = Layout.BACK_UP;
-            left = Layout.BACK_LEFT;
-        } else {
+        float[] off = com.annis.interact.CarryPose.offsets(AnnisInteractClient.animOf(entity));
+        if (off == null) {
             return;
         }
+        float fwd = off[0], up = off[1], left = off[2];
         float yaw = MathHelper.lerpAngleDegrees(tickDelta, carrier.prevBodyYaw, carrier.bodyYaw);
         float r = yaw * MathHelper.RADIANS_PER_DEGREE;
         double fx = -MathHelper.sin(r), fz = MathHelper.cos(r);

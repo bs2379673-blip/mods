@@ -32,6 +32,9 @@ public final class PunchyClips {
     public static final String PREFIX = "punchy:";
     private static final Set<String> NAMESPACES = Set.of("punchy_3rd_person", "punchy_moves", "annisnpc");
     private static final Map<String, BedrockClip> CLIPS = new HashMap<>();
+    /** Acciones -> animacion (assets/annisnpc/acciones.json de los paquetes activos). */
+    private static final Map<String, String> ACTIONS = new HashMap<>();
+
     /** De que paquete vino cada animacion (para preferir las retocadas al paquete base de Annis). */
     private static final Map<String, String> ORIGIN = new HashMap<>();
 
@@ -67,6 +70,28 @@ public final class PunchyClips {
         }
         CLIPS.clear();
         ORIGIN.clear();
+        ACTIONS.clear();
+        // acciones: el paquete de mas arriba gana
+        try {
+            for (Resource res : manager.getAllResources(Identifier.of("annisnpc", "acciones.json"))) {
+                try (Reader r = res.getReader()) {
+                    JsonElement e = JsonParser.parseReader(r);
+                    if (e.isJsonObject()) {
+                        for (Map.Entry<String, JsonElement> a : e.getAsJsonObject().entrySet()) {
+                            if (a.getValue().isJsonPrimitive()) {
+                                String clip = a.getValue().getAsString().toLowerCase(Locale.ROOT);
+                                if (clip.startsWith(PREFIX)) {
+                                    clip = clip.substring(PREFIX.length());
+                                }
+                                ACTIONS.put(a.getKey().toLowerCase(Locale.ROOT), clip);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            AnnisNpc.LOGGER.warn("No se pudo leer acciones.json: {}", ex.toString());
+        }
         Map<Identifier, Resource> found = manager.findResources("animations", id -> id.getPath().endsWith(".json"));
         int files = 0;
         for (Map.Entry<Identifier, Resource> en : found.entrySet()) {
@@ -105,7 +130,82 @@ public final class PunchyClips {
         for (Map.Entry<String, BedrockClip> c : CLIPS.entrySet()) {
             Activities.register(PREFIX + c.getKey(), custom(c.getValue()));
         }
-        AnnisNpc.LOGGER.info("Animaciones de paquetes (Punchy / Annis): {} en {} archivos", CLIPS.size(), files);
+        AnnisNpc.LOGGER.info("Animaciones de paquetes (Punchy / Annis): {} en {} archivos; acciones asignadas: {}",
+                CLIPS.size(), files, ACTIONS.size());
+    }
+
+    /** Animacion asignada a una accion ("sentarse", "pescar", "quieto", "caminar"...), o null. */
+    public static synchronized BedrockClip action(String action) {
+        if (action == null) {
+            return null;
+        }
+        String clip = ACTIONS.get(action.toLowerCase(Locale.ROOT));
+        return clip == null ? null : CLIPS.get(clip);
+    }
+
+    /**
+     * Caminar / quieto / correr de los NPC con las animaciones asignadas (si hay). Devuelve true si
+     * las uso (entonces no hace falta la capa procedural propia).
+     */
+    public static boolean locomotion(NpcModel m, float limbAngle, float limbDistance, float ticks, boolean sprinting,
+                                     float headYawRad, float headPitchRad) {
+        BedrockClip idle = action("quieto");
+        BedrockClip walk = sprinting && action("correr") != null ? action("correr") : action("caminar");
+        if (idle == null && walk == null) {
+            return false;
+        }
+        ModelPart[] parts = {m.head, m.body, m.rightArm, m.leftArm, m.rightLeg, m.leftLeg};
+        float[][] base = new float[6][6], a = new float[6][6], b = new float[6][6];
+        for (int i = 0; i < 6; i++) {
+            base[i] = grab(parts[i]);
+        }
+        // la cabeza mira por su cuenta: la animacion se suma a donde mira
+        base[0][0] = 0;
+        base[0][1] = 0;
+        put(parts[0], base[0]);
+        if (idle != null) {
+            apply(idle, m, ticks);
+        }
+        for (int i = 0; i < 6; i++) {
+            a[i] = grab(parts[i]);
+            put(parts[i], base[i]);
+        }
+        if (walk != null) {
+            // un ciclo de la animacion = un paso completo del juego
+            float cycle = (float) (2 * Math.PI / 0.6662);
+            float phase = (limbAngle / cycle) % 1.0f;
+            if (phase < 0) {
+                phase += 1;
+            }
+            apply(walk, m, phase * Math.max(0.05f, walk.length) * 20.0f);
+        }
+        for (int i = 0; i < 6; i++) {
+            b[i] = grab(parts[i]);
+        }
+        float w = Math.max(0, Math.min(1, limbDistance * 1.8f));
+        for (int i = 0; i < 6; i++) {
+            float[] r = new float[6];
+            for (int c = 0; c < 6; c++) {
+                r[c] = a[i][c] + (b[i][c] - a[i][c]) * w;
+            }
+            put(parts[i], r);
+        }
+        m.head.pitch += headPitchRad;
+        m.head.yaw += headYawRad;
+        return true;
+    }
+
+    private static float[] grab(ModelPart p) {
+        return new float[]{p.pitch, p.yaw, p.roll, p.pivotX, p.pivotY, p.pivotZ};
+    }
+
+    private static void put(ModelPart p, float[] v) {
+        p.pitch = v[0];
+        p.yaw = v[1];
+        p.roll = v[2];
+        p.pivotX = v[3];
+        p.pivotY = v[4];
+        p.pivotZ = v[5];
     }
 
     private static boolean isBasePack(String packId) {

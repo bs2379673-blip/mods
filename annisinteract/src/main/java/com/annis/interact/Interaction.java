@@ -102,11 +102,33 @@ public record Interaction(String id, String name, String animA, String animB, Pl
         return i;
     }
 
+    /** Interacciones creadas por archivo (config/annisinteract_extra.json): id -> distancia. */
+    private static final Map<String, Float> CUSTOM_DIST = new LinkedHashMap<>();
+
+    /** Cambia las interacciones creadas por archivo (las propias del mod no se tocan). */
+    public static synchronized void setCustom(List<Interaction> list, Map<String, Float> dist) {
+        for (String id : CUSTOM_DIST.keySet()) {
+            BY_ID.remove(id);
+        }
+        CUSTOM_DIST.clear();
+        for (Interaction i : list) {
+            if (BY_ID.containsKey(i.id)) {
+                continue;
+            }
+            BY_ID.put(i.id, i);
+            CUSTOM_DIST.put(i.id, dist.getOrDefault(i.id, 0.8f));
+        }
+    }
+
+    public boolean custom() {
+        return CUSTOM_DIST.containsKey(this.id);
+    }
+
     public static Interaction get(String id) {
         return BY_ID.get(id);
     }
 
-    public static List<Interaction> all() {
+    public static synchronized List<Interaction> all() {
         return Collections.unmodifiableList(new ArrayList<>(BY_ID.values()));
     }
 
@@ -130,7 +152,7 @@ public record Interaction(String id, String name, String animA, String animB, Pl
             case "swing" -> Layout.SWING;
             case "bachata" -> Layout.BACHATA;
             case "tango" -> Layout.TANGO;
-            default -> 0.0f;
+            default -> CUSTOM_DIST.getOrDefault(this.id, 0.0f);
         };
     }
 

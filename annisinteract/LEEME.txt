@@ -1,4 +1,4 @@
-ANNIS INTERACCIONES 0.5 (Fabric 1.21.1)
+ANNIS INTERACCIONES 0.6 (Fabric 1.21.1)
 =======================================
 
 Necesita: Fabric API, playerAnimator (viene dentro de Emotecraft) y Annis NPC 0.12.1 o mas nuevo.

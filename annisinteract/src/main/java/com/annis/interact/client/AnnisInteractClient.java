@@ -67,6 +67,8 @@ public class AnnisInteractClient implements ClientModInitializer {
             ClientState.downedSeconds = p.seconds();
         });
         ClientPlayNetworking.registerGlobalReceiver(SessionPayload.ID, (p, ctx) -> ClientState.session = p.interaction());
+        ClientPlayNetworking.registerGlobalReceiver(com.annis.interact.net.CustomInteractionsPayload.ID,
+                (p, ctx) -> com.annis.interact.CustomInteractions.apply(p.json()));
         ClientPlayNetworking.registerGlobalReceiver(com.annis.interact.net.TouchSyncPayload.ID, (p, ctx) -> onTouch(p));
         ClientPlayConnectionEvents.DISCONNECT.register((h, c) -> ClientState.reset());
 

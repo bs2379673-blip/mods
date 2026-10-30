@@ -91,6 +91,9 @@ public final class Activities {
 
     /** true si la animacion pide suavizado con inercia. */
     public static boolean springy(String name) {
+        if (com.annis.npc.client.punchy.PunchyClips.action(name) != null) {
+            return false;
+        }
         Custom c = name == null ? null : CUSTOM.get(name.toLowerCase(Locale.ROOT));
         return c != null && c.springy();
     }
@@ -103,6 +106,10 @@ public final class Activities {
 
     /** Pose de cuerpo entero de la animacion (o null si no mueve el cuerpo entero). */
     public static RootPose root(String name, float t) {
+        com.annis.npc.client.punchy.BedrockClip mapped = com.annis.npc.client.punchy.PunchyClips.action(name);
+        if (mapped != null) {
+            return com.annis.npc.client.punchy.PunchyClips.root(mapped, t);
+        }
         Custom c = name == null ? null : CUSTOM.get(name.toLowerCase(Locale.ROOT));
         return c == null ? null : c.root(t);
     }
@@ -199,6 +206,12 @@ public final class Activities {
 
     /** Pone la pose de la actividad en el modelo. t = ticks con parte decimal. */
     public static void apply(String name, NpcModel m, float t) {
+        // una animacion de Punchy Studio asignada a esta accion (acciones.json del paquete) manda
+        com.annis.npc.client.punchy.BedrockClip mapped = com.annis.npc.client.punchy.PunchyClips.action(name);
+        if (mapped != null) {
+            com.annis.npc.client.punchy.PunchyClips.apply(mapped, m, t);
+            return;
+        }
         MoveLibrary.Move move = MoveLibrary.get(name);
         if (move != null) {
             MoveLibrary.apply(move, m, t);

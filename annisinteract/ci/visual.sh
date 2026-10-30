@@ -14,6 +14,16 @@ cp ../annisnpc/libs/playeranimator-2.0.1+1.21.1.jar $S/mods/
 cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar $S/mods/
 cp ../out/annisvfx-*.jar $S/mods/ 2>/dev/null || true
 echo "eula=true" > $S/eula.txt
+# interacciones por archivo (prueba): usan las animaciones del paquete exportado
+mkdir -p $S/config
+cat > $S/config/annisinteract_extra.json <<'EOJ'
+{"interacciones": [
+  {"id": "prueba_abrazo", "nombre": "Abrazo (archivo)", "yo": "punchy:annis_abrazo", "otro": "punchy:annis_abrazo_cuello",
+   "lugar": "frente", "distancia": 0.36, "segundos": 4, "activa": true},
+  {"id": "prueba_brazos", "nombre": "En brazos (archivo)", "yo": "punchy:annis_cargar_brazos", "otro": "punchy:annis_en_brazos",
+   "lugar": "encima", "adelante": 0.41, "arriba": 0.69, "izquierda": 0, "segundos": 0, "activa": true}
+]}
+EOJ
 cat > $S/server.properties <<EOP
 online-mode=false
 level-type=minecraft\:flat
@@ -103,6 +113,11 @@ python3 ../annisnpc/ci/rcon.py 25577 annistest \
   'interaccion hacer abrazo @e[tag=n3,limit=1] @e[tag=n4,limit=1]' \
   'interaccion hacer besar_mano @e[tag=n5,limit=1] @e[tag=n6,limit=1]' \
   'sleep 1.9' "${T}foto 05e_hombro_abrazo_besomano${E}" 'sleep 0.8' "${T}foto 05f_hombro_abrazo_besomano${E}" \
+  'kill @e[type=annisnpc:npc]' 'sleep 1.5' \
+  'summon annisnpc:npc -1.6 -60 3 {Tags:["x","x1"],Protected:0b}' 'summon annisnpc:npc -0.8 -60 3 {Tags:["x","x2"],Protected:0b}' \
+  'summon annisnpc:npc 1.5 -60 3 {Tags:["x","x3"],Rotation:[90f,0f],Protected:0b}' 'summon annisnpc:npc 1.5 -60 4 {Tags:["x","x4"],Protected:0b}' \
+  'sleep 2' 'interaccion hacer prueba_abrazo @e[tag=x1,limit=1] @e[tag=x2,limit=1]' 'interaccion hacer prueba_brazos @e[tag=x3,limit=1] @e[tag=x4,limit=1]' \
+  'sleep 1.8' "${T}foto 05j_interacciones_archivo${E}" \
   'kill @e[type=annisnpc:npc]' 'sleep 1.5' \
   'summon annisnpc:npc -4.4 -60 4 {Tags:["d","d1"],Protected:0b}' 'summon annisnpc:npc -3.6 -60 4 {Tags:["d","d2"],Protected:0b}' \
   'summon annisnpc:npc -0.4 -60 3 {Tags:["d","d3"],Protected:0b}' 'summon annisnpc:npc 0.4 -60 3 {Tags:["d","d4"],Protected:0b}' \

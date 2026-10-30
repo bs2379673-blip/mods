@@ -44,7 +44,7 @@ public class WheelScreen extends Screen {
         }
     }
 
-    private static final String[] PAGE_NAMES = {"Juntos", "Especial", "Bailes"};
+    private static final String[] PAGE_NAMES = {"Juntos", "Especial", "Bailes", "Mias"};
 
     private boolean dancePage() {
         for (Interaction i : this.options) {

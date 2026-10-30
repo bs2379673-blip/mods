@@ -1,0 +1,67 @@
+ANNIS + PUNCHY STUDIO / PUNCHY MOVES
+====================================
+
+Con esto, las animaciones de Annis World (interacciones, acciones de los NPC, emotes y escenas)
+se hacen y se retocan con Punchy Studio, y se ven igual para todos.
+
+Necesita: Annis NPC 0.13+, Annis Interacciones 0.6+. Punchy Moves y Punchy Studio son opcionales
+(Studio para editar; Moves para la camara y el movimiento de los jugadores).
+
+1) PAQUETE "ANNIS ANIMACIONES"
+   Annis_Animaciones.zip trae todas las interacciones de Annis convertidas en animaciones
+   (formato de Punchy Studio). Ponelo en resourcepacks y activalo. Todos los jugadores tienen que
+   tener los mismos paquetes de animaciones activos.
+
+2) RETOCAR UNA INTERACCION
+   - En Punchy Studio, biblioteca: importa la animacion "annis_<nombre>" del paquete Annis Animaciones
+     (por ejemplo annis_abrazo, annis_abrazo_cuello, annis_cargar_brazos, annis_en_brazos, annis_vals_guia...).
+   - Retocala y exportala CON EL MISMO NOMBRE a tu propio paquete (por ejemplo "My Punchy Animations").
+   - Annis usa tu version; la del paquete base queda de respaldo. Si borras la tuya, vuelve la original.
+   - No se reemplazan: ir de la mano y mimos (se ajustan solos a la posicion real del otro).
+     En brazos y a caballito: la animacion se reemplaza, pero la posicion la sigue poniendo Annis.
+
+3) USAR CUALQUIER ANIMACION DE TUS PAQUETES
+   Cada animacion queda disponible como "punchy:<nombre>" para NPC, aldeanos de MCA y jugadores,
+   sincronizada para todos:
+     /annisnpc anim @e[...] "punchy:mi_animacion" [segundos]      (sin segundos = hasta parar)
+     /annisnpc anim @e[...] stop
+   Tambien sirve en rutinas, escenas y comandos de bloques de comandos (por ejemplo para una
+   animacion de reaparecer o para subirse a un bloque).
+
+4) ACCIONES DE LOS NPC (que animacion usar para cada cosa)
+   Dentro de tu paquete, crea el archivo assets/annisnpc/acciones.json, por ejemplo:
+     {
+       "quieto": "mi_idle",
+       "caminar": "mi_caminar",
+       "correr": "mi_correr",
+       "sentarse": "mi_sentado",
+       "pescar": "mi_pescar",
+       "saludar": "mi_saludo",
+       "abrazo": "mi_abrazo_nuevo"
+     }
+   - quieto / caminar / correr: como se mueven los NPC de Annis (caminar avanza con sus pasos).
+   - El resto: cualquier actividad de Annis (saludar, charlar, pescar, mercado, combate, sentarse,
+     bailar, pensar, aplaudir...) o cualquier animacion de interaccion (abrazo, vals_guia, cama_abraza...).
+   El paquete de mas arriba gana. F3+T recarga los paquetes.
+
+5) INTERACCIONES NUEVAS (sin programar): config/annisinteract_extra.json (en el servidor)
+   Se crea con dos ejemplos desactivados. Cada interaccion:
+     "id": "llevar_hombros",
+     "nombre": "Llevar en los hombros",          (lo que se ve en la rueda, pagina "Mias")
+     "yo": "punchy:mi_carga_hombros",            (animacion de quien la pide)
+     "otro": "punchy:mi_va_en_hombros",          (animacion del otro)
+     "lugar": "frente" | "derecha" | "encima" | "cama",
+     "distancia": 0.8,                           (frente / derecha, en bloques)
+     "adelante": 0, "arriba": 1.05, "izquierda": 0,   (encima: donde van los pies del de arriba)
+     "segundos": 0,                              (0 = hasta que alguien pulse Shift)
+     "romantica": false, "corazones": 20,        (aldeanos de MCA)
+     "activa": true
+   Despues: /interaccion recargar (o reiniciar el servidor).
+
+6) EMOTES DE PUNCHY MOVES
+   Punchy solo muestra tus emotes en tu pantalla. Con Annis, al lanzar uno, el servidor lo reparte y
+   los demas tambien lo ven (si tienen el mismo paquete). Los que se repiten terminan al moverte.
+
+AVISO: la conversion de giros entre Punchy Studio y Annis esta hecha segun el formato Bedrock.
+Abri annis_abrazo en Punchy Studio: si se ve igual que en el juego, todo bien; si algun brazo o el
+cuerpo sale al reves, avisa y se corrige.

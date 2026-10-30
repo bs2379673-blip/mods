@@ -43,6 +43,7 @@ public class AnnisInteract implements ModInitializer {
     @Override
     public void onInitialize() {
         InteractConfig.load();
+        CustomInteractions.load();
 
         PayloadTypeRegistry.playC2S().register(RequestPayload.ID, RequestPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(AnswerPayload.ID, AnswerPayload.CODEC);
@@ -50,6 +51,7 @@ public class AnnisInteract implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(AnchorPayload.ID, AnchorPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(DownedPayload.ID, DownedPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SessionPayload.ID, SessionPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(com.annis.interact.net.CustomInteractionsPayload.ID, com.annis.interact.net.CustomInteractionsPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(com.annis.interact.net.TouchPayload.ID, com.annis.interact.net.TouchPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(com.annis.interact.net.TouchSyncPayload.ID, com.annis.interact.net.TouchSyncPayload.CODEC);
 
@@ -72,6 +74,7 @@ public class AnnisInteract implements ModInitializer {
             Downed.tick(server);
         });
         EntityTrackingEvents.START_TRACKING.register(Sessions::onStartTracking);
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> CustomInteractions.sendTo(handler.player));
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             Sessions.endFor(handler.player, null);
             Downed.onDisconnect(handler.player);
@@ -100,7 +103,10 @@ public class AnnisInteract implements ModInitializer {
                         }))
                         .then(CommandManager.literal("recargar").requires(s -> s.hasPermissionLevel(2)).executes(ctx -> {
                             InteractConfig.load();
-                            ctx.getSource().sendFeedback(() -> Text.literal("Configuracion recargada: " + InteractConfig.file()), true);
+                            CustomInteractions.load();
+                            CustomInteractions.sendAll(ctx.getSource().getServer());
+                            ctx.getSource().sendFeedback(() -> Text.literal("Configuracion recargada: " + InteractConfig.file()
+                                    + " y " + CustomInteractions.file()), true);
                             return 1;
                         }))
                         .then(CommandManager.literal("caer").requires(s -> s.hasPermissionLevel(2))

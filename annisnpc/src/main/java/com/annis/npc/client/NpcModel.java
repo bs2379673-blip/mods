@@ -104,7 +104,10 @@ public class NpcModel extends PlayerEntityModel<AnnisNpcEntity> {
             }
         } else {
             // capa procedural solo de pie; las actividades tambien montado o agachado (en brazos...)
-            if (!emfDrives && !npc.isSneaking() && !npc.hasVehicle()) {
+            boolean punchy = !emfDrives && !npc.isSneaking() && !npc.hasVehicle()
+                    && com.annis.npc.client.punchy.PunchyClips.locomotion(this, limbAngle, limbDistance, animationProgress,
+                    npc.isSprinting(), headYaw * 0.017453292f, headPitch * 0.017453292f);
+            if (!punchy && !emfDrives && !npc.isSneaking() && !npc.hasVehicle()) {
                 state.applyProcedural(this, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
                 if (this.jointed) {
                     naturalBends(limbDistance);
