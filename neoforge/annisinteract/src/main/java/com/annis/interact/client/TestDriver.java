@@ -24,6 +24,11 @@ public final class TestDriver {
         AnnisInteract.LOGGER.info("Modo prueba visual activado");
         // si a los 25 s no entro solo al servidor (alguna pantalla en el medio), entra a mano
         com.annis.npc.compat.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+            // la guia de bienvenida de Punchy Moves tapa las fotos: se cierra sola en la prueba
+            if (mc.screen != null && mc.screen.getClass().getName().startsWith("punchymoves.")) {
+                AnnisInteract.LOGGER.info("[TEST] cierro pantalla de Punchy: {}", mc.screen.getClass().getName());
+                mc.setScreen(null);
+            }
             if (mc.level != null || joinTried) {
                 return;
             }
