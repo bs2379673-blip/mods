@@ -49,6 +49,11 @@ public final class EmoteLibrary {
         if (MISSING.contains(name)) {
             return null;
         }
+        // nombres como "punchy:clip" no son archivos (en Windows ':' rompe la ruta)
+        if (!EmoteLibrary.safeFileName(name)) {
+            MISSING.add(name);
+            return null;
+        }
         for (Path dir : dirs()) {
             Path file = dir.resolve(name + ".json");
             if (!Files.isRegularFile(file)) {
@@ -66,6 +71,12 @@ public final class EmoteLibrary {
         }
         MISSING.add(name);
         return null;
+    }
+
+    /** true si el nombre sirve como nombre de archivo en cualquier sistema. */
+    public static boolean safeFileName(String name) {
+        return name != null && !name.isEmpty() && name.length() < 200 && name.matches("[^<>:\"/\\\\|?*\\x00-\\x1F]+")
+                && !name.startsWith(".");
     }
 
     public static void clear() {

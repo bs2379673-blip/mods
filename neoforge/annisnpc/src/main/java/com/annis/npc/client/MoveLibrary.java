@@ -62,6 +62,11 @@ public final class MoveLibrary {
         if (MISSING.contains(name)) {
             return null;
         }
+        // nombres como "punchy:clip" no son archivos (en Windows ':' rompe la ruta)
+        if (!EmoteLibrary.safeFileName(name)) {
+            MISSING.add(name);
+            return null;
+        }
         Path file = dir().resolve(name + ".json");
         if (!Files.isRegularFile(file)) {
             MISSING.add(name);
