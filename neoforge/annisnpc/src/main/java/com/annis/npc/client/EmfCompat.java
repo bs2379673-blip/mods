@@ -87,6 +87,12 @@ public final class EmfCompat {
     /** Pausados por animaciones de Annis y por golpes con Punchy (se juntan los dos motivos). */
     private static final Set<UUID> BY_ANNIS = java.util.concurrent.ConcurrentHashMap.newKeySet();
     private static final Set<UUID> BY_SWING = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private static final Set<UUID> BY_OTHER = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    /** Otro mod esta animando al jugador con el modelo normal (Cinematic Interactions...): EMF no lo pisa. */
+    public static void setOtherPaused(UUID id, boolean pause) {
+        update(id, BY_OTHER, pause);
+    }
 
     public static void setPaused(net.minecraft.world.entity.Entity npc, boolean pause) {
         update(npc.getUUID(), BY_ANNIS, pause);
@@ -110,7 +116,7 @@ public final class EmfCompat {
         } else {
             reason.remove(id);
         }
-        if (BY_ANNIS.contains(id) || BY_SWING.contains(id)) {
+        if (BY_ANNIS.contains(id) || BY_SWING.contains(id) || BY_OTHER.contains(id)) {
             set.add(id);
         } else {
             set.remove(id);

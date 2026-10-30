@@ -71,6 +71,7 @@ public class AnnisNpcClient implements ClientModInitializer {
                 "key.annisnpc.editor", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_N, "key.categories.annisnpc"));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            CinematicEmf.tick(client);
             if (client.level == null) {
                 MoveRecorder.cancel();
                 return;
