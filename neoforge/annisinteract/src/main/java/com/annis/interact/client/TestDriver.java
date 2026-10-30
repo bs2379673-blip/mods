@@ -61,6 +61,11 @@ public final class TestDriver {
                     case "atras" -> CameraType.THIRD_PERSON_BACK;
                     default -> CameraType.FIRST_PERSON;
                 });
+                case "golpe" -> {
+                    if (mc.player != null) {
+                        mc.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+                    }
+                }
                 case "hud" -> mc.options.hideGui = cmd.length > 1 && cmd[1].equals("no");
                 case "tocar" -> {
                     if (mc.screen instanceof TouchScreen ts && cmd.length >= 5) {

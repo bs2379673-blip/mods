@@ -85,6 +85,8 @@ python3 ci/rcon.py 25577 annistest \
   'sleep 3' "${T}foto 00c_vfx_toca${E}" 'sleep 1.2' "${T}foto 00d_vfx_brillo${E}" 'sleep 2' "${T}foto 00e_vfx_flores${E}" \
   'sleep 1.4' "${T}foto 00f_vfx_columna${E}" 'sleep 1.2' "${T}foto 00g_vfx_aparece${E}" 'sleep 2.5' "${T}foto 00h_vfx_final${E}" \
   'vfx parar' 'kill @e[tag=v1]' 'sleep 1' \
+  "${T}camara frente${E}" 'sleep 1' "${T}golpe${E}" 'sleep 0.1' "${T}foto 00i_golpe_a${E}" 'sleep 1' "${T}golpe${E}" 'sleep 0.2' "${T}foto 00j_golpe_b${E}" \
+  'sleep 1' "${T}foto 00k_sin_golpe${E}" "${T}camara primera${E}" 'sleep 0.5' \
   'summon annisnpc:npc -5.3 -60 4 {Tags:["s","a1"]}' 'summon annisnpc:npc -4.5 -60 4 {Tags:["s","b1"]}' \
   'summon annisnpc:npc -1.9 -60 4 {Tags:["s","a2"]}' 'summon annisnpc:npc -1.1 -60 4 {Tags:["s","b2"]}' \
   'summon annisnpc:npc 1.0 -60 4 {Tags:["s","a3"]}' 'summon annisnpc:npc 2.0 -60 4 {Tags:["s","b3"]}' \
