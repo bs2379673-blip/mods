@@ -49,3 +49,6 @@ if LOADER == "forge":
     fetch("mca", ["minecraft-comes-alive-reborn", "mca-reborn", "minecraft-comes-alive"], "Minecraft Comes Alive", dest)
 fetch("punchymoves", ["punchy-moves"], "Punchy Moves", dest)
 fetch("punchystudio", ["punchy-studio"], "Punchy Studio", dest)
+if LOADER == "neoforge":
+    fetch("emf", ["entity-model-features"], "Entity Model Features", dest)
+    fetch("etf", ["entitytexturefeatures"], "Entity Texture Features", dest)
