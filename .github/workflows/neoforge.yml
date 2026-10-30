@@ -78,7 +78,11 @@ jobs:
         run: |
           gh release delete annis-neoforge-1.21.1 --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
           ls -la out | while read -r l; do echo "::notice::out> $l"; done
-          gh release create annis-neoforge-1.21.1 out/* -R "$GITHUB_REPOSITORY" --title "Annis (NeoForge 1.21.1)" --notes "Annis NPC, Annis Interacciones y Annis VFX para NeoForge 1.21.1 (commit $GITHUB_SHA). Necesitan NeoForge 21.1.229+ y playerAnimator para NeoForge 1.21.1." --target "$GITHUB_SHA" 2>&1 | while read -r l; do echo "::warning::release> $l"; done
+          for i in 1 2 3 4; do
+            if gh release create annis-neoforge-1.21.1 out/* -R "$GITHUB_REPOSITORY" --title "Annis (NeoForge 1.21.1)" --notes "Annis NPC, Annis Interacciones y Annis VFX para NeoForge 1.21.1 (commit $GITHUB_SHA). Necesitan NeoForge 21.1.229+ y playerAnimator para NeoForge 1.21.1." --target "$GITHUB_SHA" > rel.txt 2>&1; then cat rel.txt; break; fi
+            while read -r l; do echo "::warning::release intento $i> $l"; done < rel.txt
+            sleep 15
+          done
       - name: Prueba visual (servidor NeoForge + cliente en pantalla virtual)
         continue-on-error: true
         timeout-minutes: 30

@@ -77,7 +77,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release delete annis-forge-1.20.1 --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
-          gh release create annis-forge-1.20.1 out/* -R "$GITHUB_REPOSITORY" --title "Annis (Forge 1.20.1)" --notes "Annis NPC, Annis Interacciones y Annis VFX para Forge 1.20.1 (commit $GITHUB_SHA). Necesitan playerAnimator para Forge 1.20.1." --target "$GITHUB_SHA"
+          for i in 1 2 3 4; do
+            if gh release create annis-forge-1.20.1 out/* -R "$GITHUB_REPOSITORY" --title "Annis (Forge 1.20.1)" --notes "Annis NPC, Annis Interacciones y Annis VFX para Forge 1.20.1 (commit $GITHUB_SHA). Necesitan playerAnimator para Forge 1.20.1." --target "$GITHUB_SHA" > rel.txt 2>&1; then cat rel.txt; break; fi
+            while read -r l; do echo "::warning::release intento $i> $l"; done < rel.txt
+            sleep 15
+          done
       - name: Prueba visual (servidor Forge + cliente en pantalla virtual)
         continue-on-error: true
         timeout-minutes: 30
