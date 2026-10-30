@@ -58,6 +58,8 @@ public final class NpcAnimState {
     public final AnimationApplier applier;
     private final ModifierLayer<IAnimation> layer = new ModifierLayer<>();
     private int lastSerial;
+    /** La animacion actual es un emote (keyframes) y no una actividad integrada. */
+    private boolean keyframe;
     private boolean activityTarget;
 
     // suavizado procedural
@@ -97,6 +99,7 @@ public final class NpcAnimState {
                 this.activity = act;
             }
             this.activityTarget = !act.isEmpty();
+            this.keyframe = animation != null;
             AbstractFadeModifier fade = AbstractFadeModifier.standardFadeIn(6, Ease.INOUTSINE);
             if (animation != null) {
                 // empezar en el punto del reloj comun: los que llegan tarde quedan en sincronia
@@ -118,6 +121,8 @@ public final class NpcAnimState {
      * con la misma mezcla suave. shared = tiempo del reloj comun en ticks.
      */
     public void applyOverlay(NpcModel m, float shared) {
+        // en playerAnimator 1.0.x (Forge 1.20.1) la capa puede seguir "activa" despues de un fundido
+        // a nada: igual que en los NPC, el emote va primero y la actividad integrada encima
         if (this.applier.isActive()) {
             this.applier.updatePart("head", m.head);
             this.applier.updatePart("leftArm", m.leftArm);
@@ -125,9 +130,8 @@ public final class NpcAnimState {
             this.applier.updatePart("leftLeg", m.leftLeg);
             this.applier.updatePart("rightLeg", m.rightLeg);
             this.applier.updatePart("torso", m.body);
-        } else {
-            applyActivity(m, shared);
         }
+        applyActivity(m, shared);
     }
 
     /** Actividad integrada o movimiento grabado (no un emote JSON de Emotecraft). */
