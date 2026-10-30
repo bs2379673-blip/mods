@@ -1,0 +1,23 @@
+ANNIS PARA FORGE 1.20.1
+=======================
+
+Mods (van todos en la carpeta mods, en el servidor y en cada cliente):
+  - annisnpc-forge-1.20.1-0.13.0.jar        Annis NPC
+  - annisinteract-forge-1.20.1-0.6.0.jar    Annis Interacciones (necesita Annis NPC)
+  - annisvfx-forge-1.20.1-0.1.0.jar         Annis VFX (efectos, el Arbol de la Vida)
+
+Hace falta:
+  - Forge 1.20.1 (47.4.13 o mas nuevo; Punchy Moves pide 47.4.13)
+  - playerAnimator para Forge 1.20.1 (el mismo que usa Emotecraft)
+
+Opcionales (se usan si estan):
+  - Punchy! Moves y Punchy! Studio para Forge 1.20.1: sus animaciones y emotes se usan en Annis
+  - Minecraft Comes Alive (MCA Reborn) para Forge 1.20.1
+  - Entity Model Features (EMF) y Figura
+  - Oculus (Iris para Forge) para shaders
+
+Paquete de recursos:
+  - Annis_Animaciones.zip va en la carpeta resourcepacks (las interacciones como animaciones
+    de Punchy Studio, para editarlas). Es el mismo contenido que en Fabric.
+
+Todo lo demas (comandos, menus, carpetas de config, skins, emotes) es igual que en Fabric 1.21.1.
