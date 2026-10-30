@@ -91,8 +91,8 @@ jobs:
           cp forge/visrun/install.log vis/ 2>/dev/null; ls -la forge/visrun > vis/visrun-ls.txt 2>&1
           cp forge/visrun/server.log vis/server.log 2>/dev/null; cp forge/run/logs/latest.log vis/client.log 2>/dev/null; cp forge/client.log vis/client-gradle.log 2>/dev/null; cp forge/rcon-visual.txt vis/ 2>/dev/null
           cp out/visual/*.png vis/ 2>/dev/null
-          gh release delete annis-forge-visual --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
-          gh release create annis-forge-visual vis/* -R "$GITHUB_REPOSITORY" --prerelease --title "Prueba visual Forge" --notes "Fotos y logs automaticos (commit $GITHUB_SHA)" --target "$GITHUB_SHA"
+          ls -la vis
+          tar czf vis.tgz vis && gh release upload forge-ci vis.tgz --clobber -R "$GITHUB_REPOSITORY"
       - name: Publicar log y jars (release forge-ci)
         if: always()
         env:

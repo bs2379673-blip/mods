@@ -36,7 +36,12 @@ rcon.password=annistest
 EOP
 ( cd $S && echo "-Xmx2G" > user_jvm_args.txt && timeout 900 bash run.sh nogui > server.log 2>&1 ) &
 for i in $(seq 1 160); do grep -q 'Done (' $S/server.log 2>/dev/null && break; sleep 3; done
-grep -q 'Done (' $S/server.log || { echo "::warning::Visual> el servidor no arranco"; exit 0; }
+grep -q 'Done (' $S/server.log || {
+  echo "::warning::Visual> el servidor no arranco. install: $(tail -5 $S/install.log | tr '\n' '|' | cut -c1-800)"
+  echo "::warning::Visual> ls: $(ls $S | tr '\n' ' ')"
+  echo "::warning::Visual servidor> $(grep -E 'Exception|ERROR|Error|Caused by|Missing|requires' $S/server.log | head -25 | tr '\n' '|' | cut -c1-6000)"
+  echo "::warning::Visual servidor fin> $(tail -25 $S/server.log | tr '\n' '|' | cut -c1-5000)"
+  exit 0; }
 
 # opciones del cliente: sin pantallas de bienvenida, sin sonido
 mkdir -p run
