@@ -1,0 +1,6 @@
+dependencies {
+    // playerAnimator de KosmX (MIT) para NeoForge 1.21.1
+    compileOnly files(rootProject.file("libs/playeranimator-1.jar"))
+    // Minecraft Comes Alive (GPL-3.0): solo para compilar la integracion opcional
+    compileOnly files(rootProject.file('libs/mca-neoforge-7.7.36.jar'))
+}

@@ -1,0 +1,29 @@
+dependencies {
+    implementation project(':annisnpc')
+    compileOnly files(rootProject.file("libs/playeranimator-1.jar"))
+    compileOnly files(rootProject.file('libs/mca-neoforge-7.7.36.jar'))
+    runtimeOnly project(':annisvfx')
+}
+
+// El cliente y el servidor de prueba cargan los tres mods
+neoForge {
+    mods {
+        annisnpc { sourceSet project(':annisnpc').sourceSets.main }
+        annisvfx { sourceSet project(':annisvfx').sourceSets.main }
+    }
+    runs {
+        client {
+            client()
+            gameDirectory = rootProject.file('run')
+            if (project.hasProperty('annisTest')) {
+                systemProperty 'annis.test', '1'
+                programArguments.addAll '--quickPlayMultiplayer', 'localhost:25565', '--width', '1280', '--height', '720'
+            }
+        }
+        server {
+            server()
+            gameDirectory = rootProject.file('run-server')
+            programArgument '--nogui'
+        }
+    }
+}

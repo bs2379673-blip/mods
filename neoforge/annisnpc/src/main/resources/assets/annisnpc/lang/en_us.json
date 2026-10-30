@@ -1,0 +1,12 @@
+{
+  "entity.annisnpc.npc": "Annis NPC",
+  "item.annisnpc.npc_spawn_egg": "Annis NPC Spawn Egg",
+  "item.annisnpc.npc_wand": "NPC Wand",
+  "key.annisnpc.editor": "Edit NPC (targeted or nearest)",
+  "key.categories.annisnpc": "Annis NPC",
+  "screen.annisnpc.editor": "NPC Editor",
+  "item.annisnpc.accesorio_tambor": "Accessory: drum",
+  "item.annisnpc.accesorio_baqueta": "Accessory: drumstick",
+  "item.annisnpc.accesorio_sombrero": "Accessory: top hat",
+  "item.annisnpc.accesorio_trompeta": "Accessory: trumpet"
+}

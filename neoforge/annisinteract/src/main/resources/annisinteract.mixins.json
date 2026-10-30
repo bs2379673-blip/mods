@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.annis.interact.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "EntityRidingMixin",
+    "NoPushMixin"
+  ],
+  "client": [
+    "client.AnchorRenderMixin",
+    "client.TouchCameraMixin",
+    "client.TouchHideHeadMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

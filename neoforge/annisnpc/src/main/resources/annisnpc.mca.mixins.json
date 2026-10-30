@@ -1,0 +1,18 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.annis.npc.mixin.mca",
+  "plugin": "com.annis.npc.mixin.mca.McaMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "DialoguesMixin",
+    "ActionsMixin",
+    "VillagerCommandHandlerMixin"
+  ],
+  "client": [
+    "VillagerModelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

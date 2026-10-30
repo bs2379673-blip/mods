@@ -1,0 +1,106 @@
+name: Annis NeoForge 1.21.1
+on:
+  push:
+    branches: [forge-1.20.1]
+    paths: ['neoforge/**', '.github/workflows/neoforge.yml']
+  workflow_dispatch:
+    inputs:
+      cp:
+        description: 'volver a subir el classpath'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.12'
+      - name: Bajar mods de Forge 1.20.1 para compilar
+        id: dl
+        run: |
+          python3 forge/tools/bajar_mods.py neoforge/libs neoforge 1.21.1 | tee dl.txt
+          ls -la neoforge/libs
+          echo "info=$(tr '\n' ' ' < dl.txt)" >> $GITHUB_OUTPUT
+      - name: Classpath (para compilar rapido afuera)
+        working-directory: neoforge
+        run: |
+          gradle dumpClasspath --no-daemon --stacktrace 2>&1 | tee ../dump.log | tail -40
+          mkdir -p ../cp && cp annisnpc/build/cp/*.jar annisinteract/build/cp/*.jar annisvfx/build/cp/*.jar ../cp/ 2>/dev/null || true
+          cp libs/*.jar ../cp/ || true
+          ls ../cp | head -80; du -sh ../cp
+      - name: Publicar classpath (release neo-ci)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view neo-ci -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create neo-ci -R "$GITHUB_REPOSITORY" --prerelease --title "NeoForge CI (interno)" --notes "Archivos internos para compilar la version Forge 1.20.1" --target "$GITHUB_SHA"
+          size=$(gh release view neo-ci -R "$GITHUB_REPOSITORY" --json assets -q '.assets[] | select(.name=="cp.tgz") | .size')
+          if [ -z "$size" ] || [ "$size" -lt 50000000 ] || [ -n "${{ github.event.inputs.cp }}" ]; then
+            tar czf cp.tgz cp && gh release upload neo-ci cp.tgz --clobber -R "$GITHUB_REPOSITORY"
+          fi
+      - name: Compilar
+        working-directory: neoforge
+        run: |
+          set -o pipefail
+          gradle build --no-daemon --continue 2>&1 | tee build.log || {
+            grep -E "error:|What went wrong|FAILED|Execution failed" -A3 build.log | head -80
+            exit 1
+          }
+      - name: Jars finales y paquete de animaciones
+        run: |
+          mkdir -p out
+          for m in annisnpc annisinteract annisvfx; do cp neoforge/$m/build/libs/$m-neoforge-1.21.1-*.jar out/; done
+          rm -f out/*-sources.jar out/*-dev.jar
+          mkdir -p bake/cls
+          javac -d bake/cls $(find annisinteract/src/main/java/com/annis/interact/client/anim -name "*.java") annisinteract/src/main/java/com/annis/interact/Layout.java annisinteract/src/main/java/com/annis/interact/Touch.java annisinteract/tools/BakeAnims.java
+          java -cp bake/cls BakeAnims bake/pack
+          python3 - <<'EOP'
+          import json
+          p = 'bake/pack/pack.mcmeta'
+          d = json.load(open(p))
+          d['pack']['pack_format'] = 34
+          json.dump(d, open(p, 'w'), indent=2)
+          EOP
+          (cd bake/pack && zip -q -r ../../out/Annis_Animaciones.zip .)
+          cp neoforge/LEEME_NEOFORGE.txt out/ 2>/dev/null || true
+          ls -la out
+      - name: Publicar en la release "annis-neoforge-1.21.1"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete annis-neoforge-1.21.1 --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
+          gh release create annis-neoforge-1.21.1 out/* -R "$GITHUB_REPOSITORY" --title "Annis (NeoForge 1.21.1)" --notes "Annis NPC, Annis Interacciones y Annis VFX para NeoForge 1.21.1 (commit $GITHUB_SHA). Necesitan NeoForge 21.1.229+ y playerAnimator para NeoForge 1.21.1." --target "$GITHUB_SHA"
+      - name: Prueba visual (servidor NeoForge + cliente en pantalla virtual)
+        continue-on-error: true
+        timeout-minutes: 30
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri mesa-utils > /dev/null
+          mkdir -p vis
+          bash neoforge/ci/visual.sh > vis/visual-out.txt 2>&1
+          tail -40 vis/visual-out.txt
+          cp neoforge/visrun/install.log vis/ 2>/dev/null; ls -la neoforge/visrun > vis/visrun-ls.txt 2>&1
+          cp neoforge/visrun/server.log vis/server.log 2>/dev/null; cp neoforge/run/logs/latest.log vis/client.log 2>/dev/null; cp neoforge/client.log vis/client-gradle.log 2>/dev/null; cp neoforge/rcon-visual.txt vis/ 2>/dev/null
+          cp out/visual/*.png vis/ 2>/dev/null; cp neoforge/run/screenshots/*.png vis/ 2>/dev/null; cp out/jstack.txt vis/ 2>/dev/null
+          ls -la vis
+          tar czf vis.tgz vis && gh release upload neo-ci vis.tgz --clobber -R "$GITHUB_REPOSITORY"
+      - name: Publicar log y jars (release neo-ci)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp neoforge/build.log build.log 2>/dev/null || echo "sin log" > build.log
+          echo "${{ steps.dl.outputs.info }}" >> build.log
+          cat dump.log >> build.log 2>/dev/null || true
+          gh release upload neo-ci build.log --clobber -R "$GITHUB_REPOSITORY"
+          for j in neoforge/*/build/libs/*-neoforge-1.21.1-*.jar; do [ -f "$j" ] && gh release upload neo-ci "$j" --clobber -R "$GITHUB_REPOSITORY"; done; true

@@ -1,0 +1,52 @@
+// Proyecto comun de los mods Annis para NeoForge 1.21.1 (nombres de Mojang, Java 21).
+plugins {
+    id 'net.neoforged.moddev' version '2.0.+' apply false
+}
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'net.neoforged.moddev'
+
+    def props = new Properties()
+    file('mod.properties').withInputStream { props.load(it) }
+    ext.mod_id = props.mod_id
+    version = props.mod_version
+    group = 'com.annis'
+    base { archivesName = "${props.mod_id}-neoforge-1.21.1" }
+
+    java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+    neoForge {
+        version = rootProject.neo_version
+        mods {
+            "${props.mod_id}" { sourceSet sourceSets.main }
+        }
+    }
+
+    repositories {
+        flatDir { dir rootProject.file('libs') }
+    }
+
+    processResources {
+        inputs.property 'version', props.mod_version
+        filesMatching('META-INF/neoforge.mods.toml') { expand 'version': props.mod_version }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.release = 21
+    }
+
+    tasks.register('dumpClasspath') {
+        doLast {
+            def out = layout.buildDirectory.dir('cp').get().asFile
+            out.mkdirs()
+            sourceSets.main.compileClasspath.files.each { f ->
+                if (f.isFile()) {
+                    java.nio.file.Files.copy(f.toPath(), new File(out, f.name).toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+                }
+            }
+            println "classpath: ${out.list().length} jars"
+        }
+    }
+}
