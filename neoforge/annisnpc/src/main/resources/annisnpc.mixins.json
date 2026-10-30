@@ -8,9 +8,7 @@
     "LimbAnimatorAccessor",
     "LivingEntityRendererMixin",
     "PlayerModelMixin",
-    "PunchyEmoteMixin",
-    "PunchyBodyCaptureMixin",
-    "PunchyBodyRestoreMixin"
+    "PunchyEmoteMixin"
   ],
   "injectors": {
     "defaultRequire": 1
