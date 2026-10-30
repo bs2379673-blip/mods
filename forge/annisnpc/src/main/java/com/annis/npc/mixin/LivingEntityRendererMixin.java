@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /** Entidades con "aspecto Annis" (aldeanos de MCA convertidos, etc.) se dibujan como NPC Annis. */
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingEntityRendererMixin {
-    @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             at = @At("HEAD"), cancellable = true)
     private void annisnpc$renderAsNpc(LivingEntity entity, float yaw, float tickDelta, PoseStack matrices,
                                        MultiBufferSource vcp, int light, CallbackInfo ci) {
@@ -23,9 +23,9 @@ public abstract class LivingEntityRendererMixin {
     }
 
     /** Pose de cuerpo entero de las animaciones (tumbarse, ir en brazos...) en jugadores y aldeanos. */
-    @Inject(method = "setupTransforms", at = @At("TAIL"))
+    @Inject(method = "setupRotations", at = @At("TAIL"))
     private void annisnpc$rootPose(LivingEntity entity, PoseStack matrices, float animationProgress, float bodyYaw,
-                                   float tickDelta, float scale, CallbackInfo ci) {
+                                   float tickDelta, CallbackInfo ci) {
         com.annis.npc.client.NpcRenderer.applyRoot(matrices, com.annis.npc.client.AnimOverlay.root(entity, tickDelta));
     }
 }

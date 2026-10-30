@@ -50,8 +50,7 @@ public final class CarryPose {
         double fx = -Mth.sin(r), fz = Mth.cos(r);
         double lx = Mth.cos(r), lz = Mth.sin(r);
         float scale = vehicle instanceof LivingEntity l ? l.getScale() : 1.0f;
-        Vec3 feet = vehicle.position().add((fx * fwd + lx * left) * scale, up * scale, (fz * fwd + lz * left) * scale);
-        // el juego le resta el punto de enganche del pasajero: lo sumamos para que los pies queden ahi
-        return feet.add(passenger.getVehicleAttachmentPoint(vehicle));
+        // posicion de los pies del pasajero (en 1.20.1 se le pone directo en positionRider)
+        return vehicle.position().add((fx * fwd + lx * left) * scale, up * scale, (fz * fwd + lz * left) * scale);
     }
 }

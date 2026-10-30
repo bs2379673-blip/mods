@@ -108,8 +108,9 @@ public class AnnisNpcEntity extends PathfinderMob {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        SynchedEntityData builder = this.entityData;
         builder.define(SKIN, "");
         builder.define(SLIM, false);
         builder.define(EMOTE, "");
@@ -481,7 +482,7 @@ public class AnnisNpcEntity extends PathfinderMob {
         ItemStack held = player.getItemInHand(hand);
         if (player.isShiftKeyDown() && !held.isEmpty() && sp.hasPermissions(2) && !held.is(ModEntities.NPC_WAND)) {
             EquipmentSlot slot = getEquipmentSlotForItem(held);
-            if (slot.getType() != EquipmentSlot.Type.HUMANOID_ARMOR && slot != EquipmentSlot.OFFHAND) {
+            if (slot.getType() != EquipmentSlot.Type.ARMOR && slot != EquipmentSlot.OFFHAND) {
                 slot = EquipmentSlot.MAINHAND;
             }
             ItemStack old = getItemBySlot(slot);

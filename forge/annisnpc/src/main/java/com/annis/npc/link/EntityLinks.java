@@ -2,8 +2,6 @@ package com.annis.npc.link;
 
 import com.annis.npc.AnnisNpc;
 import com.annis.npc.entity.AnnisNpcEntity;
-import com.annis.npc.compat.AttachmentRegistry;
-import com.annis.npc.compat.AttachmentType;
 import com.annis.npc.compat.ServerTickEvents;
 import com.annis.npc.compat.EntityTrackingEvents;
 import com.annis.npc.compat.PlayerLookup;
@@ -26,8 +24,13 @@ import java.util.UUID;
  * el mismo reloj comun que los NPC.
  */
 public final class EntityLinks {
-    public static final AttachmentType<CompoundTag> LOOK =
-            AttachmentRegistry.createPersistent(new ResourceLocation(AnnisNpc.MOD_ID, "look"), CompoundTag.CODEC);
+    /** El aspecto se guarda en los datos persistentes de la entidad (Forge los guarda con la entidad). */
+    private static final String LOOK = "annisnpc_look";
+
+    private static CompoundTag getLook(net.minecraft.world.entity.Entity e) {
+        CompoundTag data = e.getPersistentData();
+        return data.contains(LOOK, 10) ? data.getCompound(LOOK) : null;
+    }
 
     private record Anim(String name, int start, int serial, long until) {
     }
@@ -43,7 +46,7 @@ public final class EntityLinks {
             if (!(entity instanceof LivingEntity living) || entity instanceof AnnisNpcEntity) {
                 return;
             }
-            CompoundTag look = living.getAttached(LOOK);
+            CompoundTag look = getLook(living);
             if (look != null && !look.isEmpty()) {
                 ServerPlayNetworking.send(player, new EntityLookPayload(entity.getId(), look));
             }
@@ -141,16 +144,16 @@ public final class EntityLinks {
 
     public static void setLook(LivingEntity e, CompoundTag look) {
         if (look == null || look.isEmpty()) {
-            e.removeAttached(LOOK);
+            e.getPersistentData().remove(LOOK);
             look = new CompoundTag();
         } else {
-            e.setAttached(LOOK, look.copy());
+            e.getPersistentData().put(LOOK, look.copy());
         }
         broadcast(e, new EntityLookPayload(e.getId(), look));
     }
 
     public static boolean hasLook(LivingEntity e) {
-        CompoundTag l = e.getAttached(LOOK);
+        CompoundTag l = getLook(e);
         return l != null && !l.isEmpty();
     }
 }

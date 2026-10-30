@@ -31,7 +31,7 @@ public abstract class TouchCameraMixin {
         }
     }
 
-    @Inject(method = "update", at = @At("TAIL"))
+    @Inject(method = "setup", at = @At("TAIL"))
     private void annisinteract$touchCam(BlockGetter area, Entity focused, boolean thirdPerson, boolean inverseView,
                                         float tickDelta, CallbackInfo ci) {
         if (!TouchCam.active || focused == null) {

@@ -164,7 +164,7 @@ public final class ClientLinks {
         dst.setCustomName(src.getCustomName());
         dst.setCustomNameVisible(src.isCustomNameVisible());
         for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.getType() == EquipmentSlot.Type.ANIMAL_ARMOR) {
+            if (false) {
                 continue;
             }
             dst.setItemSlot(slot, src.getItemBySlot(slot));

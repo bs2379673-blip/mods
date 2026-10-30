@@ -62,6 +62,7 @@ public class AnnisInteract implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(com.annis.interact.net.TouchPayload.ID, (p, ctx) ->
                 Sessions.touch(ctx.player(), p));
 
+        Downed.initForge();
         ServerLivingEntityEvents.ALLOW_DEATH.register(Downed::allowDeath);
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
             Downed.onDeath(entity);

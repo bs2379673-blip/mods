@@ -5,11 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomModelData;
 
 /**
  * Un accesorio pegado a un hueso: "hueso|objeto|customModelData|x|y|z|rotX|rotY|rotZ|escala".
@@ -146,7 +144,7 @@ public final class Accessory {
             ResourceLocation id = ResourceLocation.tryParse(item);
             s = id == null ? ItemStack.EMPTY : new ItemStack(BuiltInRegistries.ITEM.get(id));
             if (cmd != 0 && !s.isEmpty()) {
-                s.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(cmd));
+                s.getOrCreateTag().putInt("CustomModelData", cmd);
             }
             STACKS.put(key, s);
         }

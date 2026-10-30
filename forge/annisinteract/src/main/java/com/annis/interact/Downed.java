@@ -36,8 +36,19 @@ import java.util.UUID;
  * lo sigue o un aldeano de MCA que lo quiere puede levantarlo; si nadie llega, muere.
  */
 public final class Downed {
-    private static final ResourceLocation SLOW = new ResourceLocation(AnnisInteract.MOD_ID, "caido_quieto");
-    private static final ResourceLocation NOJUMP = new ResourceLocation(AnnisInteract.MOD_ID, "caido_sin_salto");
+    private static final UUID SLOW = UUID.nameUUIDFromBytes("annisinteract:caido_quieto".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+    /** En 1.20.1 el jugador no tiene atributo de salto: se le corta el salto con el evento de Forge. */
+    public static void initForge() {
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.addListener(
+                (net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent ev) -> {
+                    LivingEntity le = ev.getEntity();
+                    if (!le.level().isClientSide && DOWNED.containsKey(le.getUUID())) {
+                        le.setDeltaMovement(le.getDeltaMovement().multiply(0, 0, 0));
+                        le.hurtMarked = true;
+                    }
+                });
+    }
 
     static final class State {
         final LivingEntity entity;
@@ -106,7 +117,7 @@ public final class Downed {
         e.clearFire();
         e.setTicksFrozen(0);
         for (MobEffectInstance fx : new ArrayList<>(e.getActiveEffects())) {
-            if (fx.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) {
+            if (fx.getEffect().getCategory() == MobEffectCategory.HARMFUL) {
                 e.removeEffect(fx.getEffect());
             }
         }
@@ -135,17 +146,10 @@ public final class Downed {
 
     private static void modifier(LivingEntity e, boolean on) {
         AttributeInstance speed = e.getAttribute(Attributes.MOVEMENT_SPEED);
-        AttributeInstance jump = e.getAttribute(Attributes.JUMP_STRENGTH);
         if (speed != null) {
             speed.removeModifier(SLOW);
             if (on) {
-                speed.addTransientModifier(new AttributeModifier(SLOW, -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-            }
-        }
-        if (jump != null) {
-            jump.removeModifier(NOJUMP);
-            if (on) {
-                jump.addTransientModifier(new AttributeModifier(NOJUMP, -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+                speed.addTransientModifier(new AttributeModifier(SLOW, "annisinteract caido", -1.0, AttributeModifier.Operation.MULTIPLY_TOTAL));
             }
         }
     }

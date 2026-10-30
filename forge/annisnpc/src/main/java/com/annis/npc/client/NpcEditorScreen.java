@@ -429,9 +429,8 @@ public class NpcEditorScreen extends Screen {
         super.removed();
     }
 
-    @Override
-    public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        super.renderBackground(context, mouseX, mouseY, delta);
+    private void drawBackground(GuiGraphics context) {
+        super.renderBackground(context);
         int bottom = this.height - 22;
         context.fill(this.leftX - 4, 28, this.leftX + this.panelW + 4, bottom, 0x80000000);
         context.fill(this.rightX - 4, 28, this.rightX + this.panelW + 4, bottom, 0x80000000);
@@ -441,6 +440,7 @@ public class NpcEditorScreen extends Screen {
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         refreshState();
+        drawBackground(context);
         super.render(context, mouseX, mouseY, delta);
 
         if (this.width > 420) {
@@ -464,8 +464,7 @@ public class NpcEditorScreen extends Screen {
         AnnisNpcEntity npc = npc();
         if (npc != null) {
             int size = Math.max(30, (this.previewBottom - this.previewTop) / 2 - 8);
-            InventoryScreen.renderEntityInInventoryFollowsMouse(context, this.centerX, this.previewTop, this.centerX + this.centerW, this.previewBottom,
-                    size, 0.0625f, mouseX, mouseY, npc);
+            renderNpcPreview(context, this.centerX, this.previewTop, this.centerX + this.centerW, this.previewBottom, size, mouseX, mouseY, npc);
         } else {
             context.drawCenteredString(this.font, Component.literal("Cargando NPC..."),
                     this.centerX + this.centerW / 2, (this.previewTop + this.previewBottom) / 2, 0xAAAAAA);
@@ -474,5 +473,14 @@ public class NpcEditorScreen extends Screen {
         context.drawCenteredString(this.font,
                 Component.literal("Clic en una skin la aplica. Emotes: ★ actividad, ● movimiento grabado."),
                 this.width / 2, this.height - 14, 0x999999);
+    }
+
+    /** En 1.20.1 la vista del muneco se ubica por los pies (centro abajo del recuadro). */
+    private static void renderNpcPreview(GuiGraphics ctx, int x1, int y1, int x2, int y2, int size, int mouseX, int mouseY,
+                                         net.minecraft.world.entity.LivingEntity entity) {
+        int cx = (x1 + x2) / 2;
+        int feet = y2 - 6;
+        InventoryScreen.renderEntityInInventoryFollowsMouse(ctx, cx, feet, size, (float) (cx - mouseX),
+                (float) (feet - size * 1.6f - mouseY), entity);
     }
 }

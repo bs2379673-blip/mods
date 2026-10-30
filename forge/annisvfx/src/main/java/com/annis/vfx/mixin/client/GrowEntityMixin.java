@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /** Al aparecer, el personaje crece desde la luz (escala desde los pies). */
 @Mixin(value = LivingEntityRenderer.class, priority = 800)
 public abstract class GrowEntityMixin {
-    @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             at = @At("HEAD"))
     private void annisvfx$grow(LivingEntity entity, float yaw, float tickDelta, PoseStack matrices,
                                MultiBufferSource consumers, int light, CallbackInfo ci) {

@@ -103,7 +103,7 @@ public final class VfxManager {
         Camera camera = ctx.camera();
         float tickDelta = ctx.tickCounter().getGameTimeDeltaPartialTick(true);
         MultiBufferSource.BufferSource imm = mc.renderBuffers().bufferSource();
-        Draw d = new Draw(new PoseStack(), imm, camera.getPosition(), camera.rotation());
+        Draw d = new Draw(ctx.matrixStack(), imm, camera.getPosition(), camera.rotation());
         Iterator<Scene> it = SCENES.iterator();
         while (it.hasNext()) {
             Scene s = it.next();

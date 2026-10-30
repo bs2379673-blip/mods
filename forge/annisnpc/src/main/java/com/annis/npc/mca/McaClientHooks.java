@@ -52,7 +52,12 @@ public final class McaClientHooks {
     public static void afterSetAngles(HumanoidModel<?> model, LivingEntity entity, float animationProgress) {
         if (com.annis.npc.client.AnimOverlay.afterSetAngles(model, entity, animationProgress)
                 && model instanceof VillagerEntityModelMCA<?> mca) {
-            mca.syncWearParts();
+            // en la version de 1.20.1 no existe syncWearParts: se copian las capas a mano
+            mca.leftArmwear.copyFrom(mca.leftArm);
+            mca.rightArmwear.copyFrom(mca.rightArm);
+            mca.leftLegwear.copyFrom(mca.leftLeg);
+            mca.rightLegwear.copyFrom(mca.rightLeg);
+            mca.bodyWear.copyFrom(mca.body);
         }
     }
 

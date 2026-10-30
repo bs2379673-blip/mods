@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 // prioridad alta: despues de playerAnimator (que reinicia los dobleces)
 @Mixin(value = PlayerModel.class, priority = 1500)
 public abstract class PlayerModelMixin {
-    @Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At("TAIL"))
+    @Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At("TAIL"))
     private void annisnpc$overlay(LivingEntity entity, float limbAngle, float limbDistance, float animationProgress,
                                   float headYaw, float headPitch, CallbackInfo ci) {
         if (animationProgress == 0.0f && limbAngle == 0.0f && limbDistance == 0.0f) {

@@ -213,6 +213,7 @@ public class NpcSceneScreen extends Screen {
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        this.renderBackground(context);
         AnnisNpcEntity npc = npc();
         if (npc != null && !this.loaded) {
             this.loaded = true;

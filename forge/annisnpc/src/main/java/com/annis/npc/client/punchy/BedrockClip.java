@@ -200,7 +200,7 @@ public final class BedrockClip {
         Channel ch = new Channel();
         if (e.isJsonObject()) {
             JsonObject o = e.getAsJsonObject();
-            boolean timed = !o.isEmpty() && o.keySet().stream().allMatch(BedrockClip::isTimeKey);
+            boolean timed = o.size() > 0 && o.keySet().stream().allMatch(BedrockClip::isTimeKey);
             if (timed) {
                 for (Map.Entry<String, JsonElement> en : o.entrySet()) {
                     float time = Float.parseFloat(en.getKey());

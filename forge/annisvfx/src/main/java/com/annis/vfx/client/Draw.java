@@ -50,8 +50,8 @@ public final class Draw {
     /** Un vertice con todo lo que piden las capas de entidad. */
     private static void v(VertexConsumer vc, Matrix4f m, PoseStack.Pose e, float x, float y, float z,
                           float u, float w, int r, int g, int b, int a, Vector3f n) {
-        vc.addVertex(m, x, y, z).setColor(r, g, b, a).setUv(u, w).setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(FULL_BRIGHT).setNormal(e, n.x, n.y, n.z);
+        vc.vertex(m, x, y, z).color(r, g, b, a).uv(u, w).overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(FULL_BRIGHT).normal(e.normal(), n.x, n.y, n.z).endVertex();
     }
 
     /**

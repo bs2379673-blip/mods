@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(value = LivingEntityRenderer.class, priority = 900)
 public abstract class AnchorRenderMixin {
-    @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             at = @At("HEAD"))
     private void annisinteract$anchor(LivingEntity entity, float yaw, float tickDelta, PoseStack matrices,
                                       MultiBufferSource vcp, int light, CallbackInfo ci) {

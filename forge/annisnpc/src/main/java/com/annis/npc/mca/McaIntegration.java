@@ -308,7 +308,7 @@ public final class McaIntegration {
         v.setYHeadRot(npc.getYHeadRot());
         v.setYBodyRot(npc.getVisualRotationYInDegrees());
         for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.getType() != EquipmentSlot.Type.ANIMAL_ARMOR && !npc.getItemBySlot(slot).isEmpty()) {
+            if (!npc.getItemBySlot(slot).isEmpty()) {
                 v.setItemSlot(slot, npc.getItemBySlot(slot).copy());
             }
         }

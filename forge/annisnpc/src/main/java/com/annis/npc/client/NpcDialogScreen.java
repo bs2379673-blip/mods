@@ -110,6 +110,7 @@ public class NpcDialogScreen extends Screen {
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        this.renderBackground(context);
         super.render(context, mouseX, mouseY, delta);
         int boxH = 78;
         int top = this.height - boxH - 36;

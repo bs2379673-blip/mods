@@ -37,7 +37,7 @@ public class NpcRenderer extends LivingEntityRenderer<AnnisNpcEntity, PlayerMode
     }
 
     @Override
-    public ResourceLocation getTexture(AnnisNpcEntity npc) {
+    public ResourceLocation getTextureLocation(AnnisNpcEntity npc) {
         ResourceLocation custom = SkinManager.get(npc.getSkin());
         if (custom != null) {
             return custom;
@@ -46,9 +46,9 @@ public class NpcRenderer extends LivingEntityRenderer<AnnisNpcEntity, PlayerMode
     }
 
     @Override
-    protected void setupTransforms(AnnisNpcEntity npc, PoseStack matrices, float animationProgress,
-                                   float bodyYaw, float tickDelta, float scale) {
-        super.setupRotations(npc, matrices, animationProgress, bodyYaw, tickDelta, scale);
+    protected void setupRotations(AnnisNpcEntity npc, PoseStack matrices, float animationProgress,
+                                  float bodyYaw, float tickDelta) {
+        super.setupRotations(npc, matrices, animationProgress, bodyYaw, tickDelta);
         float yaw = NpcAnimState.of(npc).rootYaw(npc, tickDelta);
         if (yaw != 0.0f) {
             matrices.mulPose(com.mojang.math.Axis.YP.rotation(yaw));

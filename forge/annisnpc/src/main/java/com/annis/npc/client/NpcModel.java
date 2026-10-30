@@ -71,7 +71,7 @@ public class NpcModel extends PlayerModel<AnnisNpcEntity> {
     }
 
     @Override
-    public void setAngles(AnnisNpcEntity npc, float limbAngle, float limbDistance,
+    public void setupAnim(AnnisNpcEntity npc, float limbAngle, float limbDistance,
                           float animationProgress, float headYaw, float headPitch) {
         super.setupAnim(npc, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
         if (this.jointed) {

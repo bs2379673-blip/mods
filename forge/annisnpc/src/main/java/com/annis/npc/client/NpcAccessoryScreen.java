@@ -9,12 +9,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomModelData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -67,8 +65,7 @@ public class NpcAccessoryScreen extends Screen {
     }
 
     private static int handCmd(ItemStack stack) {
-        CustomModelData c = stack.get(DataComponents.CUSTOM_MODEL_DATA);
-        return c == null ? 0 : c.value();
+        return stack.hasTag() && stack.getTag().contains("CustomModelData") ? stack.getTag().getInt("CustomModelData") : 0;
     }
 
     private ItemStack hand() {
@@ -227,6 +224,7 @@ public class NpcAccessoryScreen extends Screen {
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        this.renderBackground(context);
         AnnisNpcEntity npc = npc();
         if (npc != null && !this.loaded) {
             this.loaded = true;
@@ -276,7 +274,16 @@ public class NpcAccessoryScreen extends Screen {
         int cx2 = this.rightX - 8;
         if (npc != null && cx2 - cx1 > 40) {
             int size = Math.max(30, Math.min((cx2 - cx1) / 2, (this.height - 80) / 3));
-            InventoryScreen.renderEntityInInventoryFollowsMouse(context, cx1, 30, cx2, this.height - 34, size, 0.0625f, mouseX, mouseY, npc);
+            renderNpcPreview(context, cx1, 30, cx2, this.height - 34, size, mouseX, mouseY, npc);
         }
+    }
+
+    /** En 1.20.1 la vista del muneco se ubica por los pies (centro abajo del recuadro). */
+    private static void renderNpcPreview(GuiGraphics ctx, int x1, int y1, int x2, int y2, int size, int mouseX, int mouseY,
+                                         net.minecraft.world.entity.LivingEntity entity) {
+        int cx = (x1 + x2) / 2;
+        int feet = y2 - 6;
+        InventoryScreen.renderEntityInInventoryFollowsMouse(ctx, cx, feet, size, (float) (cx - mouseX),
+                (float) (feet - size * 1.6f - mouseY), entity);
     }
 }

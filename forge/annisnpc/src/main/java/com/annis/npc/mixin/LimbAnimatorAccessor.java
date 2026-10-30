@@ -6,10 +6,10 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(WalkAnimationState.class)
 public interface LimbAnimatorAccessor {
-    @Accessor("prevSpeed")
+    @Accessor("speedOld")
     float annisnpc$getPrevSpeed();
 
-    @Accessor("prevSpeed")
+    @Accessor("speedOld")
     void annisnpc$setPrevSpeed(float v);
 
     @Accessor("speed")
@@ -18,9 +18,9 @@ public interface LimbAnimatorAccessor {
     @Accessor("speed")
     void annisnpc$setSpeed(float v);
 
-    @Accessor("pos")
+    @Accessor("position")
     float annisnpc$getPos();
 
-    @Accessor("pos")
+    @Accessor("position")
     void annisnpc$setPos(float v);
 }

@@ -9,6 +9,21 @@ public interface StreamCodec<B, V> {
 
     void encode(B buf, V value);
 
+    default <O> StreamCodec<B, O> map(Function<? super V, ? extends O> to, Function<? super O, ? extends V> from) {
+        StreamCodec<B, V> self = this;
+        return new StreamCodec<>() {
+            @Override
+            public O decode(B buf) {
+                return to.apply(self.decode(buf));
+            }
+
+            @Override
+            public void encode(B buf, O value) {
+                self.encode(buf, from.apply(value));
+            }
+        };
+    }
+
     static <B, V> StreamCodec<B, V> ofMember(BiConsumer<V, B> writer, Function<B, V> reader) {
         return new StreamCodec<>() {
             @Override

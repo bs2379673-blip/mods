@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(VillagerEntityModelMCA.class)
 public abstract class VillagerModelMixin {
-    @Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At("TAIL"))
+    @Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At("TAIL"))
     private void annisnpc$afterAngles(LivingEntity villager, float limbAngle, float limbDistance, float animationProgress,
                                        float headYaw, float headPitch, CallbackInfo ci) {
         McaClientHooks.afterSetAngles((VillagerEntityModelMCA<?>) (Object) this, villager, animationProgress);

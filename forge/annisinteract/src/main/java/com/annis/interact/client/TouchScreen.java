@@ -69,10 +69,6 @@ public class TouchScreen extends Screen {
         return false;
     }
 
-    @Override
-    public void renderBackground(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
-        // sin fondo oscuro
-    }
 
     private Entity receiver() {
         return this.minecraft == null || this.minecraft.level == null ? null : this.minecraft.level.getEntity(this.receiverId);
@@ -230,7 +226,7 @@ public class TouchScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double h, double v) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double v) {
         if (TouchCam.firstPerson) {
             TouchCam.lookPitch = Math.max(-30.0f, Math.min(45.0f, TouchCam.lookPitch - (float) v * 5.0f));
         } else {

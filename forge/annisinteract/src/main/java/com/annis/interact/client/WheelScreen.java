@@ -68,12 +68,12 @@ public class WheelScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double h, double v) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double v) {
         if (this.pages > 1 && v != 0) {
             setPage(this.page + (v < 0 ? 1 : -1));
             return true;
         }
-        return super.mouseScrolled(mouseX, mouseY, h, v);
+        return super.mouseScrolled(mouseX, mouseY, v);
     }
 
     @Override
@@ -81,10 +81,6 @@ public class WheelScreen extends Screen {
         return false;
     }
 
-    @Override
-    public void renderBackground(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
-        // sin fondo oscuro: se sigue viendo a la otra persona
-    }
 
     private int radius() {
         return Math.min(105, Math.min(this.width, this.height) / 2 - 30);
