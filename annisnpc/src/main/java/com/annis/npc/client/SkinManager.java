@@ -73,6 +73,11 @@ public final class SkinManager {
         if (isUrl(name)) {
             return getUrl(name);
         }
+        // nombres como "punchy:clip" no son archivos (en Windows ':' rompe la ruta)
+        if (!EmoteLibrary.safeFileName(name)) {
+            MISSING.add(name);
+            return null;
+        }
         Path file = dir().resolve(name + ".png");
         if (!Files.isRegularFile(file)) {
             MISSING.add(name);
