@@ -29,6 +29,13 @@ public final class TestDriver {
                 AnnisInteract.LOGGER.info("[TEST] cierro pantalla de Punchy: {}", mc.screen.getClass().getName());
                 mc.setScreen(null);
             }
+            if (mc.level != null && mc.player != null && mc.player.tickCount % 40 == 0) {
+                com.annis.npc.client.NpcAnimState st = com.annis.npc.client.NpcAnimState.peek(mc.player);
+                AnnisInteract.LOGGER.info("[TEST] raiz: llamadas={} aplicadas={} estado={} anim={} raizJugador={}",
+                        com.annis.npc.client.NpcRenderer.rootCalls, com.annis.npc.client.NpcRenderer.rootApplied,
+                        st != null, com.annis.npc.client.ClientLinks.anim(mc.player) != null,
+                        com.annis.npc.client.AnimOverlay.root(mc.player, 0.0f));
+            }
             if (mc.level != null || joinTried) {
                 return;
             }

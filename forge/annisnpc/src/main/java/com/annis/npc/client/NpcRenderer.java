@@ -60,7 +60,14 @@ public class NpcRenderer extends LivingEntityRenderer<AnnisNpcEntity, PlayerMode
      * Pose de cuerpo entero en el marco del render (antes del volteo del modelo: delante = -Z, su
      * izquierda = -X, arriba = +Y). Mismo criterio que la capa "body" de playerAnimator.
      */
+    /** Contadores para la prueba automatica. */
+    public static int rootCalls, rootApplied;
+
     public static void applyRoot(PoseStack matrices, Activities.RootPose rp) {
+        rootCalls++;
+        if (rp != null) {
+            rootApplied++;
+        }
         if (rp == null) {
             return;
         }
