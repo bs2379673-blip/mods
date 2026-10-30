@@ -18,13 +18,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Camera.class)
 public abstract class TouchCameraMixin {
     @Shadow
-    protected abstract void setPos(double x, double y, double z);
+    protected abstract void setPosition(double x, double y, double z);
 
     @Shadow
     protected abstract void setRotation(float yaw, float pitch);
 
     /** Primera persona de mimos: el juego cree que es tercera persona y dibuja el propio cuerpo. */
-    @Inject(method = "isThirdPerson", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "isDetached", at = @At("HEAD"), cancellable = true)
     private void annisinteract$showBody(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> cir) {
         if (TouchCam.active && TouchCam.firstPerson) {
             cir.setReturnValue(true);
@@ -55,7 +55,7 @@ public abstract class TouchCameraMixin {
             float fy = (float) Math.toDegrees(Math.atan2(-face.x, face.z)) + TouchCam.lookYaw;
             float fp = (float) -Math.toDegrees(Math.atan2(face.y, h)) + TouchCam.lookPitch;
             setRotation(fy, Math.max(-60.0f, Math.min(75.0f, fp)));
-            setPos(eye.x, eye.y, eye.z);
+            setPosition(eye.x, eye.y, eye.z);
             return;
         }
         Vec3 mid = me.add(you).scale(0.5).add(0, 1.45, 0);
@@ -77,6 +77,6 @@ public abstract class TouchCameraMixin {
         float yaw = (float) Math.toDegrees(Math.atan2(-look.x, look.z));
         float pitch = (float) -Math.toDegrees(Math.atan2(look.y, horiz));
         setRotation(yaw, pitch);
-        setPos(cam.x, cam.y, cam.z);
+        setPosition(cam.x, cam.y, cam.z);
     }
 }

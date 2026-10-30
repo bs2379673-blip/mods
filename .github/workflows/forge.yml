@@ -54,6 +54,42 @@ jobs:
             grep -E "error:|What went wrong|FAILED|Execution failed" -A3 build.log | head -80
             exit 1
           }
+      - name: Jars finales y paquete de animaciones
+        run: |
+          mkdir -p out
+          for m in annisnpc annisinteract annisvfx; do cp forge/$m/build/libs/$m-forge-1.20.1-*.jar out/; done
+          rm -f out/*-sources.jar out/*-dev.jar
+          mkdir -p bake/cls
+          javac -d bake/cls $(find annisinteract/src/main/java/com/annis/interact/client/anim -name "*.java") annisinteract/src/main/java/com/annis/interact/Layout.java annisinteract/src/main/java/com/annis/interact/Touch.java annisinteract/tools/BakeAnims.java
+          java -cp bake/cls BakeAnims bake/pack
+          python3 - <<'EOP'
+          import json
+          p = 'bake/pack/pack.mcmeta'
+          d = json.load(open(p))
+          d['pack']['pack_format'] = 15
+          json.dump(d, open(p, 'w'), indent=2)
+          EOP
+          (cd bake/pack && zip -q -r ../../out/Annis_Animaciones.zip .)
+          cp forge/LEEME_FORGE.txt out/ 2>/dev/null || true
+          ls -la out
+      - name: Publicar en la release "annis-forge-1.20.1"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete annis-forge-1.20.1 --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
+          gh release create annis-forge-1.20.1 out/* -R "$GITHUB_REPOSITORY" --title "Annis (Forge 1.20.1)" --notes "Annis NPC, Annis Interacciones y Annis VFX para Forge 1.20.1 (commit $GITHUB_SHA). Necesitan playerAnimator para Forge 1.20.1." --target "$GITHUB_SHA"
+      - name: Prueba visual (servidor Forge + cliente en pantalla virtual)
+        continue-on-error: true
+        timeout-minutes: 30
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri mesa-utils > /dev/null
+          bash forge/ci/visual.sh 2>&1 | tail -60
+          mkdir -p vis && cp forge/visrun/server.log vis/server.log 2>/dev/null; cp forge/run/logs/latest.log vis/client.log 2>/dev/null; cp forge/client.log vis/client-gradle.log 2>/dev/null; cp forge/rcon-visual.txt vis/ 2>/dev/null
+          cp out/visual/*.png vis/ 2>/dev/null
+          gh release delete annis-forge-visual --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
+          gh release create annis-forge-visual vis/* -R "$GITHUB_REPOSITORY" --prerelease --title "Prueba visual Forge" --notes "Fotos y logs automaticos (commit $GITHUB_SHA)" --target "$GITHUB_SHA"
       - name: Publicar log y jars (release forge-ci)
         if: always()
         env:

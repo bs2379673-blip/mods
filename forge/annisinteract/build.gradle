@@ -3,3 +3,40 @@ dependencies {
     implementation fg.deobf("blank:playeranimator:1")
     compileOnly fg.deobf("blank:mca:1")
 }
+
+// Para probar: el cliente de desarrollo carga los tres mods
+dependencies {
+    runtimeOnly project(':annisvfx')
+}
+minecraft {
+    runs {
+        client {
+            mods {
+                annisnpc { source project(':annisnpc').sourceSets.main }
+                annisvfx { source project(':annisvfx').sourceSets.main }
+            }
+        }
+        server {
+            mods {
+                annisnpc { source project(':annisnpc').sourceSets.main }
+                annisvfx { source project(':annisvfx').sourceSets.main }
+            }
+        }
+    }
+}
+
+// Prueba visual automatica (solo con -PannisTest): el cliente entra solo al servidor de prueba
+if (project.hasProperty('annisTest')) {
+    dependencies {
+        runtimeOnly fg.deobf("blank:punchymoves:1")
+        runtimeOnly fg.deobf("blank:punchystudio:1")
+    }
+    minecraft {
+        runs {
+            client {
+                property 'annis.test', '1'
+                args '--quickPlayMultiplayer', 'localhost:25565', '--width', '1280', '--height', '720'
+            }
+        }
+    }
+}
