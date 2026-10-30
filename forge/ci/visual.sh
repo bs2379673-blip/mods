@@ -70,7 +70,7 @@ if ! grep -q 'joined the game' $S/server.log; then
   echo "::warning::Visual> el cliente no entro: $(grep -E 'Exception|Error|error|FAILED' client.log | head -20 | tr '\n' '|' | cut -c1-3000)"
   echo "::warning::Visual cliente errores> $(grep -B2 -A12 -E 'Exception|Caused by' run/logs/latest.log 2>/dev/null | grep -v 'Narrator\|flite\|text2speech' | grep -E 'Exception|Caused|at com.annis|at net.minecraft|annis' | head -40 | tr '\n' '|' | cut -c1-6000)"
   echo "::warning::Visual cliente log> $(tail -40 run/logs/latest.log 2>/dev/null | tr '\n' '|' | cut -c1-5000)"
-  mkdir -p ../out; for p in $(pgrep -f 'net.minecraftforge.bootstrap\|bootstraplauncher\|forgeclientuserdev'); do jstack $p >> ../out/jstack.txt 2>&1; done
+  mkdir -p ../out; for p in $(pgrep -f 'bootstraplauncher|forgeclientuserdev'); do jstack $p >> ../out/jstack.txt 2>&1; done
   pkill -f runClient; pkill -f java; exit 0
 fi
 sleep 25
