@@ -20,6 +20,7 @@ final class HandLinkImpl implements PairAnims.HandLink {
         String want = leftPerson ? "de_la_mano_i" : "de_la_mano_d";
         float pt = mc.getTimer().getGameTimeDeltaPartialTick(true);
         Vec3 myPos = me.getPosition(pt);
+        Vec3 realPos = myPos;
         LivingEntity mate = null;
         double best = 3.5 * 3.5;
         for (Entity e : mc.level.entitiesForRendering()) {
@@ -37,9 +38,22 @@ final class HandLinkImpl implements PairAnims.HandLink {
         }
         float myYaw = Mth.rotLerp(pt, me.yBodyRotO, me.yBodyRot);
         float mateYaw = Mth.rotLerp(pt, mate.yBodyRotO, mate.yBodyRot);
+        Vec3 matePos = mate.getPosition(pt);
+        // si alguno se dibuja pegado al jugador, se usa esa posicion (la que se ve)
+        float[] gy = new float[1];
+        Vec3 g = CarryRender.gluedPos(me, pt, gy);
+        if (g != null) {
+            myPos = g;
+            myYaw = gy[0];
+        }
+        g = CarryRender.gluedPos(mate, pt, gy);
+        if (g != null) {
+            matePos = g;
+            mateYaw = gy[0];
+        }
         // hombros en el mundo: el mio (derecho si voy a la izquierda) y el suyo (el contrario)
         Vec3 mine = toWorld(myPos, myYaw, leftPerson ? -5 : 5, 2, 0);
-        Vec3 his = toWorld(mate.getPosition(pt), mateYaw, leftPerson ? 5 : -5, 2, 0);
+        Vec3 his = toWorld(matePos, mateYaw, leftPerson ? 5 : -5, 2, 0);
         Vec3 mid = mine.add(his).scale(0.5);
         // las manos cuelgan un poco por debajo, adelantadas y balanceandose juntas
         float swing = 1.2f * Mth.sin(t * 0.33f);

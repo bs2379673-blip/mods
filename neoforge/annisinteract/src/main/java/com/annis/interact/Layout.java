@@ -27,8 +27,8 @@ public final class Layout {
     /** Besar la mano. */
     public static final float HAND_KISS = 0.95f;
     // en brazos: pies del que es llevado respecto al que carga
-    public static final float CARRY_FWD = 0.41f, CARRY_UP = 0.69f, CARRY_LEFT = 0.0f;
-    public static final float BACK_FWD = -0.28f, BACK_UP = 0.20f, BACK_LEFT = -0.22f;
+    public static final float CARRY_FWD = 0.37f, CARRY_UP = 0.52f, CARRY_LEFT = 0.0f;
+    public static final float BACK_FWD = -0.19f, BACK_UP = 0.25f, BACK_LEFT = -0.10f;
 
     private Layout() {
     }

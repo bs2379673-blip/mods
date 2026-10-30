@@ -34,7 +34,7 @@ public final class PairAnims {
     private static final Root LYING = new Root(PI / 2, 0, 0, 0, -0.575f, 0);
     private static final Root SITTING = new Root(0, 0, 0, 0, -0.575f, 0);
     private static final Root CARRIED = new Root(PI / 2, -PI / 2, 0, 0, 0, 0);
-    private static final Root PIGGY = new Root(-0.20f, 0, 0, 0, 0, 0);
+    private static final Root PIGGY = new Root(-0.36f, 0, 0, 0, 0, 0);
     static final float BED_ROLL = 1.35f, BED_UP = 0.17f;
     /** En la cama, de costado mirando hacia su izquierda (donde esta el otro). */
     static final Root BED_SIDE_ROOT = new Root(PI / 2, 0, BED_ROLL, 0, -0.575f + BED_UP, 0);
@@ -548,7 +548,7 @@ public final class PairAnims {
     static void piggyCarrier(Rig r, float t) {
         r.restUpper();
         relaxedLegs(r, t, 1.4f);
-        r.torso(0.50f, 0, 0.03f * sin(t * 0.07f));
+        r.torso(0.42f, 0, 0.03f * sin(t * 0.07f));
         float[] rt = thigh(true), lt = thigh(false);
         hand(r.rightArm, riderPoint(rt[0], rt[1], rt[2]), -0.8f, 0.2f, 0.6f, null, 1);
         hand(r.leftArm, riderPoint(lt[0], lt[1], lt[2]), 0.8f, 0.2f, 0.6f, null, 1);
