@@ -11,6 +11,9 @@ import net.minecraft.client.Screenshot;
  * "[TEST] foto nombre" o "[TEST] camara frente|atras|primera" y el cliente obedece.
  */
 public final class TestDriver {
+    private static int waitTicks;
+    private static boolean joinTried;
+
     private TestDriver() {
     }
 
@@ -19,6 +22,21 @@ public final class TestDriver {
             return;
         }
         AnnisInteract.LOGGER.info("Modo prueba visual activado");
+        // si a los 25 s no entro solo al servidor (alguna pantalla en el medio), entra a mano
+        com.annis.npc.compat.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+            if (mc.level != null || joinTried) {
+                return;
+            }
+            if (++waitTicks == 500) {
+                joinTried = true;
+                AnnisInteract.LOGGER.info("[TEST] sin entrar al servidor; pantalla actual: {}", mc.screen);
+                Screenshot.grab(mc.gameDirectory, "zz_antes_de_entrar.png", mc.getMainRenderTarget(), t -> { });
+                net.minecraft.client.gui.screens.ConnectScreen.startConnecting(
+                        new net.minecraft.client.gui.screens.TitleScreen(), mc,
+                        net.minecraft.client.multiplayer.resolver.ServerAddress.parseString("localhost:25565"),
+                        new net.minecraft.client.multiplayer.ServerData("test", "localhost:25565", false), false);
+            }
+        });
         ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
             String s = message.getString();
             int i = s.indexOf("[TEST] ");
