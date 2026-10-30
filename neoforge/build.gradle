@@ -38,6 +38,7 @@ subprojects {
     }
 
     tasks.register('dumpClasspath') {
+        dependsOn tasks.matching { it.name == 'createMinecraftArtifacts' }
         doLast {
             def out = layout.buildDirectory.dir('cp').get().asFile
             out.mkdirs()

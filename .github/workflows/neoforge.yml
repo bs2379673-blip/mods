@@ -33,7 +33,7 @@ jobs:
       - name: Classpath (para compilar rapido afuera)
         working-directory: neoforge
         run: |
-          gradle dumpClasspath --no-daemon --stacktrace 2>&1 | tee ../dump.log | tail -40
+          gradle dumpClasspath --continue --no-daemon --stacktrace 2>&1 | tee ../dump.log | tail -40; find . ~/.gradle -name '*neoforge-21.1*merged*.jar' -o -name 'neoforge-21.1*-client-extra*.jar' 2>/dev/null | head; cp $(find . -path '*moddev*' -name '*.jar' | grep -v sources | head -5) ../cp/ 2>/dev/null; true
           mkdir -p ../cp && cp annisnpc/build/cp/*.jar annisinteract/build/cp/*.jar annisvfx/build/cp/*.jar ../cp/ 2>/dev/null || true
           cp libs/*.jar ../cp/ || true
           ls ../cp | head -80; du -sh ../cp
@@ -43,7 +43,7 @@ jobs:
         run: |
           gh release view neo-ci -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create neo-ci -R "$GITHUB_REPOSITORY" --prerelease --title "NeoForge CI (interno)" --notes "Archivos internos para compilar la version Forge 1.20.1" --target "$GITHUB_SHA"
           size=$(gh release view neo-ci -R "$GITHUB_REPOSITORY" --json assets -q '.assets[] | select(.name=="cp.tgz") | .size')
-          if [ -z "$size" ] || [ "$size" -lt 50000000 ] || [ -n "${{ github.event.inputs.cp }}" ]; then
+          if [ -z "$size" ] || [ "$size" -lt 90000000 ] || [ -n "${{ github.event.inputs.cp }}" ]; then
             tar czf cp.tgz cp && gh release upload neo-ci cp.tgz --clobber -R "$GITHUB_REPOSITORY"
           fi
       - name: Compilar
