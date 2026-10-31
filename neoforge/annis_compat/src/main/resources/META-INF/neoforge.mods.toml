@@ -1,0 +1,41 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="annis_compat"
+version="${version}"
+displayName="Annis Compat"
+authors="Annis World"
+description='''Compatibilidades de animacion: animaciones de Punchy Moves para lo que otros mods animan por su cuenta (Cinematic Interactions...), para que convivan con Punchy y Fluid & Foolish.'''
+
+[[dependencies.annis_compat]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.annis_compat]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,1.21.2)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.annis_compat]]
+modId="cinematic"
+type="optional"
+versionRange="[0.18,)"
+ordering="AFTER"
+side="CLIENT"
+
+[[dependencies.annis_compat]]
+modId="punchy_moves"
+type="optional"
+versionRange="*"
+ordering="AFTER"
+side="CLIENT"
+
+[[mixins]]
+config="annis_compat.mixins.json"

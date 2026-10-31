@@ -10,7 +10,9 @@ NEO=$(grep neo_version gradle.properties | cut -d= -f2)
 curl -sSL -o $S/installer.jar "https://maven.neoforged.net/releases/net/neoforged/neoforge/$NEO/neoforge-$NEO-installer.jar"
 ( cd $S && java -jar installer.jar --installServer > install.log 2>&1 ); tail -3 $S/install.log
 cp libs/playeranimator-1.jar $S/mods/
-cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar $S/mods/
+cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar $S/mods/
+# Cinematic Interactions (MIT) para probar Annis Compat
+cp libs/cinematic-0.18.30.jar $S/mods/
 ls $S/mods
 echo "eula=true" > $S/eula.txt
 # interacciones por archivo (prueba): usan las animaciones del paquete exportado
@@ -64,6 +66,7 @@ mkdir -p run/resourcepacks run/mods
 rm -f run/mods/*.jar; cp libs/playeranimator-1.jar libs/punchymoves-1.jar libs/punchystudio-1.jar run/mods/ 2>/dev/null
 # EMF + ETF y un pack de prueba que muestra lo que EMF ve del golpe (swing_progress / is_swinging_right_arm)
 cp libs/emf-1.jar libs/etf-1.jar run/mods/ 2>/dev/null
+cp libs/cinematic-0.18.30.jar run/mods/
 (cd ci/emfprueba && zip -qr ../../run/resourcepacks/EMF_Prueba.zip .)
 cp ../out/Annis_Animaciones.zip run/resourcepacks/ 2>/dev/null || true
 export LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=4.5
@@ -80,6 +83,20 @@ fi
 sleep 25
 T='tellraw @a {"text":"[TEST] '
 E='"}'
+# --- Annis Compat: animaciones de Punchy para las estaciones de Cinematic Interactions ---
+CMDS=('gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule sendCommandFeedback false'
+  'tp @a 20 -60 20 0 0' "${T}hud no${E}" "${T}camara frente${E}" 'sleep 1.5' "${T}foto c00_punchy_quieto${E}")
+for st in default lectern anvil campfire campfire_sentado loom grindstone stonecutter furnace chiseled_bookshelf chiseled_bookshelf_leyendo enchanting; do
+  CMDS+=("${T}estacion ${st}${E}" 'sleep 1.1' "${T}foto c_${st}${E}")
+done
+CMDS+=("${T}estacion anvil${E}" 'sleep 0.8' "${T}accion${E}" 'sleep 0.45' "${T}foto c_anvil_arriba${E}" 'sleep 0.25' "${T}foto c_anvil_golpe${E}"
+  "${T}estacion grindstone${E}" 'sleep 0.8' "${T}accion${E}" 'sleep 0.7' "${T}foto c_grindstone_accion${E}"
+  "${T}estacion stonecutter${E}" 'sleep 0.8' "${T}accion${E}" 'sleep 0.5' "${T}foto c_stonecutter_accion${E}"
+  "${T}estacion ninguna${E}" 'sleep 0.6' "${T}foto c_fuera${E}" "${T}camara primera${E}"
+  'setblock 20 -60 23 minecraft:crafting_table' 'tp @a 20.5 -60 21.5 0 35' 'sleep 1' "${T}usar 20 -60 23${E}" 'sleep 3' "${T}foto c_cine_mesa${E}"
+  "${T}cerrar${E}" 'sleep 1.5' 'setblock 20 -60 23 minecraft:anvil' 'sleep 0.5' "${T}usar 20 -60 23${E}" 'sleep 3' "${T}foto c_cine_yunque${E}"
+  "${T}cerrar${E}" 'sleep 1.5' 'setblock 20 -60 23 minecraft:air')
+python3 ci/rcon.py 25577 annistest "${CMDS[@]}"
 python3 ci/rcon.py 25577 annistest \
   'gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule sendCommandFeedback false' \
   'tp @a 0 -60 -4 0 12' "${T}hud no${E}" \
@@ -212,6 +229,7 @@ mkdir -p ../out/visual
 cp run/screenshots/*.png ../out/visual/ 2>/dev/null
 ls -la ../out/visual
 echo "::notice::Visual> $(grep -h 'Animaciones de paquetes' run/logs/latest.log 2>/dev/null | tail -1)"
+echo "::notice::Visual compat> $(grep -hE 'Annis Compat|\[TEST\] (usar|estacion)' run/logs/latest.log 2>/dev/null | head -30 | tr '\n' '|' | cut -c1-4000)"
 echo "::notice::Visual> fotos: $(ls ../out/visual 2>/dev/null | tr '\n' ' ')"
 echo "::notice::Visual> $(grep -v '^$' rcon-visual.txt | grep -v '^> ' | tr '\n' '|' | cut -c1-3000)"
 echo "::warning::Visual cliente> $(grep -E 'Mixin|mixin|Exception|ERROR|Caused by' run/logs/latest.log 2>/dev/null | grep -v 'Mixin Config\|mixins.json' | head -30 | tr '\n' '|' | cut -c1-6000)"

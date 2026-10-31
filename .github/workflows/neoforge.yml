@@ -57,7 +57,7 @@ jobs:
       - name: Jars finales y paquete de animaciones
         run: |
           mkdir -p out
-          for m in annisnpc annisinteract annisvfx; do cp neoforge/$m/build/libs/$m-neoforge-1.21.1-*.jar out/; done
+          for m in annisnpc annisinteract annisvfx annis_compat; do cp neoforge/$m/build/libs/$m-neoforge-1.21.1-*.jar out/; done
           rm -f out/*-sources.jar out/*-dev.jar
           mkdir -p bake/cls
           javac -d bake/cls $(find annisinteract/src/main/java/com/annis/interact/client/anim -name "*.java") annisinteract/src/main/java/com/annis/interact/Layout.java annisinteract/src/main/java/com/annis/interact/Touch.java annisinteract/tools/BakeAnims.java
@@ -79,7 +79,7 @@ jobs:
           gh release delete annis-neoforge-1.21.1 --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
           ls -la out | while read -r l; do echo "::notice::out> $l"; done
           for i in 1 2 3 4; do
-            if gh release create annis-neoforge-1.21.1 out/* -R "$GITHUB_REPOSITORY" --title "Annis (NeoForge 1.21.1)" --notes "Annis NPC, Annis Interacciones y Annis VFX para NeoForge 1.21.1 (commit $GITHUB_SHA). Necesitan NeoForge 21.1.229+ y playerAnimator para NeoForge 1.21.1." --target "$GITHUB_SHA" > rel.txt 2>&1; then cat rel.txt; break; fi
+            if gh release create annis-neoforge-1.21.1 out/* -R "$GITHUB_REPOSITORY" --title "Annis (NeoForge 1.21.1)" --notes "Annis NPC, Annis Interacciones, Annis VFX y Annis Compat para NeoForge 1.21.1 (commit $GITHUB_SHA). Necesitan NeoForge 21.1.229+ y playerAnimator para NeoForge 1.21.1." --target "$GITHUB_SHA" > rel.txt 2>&1; then cat rel.txt; break; fi
             while read -r l; do echo "::warning::release intento $i> $l"; done < rel.txt
             sleep 15
           done

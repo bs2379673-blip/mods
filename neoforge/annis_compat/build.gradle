@@ -1,0 +1,4 @@
+dependencies {
+    // Cinematic Interactions (MIT): solo para compilar; en el juego es opcional
+    compileOnly files(rootProject.file('libs/cinematic-0.18.30.jar'))
+}
