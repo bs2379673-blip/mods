@@ -7,7 +7,7 @@ modId="annis_compat"
 version="${version}"
 displayName="Annis Compat"
 authors="Annis World"
-description='''Compatibilidades de animacion con Punchy Moves: en las estaciones de Cinematic Interactions, Punchy se pausa y se ven las animaciones propias de Cinematic.'''
+description='''Compatibilidades con Punchy Moves. Cinematic Interactions: mientras trabajas en una estacion, Punchy se pausa y se ven las animaciones propias de Cinematic.'''
 
 [[dependencies.annis_compat]]
 modId="neoforge"
@@ -22,20 +22,6 @@ type="required"
 versionRange="[1.21.1,1.21.2)"
 ordering="NONE"
 side="BOTH"
-
-[[dependencies.annis_compat]]
-modId="cinematic"
-type="optional"
-versionRange="[0.18,)"
-ordering="AFTER"
-side="CLIENT"
-
-[[dependencies.annis_compat]]
-modId="punchy_moves"
-type="optional"
-versionRange="*"
-ordering="AFTER"
-side="CLIENT"
 
 [[mixins]]
 config="annis_compat.mixins.json"

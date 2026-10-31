@@ -4,8 +4,8 @@
   "package": "com.annis.compat.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "PunchyBeforeMixin",
-    "PlayerModelMixin"
+    "SaveBeforePunchyMixin",
+    "RestoreAfterPunchyMixin"
   ],
   "injectors": {
     "defaultRequire": 1

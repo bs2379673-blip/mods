@@ -1,53 +1,63 @@
-package com.annis.compat.client;
+package com.annis.compat;
 
-import com.annis.compat.AnnisCompat;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.ModList;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Cinematic Interactions: mientras un jugador trabaja en una estacion (mesa, yunque, horno...),
- * Punchy Moves no le toca el cuerpo y se ven las animaciones propias de Cinematic.
- * Se guarda la pose justo antes de que Punchy anime y se devuelve justo despues, con un
- * fundido corto al entrar y al salir de la estacion.
+ * Cinematic Interactions + Punchy Moves: mientras un jugador esta en una estacion de Cinematic
+ * (mesa, yunque, horno, fogata...), se guarda la pose que puso Cinematic justo antes de que Punchy
+ * anime y se devuelve justo despues. Asi se ven las animaciones de Cinematic. Al entrar y salir
+ * hay un fundido corto. Sin Cinematic instalado no hace nada.
  */
-public final class CinematicModule {
-    private static final boolean LOADED = ModList.get().isLoaded("cinematic");
-    /** Fundido al entrar y salir de la estacion, en ticks. */
+public final class CinematicPause {
     private static final float FADE_TICKS = 4.0f;
-
+    private static final MethodHandle AT_STATION = find();
     private static final Map<Player, State> STATES = Collections.synchronizedMap(new WeakHashMap<>());
 
-    /** Para pruebas: fuerza una estacion en el jugador local (null = normal). */
-    static String forced;
-    static long forcedActionAt = -1;
-
     private static final class State {
+        boolean atStation;
+        boolean saved;
         float weight;
         float lastAge = Float.NaN;
-        boolean at;
-        boolean captured;
         final float[][] pose = new float[12][6];
         final boolean[] visible = new boolean[12];
     }
 
-    private CinematicModule() {
+    private CinematicPause() {
     }
 
-    public static boolean active() {
-        return LOADED || forced != null;
-    }
-
-    private static String stationOf(Player p) {
-        if (forced != null && p == net.minecraft.client.Minecraft.getInstance().player) {
-            return forced.isEmpty() ? null : forced;
+    private static MethodHandle find() {
+        if (!ModList.get().isLoaded("cinematic")) {
+            return null;
         }
-        return LOADED ? CinematicBridge.station(p.getId()) : null;
+        try {
+            Class<?> c = Class.forName("dev.dyslexic.cinematic.client.ClientPayloads");
+            Class<?> kind = Class.forName("dev.dyslexic.cinematic.station.StationKind");
+            return MethodHandles.publicLookup().findStatic(c, "atStation", MethodType.methodType(kind, int.class));
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    public static boolean enabled() {
+        return AT_STATION != null;
+    }
+
+    private static boolean atStation(Player p) {
+        try {
+            return AT_STATION.invoke(p.getId()) != null;
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     private static ModelPart[] parts(PlayerModel<?> m) {
@@ -55,21 +65,20 @@ public final class CinematicModule {
                 m.rightLeg, m.rightPants, m.leftLeg, m.leftPants};
     }
 
-    /** Antes de Punchy Moves: guarda la pose que dejo Cinematic. */
-    public static void beforePunchy(PlayerModel<?> model, Player player) {
-        String station = stationOf(player);
+    /** Antes de Punchy: guarda la pose de Cinematic. */
+    public static void save(PlayerModel<?> model, Player player) {
+        boolean at = atStation(player);
         State st = STATES.get(player);
-        if (station == null && st == null) {
+        if (!at && st == null) {
             return;
         }
         if (st == null) {
             st = new State();
             STATES.put(player, st);
-            AnnisCompat.LOGGER.info("Annis Compat: {} entra a la estacion {} de Cinematic; Punchy en pausa", player.getName().getString(), station);
         }
-        st.at = station != null;
-        st.captured = true;
-        if (!st.at) {
+        st.atStation = at;
+        st.saved = true;
+        if (!at) {
             return; // saliendo: se funde desde la ultima pose de Cinematic
         }
         ModelPart[] ps = parts(model);
@@ -86,17 +95,17 @@ public final class CinematicModule {
         }
     }
 
-    /** Despues de Punchy Moves: devuelve la pose de Cinematic (mezclada mientras dura el fundido). */
-    public static void afterPunchy(PlayerModel<?> model, Player player, float ageInTicks) {
+    /** Despues de Punchy: devuelve la pose de Cinematic. */
+    public static void restore(PlayerModel<?> model, Player player, float ageInTicks) {
         State st = STATES.get(player);
-        if (st == null || !st.captured) {
+        if (st == null || !st.saved) {
             return;
         }
-        st.captured = false;
+        st.saved = false;
         float dt = Float.isNaN(st.lastAge) ? 0.0f : Math.max(0.0f, Math.min(5.0f, ageInTicks - st.lastAge));
         st.lastAge = ageInTicks;
-        st.weight = Math.max(0.0f, Math.min(1.0f, st.weight + (st.at ? dt : -dt) / FADE_TICKS));
-        if (!st.at && st.weight <= 0.0f) {
+        st.weight = Math.max(0.0f, Math.min(1.0f, st.weight + (st.atStation ? dt : -dt) / FADE_TICKS));
+        if (!st.atStation && st.weight <= 0.0f) {
             STATES.remove(player);
             return;
         }

@@ -1,2 +1,0 @@
-Cinematic Interactions 0.18.30 (NeoForge 1.21.1), de Southware, licencia MIT.
-Se usa solo para compilar y probar Annis Compat.

@@ -1,4 +1,1 @@
-dependencies {
-    // Cinematic Interactions (MIT): solo para compilar; en el juego es opcional
-    compileOnly files(rootProject.file('libs/cinematic-0.18.30.jar'))
-}
+// Sin dependencias: Cinematic Interactions y Punchy Moves se detectan en el juego.
