@@ -7,7 +7,7 @@ modId="annis_compat"
 version="${version}"
 displayName="Annis Compat"
 authors="Annis World"
-description='''Compatibilidades de animacion: animaciones de Punchy Moves para lo que otros mods animan por su cuenta (Cinematic Interactions...), para que convivan con Punchy y Fluid & Foolish.'''
+description='''Compatibilidades de animacion con Punchy Moves: en las estaciones de Cinematic Interactions, Punchy se pausa y se ven las animaciones propias de Cinematic.'''
 
 [[dependencies.annis_compat]]
 modId="neoforge"

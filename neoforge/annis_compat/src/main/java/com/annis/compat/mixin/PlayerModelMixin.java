@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Despues de Punchy Moves (prioridad 900) y antes de Annis NPC (1500): asi las animaciones de las
- * estaciones ganan a la caminata de Punchy, y un emote o interaccion de Annis sigue ganando.
+ * Despues de Punchy Moves (prioridad 900) y antes de Annis NPC (1500): devuelve la pose de
+ * Cinematic en las estaciones; un emote o interaccion de Annis sigue ganando.
  */
 @Mixin(value = PlayerModel.class, priority = 1400)
 public abstract class PlayerModelMixin {
@@ -25,7 +25,7 @@ public abstract class PlayerModelMixin {
             return; // brazo en primera persona
         }
         try {
-            CinematicModule.afterSetupAnim((PlayerModel<?>) (Object) this, player, ageInTicks);
+            CinematicModule.afterPunchy((PlayerModel<?>) (Object) this, player, ageInTicks);
         } catch (Throwable ignored) {
             // nunca romper el dibujo del jugador por esto
         }

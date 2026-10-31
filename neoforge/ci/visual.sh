@@ -83,15 +83,10 @@ fi
 sleep 25
 T='tellraw @a {"text":"[TEST] '
 E='"}'
-# --- Annis Compat: animaciones de Punchy para las estaciones de Cinematic Interactions ---
+# --- Annis Compat: Punchy en pausa en las estaciones de Cinematic Interactions ---
 CMDS=('gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule sendCommandFeedback false'
   'tp @a 20 -60 20 0 0' "${T}hud no${E}" "${T}camara frente${E}" 'sleep 1.5' "${T}foto c00_punchy_quieto${E}")
-for st in default lectern anvil campfire campfire_sentado loom grindstone stonecutter furnace chiseled_bookshelf chiseled_bookshelf_leyendo enchanting; do
-  CMDS+=("${T}estacion ${st}${E}" 'sleep 1.1' "${T}foto c_${st}${E}")
-done
-CMDS+=("${T}estacion anvil${E}" 'sleep 0.8' "${T}accion${E}" 'sleep 0.45' "${T}foto c_anvil_arriba${E}" 'sleep 0.25' "${T}foto c_anvil_golpe${E}"
-  "${T}estacion grindstone${E}" 'sleep 0.8' "${T}accion${E}" 'sleep 0.7' "${T}foto c_grindstone_accion${E}"
-  "${T}estacion stonecutter${E}" 'sleep 0.8' "${T}accion${E}" 'sleep 0.5' "${T}foto c_stonecutter_accion${E}"
+CMDS+=("${T}estacion anvil${E}" 'sleep 1' "${T}foto c_punchy_en_pausa${E}"
   "${T}estacion ninguna${E}" 'sleep 0.6' "${T}foto c_fuera${E}" "${T}camara primera${E}"
   'setblock 20 -60 23 minecraft:crafting_table' 'tp @a 20.5 -60 21.5 0 35' 'sleep 1' "${T}usar 20 -60 23${E}" 'sleep 3' "${T}foto c_cine_mesa${E}"
   "${T}cerrar${E}" 'sleep 1.5' 'setblock 20 -60 23 minecraft:anvil' 'sleep 0.5' "${T}usar 20 -60 23${E}" 'sleep 3' "${T}foto c_cine_yunque${E}"
