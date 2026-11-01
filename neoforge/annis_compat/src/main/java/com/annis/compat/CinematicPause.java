@@ -124,5 +124,13 @@ public final class CinematicPause {
                 p.visible = st.visible[i];
             }
         }
+        // la segunda capa sigue al cuerpo: Cinematic mueve la cabeza (fogata, echado hacia atras) despues
+        // de que el juego copio su posicion al sombrero, y el sombrero quedaba despegado adelante
+        model.hat.copyFrom(model.head);
+        model.jacket.copyFrom(model.body);
+        model.rightSleeve.copyFrom(model.rightArm);
+        model.leftSleeve.copyFrom(model.leftArm);
+        model.rightPants.copyFrom(model.rightLeg);
+        model.leftPants.copyFrom(model.leftLeg);
     }
 }

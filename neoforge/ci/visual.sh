@@ -10,7 +10,7 @@ NEO=$(grep neo_version gradle.properties | cut -d= -f2)
 curl -sSL -o $S/installer.jar "https://maven.neoforged.net/releases/net/neoforged/neoforge/$NEO/neoforge-$NEO-installer.jar"
 ( cd $S && java -jar installer.jar --installServer > install.log 2>&1 ); tail -3 $S/install.log
 cp libs/playeranimator-1.jar $S/mods/
-cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar $S/mods/
+cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar libs/cinematic-0.18.30.jar $S/mods/
 ls $S/mods
 echo "eula=true" > $S/eula.txt
 # interacciones por archivo (prueba): usan las animaciones del paquete exportado
@@ -64,6 +64,8 @@ mkdir -p run/resourcepacks run/mods
 rm -f run/mods/*.jar; cp libs/playeranimator-1.jar libs/punchymoves-1.jar libs/punchystudio-1.jar run/mods/ 2>/dev/null
 # clips de prueba con los nombres de Punchy / Fluid & Foolish (idle, normal_forward, sneaking) para la caminata de los NPC
 (cd ci/locoprueba && zip -qr ../../run/resourcepacks/Loco_Prueba.zip .)
+# Cinematic Interactions (MIT) para probar Annis Compat
+cp libs/cinematic-0.18.30.jar run/mods/
 cp ../out/Annis_Animaciones.zip run/resourcepacks/ 2>/dev/null || true
 export LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=4.5
 ( timeout 840 xvfb-run -a -s "-screen 0 1280x720x24" gradle :annisinteract:runClient -PannisTest --no-daemon > client.log 2>&1 ) &
@@ -86,6 +88,10 @@ LOCO=('gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule
   'summon annisnpc:npc 30 -60 30 {Tags:["lw"],NoAI:1b,Protected:0b,Rotation:[-90f,0f]}' 'sleep 2')
 for i in $(seq 1 14); do LOCO+=('execute as @e[tag=lw] at @s run tp @s ~0.25 ~ ~ -90 0' 'sleep 0.1'); [ $i = 9 ] && LOCO+=("${T}foto l01_camina_a${E}"); [ $i = 12 ] && LOCO+=("${T}foto l02_camina_b${E}"); done
 LOCO+=('sleep 1.5' "${T}foto l03_quietos${E}" 'kill @e[tag=lq]' 'kill @e[tag=lw]' 'sleep 1')
+# Annis Compat: jugador "en la fogata" de Cinematic (sin abrir la escena), visto de frente y de costado
+LOCO+=('tp @a 40 -60 40 0 0' "${T}camara frente${E}" "${T}estacion CAMPFIRE${E}" 'sleep 1.2' "${T}foto f01_fogata_frente${E}"
+  "${T}cuerpo 90${E}" 'sleep 0.6' "${T}foto f02_fogata_costado${E}" "${T}estacion ANVIL${E}" 'sleep 0.8' "${T}foto f03_yunque_costado${E}"
+  "${T}estacion ninguna${E}" 'sleep 0.8' "${T}foto f04_fuera_costado${E}" "${T}cuerpo libre${E}" "${T}camara primera${E}")
 python3 ci/rcon.py 25577 annistest "${LOCO[@]}"
 python3 ci/rcon.py 25577 annistest \
   'gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule sendCommandFeedback false' \

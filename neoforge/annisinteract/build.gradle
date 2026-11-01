@@ -3,6 +3,7 @@ dependencies {
     compileOnly files(rootProject.file("libs/playeranimator-1.jar"))
     compileOnly files(rootProject.file('libs/mca-neoforge-7.7.36.jar'))
     runtimeOnly project(':annisvfx')
+    runtimeOnly project(':annis_compat')
 }
 
 // El cliente y el servidor de prueba cargan los tres mods
@@ -10,6 +11,7 @@ neoForge {
     mods {
         annisnpc { sourceSet project(':annisnpc').sourceSets.main }
         annisvfx { sourceSet project(':annisvfx').sourceSets.main }
+        annis_compat { sourceSet project(':annis_compat').sourceSets.main }
     }
     runs {
         client {

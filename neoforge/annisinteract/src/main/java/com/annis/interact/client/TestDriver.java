@@ -42,6 +42,13 @@ public final class TestDriver {
                         new net.minecraft.client.multiplayer.ServerData("test", "localhost:25565", net.minecraft.client.multiplayer.ServerData.Type.OTHER), false, null);
             }
         });
+        com.annis.npc.compat.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+            if (!Float.isNaN(bodyOffset) && mc.player != null) {
+                // cuerpo girado respecto de la camara: para ver al jugador de costado en tercera persona
+                mc.player.yBodyRot = mc.player.getYRot() + bodyOffset;
+                mc.player.yBodyRotO = mc.player.yBodyRot;
+            }
+        });
         ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
             String s = message.getString();
             int i = s.indexOf("[TEST] ");
@@ -66,6 +73,8 @@ public final class TestDriver {
                         mc.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
                     }
                 }
+                case "estacion" -> fakeStation(mc, cmd.length > 1 ? cmd[1] : "ninguna");
+                case "cuerpo" -> bodyOffset = cmd.length > 1 && !cmd[1].equals("libre") ? Float.parseFloat(cmd[1]) : Float.NaN;
                 case "hud" -> mc.options.hideGui = cmd.length > 1 && cmd[1].equals("no");
                 case "tocar" -> {
                     if (mc.screen instanceof TouchScreen ts && cmd.length >= 5) {
@@ -88,5 +97,27 @@ public final class TestDriver {
                 }
             }
         });
+    }
+
+    private static float bodyOffset = Float.NaN;
+
+    /** Prueba: Cinematic Interactions cree que el jugador local esta en una estacion (sin abrir la escena). */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static void fakeStation(Minecraft mc, String kind) {
+        if (mc.player == null) {
+            return;
+        }
+        try {
+            Class<?> kindC = Class.forName("dev.dyslexic.cinematic.station.StationKind");
+            boolean none = kind.equals("ninguna");
+            Object k = Enum.valueOf((Class) kindC, none ? "TABLE" : kind.toUpperCase(java.util.Locale.ROOT));
+            Class<?> payC = Class.forName("dev.dyslexic.cinematic.net.AtStationPayload");
+            Object pay = payC.getConstructor(int.class, java.util.Optional.class, kindC).newInstance(mc.player.getId(),
+                    none ? java.util.Optional.empty() : java.util.Optional.of(mc.player.blockPosition()), k);
+            Class.forName("dev.dyslexic.cinematic.client.ClientPayloads").getMethod("atStation", payC).invoke(null, pay);
+            AnnisInteract.LOGGER.info("[TEST] estacion de Cinematic: {}", kind);
+        } catch (Throwable t) {
+            AnnisInteract.LOGGER.warn("[TEST] estacion: {}", t.toString());
+        }
     }
 }
