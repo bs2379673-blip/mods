@@ -84,9 +84,6 @@ public class NpcModel extends PlayerModel<AnnisNpcEntity> {
 
         NpcAnimState state = NpcAnimState.of(npc);
         boolean overriding = state.isOverriding();
-        EmfCompat.setPaused(npc, overriding);
-        // si EMF anima el modelo (caminar/reposo), su animacion manda cuando no hay emote ni actividad
-        boolean emfDrives = !overriding && EmfCompat.emfAnimates(this);
         if (state.applier.isActive()) {
             state.applier.updatePart("head", this.head);
             state.applier.updatePart("leftArm", this.leftArm);
@@ -104,10 +101,11 @@ public class NpcModel extends PlayerModel<AnnisNpcEntity> {
             }
         } else {
             // capa procedural solo de pie; las actividades tambien montado o agachado (en brazos...)
-            boolean punchy = !emfDrives && !npc.isShiftKeyDown() && !npc.isPassenger()
-                    && com.annis.npc.client.punchy.PunchyClips.locomotion(this, limbAngle, limbDistance, animationProgress,
-                    npc.isSprinting(), headYaw * 0.017453292f, headPitch * 0.017453292f);
-            if (!punchy && !emfDrives && !npc.isShiftKeyDown() && !npc.isPassenger()) {
+            // caminar, correr, agacharse y quieto: con las animaciones de Punchy (y Fluid & Foolish) si estan
+            boolean punchy = !npc.isPassenger() && !npc.isSleeping()
+                    && com.annis.npc.client.punchy.PunchyClips.locomotion(this, npc.isCrouching(), limbAngle, limbDistance,
+                    animationProgress, npc.isSprinting(), headYaw * 0.017453292f, headPitch * 0.017453292f);
+            if (!punchy && !npc.isShiftKeyDown() && !npc.isPassenger()) {
                 state.applyProcedural(this, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
                 if (this.jointed) {
                     naturalBends(limbDistance);

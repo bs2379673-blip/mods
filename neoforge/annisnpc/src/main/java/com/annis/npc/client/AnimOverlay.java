@@ -12,7 +12,7 @@ import net.minecraft.world.entity.LivingEntity;
 /**
  * Animaciones de Annis encima de cualquier modelo de humanoide (jugadores, aldeanos de MCA...):
  * se copia la pose al modelo de NPC, se aplica el emote o la actividad con la misma mezcla
- * suave que en los NPC, y se devuelve. Las animaciones de EMF se pausan mientras tanto.
+ * suave que en los NPC, y se devuelve.
  */
 public final class AnimOverlay {
     private static NpcModel scratch;
@@ -36,11 +36,9 @@ public final class AnimOverlay {
         NpcAnimState state = NpcAnimState.peek(entity);
         ClientLinks.Anim anim = ClientLinks.anim(entity);
         if (state == null || anim == null) {
-            EmfCompat.setPaused(entity, false);
             return false;
         }
         boolean overriding = state.isOverriding();
-        EmfCompat.setPaused(entity, overriding);
         if (!overriding) {
             return false;
         }

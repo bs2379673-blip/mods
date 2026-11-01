@@ -20,6 +20,7 @@ import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -108,13 +109,14 @@ public final class Sessions {
             say(player, "Estas demasiado lejos de " + name(t));
             return;
         }
+        if (t instanceof Player) {
+            // entre jugadores las interacciones son las de LovsPlayer; las de Annis son con NPC y aldeanos de MCA
+            say(player, "Las interacciones de Annis son con NPC y aldeanos de MCA");
+            return;
+        }
         String problem = check(type, player, t);
         if (problem != null) {
             say(player, problem);
-            return;
-        }
-        if (t instanceof ServerPlayer other && type.kind() != Interaction.Kind.REVIVE) {
-            invite(player, other, type, follow);
             return;
         }
         if (AnnisInteract.MCA && com.annis.interact.mca.McaBridge.isVillager(t)) {
@@ -380,6 +382,9 @@ public final class Sessions {
 
     /** follow: en los bailes, quien pide (a) hace la parte que sigue. */
     public static boolean start(Interaction type, LivingEntity a, LivingEntity b, boolean follow) {
+        if (a instanceof Player && b instanceof Player) {
+            return false; // entre jugadores: LovsPlayer
+        }
         String animA = type.animA(), animB = type.animB();
         if (follow && type.dance()) {
             // bailes: quien pide hace la parte que sigue (mismo sitio, se cambian solo las animaciones)

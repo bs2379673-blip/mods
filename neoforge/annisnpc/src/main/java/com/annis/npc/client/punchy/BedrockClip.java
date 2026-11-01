@@ -144,7 +144,8 @@ public final class BedrockClip {
             case "leftarm" -> "left_arm";
             case "rightleg" -> "right_leg";
             case "leftleg" -> "left_leg";
-            case "root", "waist", "player" -> "root";
+            case "root", "player" -> "root";
+            case "waist" -> "waist";
             default -> k;
         };
     }

@@ -13,7 +13,7 @@ Hace falta:
 Opcionales (se usan si estan):
   - Punchy! Moves y Punchy! Studio para NeoForge 1.21.1: sus animaciones y emotes se usan en Annis
   - Minecraft Comes Alive (MCA Reborn) para NeoForge 1.21.1
-  - Entity Model Features (EMF) y Figura
+  - Figura
   - Iris (version NeoForge) para shaders
 
 Paquete de recursos:

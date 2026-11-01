@@ -152,12 +152,15 @@ public class AnnisInteractClient implements ClientModInitializer {
         return "caido".equals(a) || "caido_suelo".equals(a);
     }
 
-    /** A quien se puede invitar: jugadores, NPC Annis, aldeanos de MCA y entidades con aspecto Annis. */
+    /** Con quien se puede interactuar: NPC Annis, aldeanos de MCA y entidades con aspecto Annis (no jugadores: LovsPlayer). */
     static boolean targetable(Entity e) {
         if (!(e instanceof LivingEntity l) || !l.isAlive() || e == Minecraft.getInstance().player) {
             return false;
         }
-        if (e instanceof Player || e instanceof AnnisNpcEntity || ClientLinks.hasLook(e)) {
+        if (e instanceof Player) {
+            return false;
+        }
+        if (e instanceof AnnisNpcEntity || ClientLinks.hasLook(e)) {
             return true;
         }
         ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(e.getType());

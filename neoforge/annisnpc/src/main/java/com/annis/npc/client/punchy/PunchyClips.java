@@ -14,6 +14,7 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.joml.Matrix3f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.io.Reader;
@@ -143,69 +144,103 @@ public final class PunchyClips {
         return clip == null ? null : CLIPS.get(clip);
     }
 
+    /** El clip asignado a la accion, o si no hay, el de Punchy Moves / Fluid & Foolish con ese nombre. */
+    private static BedrockClip actionOr(String action, String punchy) {
+        BedrockClip c = action(action);
+        return c != null ? c : get(punchy);
+    }
+
     /**
-     * Caminar / quieto / correr de los NPC con las animaciones asignadas (si hay). Devuelve true si
-     * las uso (entonces no hace falta la capa procedural propia).
+     * Caminar, correr, agacharse y quieto con las animaciones de Punchy Moves (y del paquete
+     * Fluid &amp; Foolish si esta activo): para los NPC de Annis y los aldeanos de MCA. Como en
+     * Punchy, se suman sobre la pose de descanso y el paso sigue la distancia recorrida.
+     * Devuelve true si las uso (si no hay animaciones, queda la capa propia de Annis).
      */
-    public static boolean locomotion(NpcModel m, float limbAngle, float limbDistance, float ticks, boolean sprinting,
-                                     float headYawRad, float headPitchRad) {
-        BedrockClip idle = action("quieto");
-        BedrockClip walk = sprinting && action("correr") != null ? action("correr") : action("caminar");
+    public static boolean locomotion(net.minecraft.client.model.HumanoidModel<?> m, boolean crouching, float limbAngle,
+                                     float limbDistance, float ticks, boolean sprinting, float headYawRad, float headPitchRad) {
+        BedrockClip idle = actionOr("quieto", "idle");
+        boolean custom = action("caminar") != null;
+        BedrockClip walk = actionOr("caminar", "normal_forward");
+        BedrockClip walkAdd = custom ? null : get("nf_add");
+        BedrockClip run = action("correr");
+        BedrockClip runAdd = run == null ? get("sprint_add") : null;
+        BedrockClip sneak = actionOr("agachado", "sneaking");
         if (idle == null && walk == null) {
             return false;
         }
         ModelPart[] parts = {m.head, m.body, m.rightArm, m.leftArm, m.rightLeg, m.leftLeg};
-        float[][] base = new float[6][6], a = new float[6][6], b = new float[6][6];
-        for (int i = 0; i < 6; i++) {
-            base[i] = grab(parts[i]);
+        float[][] rot = new float[6][3], pos = new float[6][3];
+        // velocidad en bloques por tick (el juego guarda 4 veces eso, hasta 1)
+        float speed = limbDistance / 4.0f;
+        float amp = Math.min(1.2f, speed / 0.215f);
+        float w = Math.min(1.0f, amp);
+        float secs = ticks / 20.0f;
+        if (idle != null && w < 1.0f) {
+            add(idle, idle.clipTime(secs), secs, 1.0f - w, rot, pos);
         }
-        // la cabeza mira por su cuenta: la animacion se suma a donde mira
-        base[0][0] = 0;
-        base[0][1] = 0;
-        put(parts[0], base[0]);
-        if (idle != null) {
-            apply(idle, m, ticks);
-        }
-        for (int i = 0; i < 6; i++) {
-            a[i] = grab(parts[i]);
-            put(parts[i], base[i]);
-        }
-        if (walk != null) {
-            // un ciclo de la animacion = un paso completo del juego
-            float cycle = (float) (2 * Math.PI / 0.6662);
-            float phase = (limbAngle / cycle) % 1.0f;
-            if (phase < 0) {
-                phase += 1;
+        if (w > 0.0f) {
+            // un ciclo de paso cada 1.67 bloques, como Punchy
+            float cycle = (limbAngle / 4.0f) / 1.67f;
+            cycle -= (float) Math.floor(cycle);
+            BedrockClip stride = sprinting && run != null ? run : walk;
+            if (stride != null) {
+                float t = cycle * stride.length;
+                add(stride, t, t, w * Math.max(1.0f, amp), rot, pos);
             }
-            apply(walk, m, phase * Math.max(0.05f, walk.length) * 20.0f);
-        }
-        for (int i = 0; i < 6; i++) {
-            b[i] = grab(parts[i]);
-        }
-        float w = Math.max(0, Math.min(1, limbDistance * 1.8f));
-        for (int i = 0; i < 6; i++) {
-            float[] r = new float[6];
-            for (int c = 0; c < 6; c++) {
-                r[c] = a[i][c] + (b[i][c] - a[i][c]) * w;
+            if (walkAdd != null && stride == walk) {
+                float t = cycle * walkAdd.length;
+                add(walkAdd, t, t, w, rot, pos);
             }
-            put(parts[i], r);
+            if (sprinting && runAdd != null) {
+                float t = runAdd.length > 0 ? cycle * runAdd.length : 0;
+                add(runAdd, t, t, w, rot, pos);
+            }
+        }
+        if (crouching && sneak != null) {
+            float t = sneak.length;
+            add(sneak, t, t, 1.0f, rot, pos);
+        }
+        // golpeando, apuntando con arco/ballesta, comiendo...: los brazos y el torso quedan como los puso el juego
+        boolean armsBusy = m.attackTime > 0.0f || busy(m.rightArmPose) || busy(m.leftArmPose);
+        for (int i = 0; i < 6; i++) {
+            if (armsBusy && i >= 1 && i <= 3) {
+                continue;
+            }
+            ModelPart p = parts[i];
+            net.minecraft.client.model.geom.PartPose init = p.getInitialPose();
+            p.xRot = init.xRot + rot[i][0];
+            p.yRot = init.yRot + rot[i][1];
+            p.zRot = init.zRot + rot[i][2];
+            p.x = init.x + pos[i][0];
+            p.y = init.y - pos[i][1];
+            p.z = init.z + pos[i][2];
         }
         m.head.xRot += headPitchRad;
         m.head.yRot += headYawRad;
+        m.hat.copyFrom(m.head);
         return true;
     }
 
-    private static float[] grab(ModelPart p) {
-        return new float[]{p.xRot, p.yRot, p.zRot, p.x, p.y, p.z};
+    private static boolean busy(net.minecraft.client.model.HumanoidModel.ArmPose pose) {
+        return pose != null && pose != net.minecraft.client.model.HumanoidModel.ArmPose.EMPTY
+                && pose != net.minecraft.client.model.HumanoidModel.ArmPose.ITEM;
     }
 
-    private static void put(ModelPart p, float[] v) {
-        p.xRot = v[0];
-        p.yRot = v[1];
-        p.zRot = v[2];
-        p.x = v[3];
-        p.y = v[4];
-        p.z = v[5];
+    private static void add(BedrockClip clip, float time, float secs, float weight, float[][] rot, float[][] pos) {
+        float[] r = new float[3], p = new float[3];
+        for (int i = 0; i < BONES.length; i++) {
+            int got = sample(clip, BONES[i], time, secs, r, p);
+            if ((got & 1) != 0) {
+                for (int c = 0; c < 3; c++) {
+                    rot[i][c] += r[c] * weight;
+                }
+            }
+            if ((got & 2) != 0) {
+                for (int c = 0; c < 3; c++) {
+                    pos[i][c] += p[c] * weight;
+                }
+            }
+        }
     }
 
     private static boolean isBasePack(String packId) {
@@ -241,26 +276,81 @@ public final class PunchyClips {
         float secs = t / 20.0f;
         float time = clip.clipTime(secs);
         ModelPart[] parts = {m.head, m.body, m.rightArm, m.leftArm, m.rightLeg, m.leftLeg};
-        float[] v = new float[3];
+        float[] r = new float[3], p = new float[3];
         for (int i = 0; i < BONES.length; i++) {
-            BedrockClip.Bone b = clip.bones.get(BONES[i]);
-            if (b == null) {
-                continue;
+            int got = sample(clip, BONES[i], time, secs, r, p);
+            ModelPart part = parts[i];
+            if ((got & 1) != 0) {
+                part.xRot = r[0];
+                part.yRot = r[1];
+                part.zRot = r[2];
             }
-            ModelPart p = parts[i];
-            if (b.rotation != null && b.rotation.sample(time, secs, v)) {
-                p.xRot = (float) Math.toRadians(v[0]);
-                p.yRot = (float) Math.toRadians(v[1]);
-                p.zRot = (float) Math.toRadians(v[2]);
-            }
-            if (b.position != null && b.position.sample(time, secs, v)) {
+            if ((got & 2) != 0) {
                 // Bedrock: y hacia arriba; el modelo de Java: y hacia abajo
-                p.x += v[0];
-                p.y -= v[1];
-                p.z += v[2];
+                part.x += p[0];
+                part.y -= p[1];
+                part.z += p[2];
             }
             // (la escala no se usa: el modelo del juego no la vuelve a 1 por su cuenta)
         }
+    }
+
+    private static final Vector3f ZERO = new Vector3f();
+    private static final Vector3f RIGHT_ARM_PIVOT = new Vector3f(-5, 2, 0);
+    private static final Vector3f LEFT_ARM_PIVOT = new Vector3f(5, 2, 0);
+
+    /**
+     * Pose de un hueso: rotacion en radianes (rot) y desplazamiento en pixeles con Y hacia arriba
+     * (pos). Devuelve 1 si hay rotacion, 2 si hay posicion (o ambas). Como Punchy Moves, la
+     * "cintura" (waist) arrastra al torso, la cabeza y los brazos.
+     */
+    static int sample(BedrockClip clip, String bone, float time, float secs, float[] rot, float[] pos) {
+        float[] v = new float[3];
+        int got = 0;
+        rot[0] = rot[1] = rot[2] = 0;
+        pos[0] = pos[1] = pos[2] = 0;
+        BedrockClip.Bone b = clip.bones.get(bone);
+        if (b != null && b.rotation != null && b.rotation.sample(time, secs, v)) {
+            rot[0] = v[0];
+            rot[1] = v[1];
+            rot[2] = v[2];
+            got |= 1;
+        }
+        if (b != null && b.position != null && b.position.sample(time, secs, v)) {
+            pos[0] = v[0];
+            pos[1] = v[1];
+            pos[2] = v[2];
+            got |= 2;
+        }
+        BedrockClip.Bone w = bone.equals("body") || bone.equals("head") || bone.endsWith("_arm") ? clip.bones.get("waist") : null;
+        if (w != null) {
+            float[] wr = new float[3], wp = new float[3];
+            boolean hasR = w.rotation != null && w.rotation.sample(time, secs, wr);
+            boolean hasP = w.position != null && w.position.sample(time, secs, wp);
+            if (hasR || hasP) {
+                Quaternionf qw = new Quaternionf().rotationZYX((float) Math.toRadians(wr[2]), (float) Math.toRadians(wr[1]),
+                        (float) Math.toRadians(wr[0]));
+                Quaternionf q = new Quaternionf(qw).mul(new Quaternionf().rotationZYX((float) Math.toRadians(rot[2]),
+                        (float) Math.toRadians(rot[1]), (float) Math.toRadians(rot[0])));
+                Vector3f e = q.getEulerAnglesZYX(new Vector3f());
+                rot[0] = (float) Math.toDegrees(e.x);
+                rot[1] = (float) Math.toDegrees(e.y);
+                rot[2] = (float) Math.toDegrees(e.z);
+                Vector3f pivot = bone.equals("right_arm") ? RIGHT_ARM_PIVOT : bone.equals("left_arm") ? LEFT_ARM_PIVOT : ZERO;
+                Vector3f moved = qw.transform(new Vector3f(pivot)).sub(pivot)
+                        .add(qw.transform(new Vector3f(pos[0], pos[1], pos[2]))).add(wp[0], wp[1], wp[2]);
+                pos[0] = moved.x;
+                pos[1] = moved.y;
+                pos[2] = moved.z;
+                got |= 3;
+            }
+        }
+        if ((got & 1) != 0) {
+            rot[0] = (float) Math.toRadians(rot[0]);
+            rot[1] = (float) Math.toRadians(rot[1]);
+            rot[2] = (float) Math.toRadians(rot[2]);
+        }
+        return got;
     }
 
     /** Hueso "root": todo el cuerpo, girando alrededor de los pies. */

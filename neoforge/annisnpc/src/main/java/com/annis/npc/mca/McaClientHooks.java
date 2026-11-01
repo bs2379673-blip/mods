@@ -1,7 +1,6 @@
 package com.annis.npc.mca;
 
 import com.annis.npc.client.ClientLinks;
-import com.annis.npc.client.EmfCompat;
 import com.annis.npc.client.NpcAnimState;
 import com.annis.npc.client.NpcModel;
 import net.conczin.mca.client.model.VillagerEntityModelMCA;
@@ -48,10 +47,19 @@ public final class McaClientHooks {
         to.leftLeg.copyFrom(from.leftLeg);
     }
 
-    /** Llamado al final de setAngles del modelo de MCA. */
-    public static void afterSetAngles(HumanoidModel<?> model, LivingEntity entity, float animationProgress) {
-        if (com.annis.npc.client.AnimOverlay.afterSetAngles(model, entity, animationProgress)
-                && model instanceof VillagerEntityModelMCA<?> mca) {
+    /**
+     * Llamado al final de setAngles del modelo de MCA: una animacion o interaccion de Annis si hay;
+     * si no, caminar, correr, agacharse y quieto con las animaciones de Punchy (y Fluid &amp; Foolish).
+     */
+    public static void afterSetAngles(HumanoidModel<?> model, LivingEntity entity, float limbAngle, float limbDistance,
+                                      float animationProgress, float headYaw, float headPitch) {
+        boolean changed = com.annis.npc.client.AnimOverlay.afterSetAngles(model, entity, animationProgress);
+        if (!changed && !entity.isPassenger() && !entity.isSleeping() && entity.isAlive()
+                && (entity.getPose() == net.minecraft.world.entity.Pose.STANDING || entity.getPose() == net.minecraft.world.entity.Pose.CROUCHING)) {
+            changed = com.annis.npc.client.punchy.PunchyClips.locomotion(model, entity.isCrouching(), limbAngle, limbDistance,
+                    animationProgress, entity.isSprinting(), headYaw * 0.017453292f, headPitch * 0.017453292f);
+        }
+        if (changed && model instanceof VillagerEntityModelMCA<?> mca) {
             mca.syncWearParts();
         }
     }

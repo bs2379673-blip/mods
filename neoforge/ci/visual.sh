@@ -57,14 +57,13 @@ guiScale:2
 soundCategory_master:0.0
 renderClouds:"false"
 narrator:0
-resourcePacks:["vanilla","file/Annis_Animaciones.zip","file/EMF_Prueba.zip"]
+resourcePacks:["vanilla","file/Annis_Animaciones.zip","file/Loco_Prueba.zip"]
 EOO
 # paquete de animaciones exportado (lo lee Annis: asi la prueba usa las animaciones del paquete)
 mkdir -p run/resourcepacks run/mods
 rm -f run/mods/*.jar; cp libs/playeranimator-1.jar libs/punchymoves-1.jar libs/punchystudio-1.jar run/mods/ 2>/dev/null
-# EMF + ETF y un pack de prueba que muestra lo que EMF ve del golpe (swing_progress / is_swinging_right_arm)
-cp libs/emf-1.jar libs/etf-1.jar run/mods/ 2>/dev/null
-(cd ci/emfprueba && zip -qr ../../run/resourcepacks/EMF_Prueba.zip .)
+# clips de prueba con los nombres de Punchy / Fluid & Foolish (idle, normal_forward, sneaking) para la caminata de los NPC
+(cd ci/locoprueba && zip -qr ../../run/resourcepacks/Loco_Prueba.zip .)
 cp ../out/Annis_Animaciones.zip run/resourcepacks/ 2>/dev/null || true
 export LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=4.5
 ( timeout 840 xvfb-run -a -s "-screen 0 1280x720x24" gradle :annisinteract:runClient -PannisTest --no-daemon > client.log 2>&1 ) &
@@ -80,6 +79,14 @@ fi
 sleep 25
 T='tellraw @a {"text":"[TEST] '
 E='"}'
+# --- caminata de los NPC con los clips de Punchy (cintura incluida) ---
+LOCO=('gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule sendCommandFeedback false'
+  'tp @a 30 -60 26 0 10' "${T}hud no${E}"
+  'summon annisnpc:npc 28.5 -60 30 {Tags:["lq"],NoAI:1b,Protected:0b,Rotation:[180f,0f]}'
+  'summon annisnpc:npc 30 -60 30 {Tags:["lw"],NoAI:1b,Protected:0b,Rotation:[-90f,0f]}' 'sleep 2')
+for i in $(seq 1 14); do LOCO+=('execute as @e[tag=lw] at @s run tp @s ~0.25 ~ ~ -90 0' 'sleep 0.1'); [ $i = 9 ] && LOCO+=("${T}foto l01_camina_a${E}"); [ $i = 12 ] && LOCO+=("${T}foto l02_camina_b${E}"); done
+LOCO+=('sleep 1.5' "${T}foto l03_quietos${E}" 'kill @e[tag=lq]' 'kill @e[tag=lw]' 'sleep 1')
+python3 ci/rcon.py 25577 annistest "${LOCO[@]}"
 python3 ci/rcon.py 25577 annistest \
   'gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule sendCommandFeedback false' \
   'tp @a 0 -60 -4 0 12' "${T}hud no${E}" \
