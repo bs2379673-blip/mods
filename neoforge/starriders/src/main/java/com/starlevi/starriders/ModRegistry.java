@@ -28,6 +28,10 @@ public final class ModRegistry {
             () -> EntityType.Builder.<PhoenixEntity>of(PhoenixEntity::new, MobCategory.MISC).sized(1.7f, 2.0f)
                     .clientTrackingRange(16).updateInterval(1).fireImmune().build("fenix"));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<GuardianEntity>> GUARDIAN = ENTITIES.register("guardian",
+            () -> EntityType.Builder.<GuardianEntity>of(GuardianEntity::new, MobCategory.MISC).sized(1.6f, 2.4f)
+                    .clientTrackingRange(16).updateInterval(1).build("guardian"));
+
     public static final DeferredItem<WhistleItem> WHISTLE = ITEMS.register("silbato",
             () -> new WhistleItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant()));
 

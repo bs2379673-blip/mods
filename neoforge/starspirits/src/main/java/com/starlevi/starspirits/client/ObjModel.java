@@ -112,11 +112,45 @@ public final class ObjModel {
         }
         String bodyGroup = null, headGroup = null;
         for (Map.Entry<String, String> e : role.entrySet()) {
-            if (e.getValue().equals("cuerpo") && (bodyGroup == null || e.getKey().toLowerCase(Locale.ROOT).contains("body"))) {
+            String low = e.getKey().toLowerCase(Locale.ROOT);
+            if (e.getValue().equals("cuerpo") && (bodyGroup == null || low.contains("body"))) {
                 bodyGroup = e.getKey();
             }
-            if (e.getValue().equals("cabeza") && headGroup == null) {
+            if (e.getValue().equals("cabeza") && (headGroup == null || (low.contains("head") && !headGroup.toLowerCase(Locale.ROOT).contains("head")))) {
                 headGroup = e.getKey();
+            }
+        }
+        // accesorios: van pegados a la pieza que los contiene (cabeza, una mano) o al cuerpo
+        for (String n : new ArrayList<>(role.keySet())) {
+            if (!role.get(n).equals("extra")) {
+                continue;
+            }
+            float[] b = box.get(n);
+            float x = (b[0] + b[3]) / 2, y = (b[1] + b[4]) / 2, z = (b[2] + b[5]) / 2;
+            String host = null;
+            float best = Float.MAX_VALUE;
+            for (Map.Entry<String, String> e : role.entrySet()) {
+                String r = e.getValue();
+                if (!(e.getKey().equals(headGroup) || r.equals("brazo_izq") || r.equals("brazo_der"))) {
+                    continue;
+                }
+                float[] h = box.get(e.getKey());
+                float mx = (h[3] - h[0]) * 0.25f + 1, my = (h[4] - h[1]) * 0.25f + 1, mz = (h[5] - h[2]) * 0.25f + 1;
+                if (x >= h[0] - mx && x <= h[3] + mx && y >= h[1] - my && y <= h[4] + my && z >= h[2] - mz && z <= h[5] + mz) {
+                    float vol = (h[3] - h[0]) * (h[4] - h[1]) * (h[5] - h[2]);
+                    if (vol < best) {
+                        best = vol;
+                        host = e.getKey();
+                    }
+                }
+            }
+            if (host == null) {
+                role.put(n, "cuerpo");
+            } else if (host.equals(headGroup)) {
+                role.put(n, "cabeza");
+            } else {
+                conv.get(host).addAll(conv.remove(n));
+                role.remove(n);
             }
         }
         float[] bb = bodyGroup != null ? box.get(bodyGroup) : new float[]{-4, 8, -4, 4, 24, 4};
@@ -178,8 +212,9 @@ public final class ObjModel {
     }
 
     private static String roleOf(String group) {
-        String n = group.toLowerCase(Locale.ROOT).replaceAll("[0-9_ .-]", "");
-        if (n.contains("head") || n.contains("cabeza") || n.contains("face")) {
+        String n = group.toLowerCase(Locale.ROOT).replaceAll("[0-9_ .-]", "").replaceAll("mtl$", "").replaceAll("material$", "");
+        if (n.contains("head") || n.contains("cabeza") || n.contains("face") || n.contains("glass") || n.contains("hat")
+                || n.contains("gorro") || n.contains("lente")) {
             return "cabeza";
         }
         if (n.contains("ear") || n.contains("oreja")) {
@@ -197,7 +232,11 @@ public final class ObjModel {
         if (n.contains("leg") || n.contains("pierna") || n.contains("foot")) {
             return n.endsWith("l") || n.contains("left") || n.contains("izq") ? "pierna_izq" : "pierna_der";
         }
-        return "cuerpo";
+        if (n.contains("body") || n.contains("torso") || n.contains("cuerpo")) {
+            return "cuerpo";
+        }
+        // accesorio (anteojos, microfono, arma, anillo...): va con la pieza que lo tiene puesto
+        return "extra";
     }
 
     private static float f(String s) {

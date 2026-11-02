@@ -1,6 +1,7 @@
 package com.starlevi.starriders.server;
 
 import com.starlevi.starriders.Config;
+import com.starlevi.starriders.GuardianEntity;
 import com.starlevi.starriders.ModRegistry;
 import com.starlevi.starriders.PhoenixEntity;
 import com.starlevi.starriders.RiderData;
@@ -33,6 +34,8 @@ import java.util.UUID;
 public final class Mounts {
     private static final Map<UUID, PhoenixEntity> LIVE = new HashMap<>();
     private static PhoenixEntity wild;
+    /** Tipos de montura que existen. */
+    public static final java.util.List<String> TYPES = java.util.List.of("fenix", "guardian");
 
     private Mounts() {
     }
@@ -62,7 +65,19 @@ public final class Mounts {
     }
 
     public static String displayName(String type) {
-        return "fenix".equals(type) ? "Fénix" : type;
+        return switch (type) {
+            case "fenix" -> "Fénix";
+            case "guardian" -> "Guardián del Bosque";
+            default -> type;
+        };
+    }
+
+    private static String icon(String type) {
+        return "guardian".equals(type) ? "🌳" : "🔥";
+    }
+
+    private static PhoenixEntity create(ServerLevel level, String type) {
+        return "guardian".equals(type) ? ModRegistry.GUARDIAN.get().create(level) : ModRegistry.PHOENIX.get().create(level);
     }
 
     /** Admin: le da una montura nueva (y su silbato) a un jugador. */
@@ -71,7 +86,7 @@ public final class Mounts {
         data(p).mounts.add(m);
         p.getInventory().placeItemBackInInventory(WhistleItem.make(p, m));
         p.level().playSound(null, p.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 0.8f, 1.1f);
-        p.sendSystemMessage(Component.literal("🔥 Recibiste una montura: ").append(Component.literal(displayName(type)).withStyle(ChatFormatting.GOLD))
+        p.sendSystemMessage(Component.literal(icon(type) + " Recibiste una montura: ").append(Component.literal(displayName(type)).withStyle(ChatFormatting.GOLD))
                 .append(Component.literal(". Usá el silbato para llamarla.")));
         return m;
     }
@@ -87,12 +102,12 @@ public final class Mounts {
         if (ph != null && ph.isAlive() && ph.level() == p.level()) {
             if (ph.distanceTo(p) < 40 && !ph.hasPassenger(p)) {
                 recall(ph, false);
-                p.displayClientMessage(Component.literal("🔥 " + displayName(m.type()) + " vuelve al silbato"), true);
+                p.displayClientMessage(Component.literal(icon(m.type()) + " " + displayName(m.type()) + " vuelve al silbato"), true);
             } else if (!ph.hasPassenger(p)) {
                 Vec3 at = spotNear(p);
                 ph.teleportTo(at.x, at.y, at.z);
                 ph.roar();
-                burst((ServerLevel) p.level(), at);
+                burst((ServerLevel) p.level(), at, m.type());
             }
             return;
         }
@@ -116,7 +131,7 @@ public final class Mounts {
 
     private static void summon(ServerPlayer p, RiderData.Mount m) {
         ServerLevel level = p.serverLevel();
-        PhoenixEntity ph = ModRegistry.PHOENIX.get().create(level);
+        PhoenixEntity ph = create(level, m.type());
         if (ph == null) {
             return;
         }
@@ -127,16 +142,17 @@ public final class Mounts {
         level.addFreshEntity(ph);
         LIVE.put(m.id(), ph);
         ph.roar();
-        burst(level, at);
+        burst(level, at, m.type());
     }
 
     /** Vuelve al silbato (con llamas). */
     public static void recall(PhoenixEntity ph, boolean idle) {
         if (ph.level() instanceof ServerLevel sl) {
-            burst(sl, ph.position());
-            sl.playSound(null, ph.blockPosition(), SoundEvents.FIRECHARGE_USE, SoundSource.NEUTRAL, 0.8f, 1.3f);
+            burst(sl, ph.position(), ph.mountType());
+            sl.playSound(null, ph.blockPosition(), ph instanceof GuardianEntity ? SoundEvents.ROOTED_DIRT_BREAK : SoundEvents.FIRECHARGE_USE,
+                    SoundSource.NEUTRAL, 0.8f, ph instanceof GuardianEntity ? 0.7f : 1.3f);
             if (idle && ph.ownerId() != null && sl.getServer().getPlayerList().getPlayer(ph.ownerId()) instanceof ServerPlayer o) {
-                o.displayClientMessage(Component.literal("🔥 Tu fénix volvió al silbato a descansar"), true);
+                o.displayClientMessage(Component.literal(ph.icon() + " Tu " + ph.label() + " volvió al silbato a descansar"), true);
             }
         }
         if (ph.mountId != null) {
@@ -146,7 +162,13 @@ public final class Mounts {
         ph.discard();
     }
 
-    private static void burst(ServerLevel l, Vec3 at) {
+    private static void burst(ServerLevel l, Vec3 at, String type) {
+        if ("guardian".equals(type)) {
+            l.sendParticles(ParticleTypes.COMPOSTER, at.x, at.y + 1.2, at.z, 50, 1.0, 1.0, 1.0, 0.05);
+            l.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR, at.x, at.y + 1.0, at.z, 40, 1.2, 0.8, 1.2, 0);
+            l.sendParticles(ParticleTypes.CHERRY_LEAVES, at.x, at.y + 2.0, at.z, 20, 1.0, 0.6, 1.0, 0);
+            return;
+        }
         l.sendParticles(ParticleTypes.FLAME, at.x, at.y + 1.2, at.z, 60, 1.0, 1.0, 1.0, 0.06);
         l.sendParticles(ParticleTypes.LAVA, at.x, at.y + 1.0, at.z, 12, 0.8, 0.5, 0.8, 0);
         l.sendParticles(ParticleTypes.END_ROD, at.x, at.y + 1.5, at.z, 25, 0.8, 1.0, 0.8, 0.08);
@@ -154,7 +176,7 @@ public final class Mounts {
 
     /** Se domo una salvaje: pasa a ser del jugador, con su silbato. */
     public static void tame(PhoenixEntity ph, ServerPlayer p) {
-        RiderData.Mount m = new RiderData.Mount(UUID.randomUUID(), "fenix");
+        RiderData.Mount m = new RiderData.Mount(UUID.randomUUID(), ph.mountType());
         data(p).mounts.add(m);
         ph.setWild(false);
         ph.setOwner(p.getUUID());
@@ -166,9 +188,9 @@ public final class Mounts {
         }
         p.getInventory().placeItemBackInInventory(WhistleItem.make(p, m));
         ph.roar();
-        burst(p.serverLevel(), ph.position());
+        burst(p.serverLevel(), ph.position(), ph.mountType());
         p.level().playSound(null, ph.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1f, 1f);
-        Component all = Component.literal("🔥 " + p.getGameProfile().getName() + " domó un ").append(Component.literal("Fénix salvaje")
+        Component all = Component.literal(ph.icon() + " " + p.getGameProfile().getName() + " domó un ").append(Component.literal(displayName(ph.mountType()) + " salvaje")
                 .withStyle(ChatFormatting.GOLD)).append(Component.literal("!"));
         for (ServerPlayer o : p.server.getPlayerList().getPlayers()) {
             o.sendSystemMessage(all);
@@ -176,11 +198,14 @@ public final class Mounts {
     }
 
     /** Admin o suerte: aparece una salvaje en ese lugar. */
-    public static PhoenixEntity spawnWild(ServerLevel level, Vec3 at) {
+    public static PhoenixEntity spawnWild(ServerLevel level, Vec3 at, String type) {
         if (wild != null && wild.isAlive()) {
             wild.discard();
         }
-        PhoenixEntity ph = ModRegistry.PHOENIX.get().create(level);
+        if (type == null) {
+            type = TYPES.get(level.random.nextInt(TYPES.size()));
+        }
+        PhoenixEntity ph = create(level, type);
         if (ph == null) {
             return null;
         }
@@ -188,9 +213,13 @@ public final class Mounts {
         level.addFreshEntity(ph);
         ph.setWild(true);
         wild = ph;
-        // un canto que se escucha de lejos
-        level.playSound(null, BlockPos.containing(at), SoundEvents.ENDER_DRAGON_GROWL, SoundSource.NEUTRAL, 6f, 1.8f);
-        burst(level, at);
+        // un canto (o un rugido) que se escucha de lejos
+        if (ph instanceof GuardianEntity) {
+            level.playSound(null, BlockPos.containing(at), SoundEvents.RAVAGER_ROAR, SoundSource.NEUTRAL, 6f, 0.6f);
+        } else {
+            level.playSound(null, BlockPos.containing(at), SoundEvents.ENDER_DRAGON_GROWL, SoundSource.NEUTRAL, 6f, 1.8f);
+        }
+        burst(level, at, type);
         return ph;
     }
 
@@ -220,8 +249,9 @@ public final class Mounts {
             if (!level.getFluidState(new BlockPos(x, y - 1, z)).isEmpty()) {
                 continue;
             }
-            spawnWild(level, new Vec3(x + 0.5, y, z + 0.5));
-            p.displayClientMessage(Component.literal("🔥 Se escucha un canto de fuego a lo lejos…").withStyle(ChatFormatting.GOLD), true);
+            PhoenixEntity w = spawnWild(level, new Vec3(x + 0.5, y, z + 0.5), null);
+            p.displayClientMessage(Component.literal(w instanceof GuardianEntity ? "🌳 La tierra retumba a lo lejos… algo enorme se despertó"
+                    : "🔥 Se escucha un canto de fuego a lo lejos…").withStyle(ChatFormatting.GOLD), true);
             return;
         }
     }

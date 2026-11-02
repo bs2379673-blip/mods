@@ -7,8 +7,8 @@ modId="starriders"
 version="${version}"
 displayName="StarRiders"
 authors="Starlevi"
-credits="Propiedad de Starlevi. Todos los derechos reservados."
-description='''Monturas especiales con silbato propio: las otorgan los admins y, muy de vez en cuando, aparece una salvaje que hay que domar. Primera montura: el Fenix, que camina y vuela (compatible con Do a Barrel Roll).
+credits="Propiedad de Starlevi. Todos los derechos reservados. Modelo del Guardián del Bosque: \"Tree Heretic Keeper\" de Vasian-Digital3D (Sketchfab), CC BY 4.0 (ver CREDITOS.txt)."
+description='''Monturas especiales con silbato propio: las otorgan los admins y, muy de vez en cuando, aparece una salvaje que hay que domar. Monturas: el Fenix, que camina y vuela (compatible con Do a Barrel Roll), y el Guardián del Bosque, una bestia de raíces que corre y salta.
 Propiedad de Starlevi. Todos los derechos reservados.'''
 
 [[dependencies.starriders]]

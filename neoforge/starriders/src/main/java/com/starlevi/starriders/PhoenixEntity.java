@@ -58,9 +58,9 @@ public class PhoenixEntity extends PathfinderMob {
     private int takeoffTicks;
     private int idleTicks;
     // salvaje
-    private Vec3 home;
-    private int wildState; // 0 posado, 1 dando vueltas, 2 bajando, 3 yendose
-    private int stateTicks, lifeTicks, trust;
+    protected Vec3 home;
+    protected int wildState; // 0 posado, 1 dando vueltas, 2 bajando, 3 yendose
+    protected int stateTicks, lifeTicks, trust;
     private float circleAngle;
 
     public PhoenixEntity(EntityType<? extends PathfinderMob> type, Level level) {
@@ -126,8 +126,33 @@ public class PhoenixEntity extends PathfinderMob {
 
     public void roar() {
         this.entityData.set(ROAR, this.tickCount);
+        roarSound();
+    }
+
+    protected void roarSound() {
         this.level().playSound(null, blockPosition(), SoundEvents.ENDER_DRAGON_GROWL, SoundSource.NEUTRAL, 0.55f, 1.7f);
         this.level().playSound(null, blockPosition(), SoundEvents.BLAZE_SHOOT, SoundSource.NEUTRAL, 0.8f, 0.8f);
+    }
+
+    /** Tipo de montura (como se guarda en el silbato). */
+    public String mountType() {
+        return "fenix";
+    }
+
+    /** Emoji y nombre corto para los mensajes. */
+    public String icon() {
+        return "🔥";
+    }
+
+    public String label() {
+        return "fénix";
+    }
+
+    /** Lo que pasa cuando un jugador le pega a una salvaje. */
+    protected void scared(Player p) {
+        p.displayClientMessage(Component.literal("🔥 El fénix se asustó y se va volando…"), true);
+        this.wildState = 3;
+        this.stateTicks = 0;
     }
 
     /** 0..1 mientras grita, -1 si no. */
@@ -158,9 +183,7 @@ public class PhoenixEntity extends PathfinderMob {
             return super.hurt(source, amount);
         }
         if (isWild() && source.getEntity() instanceof Player p && !this.level().isClientSide) {
-            p.displayClientMessage(Component.literal("🔥 El fénix se asustó y se va volando…"), true);
-            this.wildState = 3;
-            this.stateTicks = 0;
+            scared(p);
         }
         return false;
     }
@@ -197,13 +220,13 @@ public class PhoenixEntity extends PathfinderMob {
                 return InteractionResult.sidedSuccess(this.level().isClientSide);
             }
             if (!this.level().isClientSide) {
-                player.displayClientMessage(Component.literal("🔥 Parece hambriento… ¿le darías algo dorado?"), true);
+                player.displayClientMessage(Component.literal(icon() + " Parece hambriento… ¿le darías algo dorado?"), true);
             }
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
         if (!player.getUUID().equals(ownerId())) {
             if (!this.level().isClientSide) {
-                player.displayClientMessage(Component.literal("🔥 Este fénix tiene dueño"), true);
+                player.displayClientMessage(Component.literal(icon() + " Este " + label() + " tiene dueño"), true);
             }
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
@@ -234,7 +257,7 @@ public class PhoenixEntity extends PathfinderMob {
         if (this.trust >= Config.tameFeedings) {
             Mounts.tame(this, p);
         } else {
-            p.displayClientMessage(Component.literal(ok ? "🔥 El fénix confía un poco más en vos" : "🔥 El fénix duda…"), true);
+            p.displayClientMessage(Component.literal(icon() + (ok ? " El " + label() + " confía un poco más en vos" : " El " + label() + " duda…")), true);
         }
     }
 
@@ -262,7 +285,7 @@ public class PhoenixEntity extends PathfinderMob {
         }
     }
 
-    private static boolean jumping(LivingEntity e) {
+    protected static boolean jumping(LivingEntity e) {
         try {
             if (jumpingField == null) {
                 jumpingField = LivingEntity.class.getDeclaredField("jumping");
@@ -294,7 +317,7 @@ public class PhoenixEntity extends PathfinderMob {
         super.travel(in);
     }
 
-    private void ridden(Player p, Vec3 in) {
+    protected void ridden(Player p, Vec3 in) {
         float yaw = p.getYRot();
         this.setYRot(yaw);
         this.yRotO = yaw;
@@ -337,6 +360,11 @@ public class PhoenixEntity extends PathfinderMob {
             setFlyingLocal(false);
         }
         calculateEntityAnimation(true);
+    }
+
+    /** Movimiento normal de mob (sin la logica de vuelo del fenix). */
+    protected void travelPlain(Vec3 v) {
+        super.travel(v);
     }
 
     /** Velocidades de vuelo (el servidor las manda al entrar; el cliente las usa para predecir). */
@@ -398,7 +426,7 @@ public class PhoenixEntity extends PathfinderMob {
 
     // ------------------------------------------------------------------ salvaje
 
-    private void wildTick() {
+    protected void wildTick() {
         if (this.home == null) {
             this.home = position();
         }
@@ -461,7 +489,7 @@ public class PhoenixEntity extends PathfinderMob {
         }
     }
 
-    private void steer(Vec3 target, double speed) {
+    protected void steer(Vec3 target, double speed) {
         Vec3 to = target.subtract(position());
         Vec3 want = to.lengthSqr() > 1 ? to.normalize().scale(speed) : Vec3.ZERO;
         Vec3 v = getDeltaMovement().lerp(want, 0.06);

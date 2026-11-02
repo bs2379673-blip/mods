@@ -26,7 +26,7 @@ import static net.minecraft.commands.Commands.literal;
  * salvaje &lt;pos&gt; | recargar (admins)
  */
 public final class Commands {
-    private static final List<String> TYPES = List.of("fenix");
+    private static final List<String> TYPES = Mounts.TYPES;
 
     private Commands() {
     }
@@ -107,10 +107,21 @@ public final class Commands {
                 .then(literal("salvaje").requires(s -> s.hasPermission(2))
                         .then(argument("pos", Vec3Argument.vec3()).executes(c -> {
                             Vec3 at = Vec3Argument.getVec3(c, "pos");
-                            Mounts.spawnWild(c.getSource().getLevel(), at);
-                            c.getSource().sendSuccess(() -> Component.literal("Apareció un Fénix salvaje"), true);
+                            Mounts.spawnWild(c.getSource().getLevel(), at, null);
+                            c.getSource().sendSuccess(() -> Component.literal("Apareció una montura salvaje"), true);
                             return 1;
-                        })))
+                        }).then(argument("tipo", StringArgumentType.word())
+                                .suggests((c, b) -> SharedSuggestionProvider.suggest(TYPES, b))
+                                .executes(c -> {
+                                    String type = StringArgumentType.getString(c, "tipo");
+                                    if (!TYPES.contains(type)) {
+                                        c.getSource().sendFailure(Component.literal("No existe la montura " + type));
+                                        return 0;
+                                    }
+                                    Mounts.spawnWild(c.getSource().getLevel(), Vec3Argument.getVec3(c, "pos"), type);
+                                    c.getSource().sendSuccess(() -> Component.literal("Apareció: " + Mounts.displayName(type) + " salvaje"), true);
+                                    return 1;
+                                }))))
                 .then(literal("recargar").requires(s -> s.hasPermission(2)).executes(c -> {
                     Config.load();
                     c.getSource().sendSuccess(() -> Component.literal("StarRiders: configuración recargada"), true);

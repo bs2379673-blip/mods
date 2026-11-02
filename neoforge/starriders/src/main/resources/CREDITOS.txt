@@ -1,0 +1,12 @@
+StarRiders - Propiedad de Starlevi.
+
+Modelos de terceros usados con permiso de su licencia:
+
+- Guardián del Bosque: modelo "Tree Heretic Keeper" de Vasian-Digital3D (Sketchfab),
+  https://skfb.ly/pPMFn - licencia Creative Commons Attribution 4.0 (CC BY 4.0),
+  https://creativecommons.org/licenses/by/4.0/
+  Cambios: se convirtió a un formato propio, se le sacaron huesos que no se usan y se le
+  agregaron animaciones (quieto, correr, salto, rugido, melena que se mece). La caminata es la del
+  modelo original.
+
+El resto del mod (código, el Fénix, texturas propias) es de Starlevi; ver LICENSE.txt.

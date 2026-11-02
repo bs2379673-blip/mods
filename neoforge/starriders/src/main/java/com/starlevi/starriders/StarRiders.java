@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * StarRiders: monturas especiales. Las dan los admins (con un silbato ligado al jugador) y, con una
- * probabilidad minima, aparece una salvaje por el mundo que hay que domar. Primera montura: el Fenix.
+ * probabilidad minima, aparece una salvaje por el mundo que hay que domar. Monturas: el Fenix y el Guardian del Bosque.
  * Propiedad de Starlevi. Todos los derechos reservados.
  */
 @Mod(StarRiders.MOD_ID)
@@ -26,7 +26,10 @@ public final class StarRiders {
     public StarRiders(IEventBus modBus) {
         ModRegistry.register(modBus);
         modBus.addListener(Net::register);
-        modBus.addListener((EntityAttributeCreationEvent e) -> e.put(ModRegistry.PHOENIX.get(), PhoenixEntity.createAttributes().build()));
+        modBus.addListener((EntityAttributeCreationEvent e) -> {
+            e.put(ModRegistry.PHOENIX.get(), PhoenixEntity.createAttributes().build());
+            e.put(ModRegistry.GUARDIAN.get(), GuardianEntity.createAttributes().build());
+        });
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> Commands.register(e.getDispatcher()));
         NeoForge.EVENT_BUS.addListener((ServerStartingEvent e) -> Config.load());
         Mounts.init();

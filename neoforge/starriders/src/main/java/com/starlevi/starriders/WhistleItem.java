@@ -71,6 +71,9 @@ public class WhistleItem extends Item {
             lines.add(Component.literal("Montura de " + t.getString("dueno_nombre")).withStyle(ChatFormatting.GRAY));
         }
         lines.add(Component.literal("Clic derecho: llamarla o guardarla").withStyle(ChatFormatting.DARK_GRAY));
+        if ("guardian".equals(t.getString("tipo"))) {
+            lines.add(Component.literal("Modelo: \"Tree Heretic Keeper\" de Vasian-Digital3D (CC BY 4.0)").withStyle(ChatFormatting.DARK_GRAY));
+        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.starlevi.starriders.client;
 
 import com.starlevi.starriders.ModRegistry;
+import com.starlevi.starriders.GuardianEntity;
 import com.starlevi.starriders.PhoenixEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
@@ -20,13 +21,16 @@ public final class StarRidersClient {
     }
 
     public static void init(IEventBus modBus) {
-        modBus.addListener((EntityRenderersEvent.RegisterRenderers e) -> e.registerEntityRenderer(ModRegistry.PHOENIX.get(), PhoenixRenderer::new));
+        modBus.addListener((EntityRenderersEvent.RegisterRenderers e) -> {
+            e.registerEntityRenderer(ModRegistry.PHOENIX.get(), PhoenixRenderer::new);
+            e.registerEntityRenderer(ModRegistry.GUARDIAN.get(), GuardianRenderer::new);
+        });
         modBus.addListener((FMLClientSetupEvent e) -> e.enqueueWork(DabrCompat::init));
         PhoenixEntity.clientTick = StarRidersClient::particles;
         NeoForge.EVENT_BUS.addListener((CalculateDetachedCameraDistanceEvent e) -> {
             var p = Minecraft.getInstance().player;
             if (p != null && p.getVehicle() instanceof PhoenixEntity) {
-                e.setDistance(e.getDistance() * 2.6f);
+                e.setDistance(e.getDistance() * (p.getVehicle() instanceof GuardianEntity ? 2.2f : 2.6f));
             }
         });
     }
@@ -35,6 +39,10 @@ public final class StarRidersClient {
     private static void particles(PhoenixEntity e) {
         Level level = e.level();
         RandomSource r = level.random;
+        if (e instanceof GuardianEntity) {
+            guardianParticles(e, level, r);
+            return;
+        }
         float yaw = e.yBodyRot * Mth.DEG_TO_RAD;
         Vec3 fwd = new Vec3(-Mth.sin(yaw), 0, Mth.cos(yaw));
         Vec3 side = new Vec3(fwd.z, 0, -fwd.x);
@@ -58,6 +66,26 @@ public final class StarRidersClient {
         }
         if (e.isWild() && e.tickCount % 6 == 0) {
             level.addParticle(ParticleTypes.WAX_ON, e.getX() + (r.nextDouble() - 0.5) * 2, e.getY() + 1.5 + r.nextDouble(),
+                    e.getZ() + (r.nextDouble() - 0.5) * 2, 0, 0.02, 0);
+        }
+    }
+
+    /** Esporas y hojitas que se le caen de la melena; polvo al correr. */
+    private static void guardianParticles(PhoenixEntity e, Level level, RandomSource r) {
+        if (e.tickCount % 7 == 0) {
+            level.addParticle(r.nextBoolean() ? ParticleTypes.SPORE_BLOSSOM_AIR : ParticleTypes.FALLING_SPORE_BLOSSOM,
+                    e.getX() + (r.nextDouble() - 0.5) * 1.6, e.getY() + 1.6 + r.nextDouble() * 0.8, e.getZ() + (r.nextDouble() - 0.5) * 1.6, 0, 0, 0);
+        }
+        double hs = e.getDeltaMovement().horizontalDistance();
+        if (hs > 0.2 && e.onGround() && e.tickCount % 2 == 0) {
+            var below = level.getBlockState(e.blockPosition().below());
+            if (!below.isAir()) {
+                level.addParticle(new net.minecraft.core.particles.BlockParticleOption(ParticleTypes.BLOCK, below),
+                        e.getX() + (r.nextDouble() - 0.5) * 1.4, e.getY() + 0.1, e.getZ() + (r.nextDouble() - 0.5) * 1.4, 0, 0.05, 0);
+            }
+        }
+        if (e.isWild() && e.tickCount % 6 == 0) {
+            level.addParticle(ParticleTypes.COMPOSTER, e.getX() + (r.nextDouble() - 0.5) * 2, e.getY() + 1.5 + r.nextDouble(),
                     e.getZ() + (r.nextDouble() - 0.5) * 2, 0, 0.02, 0);
         }
     }
