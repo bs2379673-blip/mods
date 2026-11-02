@@ -10,7 +10,7 @@ NEO=$(grep neo_version gradle.properties | cut -d= -f2)
 curl -sSL -o $S/installer.jar "https://maven.neoforged.net/releases/net/neoforged/neoforge/$NEO/neoforge-$NEO-installer.jar"
 ( cd $S && java -jar installer.jar --installServer > install.log 2>&1 ); tail -3 $S/install.log
 cp libs/playeranimator-1.jar $S/mods/
-cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar ../out/starfest-*.jar ../out/starsync-*.jar libs/cinematic-0.18.30.jar libs/waterframes-1.jar libs/watermedia-1.jar libs/creativecore-1.jar $S/mods/
+cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar ../out/starfest-*.jar ../out/starsync-*.jar libs/cinematic-0.18.30.jar libs/waterframes-1.jar libs/creativecore-1.jar $S/mods/
 # StarFest: una cancion de prueba (128 BPM, parte fuerte entre 20 y 32 s) en la carpeta de musica del servidor
 mkdir -p $S/config/starfest/musica && cp ci/starfest/prueba.ogg $S/config/starfest/musica/
 ls $S/mods
