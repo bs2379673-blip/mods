@@ -146,7 +146,7 @@ FIG=('gamerule doDaylightCycle false' 'time set 6000' "$W" "${T}hud no${E}" "${T
   "$W" "${T}figura anim saludo si${E}" "${T}caminar si${E}" 'sleep 1.5' "${T}foto g05_saludo_camina${E}" "${T}caminar no${E}" 'sleep 1.2' "${T}foto g06_saludo_quieto${E}"
   "${T}figura anim saludo no${E}" 'sleep 1.2' "${T}foto g07_sin_saludo${E}" "${T}figura quitar${E}" "${T}camara primera${E}" 'sleep 1')
 python3 ci/rcon.py 25577 annistest "${FIG[@]}"
-echo "::notice::Visual Figura> $(grep -E '\[TEST\] figura|Annis Compat|figura.*(ERROR|Exception)' run/logs/latest.log 2>/dev/null | head -20 | tr '\n' '|' | cut -c1-3000)"
+echo "::notice::Visual Figura> $(grep -E '\[TEST\] (figura|caminar)|Annis Compat|figura.*(ERROR|Exception)' run/logs/latest.log 2>/dev/null | head -20 | tr '\n' '|' | cut -c1-3000)"
 python3 ci/rcon.py 25577 annistest \
   'gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule sendCommandFeedback false' \
   'tp @a 0 -60 -4 0 12' "${T}hud no${E}" \

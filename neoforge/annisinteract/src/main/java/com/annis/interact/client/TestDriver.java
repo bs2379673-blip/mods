@@ -50,6 +50,10 @@ public final class TestDriver {
             }
             if (walking && mc.player != null) {
                 mc.options.keyUp.setDown(true);
+                if (++walkTicks % 10 == 0) {
+                    AnnisInteract.LOGGER.info("[TEST] caminar: tecla={} impulso={} pos={} paso={} pantalla={}", mc.options.keyUp.isDown(),
+                            mc.player.input.forwardImpulse, mc.player.position(), mc.player.walkAnimation.speed(), mc.screen);
+                }
             }
         });
         ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
@@ -111,6 +115,7 @@ public final class TestDriver {
 
     private static float bodyOffset = Float.NaN;
     private static boolean walking;
+    private static int walkTicks;
 
     /** Prueba con Figura: "figura cargar <carpeta>" o "figura anim <nombre> si|no". */
     private static void figura(Minecraft mc, String[] cmd) {
