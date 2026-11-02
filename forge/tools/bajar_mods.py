@@ -57,3 +57,5 @@ if LOADER == "neoforge":
     # WaterFrames 2.1 pide WATERMeDIA 2.1.x (la 3.0 cambio todo)
     fetch("watermedia", ["watermedia"], "WATERMeDIA", dest, "2.1.")
     fetch("creativecore", ["creativecore"], "CreativeCore", dest)
+    # Figura (modelos de jugador) para probar Annis Compat
+    fetch("figura", ["figura"], "Figura", dest)

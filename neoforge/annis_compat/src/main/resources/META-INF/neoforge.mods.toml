@@ -7,7 +7,8 @@ modId="annis_compat"
 version="${version}"
 displayName="Annis Compat"
 authors="Annis World"
-description='''Compatibilidades con Punchy Moves. Cinematic Interactions: mientras trabajas en una estacion, Punchy se pausa y se ven las animaciones propias de Cinematic.'''
+description='''Compatibilidades con Punchy Moves. Cinematic Interactions: mientras trabajas en una estacion, Punchy se pausa y se ven las animaciones propias de Cinematic.
+Figura: los modelos siguen las animaciones de Punchy; si el avatar reproduce una animacion propia del cuerpo, Punchy se pausa para ese jugador.'''
 
 [[dependencies.annis_compat]]
 modId="neoforge"

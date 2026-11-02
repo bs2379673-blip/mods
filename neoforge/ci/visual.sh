@@ -69,6 +69,9 @@ rm -f run/mods/*.jar; cp libs/playeranimator-1.jar libs/punchymoves-1.jar libs/p
 # Cinematic Interactions (MIT) para probar Annis Compat
 cp libs/cinematic-0.18.30.jar run/mods/
 cp libs/waterframes-1.jar libs/watermedia-1.jar libs/creativecore-1.jar run/mods/ 2>/dev/null
+# Figura + avatar de prueba para Annis Compat
+cp libs/figura-1.jar run/mods/ 2>/dev/null
+rm -rf run/figura/avatars/prueba; mkdir -p run/figura/avatars; cp -r ci/figura/prueba run/figura/avatars/
 cp ../out/Annis_Animaciones.zip run/resourcepacks/ 2>/dev/null || true
 export LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=4.5
 ( timeout 840 xvfb-run -a -s "-screen 0 1280x720x24" gradle :annisinteract:runClient -PannisTest --no-daemon > client.log 2>&1 ) &
@@ -133,6 +136,17 @@ LOCO+=('tp @a 40 -60 40 0 0' "${T}camara frente${E}" "${T}estacion CAMPFIRE${E}"
   "${T}cuerpo 90${E}" 'sleep 0.6' "${T}foto f02_fogata_costado${E}" "${T}estacion ANVIL${E}" 'sleep 0.8' "${T}foto f03_yunque_costado${E}"
   "${T}estacion ninguna${E}" 'sleep 0.8' "${T}foto f04_fuera_costado${E}" "${T}cuerpo libre${E}" "${T}camara primera${E}")
 python3 ci/rcon.py 25577 annistest "${LOCO[@]}"
+# Annis Compat + Figura: el avatar sigue a Punchy; con una animacion propia del cuerpo, Punchy se pausa
+W='tp @a 100 -60 100 0 0'
+FIG=('gamerule doDaylightCycle false' 'time set 6000' "$W" "${T}hud no${E}" "${T}camara frente${E}" 'sleep 1.5'
+  "${T}caminar si${E}" 'sleep 1.5' "${T}foto g01_normal_camina${E}" "${T}caminar no${E}" 'sleep 0.5'
+  "${T}figura cargar prueba${E}" "$W" 'sleep 5' "${T}foto g02_figura_quieto${E}"
+  "${T}caminar si${E}" 'sleep 1.5' "${T}foto g03_figura_camina${E}" 'sleep 0.3' "${T}foto g03b_figura_camina${E}" "${T}caminar no${E}" 'sleep 0.5'
+  "$W" "${T}figura anim cola si${E}" "${T}caminar si${E}" 'sleep 1.5' "${T}foto g04_cola_camina${E}" "${T}caminar no${E}" "${T}figura anim cola no${E}" 'sleep 0.5'
+  "$W" "${T}figura anim saludo si${E}" "${T}caminar si${E}" 'sleep 1.5' "${T}foto g05_saludo_camina${E}" "${T}caminar no${E}" 'sleep 1.2' "${T}foto g06_saludo_quieto${E}"
+  "${T}figura anim saludo no${E}" 'sleep 1.2' "${T}foto g07_sin_saludo${E}" "${T}figura quitar${E}" "${T}camara primera${E}" 'sleep 1')
+python3 ci/rcon.py 25577 annistest "${FIG[@]}"
+echo "::notice::Visual Figura> $(grep -E '\[TEST\] figura|Annis Compat|figura.*(ERROR|Exception)' run/logs/latest.log 2>/dev/null | head -20 | tr '\n' '|' | cut -c1-3000)"
 python3 ci/rcon.py 25577 annistest \
   'gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule sendCommandFeedback false' \
   'tp @a 0 -60 -4 0 12' "${T}hud no${E}" \
