@@ -90,7 +90,7 @@ SYNC=('time set 6000' "${T}hud no${E}" 'fill 78 -60 84 84 -57 84 minecraft:white
   'starsync vincular sala 79 -59 83' 'starsync vincular sala 83 -59 83' 'starsync grupos'
   "data merge block 79 -59 83 {url:\"$IMG\",active:1b}" 'sleep 2' 'data get block 83 -59 83 url' 'data get block 83 -59 83 active'
   'tp @a 81 -59 77 0 5' 'sleep 6' "${T}foto w01_pantallas_vinculadas${E}"
-  'data merge block 83 -59 83 {url:\"\"}' 'sleep 2' 'data get block 79 -59 83 url' 'sleep 1')
+  "data merge block 83 -59 83 {url:\"x\"}" 'sleep 2' 'data get block 79 -59 83 url' 'sleep 1')
 python3 ci/rcon.py 25577 annistest "${SYNC[@]}" 2>&1 | tee rcon-starsync.txt
 # --- StarFest: boliche de prueba de noche, con la cancion del servidor ---
 STAR=('gamerule doDaylightCycle false' 'time set 18000' 'weather clear' 'gamerule sendCommandFeedback false' "${T}hud no${E}"

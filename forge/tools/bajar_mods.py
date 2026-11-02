@@ -28,9 +28,11 @@ def search(query):
         print(f"  busqueda '{query}': {h['slug']} - {h['title']}")
     return [h["slug"] for h in hits]
 
-def fetch(name, slugs, query, dest):
+def fetch(name, slugs, query, dest, prefix=None):
     for slug in slugs + search(query):
         vs = versions(slug)
+        if prefix:
+            vs = [v for v in vs if v["version_number"].startswith(prefix) or ("-" + prefix) in v["version_number"] or ("v" + prefix) in v["version_number"]]
         if not vs:
             continue
         v = vs[0]
@@ -52,5 +54,6 @@ fetch("punchystudio", ["punchy-studio"], "Punchy Studio", dest)
 if LOADER == "neoforge":
     # WaterFrames (pantallas) para StarSync y el audio de las pantallas en StarFest
     fetch("waterframes", ["waterframes"], "WaterFrames", dest)
-    fetch("watermedia", ["watermedia"], "WATERMeDIA", dest)
+    # WaterFrames 2.1 pide WATERMeDIA 2.1.x (la 3.0 cambio todo)
+    fetch("watermedia", ["watermedia"], "WATERMeDIA", dest, "2.1.")
     fetch("creativecore", ["creativecore"], "CreativeCore", dest)
