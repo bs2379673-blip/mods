@@ -29,6 +29,28 @@ public final class SpiritRig {
         public float happy = -1;  // 0..1 durante un saltito
         public boolean sleeping;
         public int seed;
+        /** Animaciones especiales del espiritu (de su json): vueltita, saludo, baile, volar, corazon. */
+        public java.util.List<String> specials = java.util.List.of();
+        /** Piezas que aletean como alas (de su json "alas"). */
+        public java.util.List<String> wings = java.util.List.of();
+    }
+
+    /** Especial que esta haciendo ahora (para las particulas): nombre y avance 0..1, o null. */
+    public static String[] currentSpecial(Pose p) {
+        if (p.specials.isEmpty() || p.sleeping || p.walkAmount > 0.2f || p.happy >= 0) {
+            return null;
+        }
+        float t = p.age + Math.floorMod(p.seed * 37, 160);
+        float cyc = t % 160;
+        String which = p.specials.get(Math.floorMod((int) (t / 160) + p.seed, p.specials.size()));
+        float dur = switch (which) {
+            case "vueltita" -> 22;
+            case "saludo" -> 34;
+            case "volar" -> 48;
+            case "corazon" -> 30;
+            default -> 44;
+        };
+        return cyc < dur ? new String[]{which, Float.toString(cyc / dur)} : null;
     }
 
     public final ModelPart root;
@@ -159,9 +181,107 @@ public final class SpiritRig {
         if (this.spin != null) {
             this.spin.yRot += age * 0.025f;
         }
+        specials(p, age, amt);
         for (int i = 0; i < this.petals.size(); i++) {
             ModelPart l = this.petals.get(i);
             l.xRot += Mth.sin(age * 0.08f + i * 1.3f) * 0.12f - (p.sleeping ? -0.4f : 0);
+        }
+    }
+
+    /** Alas que aletean y animaciones especiales (vueltita, saludo, baile, volar, corazon). */
+    private void specials(Pose p, float age, float amt) {
+        float lift = 0;
+        String[] sp = currentSpecial(p);
+        String which = sp == null ? "" : sp[0];
+        float f = sp == null ? 0 : Float.parseFloat(sp[1]);
+        float bell = Mth.sin(f * Mth.PI);
+        boolean flying = which.equals("volar");
+        // alas: aleteo suave quieto, rapido al correr o al volar; plegadas al dormir
+        if (!p.wings.isEmpty()) {
+            float speed = p.sleeping ? 0.05f : 0.35f + amt * 0.6f + (flying ? 0.7f * bell : 0);
+            float amp = p.sleeping ? 0.04f : 0.22f + amt * 0.3f + (flying ? 0.35f * bell : 0);
+            for (String w : p.wings) {
+                ModelPart part = this.byName.get(w);
+                if (part == null) {
+                    continue;
+                }
+                float side = Math.signum(part.x == 0 ? 1 : part.x);
+                part.zRot += side * (0.15f + Mth.sin(age * speed * 1.6f) * amp) * (p.sleeping ? 0.2f : 1);
+                part.yRot += side * Mth.cos(age * speed * 1.6f) * amp * 0.25f;
+            }
+            // con alas va flotando un poquito al correr
+            lift += amt * (1.6f + Mth.sin(age * 0.5f) * 0.6f);
+        }
+        if (this.body == null) {
+            return;
+        }
+        switch (which) {
+            case "vueltita" -> { // salta y da una vuelta entera
+                this.body.yRot += (1 - (1 - f) * (1 - f)) * Mth.TWO_PI;
+                lift += bell * 4.5f;
+                if (this.armR != null) {
+                    this.armR.zRot += bell * 1.4f;
+                }
+                if (this.armL != null) {
+                    this.armL.zRot -= bell * 1.4f;
+                }
+            }
+            case "saludo" -> { // levanta el bracito y saluda moviendo la mano
+                ModelPart arm = this.armR != null ? this.armR : this.armL;
+                if (arm != null) {
+                    float side = arm == this.armR ? 1 : -1;
+                    arm.xRot -= bell * 2.4f;
+                    arm.zRot += side * bell * (0.35f + Mth.sin(age * 0.9f) * 0.35f);
+                }
+                this.body.zRot += bell * 0.12f * (this.armR != null ? -1 : 1);
+                ModelPart look = this.head != null ? this.head : this.body;
+                look.zRot += bell * 0.15f;
+            }
+            case "volar" -> { // sube flotando, se balancea y baja
+                lift += bell * 6f + Mth.sin(age * 0.6f) * bell * 0.8f;
+                this.body.xRot += Mth.sin(age * 0.3f) * 0.08f * bell;
+                if (this.legR != null) {
+                    this.legR.xRot += 0.4f * bell;
+                }
+                if (this.legL != null) {
+                    this.legL.xRot += 0.4f * bell;
+                }
+            }
+            case "corazon" -> { // abraza el aire y se balancea feliz
+                if (this.armR != null) {
+                    this.armR.zRot += bell * 0.6f;
+                    this.armR.yRot -= bell * 0.9f;
+                }
+                if (this.armL != null) {
+                    this.armL.zRot -= bell * 0.6f;
+                    this.armL.yRot += bell * 0.9f;
+                }
+                this.body.zRot += Mth.sin(f * Mth.TWO_PI * 2) * 0.15f * bell;
+                ModelPart look = this.head != null ? this.head : this.body;
+                look.xRot -= bell * 0.25f;
+            }
+            case "baile" -> { // bailecito de lado a lado
+                float b = Mth.sin(f * Mth.TWO_PI * 3);
+                this.body.zRot += b * 0.22f * bell;
+                lift += Math.abs(b) * 1.2f * bell;
+                ModelPart look = this.head != null ? this.head : this.body;
+                look.zRot -= b * 0.18f * bell;
+                if (this.armR != null) {
+                    this.armR.zRot += (1.2f + b * 0.5f) * bell;
+                }
+                if (this.armL != null) {
+                    this.armL.zRot -= (1.2f - b * 0.5f) * bell;
+                }
+            }
+            default -> {
+            }
+        }
+        this.body.y -= lift;
+        if (this.legR != null && !flying) {
+            this.legR.y -= lift;
+        }
+        if (this.legL != null && !flying) {
+            this.legL.y -= lift;
         }
     }
 

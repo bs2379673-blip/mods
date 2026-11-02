@@ -16,5 +16,9 @@
     "minecraft:meadow",
     "minecraft:flower_forest"
   ],
-  "peso": 1
+  "peso": 1,
+  "especiales": [
+    "baile",
+    "saludo"
+  ]
 }

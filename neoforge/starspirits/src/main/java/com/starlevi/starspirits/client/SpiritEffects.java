@@ -51,6 +51,46 @@ public final class SpiritEffects {
             level.addParticle(own, e.getX() + (r.nextDouble() - 0.5) * 0.4, e.getY() + 0.5 + r.nextDouble() * 0.3,
                     e.getZ() + (r.nextDouble() - 0.5) * 0.4, 0, 0.01, 0);
         }
+        // particulas de las animaciones especiales (corazones, brillitos al volar, nubecita al girar)
+        if (d != null && !d.specials.isEmpty()) {
+            SpiritRig.Pose sp = new SpiritRig.Pose();
+            sp.age = e.tickCount;
+            sp.seed = e.getId();
+            sp.walkAmount = e.walkAnimation.speed();
+            sp.happy = e.happyProgress(0);
+            sp.specials = d.specials;
+            String[] now = SpiritRig.currentSpecial(sp);
+            if (now != null) {
+                float f = Float.parseFloat(now[1]);
+                double top = e.getY() + 0.9 * d.scale;
+                switch (now[0]) {
+                    case "corazon" -> {
+                        if (age % 6 == 0) {
+                            level.addParticle(ParticleTypes.HEART, e.getX() + (r.nextDouble() - 0.5) * 0.4, top + 0.2, e.getZ() + (r.nextDouble() - 0.5) * 0.4, 0, 0.05, 0);
+                        }
+                    }
+                    case "volar" -> {
+                        if (age % 3 == 0) {
+                            level.addParticle(ParticleTypes.END_ROD, e.getX() + (r.nextDouble() - 0.5) * 0.4, e.getY() + 0.1, e.getZ() + (r.nextDouble() - 0.5) * 0.4, 0, -0.02, 0);
+                        }
+                    }
+                    case "vueltita" -> {
+                        if (f > 0.45f && f < 0.55f) {
+                            for (int i = 0; i < 4; i++) {
+                                level.addParticle(ParticleTypes.WAX_ON, e.getX() + (r.nextDouble() - 0.5) * 0.7, top, e.getZ() + (r.nextDouble() - 0.5) * 0.7, 0, 0, 0);
+                            }
+                        }
+                    }
+                    case "baile" -> {
+                        if (age % 10 == 0) {
+                            level.addParticle(ParticleTypes.NOTE, e.getX(), top + 0.3, e.getZ(), r.nextDouble(), 0, 0);
+                        }
+                    }
+                    default -> {
+                    }
+                }
+            }
+        }
         Rarity rarity = d == null ? Rarity.COMUN : d.rarity;
         if (rarity == Rarity.LEGENDARIO && age % 9 == 0) {
             level.addParticle(ParticleTypes.END_ROD, e.getX() + (r.nextDouble() - 0.5) * 0.6, e.getY() + 0.3 + r.nextDouble() * 0.6,

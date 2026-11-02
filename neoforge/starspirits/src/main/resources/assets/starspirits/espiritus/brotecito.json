@@ -15,5 +15,9 @@
     "minecraft:plains",
     "minecraft:birch_forest"
   ],
-  "peso": 1
+  "peso": 1,
+  "especiales": [
+    "saludo",
+    "vueltita"
+  ]
 }

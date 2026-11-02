@@ -22,6 +22,9 @@ public final class SpiritDraw {
     public static float draw(String id, PoseStack ps, MultiBufferSource buffers, int light, SpiritRig.Pose pose,
                              float yaw, float scale) {
         SpiritRig rig = ClientDefs.rig(id);
+        com.starlevi.starspirits.SpiritDef def = ClientDefs.def(id);
+        pose.specials = def == null ? java.util.List.of() : def.specials;
+        pose.wings = def == null ? java.util.List.of() : def.wings;
         rig.animate(pose);
         float s = BASE * scale * ClientDefs.scale(id);
         ps.pushPose();

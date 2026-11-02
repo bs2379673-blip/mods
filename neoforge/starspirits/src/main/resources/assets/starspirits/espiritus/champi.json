@@ -17,5 +17,9 @@
     "minecraft:swamp"
   ],
   "particulas": "minecraft:spore_blossom_air",
-  "peso": 1
+  "peso": 1,
+  "especiales": [
+    "vueltita",
+    "baile"
+  ]
 }

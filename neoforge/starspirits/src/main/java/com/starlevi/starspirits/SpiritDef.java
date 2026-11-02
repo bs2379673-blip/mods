@@ -35,6 +35,10 @@ public final class SpiritDef {
     public final List<String> biomes = new ArrayList<>();
     public final JsonArray benefits;
     public final String description;
+    /** Animaciones especiales que hace de vez en cuando: vueltita, saludo, baile, volar, corazon. */
+    public final List<String> specials = new ArrayList<>();
+    /** Piezas que aletean como alas (por nombre: "pelo", "ala"...). */
+    public final List<String> wings = new ArrayList<>();
 
     public SpiritDef(String id, String json) {
         this.id = id;
@@ -57,6 +61,16 @@ public final class SpiritDef {
         if (o.has("biomas") && o.get("biomas").isJsonArray()) {
             for (JsonElement e : o.getAsJsonArray("biomas")) {
                 this.biomes.add(e.getAsString());
+            }
+        }
+        if (o.has("especiales") && o.get("especiales").isJsonArray()) {
+            for (JsonElement e : o.getAsJsonArray("especiales")) {
+                this.specials.add(e.getAsString().toLowerCase(Locale.ROOT));
+            }
+        }
+        if (o.has("alas") && o.get("alas").isJsonArray()) {
+            for (JsonElement e : o.getAsJsonArray("alas")) {
+                this.wings.add(e.getAsString().toLowerCase(Locale.ROOT));
             }
         }
         this.benefits = o.has("beneficios") && o.get("beneficios").isJsonArray() ? o.getAsJsonArray("beneficios") : new JsonArray();

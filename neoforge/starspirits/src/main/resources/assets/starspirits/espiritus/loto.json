@@ -18,5 +18,9 @@
     "minecraft:lush_caves"
   ],
   "particulas": "minecraft:cherry_leaves",
-  "peso": 1
+  "peso": 1,
+  "especiales": [
+    "volar",
+    "corazon"
+  ]
 }

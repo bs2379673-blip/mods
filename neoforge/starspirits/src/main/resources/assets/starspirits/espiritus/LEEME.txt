@@ -18,6 +18,10 @@ Ejemplo (champi.json):
   "modelo": "mi_bicho.geo.json",  (opcional) modelo propio de Blockbench (reemplaza la forma)
   "escala": 1.0,                  (opcional) tamano
   "giro": 0,                      (opcional) grados para girar un modelo que viene mirando de costado
+  "especiales": ["vueltita", "saludo"],  (opcional) animaciones especiales que hace de vez en cuando:
+                                  vueltita, saludo, baile, volar, corazon
+  "alas": ["pelo", "pelo_2"],     (opcional) piezas que aletean como alas (si tiene alas, al correr
+                                  va flotando)
   "color": "#7FD957",             (opcional) color de su estrellita cuando es el activo
   "particulas": "minecraft:glow", (opcional) particula que suelta de vez en cuando
   "peso": 1,                      probabilidad dentro de su rareza (0 = no sale en los puntos)

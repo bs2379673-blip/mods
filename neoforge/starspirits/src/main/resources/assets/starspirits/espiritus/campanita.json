@@ -19,5 +19,9 @@
     "minecraft:cherry_grove",
     "#minecraft:is_mountain"
   ],
-  "peso": 1
+  "peso": 1,
+  "especiales": [
+    "vueltita",
+    "baile"
+  ]
 }

@@ -16,5 +16,9 @@
     "#minecraft:is_jungle",
     "minecraft:cherry_grove"
   ],
-  "peso": 1
+  "peso": 1,
+  "especiales": [
+    "saludo",
+    "corazon"
+  ]
 }

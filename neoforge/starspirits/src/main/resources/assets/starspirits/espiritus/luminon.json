@@ -22,5 +22,9 @@
     "minecraft:mangrove_swamp"
   ],
   "particulas": "minecraft:glow",
-  "peso": 1
+  "peso": 1,
+  "especiales": [
+    "saludo",
+    "corazon"
+  ]
 }

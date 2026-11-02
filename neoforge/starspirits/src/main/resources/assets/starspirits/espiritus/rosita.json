@@ -14,5 +14,9 @@
     "minecraft:sunflower_plains",
     "minecraft:cherry_grove"
   ],
-  "peso": 1
+  "peso": 1,
+  "especiales": [
+    "baile",
+    "corazon"
+  ]
 }
