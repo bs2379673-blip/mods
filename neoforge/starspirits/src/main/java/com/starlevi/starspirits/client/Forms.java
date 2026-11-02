@@ -53,7 +53,7 @@ public final class Forms {
     }
 
     public static synchronized SpiritRig get(String form) {
-        return CACHE.computeIfAbsent(form, Forms::build);
+        return CACHE.computeIfAbsent(form, SoftForms::build);
     }
 
     private static CubeListBuilder box(int u, int v, float x, float y, float z, float w, float h, float d) {

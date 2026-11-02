@@ -45,8 +45,13 @@ PROBABILIDADES: config/starspirits/config.json
   "duracion_extraccion_ticks": duracion de la animacion (20 ticks = 1 segundo)
   "max_siguiendo": cuantos espiritus como maximo corren atras de cada jugador
 
-TEXTURAS PARA LAS FORMAS: 64x80 pixeles. ejemplo_textura.png muestra donde va cada parte
-(cuerpo con la carita al frente, patitas, bracitos, parpados y lo que lleva arriba).
+TEXTURAS PARA LAS FORMAS: 256x256 pixeles (o 512x512, 1024x1024: mas detalle, mismas zonas).
+ejemplo_textura.png muestra las zonas:
+  arriba (todo el ancho): el cuerpo, envuelto como un globo; el centro es el frente (la carita)
+  fila del medio: patitas y bracitos | parpados | tallo | petalo | hoja
+  abajo: sombrero / campana / copa / capullo (envuelto) y la ultima fila: debajo del sombrero,
+  centro de la flor, y una copa extra (bonsai)
+  En el petalo y la hoja: izquierda-derecha es el ancho, arriba es la base y abajo la punta.
 
 MODELOS PROPIOS (Blockbench): proyecto "Bedrock Entity" con UV de caja, exportado como
 .geo.json. Los huesos se animan solos segun su nombre:

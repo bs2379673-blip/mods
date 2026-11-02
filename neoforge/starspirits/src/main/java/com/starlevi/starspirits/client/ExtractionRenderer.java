@@ -32,7 +32,6 @@ public class ExtractionRenderer implements BlockEntityRenderer<ExtractionBlockEn
         float idle = now + be.getBlockPos().asLong() % 100;
         ps.pushPose();
         ps.translate(0.5, 0, 0.5);
-        VertexConsumer glow = buffers.getBuffer(Glow.LIGHT);
         switch (be.phase) {
             case ExtractionBlockEntity.EXTRACTING -> extracting(be, now, ps, buffers);
             case ExtractionBlockEntity.RECHARGING -> {
@@ -41,7 +40,7 @@ public class ExtractionRenderer implements BlockEntityRenderer<ExtractionBlockEn
                 float size = 0.05f + 0.13f * f;
                 ps.pushPose();
                 ps.translate(0, CORE_Y - 0.1f + Mth.sin(idle * 0.05f) * 0.03f, 0);
-                Glow.orb(ps, glow, size, idle * 0.02f, 0.55f, 0.8f, 0.5f, 0.25f + 0.35f * f);
+                Glow.orb(ps, buffers.getBuffer(Glow.LIGHT), size, idle * 0.02f, 0.55f, 0.8f, 0.5f, 0.25f + 0.35f * f);
                 ps.popPose();
             }
             default -> {
@@ -50,24 +49,23 @@ public class ExtractionRenderer implements BlockEntityRenderer<ExtractionBlockEn
                 float pulse = 0.85f + Mth.sin(idle * 0.15f) * 0.15f;
                 ps.pushPose();
                 ps.translate(0, CORE_Y + bob, 0);
-                Glow.orb(ps, glow, 0.2f * pulse, idle * 0.03f, 0.75f, 1f, 0.7f, 0.9f);
-                Glow.orb(ps, glow, 0.36f * pulse, -idle * 0.02f, 0.5f, 0.95f, 0.6f, 0.25f);
+                Glow.orb(ps, buffers.getBuffer(Glow.LIGHT), 0.2f * pulse, idle * 0.03f, 0.75f, 1f, 0.7f, 0.9f);
+                Glow.orb(ps, buffers.getBuffer(Glow.LIGHT), 0.36f * pulse, -idle * 0.02f, 0.5f, 0.95f, 0.6f, 0.25f);
                 for (int i = 0; i < 3; i++) {
                     float a = idle * 0.06f + i * Mth.TWO_PI / 3;
                     ps.pushPose();
                     ps.translate(Mth.cos(a) * 0.38f, Mth.sin(idle * 0.1f + i) * 0.08f, Mth.sin(a) * 0.38f);
-                    Glow.orb(ps, glow, 0.05f, idle * 0.1f, 1f, 0.95f, 0.75f, 0.9f);
+                    Glow.orb(ps, buffers.getBuffer(Glow.LIGHT), 0.05f, idle * 0.1f, 1f, 0.95f, 0.75f, 0.9f);
                     ps.popPose();
                 }
                 ps.popPose();
-                Glow.ring(ps.last(), glow, 1.27f, 0.42f, 0.06f, 0.6f, 1f, 0.6f, 0.35f + 0.15f * pulse);
+                Glow.ring(ps.last(), buffers.getBuffer(Glow.LIGHT), 1.27f, 0.42f, 0.06f, 0.6f, 1f, 0.6f, 0.35f + 0.15f * pulse);
             }
         }
         ps.popPose();
     }
 
     private void extracting(ExtractionBlockEntity be, float now, PoseStack ps, MultiBufferSource buffers) {
-        VertexConsumer glow = buffers.getBuffer(Glow.LIGHT);
         float d = Math.max(20, be.duration);
         float t = Mth.clamp(now - be.start, 0, d);
         float f = t / d;
@@ -80,7 +78,7 @@ public class ExtractionRenderer implements BlockEntityRenderer<ExtractionBlockEn
         // anillos en el piso
         for (int k = 0; k < 2; k++) {
             float rf = (f * 1.6f + k * 0.5f) % 1f;
-            Glow.ring(ps.last(), glow, 0.03f, 0.5f + rf * 1.6f, 0.12f, cr, cg, cb, (1 - rf) * 0.7f * Math.min(1, f * 4));
+            Glow.ring(ps.last(), buffers.getBuffer(Glow.LIGHT), 0.03f, 0.5f + rf * 1.6f, 0.12f, cr, cg, cb, (1 - rf) * 0.7f * Math.min(1, f * 4));
         }
         // haz de luz
         if (f > 0.2f) {
@@ -91,7 +89,7 @@ public class ExtractionRenderer implements BlockEntityRenderer<ExtractionBlockEn
             ps.translate(shake, 1.2f, 0);
             float len = 4 + 18 * bf;
             float rad = (0.18f + 0.05f * Mth.sin(now * 0.6f)) * Math.max(1, flash);
-            Glow.beam(ps.last(), glow, len, rad, rad * 2.2f, cr, cg, cb, 0.85f * bf * Math.max(0.3f, fade));
+            Glow.beam(ps.last(), buffers.getBuffer(Glow.LIGHT), len, rad, rad * 2.2f, cr, cg, cb, 0.85f * bf * Math.max(0.3f, fade));
             ps.popPose();
         }
         // semilla: sube y gira cada vez mas rapido
@@ -101,8 +99,8 @@ public class ExtractionRenderer implements BlockEntityRenderer<ExtractionBlockEn
             ps.pushPose();
             ps.translate(shake, y, 0);
             float size = 0.2f + f * 0.25f;
-            Glow.orb(ps, glow, size, spin, cr, cg, cb, 0.95f);
-            Glow.orb(ps, glow, size * 2.2f, -spin * 0.7f, cr, cg, cb, 0.3f);
+            Glow.orb(ps, buffers.getBuffer(Glow.LIGHT), size, spin, cr, cg, cb, 0.95f);
+            Glow.orb(ps, buffers.getBuffer(Glow.LIGHT), size * 2.2f, -spin * 0.7f, cr, cg, cb, 0.3f);
             ps.popPose();
         }
         // el espiritu brota girando
@@ -124,7 +122,7 @@ public class ExtractionRenderer implements BlockEntityRenderer<ExtractionBlockEn
             if (g < 0.5f) {
                 ps.pushPose();
                 ps.translate(0, y, 0);
-                Glow.orb(ps, glow, 0.6f * (1 - g * 2), spin, cr, cg, cb, 0.9f * (1 - g * 2));
+                Glow.orb(ps, buffers.getBuffer(Glow.LIGHT), 0.6f * (1 - g * 2), spin, cr, cg, cb, 0.9f * (1 - g * 2));
                 ps.popPose();
             }
         }

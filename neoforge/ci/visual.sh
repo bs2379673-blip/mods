@@ -99,14 +99,14 @@ python3 ci/rcon.py 25577 annistest "${SYNC[@]}" 2>&1 | tee rcon-starsync.txt
 SPI=('time set 6000' 'weather clear' "${T}hud no${E}" "${T}camara primera${E}" 'fill 132 -60 136 152 -54 156 air'
   'setblock 140 -60 146 starspirits:punto_extraccion' 'setblock 136 -60 146 starspirits:maceta'
   'tp @a 140 -60 141.5 0 14' 'sleep 2.5' "${T}foto p01_punto_listo${E}"
-  'starspirits extraer 140 -60 146 @p luminon' 'sleep 0.8' "${T}foto p02_extrae_a${E}" 'sleep 1.0' "${T}foto p03_extrae_b${E}"
+  'starspirits extraer 140 -60 146 @r luminon' 'sleep 0.8' "${T}foto p02_extrae_a${E}" 'sleep 1.0' "${T}foto p03_extrae_b${E}"
   'sleep 0.9' "${T}foto p04_extrae_c${E}" 'sleep 0.6' "${T}foto p05_extrae_d${E}" 'sleep 1.6' "${T}foto p06_salio${E}")
 for s in champi margarita brotecito campanita rosita loto bonsai; do SPI+=("starspirits dar @a $s"); done
 SPI+=('tp @a 140 -60 141 180 10' 'sleep 2.5' "${T}camara frente${E}" 'sleep 1' "${T}foto p07_caravana_frente${E}"
   "${T}caminar si${E}" 'sleep 2.5' "${T}foto p08_caravana_corre${E}" 'sleep 0.6' "${T}foto p09_caravana_corre_b${E}" "${T}caminar no${E}"
   'sleep 2.5' "${T}foto p10_caravana_quieta${E}"
-  'tp @a 136 -60 143.6 0 28' "${T}camara primera${E}" 'starspirits plantar 136 -60 146 @p 2' 'sleep 2' "${T}foto p11_maceta${E}"
-  'starspirits quitar @p todos' 'kill @e[type=starspirits:espiritu]')
+  'tp @a 136 -60 143.6 0 28' "${T}camara primera${E}" 'starspirits plantar 136 -60 146 @r 2' 'sleep 2' "${T}foto p11_maceta${E}"
+  'starspirits quitar @r todos' 'kill @e[type=starspirits:espiritu]')
 X=141; for s in champi margarita brotecito campanita luminon rosita loto bonsai; do SPI+=("summon starspirits:espiritu $X -60 151 {tipo:\"$s\",NoAI:1b,Rotation:[180f,0f]}"); X=$((X+1)); done
 SPI+=('tp @a 144.5 -60 147.6 0 18' 'sleep 2.5' "${T}foto p12_fila_dia${E}" 'time set 18000' 'sleep 1.5' "${T}foto p13_fila_noche${E}"
   'time set 6000' 'kill @e[type=starspirits:espiritu]' 'sleep 0.5')

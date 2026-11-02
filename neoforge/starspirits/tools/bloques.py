@@ -1,7 +1,5 @@
-"""Texturas de StarSpirits (propiedad de Starlevi). Genera:
-  - texturas de los 8 espiritus (64x80, mismo mapa UV que las formas del mod) + brillos
-  - plantilla ejemplo_textura.png para que los admins pinten sus espiritus
-  - texturas de bloques: pilar de extraccion y maceta
+"""Texturas de bloques de StarSpirits (propiedad de Starlevi): pilar de extraccion y maceta.
+(Las de los espiritus las pinta acuarela.py)
 Uso: python3 texturas.py  (desde la carpeta tools)"""
 import math, os, random
 from PIL import Image, ImageDraw
@@ -176,114 +174,6 @@ def leaf(hex_):
 def save(img, name):
     img.save(os.path.join(ENT, name + ".png"))
 
-
-# ---------------------------------------------------------------- espiritus
-img, body = base("#F3E3C8", 1)  # Champi
-red = hexc("#E5483F")
-paint_box(img, "copa", red, noise=0.06, seed=11)
-paint_box(img, "copa_top", shade(red, 1.05), noise=0.06, seed=12)
-for p, n in (("copa", 9), ("copa_top", 4)):
-    spots(img, p, hexc("#FFF6EA"), n, 21)
-side_spots(img, "copa", hexc("#FFF6EA"), 3, 30)
-x0, y0, x1, y1 = face_rect("copa", "abajo")  # laminillas debajo del sombrero
-for y in range(y0, y1):
-    for x in range(x0, x1):
-        dot(img, x, y, hexc("#EBD2B0") if (x + y) % 2 else hexc("#D9BC95"))
-save(img, "champi")
-
-img, body = base("#D9D2F5", 2)  # Luminon
-teal = hexc("#2A6F8F")
-paint_box(img, "copa", teal, noise=0.08, seed=13)
-paint_box(img, "copa_top", shade(teal, 1.1), noise=0.08, seed=14)
-glow = new()
-for p, n in (("copa", 10), ("copa_top", 5)):
-    spots(img, p, hexc("#7FF7FF"), n, 41)
-    spots(glow, p, hexc("#7FF7FF"), n, 41)
-for i, f in enumerate(("der", "frente", "izq", "atras")):
-    spots(img, "copa", hexc("#7FF7FF"), 3, 50 + i, f)
-    spots(glow, "copa", hexc("#7FF7FF"), 3, 50 + i, f)
-for (x, y) in [(7, 8), (7, 9), (10, 8), (10, 9)]:
-    dot(img, x, y, hexc("#3BD6FF"))
-    dot(glow, x, y, hexc("#9AF4FF"))
-save(img, "luminon")
-save(glow, "luminon_brillo")
-
-img, body = base("#BFE8A0", 3)  # Margarita
-plane(img, "petalos", daisy("#FFFFFF", "#FFF2B3"))
-paint_box(img, "flor_centro", hexc("#FFD23F"), noise=0.12, seed=15)
-spots(img, "flor_centro", hexc("#E8A317"), 5, 60)
-save(img, "margarita")
-
-img, body = base("#DDEFB8", 4)  # Brotecito
-paint_box(img, "tallo", hexc("#6E8B3D"), noise=0.05, seed=16)
-paint_box(img, "hoja_copa", hexc("#5FB548"), noise=0.18, seed=17)
-side_spots(img, "hoja_copa", hexc("#3F8F34"), 3, 70)
-spots(img, "hoja_copa", hexc("#8BDB6A"), 4, 75)
-plane(img, "hoja", leaf("#4FA83D"))
-save(img, "brotecito")
-
-img, body = base("#CFE6FF", 5)  # Campanita
-blue = hexc("#5B7CFA")
-paint_box(img, "campana", blue, top=shade(blue, 1.15), noise=0.06, seed=18)
-paint_box(img, "campana_borde", hexc("#8FA7FF"), noise=0.05, seed=19)
-paint_box(img, "tallo", hexc("#5E9E4A"), noise=0.05, seed=20)
-side_spots(img, "campana", hexc("#7E98FF"), 2, 80)
-save(img, "campanita")
-
-img, body = base("#F7C6CF", 6)  # Rosita
-rose = hexc("#D7263D")
-paint_box(img, "rosa", rose, noise=0.06, seed=21)
-paint_box(img, "rosa_base", shade(rose, 0.85), noise=0.06, seed=22)
-x0, y0, x1, y1 = face_rect("rosa", "arriba")  # espiral de la rosa
-for y in range(y0, y1):
-    for x in range(x0, x1):
-        dx, dy = x - (x0 + x1 - 1) / 2, y - (y0 + y1 - 1) / 2
-        r = math.hypot(dx, dy)
-        a = math.atan2(dy, dx)
-        if abs(((a / (2 * math.pi)) * 2 + r * 0.55) % 1 - 0.5) < 0.18:
-            dot(img, x, y, shade(rose, 0.7))
-for f in ("der", "frente", "izq", "atras"):
-    x0, y0, x1, y1 = face_rect("rosa", f)
-    for x in range(x0, x1, 2):
-        dot(img, x, y0 + 1, shade(rose, 0.75))
-plane(img, "hoja", leaf("#3E8E41"))
-save(img, "rosita")
-
-img, body = base("#FBE9F1", 7)  # Loto lunar
-glow = new()
-plane(img, "petalo", lotus_petal("#F48FB8", "#FFFFFF"))
-plane(glow, "petalo", lambda x, y: (255, 220, 240, 255) if y < 0.35 and abs(x - 0.5) < 0.3 else None)
-paint_box(img, "flor_centro", hexc("#FFD65C"), noise=0.1, seed=23)
-paint_box(glow, "flor_centro", hexc("#FFE89A"), noise=0.0, seed=23)
-for (x, y) in [(7, 8), (10, 8)]:
-    dot(glow, x, y, hexc("#FFFFFF", 160))
-save(img, "loto")
-save(glow, "loto_brillo")
-
-img, body = base("#E9DDBB", 8)  # Bonsai ancestral
-paint_box(img, "tallo", hexc("#7A4E2D"), noise=0.08, seed=24)
-paint_box(img, "copa_arbol", hexc("#4E9A55"), noise=0.2, seed=25)
-paint_box(img, "hoja_copa", hexc("#5DAE60"), noise=0.2, seed=26)
-for p in ("copa_arbol", "hoja_copa"):
-    spots(img, p, hexc("#FFB7D5"), 5, 90)
-    side_spots(img, p, hexc("#FFB7D5"), 2, 95)
-    side_spots(img, p, hexc("#356F3B"), 3, 99)
-save(img, "bonsai")
-
-# ---------------------------------------------------------------- plantilla para admins
-tpl = new()
-cols = ["#E57373", "#64B5F6", "#81C784", "#FFD54F", "#BA68C8", "#4DD0E1", "#FF8A65", "#A1887F", "#90A4AE", "#F06292"]
-for i, (name, (u, v, w, h, d)) in enumerate(PARTS.items()):
-    c = hexc(cols[i % len(cols)])
-    if h == 0:
-        plane(tpl, name, lambda x, y, c=c: c)
-    else:
-        paint_box(tpl, name, c, noise=0.0)
-        fr = face_rect(name, "frente")
-        for x in range(fr[0], fr[2]):
-            dot(tpl, x, fr[1], shade(c, 0.6))
-face_and_lids(tpl, hexc(cols[0]))
-tpl.save(os.path.join(RES, "espiritus", "ejemplo_textura.png"))
 
 # ---------------------------------------------------------------- bloques
 
