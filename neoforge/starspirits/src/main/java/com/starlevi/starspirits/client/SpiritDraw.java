@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 /** Dibuja un espiritu (en el mundo, en la maceta o saliendo del punto de extraccion). */
 public final class SpiritDraw {
     /** Escala base: el modelo mide ~15 pixeles y queda como un bichito de media cuadra. */
-    public static final float BASE = 0.8f;
+    public static final float BASE = 0.95f;
 
     private SpiritDraw() {
     }

@@ -32,8 +32,10 @@ public final class Glow extends RenderType {
 
     /** Haz vertical desde y=0 hasta "length", radio r0 -> r1, que se apaga hacia la punta. */
     public static void beam(PoseStack.Pose pose, VertexConsumer vc, float length, float r0, float r1, float r, float g, float b, float a) {
-        cone(pose, vc, length, r0 * 0.4f, r1 * 0.4f, r, g, b, a, a * 0.05f, 12);
-        cone(pose, vc, length, r0, r1, r, g, b, a * 0.35f, 0f, 16);
+        // nucleo apenas mas claro que el color (si fuera blanco se perderia la rareza) y halo de color
+        cone(pose, vc, length, r0 * 0.4f, r1 * 0.4f, Math.min(1, r * 0.75f + 0.2f), Math.min(1, g * 0.75f + 0.2f),
+                Math.min(1, b * 0.75f + 0.2f), a * 0.6f, a * 0.04f, 12);
+        cone(pose, vc, length, r0, r1, r, g, b, a * 0.45f, 0f, 16);
     }
 
     private static void cone(PoseStack.Pose pose, VertexConsumer vc, float length, float r0, float r1, float r, float g, float b,

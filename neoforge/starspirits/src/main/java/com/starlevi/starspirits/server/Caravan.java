@@ -205,7 +205,13 @@ public final class Caravan {
         }
         double gap = index == 0 ? 1.6 : 1.1;
         if (dist > gap) {
+            // en zigzag (uno a cada lado) para que se vean todos atras tuyo
             Vec3 at = behind(leader, gap * 0.8);
+            if (index > 0) {
+                float yaw = leader instanceof LivingEntity le ? le.yBodyRot : leader.getYRot();
+                double r = Math.toRadians(yaw), side = (index % 2 == 0 ? 0.55 : -0.55);
+                at = at.add(Math.cos(r) * side, 0, Math.sin(r) * side);
+            }
             double speed = dist > 6 ? 1.75 : dist > 3 ? 1.4 : 1.1;
             s.getNavigation().moveTo(at.x, leader.getY(), at.z, speed);
         } else {
