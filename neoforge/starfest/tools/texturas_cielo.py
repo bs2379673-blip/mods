@@ -93,10 +93,13 @@ u = np.linspace(-1, 1, 64)[None, :]; v = np.linspace(0, 1, 256)[:, None]
 beam = np.exp(-(u ** 2) / 0.08) * (1 - v) ** 1.5
 save(np.stack([beam] * 4, 2), "haz")
 AW, AH = 1024, 256
-u = np.linspace(0, 1, AW)[None, :]; v = np.linspace(0, 1, AH)[:, None]
-streak = octave(AW, 1, 96, 1)[0][None, :] * 0.6 + octave(AW, 1, 24, 1)[0][None, :] * 0.4
-streak = np.clip((streak - 0.35) * 2.2, 0, 1)
-prof = np.exp(-((v - 0.85) ** 2) / 0.004) * 0.9 + (v ** 2.2) * 0.8
-au = streak * prof * np.clip(1.0 - (1 - v) ** 6, 0, 1)
+u = np.linspace(0, 1, AW)[None, :]; v = np.linspace(0, 1, AH)[:, None]   # v: 0 arriba, 1 abajo
+n1 = octave(AW, 1, 160, 1)[0]; n2 = octave(AW, 1, 40, 1)[0]; n3 = octave(AW, 1, 10, 1)[0]
+streak = (0.25 + 0.75 * (0.55 * n1 + 0.3 * n2 + 0.15 * n3) ** 2)[None, :]
+streak = np.asarray(Image.fromarray((np.repeat(streak, 4, 0) * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.5)), np.float32)[:1] / 255
+smooth = lambda e0, e1, x: np.clip((x - e0) / (e1 - e0), 0, 1) ** 2 * (3 - 2 * np.clip((x - e0) / (e1 - e0), 0, 1))
+body = 1.5 * v ** 1.1 * (1 - smooth(0.80, 1.0, v))
+edge = 0.6 * np.exp(-((v - 0.8) ** 2) / 0.004)
+au = np.clip(streak * (body + edge), 0, 1)
 save(np.stack([au, au, au, au], 2), "aurora")
 print("texturas listas")
