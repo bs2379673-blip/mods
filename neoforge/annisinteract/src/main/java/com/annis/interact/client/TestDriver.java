@@ -48,22 +48,6 @@ public final class TestDriver {
                 mc.player.yBodyRot = mc.player.getYRot() + bodyOffset;
                 mc.player.yBodyRotO = mc.player.yBodyRot;
             }
-            if (poseTicks > 0 && mc.player != null
-                    && mc.getEntityRenderDispatcher().getRenderer(mc.player) instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer pr) {
-                net.minecraft.client.model.PlayerModel<?> m = pr.getModel();
-                float[] v = {m.rightArm.xRot, m.leftArm.xRot, m.rightArm.zRot, m.rightLeg.xRot, m.leftLeg.xRot, m.body.xRot, m.body.zRot, m.head.xRot};
-                for (int k = 0; k < v.length; k++) {
-                    poseMax[k] = Math.max(poseMax[k], Math.abs(v[k]));
-                }
-                if (--poseTicks == 0) {
-                    StringBuilder sb = new StringBuilder();
-                    String[] n = {"brazoD.x", "brazoI.x", "brazoD.z", "piernaD.x", "piernaI.x", "torso.x", "torso.z", "cabeza.x"};
-                    for (int k = 0; k < v.length; k++) {
-                        sb.append(n[k]).append('=').append(String.format(java.util.Locale.ROOT, "%.2f", Math.toDegrees(poseMax[k]))).append(' ');
-                    }
-                    AnnisInteract.LOGGER.info("[TEST] pose {}: {}", poseName, sb.toString().trim());
-                }
-            }
             if (walking && mc.player != null) {
                 walkKey(mc).setDown(true);
                 if (++walkTicks % 10 == 0) {
@@ -106,8 +90,9 @@ public final class TestDriver {
                 case "figura" -> figura(mc, cmd);
                 case "pose" -> {
                     poseName = cmd.length > 1 ? cmd[1] : "?";
-                    poseTicks = 30;
                     java.util.Arrays.fill(poseMax, 0);
+                    poseTicks = 60;
+                    installProbe();
                 }
                 case "hud" -> mc.options.hideGui = cmd.length > 1 && cmd[1].equals("no");
                 case "tocar" -> {
@@ -140,6 +125,33 @@ public final class TestDriver {
     private static int poseTicks;
     private static String poseName = "";
     private static final float[] poseMax = new float[8];
+
+    /** Lee la pose del jugador local justo despues de Punchy (con Annis Compat), 60 cuadros. */
+    private static void installProbe() {
+        try {
+            Class<?> c = Class.forName("com.annis.compat.PunchyPause");
+            java.util.function.BiConsumer<net.minecraft.client.model.PlayerModel<?>, net.minecraft.world.entity.player.Player> f = (m, p) -> {
+                if (poseTicks <= 0 || p != Minecraft.getInstance().player) {
+                    return;
+                }
+                float[] v = {m.rightArm.xRot, m.leftArm.xRot, m.rightArm.zRot, m.rightLeg.xRot, m.leftLeg.xRot, m.body.xRot, m.body.zRot, m.head.xRot};
+                for (int k = 0; k < v.length; k++) {
+                    poseMax[k] = Math.max(poseMax[k], Math.abs(v[k]));
+                }
+                if (--poseTicks == 0) {
+                    StringBuilder sb = new StringBuilder();
+                    String[] n = {"brazoD.x", "brazoI.x", "brazoD.z", "piernaD.x", "piernaI.x", "torso.x", "torso.z", "cabeza.x"};
+                    for (int k = 0; k < v.length; k++) {
+                        sb.append(n[k]).append('=').append(String.format(java.util.Locale.ROOT, "%.1f", Math.toDegrees(poseMax[k]))).append(' ');
+                    }
+                    AnnisInteract.LOGGER.info("[TEST] pose {}: {}", poseName, sb.toString().trim());
+                }
+            };
+            c.getField("probe").set(null, f);
+        } catch (Throwable t) {
+            AnnisInteract.LOGGER.warn("[TEST] pose: {}", t.toString());
+        }
+    }
 
     private static net.minecraft.client.KeyMapping walkKey(Minecraft mc) {
         return walkRight ? mc.options.keyRight : mc.options.keyUp;

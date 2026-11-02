@@ -39,6 +39,9 @@ public final class PunchyPause {
         final boolean[] visible = new boolean[12];
     }
 
+    /** Solo para la prueba automatica: mira la pose final de cada jugador. */
+    public static volatile java.util.function.BiConsumer<PlayerModel<?>, Player> probe;
+
     private PunchyPause() {
     }
 
