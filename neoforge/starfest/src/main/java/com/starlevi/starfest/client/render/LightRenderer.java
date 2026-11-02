@@ -58,8 +58,8 @@ public final class LightRenderer implements BlockEntityRenderer<ShowBlockEntity>
         ps.translate(0, -0.5, 0);
         ps.mulPose(Axis.YP.rotation(be.pan));
 
+        // (cada buffer se pide justo antes de usarlo: pedir otro cierra el anterior)
         VertexConsumer metal = buffers.getBuffer(RenderType.entityCutout(METAL));
-        VertexConsumer dark = buffers.getBuffer(RenderType.entityCutout(METAL_DARK));
         float s = this.searchlight ? 1.35f : 1.0f;
         // horquilla
         Draw.box(ps.last(), metal, -4 * s, 2, -1.5f * s, 4 * s, 3.5f, 1.5f * s, light, 0.9f);
@@ -71,9 +71,11 @@ public final class LightRenderer implements BlockEntityRenderer<ShowBlockEntity>
         ps.mulPose(Axis.XP.rotation(be.tilt));
         float hw = this.searchlight ? 3.6f : 2.7f;
         float hl = this.searchlight ? 4.2f : 3.6f;
-        Draw.box(ps.last(), dark, -hw, -hl, -hw, hw, hl, hw, light, 1.0f);
         // aro de la lente
         Draw.box(ps.last(), metal, -hw - 0.3f, hl - 0.8f, -hw - 0.3f, hw + 0.3f, hl + 0.2f, hw + 0.3f, light, 1.0f);
+
+        VertexConsumer dark = buffers.getBuffer(RenderType.entityCutout(METAL_DARK));
+        Draw.box(ps.last(), dark, -hw, -hl, -hw, hw, hl - 0.8f, hw, light, 1.0f);
 
         // --- luz
         int c = Palette.color(b, this.searchlight ? slot % 2 : slot % 4);
