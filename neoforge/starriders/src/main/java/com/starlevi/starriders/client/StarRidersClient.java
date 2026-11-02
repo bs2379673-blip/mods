@@ -30,7 +30,7 @@ public final class StarRidersClient {
         NeoForge.EVENT_BUS.addListener((CalculateDetachedCameraDistanceEvent e) -> {
             var p = Minecraft.getInstance().player;
             if (p != null && p.getVehicle() instanceof PhoenixEntity) {
-                e.setDistance(e.getDistance() * (p.getVehicle() instanceof GuardianEntity ? 2.2f : 2.6f));
+                e.setDistance(e.getDistance() * (p.getVehicle() instanceof GuardianEntity ? 3.4f : 2.6f));
             }
         });
     }

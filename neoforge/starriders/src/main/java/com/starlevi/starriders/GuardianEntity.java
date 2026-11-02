@@ -33,8 +33,8 @@ public class GuardianEntity extends PhoenixEntity {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 120.0).add(Attributes.MOVEMENT_SPEED, 0.085)
-                .add(Attributes.FOLLOW_RANGE, 48.0).add(Attributes.STEP_HEIGHT, 1.6).add(Attributes.SAFE_FALL_DISTANCE, 32.0)
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 120.0).add(Attributes.MOVEMENT_SPEED, 0.11)
+                .add(Attributes.FOLLOW_RANGE, 48.0).add(Attributes.STEP_HEIGHT, 2.6).add(Attributes.SAFE_FALL_DISTANCE, 32.0)
                 .add(Attributes.JUMP_STRENGTH, 0.6);
     }
 
@@ -71,7 +71,7 @@ public class GuardianEntity extends PhoenixEntity {
 
     @Override
     protected Vec3 getPassengerAttachmentPoint(Entity e, EntityDimensions dims, float scale) {
-        return new Vec3(0, 2.3, 0.15);
+        return new Vec3(0, 4.2, 0.27);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class GuardianEntity extends PhoenixEntity {
             // salto largo hacia adelante
             Vec3 look = Vec3.directionFromRotation(0, yaw);
             double push = p.isSprinting() ? 0.9 : 0.55;
-            setDeltaMovement(getDeltaMovement().add(look.x * push * Math.max(0.3, fwd), 0.72, look.z * push * Math.max(0.3, fwd)));
+            setDeltaMovement(getDeltaMovement().add(look.x * push * Math.max(0.3, fwd), 0.85, look.z * push * Math.max(0.3, fwd)));
             this.hasImpulse = true;
             this.leapCooldown = 14;
             if (!this.level().isClientSide) {

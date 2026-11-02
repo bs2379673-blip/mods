@@ -123,8 +123,8 @@ FEN=('time set 6000' 'weather clear' "${T}hud no${E}" "${T}camara primera${E}" '
   'ride @r dismount' "${T}camara primera${E}" 'kill @e[type=starriders:fenix]' 'time set 18000' 'tp @a 160 -60 160 0 5' 'sleep 1' 'starriders llamar @r'
   'sleep 3' "${T}foto r12_noche${E}" 'kill @e[type=starriders:fenix]' 'starriders quitar @r todos' 'time set 6000' 'sleep 0.5')
 GUA=('time set 6000' 'weather clear' 'kill @e[type=starriders:fenix]' 'fill 150 -60 150 180 -40 200 air'
-  'starriders salvaje 160 -60 172 guardian' 'tp @a 160 -60 163 0 5' 'sleep 3' "${T}foto g01_guardian_salvaje${E}"
-  'tp @a 167 -60 172 90 5' 'sleep 1.5' "${T}foto g02_guardian_costado${E}" 'kill @e[type=starriders:guardian]'
+  'starriders salvaje 160 -60 172 guardian' 'tp @a 160 -60 160 0 5' 'sleep 3' "${T}foto g01_guardian_salvaje${E}"
+  'tp @a 172 -60 172 90 5' 'sleep 1.5' "${T}foto g02_guardian_costado${E}" 'kill @e[type=starriders:guardian]'
   'starriders dar @r guardian' 'tp @a 160 -60 160 0 5' 'sleep 1' 'starriders llamar @r' 'sleep 0.5' "${T}foto g03_guardian_rugido${E}"
   'sleep 3' "${T}foto g04_guardian_quieto${E}" 'tp @a 160 -60 159 0 5' 'sleep 0.5' 'ride @r mount @e[type=starriders:guardian,limit=1]'
   "${T}camara atras${E}" 'sleep 1.5' "${T}foto g05_guardian_montado${E}" "${T}caminar si${E}" 'sleep 1.5' "${T}foto g06_guardian_camina${E}"

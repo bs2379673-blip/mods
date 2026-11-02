@@ -26,7 +26,7 @@ import java.util.WeakHashMap;
  */
 public class GuardianRenderer extends EntityRenderer<GuardianEntity> {
     static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(StarRiders.MOD_ID, "textures/entity/guardian.png");
-    public static final float SCALE = 2.3f;
+    public static final float SCALE = 4.2f;
     /** Cuadros de la caminata donde apoya cada pata (para el sonido de pisada). */
     private static final float[] STEPS = {30f, 120f};
 
@@ -42,7 +42,7 @@ public class GuardianRenderer extends EntityRenderer<GuardianEntity> {
 
     public GuardianRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
-        this.shadowRadius = 1.2f;
+        this.shadowRadius = 2.2f;
     }
 
     private static boolean load() {
