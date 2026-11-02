@@ -81,6 +81,8 @@ public final class ClientDefs {
                     TEXTURES.put(hash, loc);
                 } else if (file.endsWith(".json")) {
                     MODELS.put(hash, GeoModel.parse(data));
+                } else if (file.endsWith(".obj")) {
+                    MODELS.put(hash, ObjModel.parse(data));
                 }
             } catch (Exception e) {
                 StarSpirits.LOGGER.warn("StarSpirits: no se pudo cargar {}: {}", file, e.toString());
@@ -148,6 +150,11 @@ public final class ClientDefs {
     public static int tint(String id) {
         SpiritDef d = DEFS.get(id);
         return d == null ? 0xFFFFFF : d.tint;
+    }
+
+    public static float turn(String id) {
+        SpiritDef d = DEFS.get(id);
+        return d == null ? 0f : d.turn;
     }
 
     public static float scale(String id) {

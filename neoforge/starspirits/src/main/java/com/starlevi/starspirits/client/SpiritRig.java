@@ -70,7 +70,8 @@ public final class SpiritRig {
                         this.petals.add(p);
                     } else if (n.startsWith("copa") || n.startsWith("petal") || n.startsWith("hoja") || n.startsWith("flor")
                             || n.startsWith("oreja") || n.startsWith("ear") || n.startsWith("leaf") || n.startsWith("cap")
-                            || n.startsWith("campana") || n.startsWith("rosa")) {
+                            || n.startsWith("campana") || n.startsWith("rosa") || n.startsWith("pelo") || n.startsWith("cola")
+                            || n.startsWith("tail") || n.startsWith("hair")) {
                         this.wobble.add(p);
                     }
                 }

@@ -24,24 +24,24 @@ public final class SoftForms {
     }
 
     /** Hueso: nombre, malla, pose y sus hijos. */
-    static final class Node {
+    public static final class Node {
         final String name;
         final Mesh mesh;
         final PartPose pose;
         final List<Node> kids = new ArrayList<>();
 
-        Node(String name, Mesh mesh, PartPose pose) {
+        public Node(String name, Mesh mesh, PartPose pose) {
             this.name = name;
             this.mesh = mesh;
             this.pose = pose;
         }
 
-        Node add(Node k) {
+        public Node add(Node k) {
             this.kids.add(k);
             return k;
         }
 
-        ModelPart bake(List<String> path, Map<String, List<String>> paths) {
+        public ModelPart bake(List<String> path, Map<String, List<String>> paths) {
             Map<String, ModelPart> children = new LinkedHashMap<>();
             for (Node k : this.kids) {
                 List<String> p = new ArrayList<>(path);

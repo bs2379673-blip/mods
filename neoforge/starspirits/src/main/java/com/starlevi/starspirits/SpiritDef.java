@@ -26,6 +26,8 @@ public final class SpiritDef {
     public final String textureFile;
     public final String glowFile;
     public final float scale;
+    /** Giro del modelo en grados (para modelos que vienen mirando de costado). */
+    public final float turn;
     public final int weight;
     public final boolean enabled;
     public final String particle;
@@ -46,6 +48,7 @@ public final class SpiritDef {
         this.textureFile = lower(str(o, "textura", null));
         this.glowFile = lower(str(o, "brillo", null));
         this.scale = o.has("escala") ? Math.max(0.3f, Math.min(3f, o.get("escala").getAsFloat())) : 1f;
+        this.turn = o.has("giro") ? o.get("giro").getAsFloat() : 0f;
         this.weight = o.has("peso") ? Math.max(0, o.get("peso").getAsInt()) : 1;
         this.enabled = !o.has("habilitado") || o.get("habilitado").getAsBoolean();
         this.particle = str(o, "particulas", null);

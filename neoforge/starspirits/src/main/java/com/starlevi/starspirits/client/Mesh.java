@@ -207,6 +207,17 @@ public final class Mesh {
         return this;
     }
 
+    /** Triangulo con su propia textura (0..1 de la imagen entera): {x, y, z, u, v, nx, ny, nz}. */
+    public Mesh triangle(float[] a, float[] b, float[] c) {
+        float[] q = new float[32];
+        float[][] vs = {a, b, c, c};
+        for (int i = 0; i < 4; i++) {
+            System.arraycopy(vs[i], 0, q, i * 8, 8);
+        }
+        this.quads.add(q);
+        return this;
+    }
+
     /** Pieza del juego que dibuja esta malla. */
     public ModelPart.Cube cube() {
         return new MeshCube(this.quads);

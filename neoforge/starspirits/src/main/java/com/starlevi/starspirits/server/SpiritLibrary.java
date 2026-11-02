@@ -97,7 +97,7 @@ public final class SpiritLibrary {
         try (Stream<Path> files = Files.list(dir)) {
             for (Path f : (Iterable<Path>) files::iterator) {
                 String n = f.getFileName().toString().toLowerCase(Locale.ROOT);
-                if (Files.isRegularFile(f) && (n.endsWith(".json") || n.endsWith(".png"))) {
+                if (Files.isRegularFile(f) && (n.endsWith(".json") || n.endsWith(".png") || n.endsWith(".obj"))) {
                     seen.put(f, Files.getLastModifiedTime(f).toMillis() ^ Files.size(f) << 20);
                 }
             }
@@ -115,7 +115,7 @@ public final class SpiritLibrary {
         // primero los archivos que usan (imagenes y modelos .geo.json)
         for (Path f : seen.keySet()) {
             String n = f.getFileName().toString().toLowerCase(Locale.ROOT);
-            if (!n.endsWith(".png") && !n.endsWith(".geo.json")) {
+            if (!n.endsWith(".png") && !n.endsWith(".geo.json") && !n.endsWith(".obj")) {
                 continue;
             }
             try {

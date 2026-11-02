@@ -17,6 +17,7 @@ Ejemplo (champi.json):
   "brillo": "champi_brillo.png",  (opcional) partes que brillan en la oscuridad
   "modelo": "mi_bicho.geo.json",  (opcional) modelo propio de Blockbench (reemplaza la forma)
   "escala": 1.0,                  (opcional) tamano
+  "giro": 0,                      (opcional) grados para girar un modelo que viene mirando de costado
   "color": "#7FD957",             (opcional) color de su estrellita cuando es el activo
   "particulas": "minecraft:glow", (opcional) particula que suelta de vez en cuando
   "peso": 1,                      probabilidad dentro de su rareza (0 = no sale en los puntos)
@@ -60,6 +61,12 @@ MODELOS PROPIOS (Blockbench): proyecto "Bedrock Entity" con UV de caja, exportad
   y los que empiezan con copa, petalo, hoja, flor, oreja, campana o rosa se mecen.
   (tambien sirven en ingles: body, head, left_leg, right_leg, left_arm, right_arm, eyelids)
 Los pies del modelo van en y = 0.
+
+MODELOS .OBJ (por ejemplo exportados de Roblox Studio o de Blender): "modelo": "algo.obj" y
+"textura": "algo.png". Se centra, se apoya en el piso y se ajusta solo al tamano de un espiritu.
+Cada grupo del .obj se anima segun su nombre: head (cabeza), body/torso, arm l / arm r (brazos),
+leg (piernas), ear (orejas, se mecen), hair (pelo/alas, se mecen), tail (cola, se mece).
+Si queda mirando de costado, usa "giro": 90 o -90.
 
 JUGADORES:
   Clic derecho en un punto de extraccion: sale un espiritu y te sigue.

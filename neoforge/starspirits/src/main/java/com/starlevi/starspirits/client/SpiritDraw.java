@@ -25,7 +25,7 @@ public final class SpiritDraw {
         rig.animate(pose);
         float s = BASE * scale * ClientDefs.scale(id);
         ps.pushPose();
-        ps.mulPose(Axis.YP.rotationDegrees(180 - yaw));
+        ps.mulPose(Axis.YP.rotationDegrees(180 - (yaw + ClientDefs.turn(id))));
         ps.scale(-s, -s, s);
         ps.translate(0, -1.501f, 0);
         ResourceLocation tex = ClientDefs.texture(id);
