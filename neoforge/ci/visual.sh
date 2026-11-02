@@ -88,6 +88,9 @@ LOCO=('gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule
   'summon annisnpc:npc 30 -60 30 {Tags:["lw"],NoAI:1b,Protected:0b,Rotation:[-90f,0f]}' 'sleep 2')
 for i in $(seq 1 14); do LOCO+=('execute as @e[tag=lw] at @s run tp @s ~0.25 ~ ~ -90 0' 'sleep 0.1'); [ $i = 9 ] && LOCO+=("${T}foto l01_camina_a${E}"); [ $i = 12 ] && LOCO+=("${T}foto l02_camina_b${E}"); done
 LOCO+=('sleep 1.5' "${T}foto l03_quietos${E}" 'kill @e[tag=lq]' 'kill @e[tag=lw]' 'sleep 1')
+# bailar (boda en MCA): los hombros siguen al torso cuando gira
+LOCO+=('summon annisnpc:npc 30 -60 30 {Tags:["bd"],NoAI:1b,Protected:0b,Rotation:[180f,0f]}' 'sleep 1.5' 'annisnpc anim @e[tag=bd] bailar'
+  'sleep 0.5' "${T}foto b01_bailar_giro_a${E}" 'sleep 1.05' "${T}foto b02_bailar_giro_b${E}" 'kill @e[tag=bd]' 'sleep 0.5')
 # Annis Compat: jugador "en la fogata" de Cinematic (sin abrir la escena), visto de frente y de costado
 LOCO+=('tp @a 40 -60 40 0 0' "${T}camara frente${E}" "${T}estacion CAMPFIRE${E}" 'sleep 1.2' "${T}foto f01_fogata_frente${E}"
   "${T}cuerpo 90${E}" 'sleep 0.6' "${T}foto f02_fogata_costado${E}" "${T}estacion ANVIL${E}" 'sleep 0.8' "${T}foto f03_yunque_costado${E}"

@@ -113,6 +113,21 @@ public final class Activities {
         return c == null ? null : c.root(t);
     }
 
+    private static void attachArms(NpcModel m) {
+        float by = m.body.yRot;
+        if (Math.abs(by) < 1.0e-4f) {
+            return;
+        }
+        float s = Mth.sin(by), c = Mth.cos(by);
+        // hombros girados alrededor del cuello (sumado a lo que ya se movio el torso entero)
+        m.rightArm.x += 5.0f - c * 5.0f;
+        m.rightArm.z += s * 5.0f;
+        m.leftArm.x -= 5.0f - c * 5.0f;
+        m.leftArm.z -= s * 5.0f;
+        m.rightArm.yRot += by;
+        m.leftArm.yRot += by;
+    }
+
     private static void rot(net.minecraft.client.model.geom.ModelPart p, float pitch, float yaw, float roll) {
         p.xRot = pitch;
         p.yRot = yaw;
@@ -403,5 +418,8 @@ public final class Activities {
             default -> {
             }
         }
+        // en el modelo del juego los brazos no cuelgan del torso: si el torso gira, los hombros lo siguen
+        // (como hace el juego al golpear); si no, el torso gira solo, como una cabeza
+        attachArms(m);
     }
 }
