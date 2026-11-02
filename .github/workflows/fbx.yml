@@ -1,0 +1,27 @@
+name: Convertir FBX
+on:
+  push:
+    paths: ['tools/fbx/**', '.github/workflows/fbx.yml']
+permissions:
+  contents: write
+jobs:
+  convertir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Blender
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq libxi6 libxxf86vm1 libxfixes3 libxrender1 libgl1 libegl1 libsm6 libxkbcommon0 > /dev/null
+          curl -sSL https://download.blender.org/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz | tar xJ
+          mv blender-4.2.3-linux-x64 blender
+      - name: Convertir
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p fbx out
+          cp tools/fbx/entrada/*.zip fbx/
+          cd fbx && for z in *.zip; do unzip -q -o "$z" -d "${z%.zip}"; done; cd ..
+          for f in fbx/*/source/*.fbx; do n=$(basename "$f" .fbx); ./blender/blender -b -P tools/fbx/convertir.py -- "$f" "out/$n.glb" 14000 2>&1 | grep -E 'LISTO|Error|rror' | head -20; done
+          ls -la out
+          gh release delete fbx-out --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
+          gh release create fbx-out out/* -R "$GITHUB_REPOSITORY" --title "FBX convertidos" --notes "auto" --target "$GITHUB_SHA" --prerelease
