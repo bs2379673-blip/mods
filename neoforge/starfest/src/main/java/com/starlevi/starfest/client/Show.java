@@ -34,6 +34,8 @@ public final class Show {
         final SoundInstance sound;
         volatile Analysis analysis;
         final float duration;
+        /** Musica en vivo (pantallas de WaterFrames): su estado sale de aca en vez del analisis. */
+        java.util.function.Supplier<Beat> live;
 
         Source(String id, Vec3 center, double radius, float offset, SoundInstance sound, float duration) {
             this.id = id;
@@ -53,6 +55,9 @@ public final class Show {
         private Beat cached = Beat.SILENCE;
 
         public Beat beat() {
+            if (this.live != null) {
+                return this.live.get();
+            }
             Analysis a = this.analysis;
             if (a == null) {
                 return Beat.SILENCE;
@@ -231,6 +236,18 @@ public final class Show {
         analyze(key, name, data, s);
     }
 
+    // ------------------------------------------------------------------ musica en vivo (pantallas)
+
+    public static void addLive(String id, Vec3 center, double radius, java.util.function.Supplier<Beat> beat) {
+        Source s = new Source(id, center, radius, 0, null, Float.MAX_VALUE);
+        s.live = beat;
+        SOURCES.put(id, s);
+    }
+
+    public static void removeLive(String id) {
+        SOURCES.remove(id);
+    }
+
     // ------------------------------------------------------------------ consulta
 
     /** Cada cuadro: se renueva el estado y se limpian las fuentes que ya no suenan. */
@@ -243,6 +260,9 @@ public final class Show {
         Iterator<Source> it = SOURCES.values().iterator();
         while (it.hasNext()) {
             Source s = it.next();
+            if (s.live != null) {
+                continue;
+            }
             boolean ended = s.time() > s.duration + 1.0f;
             boolean jukebox = s.id.startsWith("tocadiscos@");
             if (ended || jukebox && s.sound != null && !mc.getSoundManager().isActive(s.sound) && s.time() > 2.0f) {
@@ -267,7 +287,7 @@ public final class Show {
         for (Source s : SOURCES.values()) {
             double d = s.center.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
             double r = s.radius + 24;
-            if (d <= r * r && d < bestD && s.analysis != null) {
+            if (d <= r * r && d < bestD && (s.analysis != null || s.live != null && s.live.get().playing())) {
                 best = s;
                 bestD = d;
             }

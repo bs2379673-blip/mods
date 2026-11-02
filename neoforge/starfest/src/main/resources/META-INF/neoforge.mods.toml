@@ -31,3 +31,13 @@ type="optional"
 versionRange="[0.13.0,)"
 ordering="AFTER"
 side="BOTH"
+
+[[dependencies.starfest]]
+modId="waterframes"
+type="optional"
+versionRange="[2.1,)"
+ordering="AFTER"
+side="CLIENT"
+
+[[mixins]]
+config="starfest.mixins.json"

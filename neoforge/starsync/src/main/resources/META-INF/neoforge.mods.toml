@@ -1,0 +1,33 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved - Starlevi (ver LICENSE.txt)"
+
+[[mods]]
+modId="starsync"
+version="${version}"
+displayName="StarSync"
+authors="Starlevi"
+credits="Propiedad de Starlevi. Todos los derechos reservados."
+description='''Pantallas de WaterFrames vinculadas: el mismo video, imagen o URL en todas a la vez, con play, pausa y tiempo iguales. Con StarFest, las luces siguen la musica de las pantallas.
+Propiedad de Starlevi. Todos los derechos reservados.'''
+
+[[dependencies.starsync]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.starsync]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,1.21.2)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.starsync]]
+modId="waterframes"
+type="required"
+versionRange="[2.1,)"
+ordering="AFTER"
+side="BOTH"

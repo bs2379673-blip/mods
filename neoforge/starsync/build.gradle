@@ -1,0 +1,5 @@
+// StarSync: pantallas de WaterFrames vinculadas. WaterFrames, WATERMeDIA y CreativeCore se bajan en la compilacion.
+dependencies {
+    compileOnly files(rootProject.file('libs/waterframes-1.jar'))
+    compileOnly files(rootProject.file('libs/watermedia-1.jar'))
+}

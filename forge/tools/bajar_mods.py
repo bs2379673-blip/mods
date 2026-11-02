@@ -49,3 +49,8 @@ if LOADER == "forge":
     fetch("mca", ["minecraft-comes-alive-reborn", "mca-reborn", "minecraft-comes-alive"], "Minecraft Comes Alive", dest)
 fetch("punchymoves", ["punchy-moves"], "Punchy Moves", dest)
 fetch("punchystudio", ["punchy-studio"], "Punchy Studio", dest)
+if LOADER == "neoforge":
+    # WaterFrames (pantallas) para StarSync y el audio de las pantallas en StarFest
+    fetch("waterframes", ["waterframes"], "WaterFrames", dest)
+    fetch("watermedia", ["watermedia"], "WATERMeDIA", dest)
+    fetch("creativecore", ["creativecore"], "CreativeCore", dest)

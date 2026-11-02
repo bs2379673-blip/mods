@@ -1,4 +1,6 @@
-// StarFest. Annis NPC es opcional: solo para que los NPC bailen con la musica.
+// StarFest. Opcionales: Annis NPC (NPC que bailan) y WaterFrames/WATERMeDIA (las luces siguen el audio de las pantallas).
 dependencies {
     compileOnly project(':annisnpc')
+    compileOnly files(rootProject.file('libs/waterframes-1.jar'))
+    compileOnly files(rootProject.file('libs/watermedia-1.jar'))
 }

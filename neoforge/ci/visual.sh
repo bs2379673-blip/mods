@@ -10,7 +10,7 @@ NEO=$(grep neo_version gradle.properties | cut -d= -f2)
 curl -sSL -o $S/installer.jar "https://maven.neoforged.net/releases/net/neoforged/neoforge/$NEO/neoforge-$NEO-installer.jar"
 ( cd $S && java -jar installer.jar --installServer > install.log 2>&1 ); tail -3 $S/install.log
 cp libs/playeranimator-1.jar $S/mods/
-cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar ../out/starfest-*.jar libs/cinematic-0.18.30.jar $S/mods/
+cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar ../out/starfest-*.jar ../out/starsync-*.jar libs/cinematic-0.18.30.jar libs/waterframes-1.jar libs/watermedia-1.jar libs/creativecore-1.jar $S/mods/
 # StarFest: una cancion de prueba (128 BPM, parte fuerte entre 20 y 32 s) en la carpeta de musica del servidor
 mkdir -p $S/config/starfest/musica && cp ci/starfest/prueba.ogg $S/config/starfest/musica/
 ls $S/mods
@@ -68,6 +68,7 @@ rm -f run/mods/*.jar; cp libs/playeranimator-1.jar libs/punchymoves-1.jar libs/p
 (cd ci/locoprueba && zip -qr ../../run/resourcepacks/Loco_Prueba.zip .)
 # Cinematic Interactions (MIT) para probar Annis Compat
 cp libs/cinematic-0.18.30.jar run/mods/
+cp libs/waterframes-1.jar libs/watermedia-1.jar libs/creativecore-1.jar run/mods/ 2>/dev/null
 cp ../out/Annis_Animaciones.zip run/resourcepacks/ 2>/dev/null || true
 export LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=4.5
 ( timeout 840 xvfb-run -a -s "-screen 0 1280x720x24" gradle :annisinteract:runClient -PannisTest --no-daemon > client.log 2>&1 ) &
@@ -83,6 +84,14 @@ fi
 sleep 25
 T='tellraw @a {"text":"[TEST] '
 E='"}'
+# --- StarSync: dos pantallas de WaterFrames vinculadas (se cambia una y la otra la sigue) ---
+IMG="https://raw.githubusercontent.com/bs2379673-blip/mods/forge-1.20.1/neoforge/starfest/src/main/resources/assets/starfest/textures/cielo/galaxia.png"
+SYNC=('time set 6000' "${T}hud no${E}" 'fill 78 -60 84 84 -57 84 minecraft:white_concrete' 'setblock 79 -59 83 waterframes:frame' 'setblock 83 -59 83 waterframes:frame'
+  'starsync vincular sala 79 -59 83' 'starsync vincular sala 83 -59 83' 'starsync grupos'
+  "data merge block 79 -59 83 {url:\"$IMG\",active:1b}" 'sleep 2' 'data get block 83 -59 83 url' 'data get block 83 -59 83 active'
+  'tp @a 81 -59 77 0 5' 'sleep 6' "${T}foto w01_pantallas_vinculadas${E}"
+  'data merge block 83 -59 83 {url:\"\"}' 'sleep 2' 'data get block 79 -59 83 url' 'sleep 1')
+python3 ci/rcon.py 25577 annistest "${SYNC[@]}" 2>&1 | tee rcon-starsync.txt
 # --- StarFest: boliche de prueba de noche, con la cancion del servidor ---
 STAR=('gamerule doDaylightCycle false' 'time set 18000' 'weather clear' 'gamerule sendCommandFeedback false' "${T}hud no${E}"
   'fill 54 -61 50 66 -61 62 minecraft:black_concrete' 'fill 56 -61 54 64 -61 60 starfest:piso'

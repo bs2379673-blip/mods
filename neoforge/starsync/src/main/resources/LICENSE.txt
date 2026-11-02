@@ -1,0 +1,10 @@
+StarSync
+Copyright (c) 2026 Starlevi. Todos los derechos reservados.
+
+Este mod, su codigo, modelos, texturas y demas contenido son propiedad de Starlevi.
+Sin permiso escrito de Starlevi no se permite copiarlo, modificarlo, redistribuirlo,
+venderlo, incluirlo en modpacks publicos ni reutilizar su codigo en otros proyectos.
+Se permite usarlo en los mundos y servidores que Starlevi autorice.
+
+All rights reserved. Property of Starlevi. No copying, modification or
+redistribution without Starlevi's written permission.

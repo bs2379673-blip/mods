@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.starlevi.starfest.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "WaterFramesDisplayMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}
