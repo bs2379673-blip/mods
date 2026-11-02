@@ -87,7 +87,7 @@ public final class Fireworks {
         }
         BlockPos c = new BlockPos(fx.x(), fx.y(), fx.z());
         Beat b = Show.beatAt(c);
-        Beat colors = b.playing() ? b : new Beat(true, 0, 1, 1, 1, 1, 1, 1, 1.3f, RNG.nextInt(64), 120);
+        Beat colors = b.playing() ? b : new Beat(true, 0, 1, 1, 1, 1, 1, 1, 1.3f, RNG.nextInt(64), 120, new float[Analysis.BANDS]);
         int n = 0;
         for (ShowBlockEntity be : new ArrayList<>(LAUNCHERS)) {
             if (be.isRemoved() || be.getLevel() != level || be.getBlockPos().distSqr(c) > (double) fx.radius() * fx.radius()) {

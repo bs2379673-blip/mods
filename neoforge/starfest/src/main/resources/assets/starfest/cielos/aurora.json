@@ -1,0 +1,76 @@
+{
+  "oscurecer": 0.95,
+  "arriba": "#01030c",
+  "horizonte": "#0b1f3a",
+  "abajo": "#000306",
+  "capas": [
+    {
+      "tipo": "panorama",
+      "textura": "nebulosa",
+      "opacidad": 0.35,
+      "giro": 0.6,
+      "reaccion": "graves",
+      "minimo": 0.6
+    },
+    {
+      "tipo": "estrellas",
+      "cantidad": 2200,
+      "tamano": 1.1,
+      "reaccion": "agudos",
+      "minimo": 0.55
+    },
+    {
+      "tipo": "imagen",
+      "textura": "galaxia",
+      "azimut": 140,
+      "altura": 55,
+      "tamano": 38,
+      "giro": 1.5,
+      "opacidad": 0.7,
+      "reaccion": "medios",
+      "minimo": 0.6
+    },
+    {
+      "tipo": "aurora",
+      "altura": 10,
+      "alto": 42,
+      "ondas": 3,
+      "velocidad": 1.0,
+      "colores": [
+        "#00ff9c",
+        "#00d9ff",
+        "#8a5cff",
+        "#ff4fd8"
+      ],
+      "reaccion": "medios",
+      "minimo": 0.5,
+      "opacidad": 0.9
+    },
+    {
+      "tipo": "aurora",
+      "altura": 22,
+      "alto": 30,
+      "ondas": 5,
+      "velocidad": -0.7,
+      "colores": [
+        "#7dffcf",
+        "#3fa9ff"
+      ],
+      "reaccion": "agudos",
+      "minimo": 0.35,
+      "opacidad": 0.5
+    },
+    {
+      "tipo": "anillos",
+      "altura": 90,
+      "tamano": 80,
+      "duracion": 2.2,
+      "reaccion": "bombo",
+      "umbral": 0.7,
+      "colores": [
+        "#7dffcf"
+      ],
+      "opacidad": 0.5
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "oscurecer": 0.92,
+  "arriba": "#050014",
+  "horizonte": "#3a0a5c",
+  "abajo": "#05000a",
+  "capas": [
+    {
+      "tipo": "panorama",
+      "textura": "nubes",
+      "color": "paleta2",
+      "opacidad": 0.45,
+      "giro": 1.2,
+      "reaccion": "graves",
+      "minimo": 0.5
+    },
+    {
+      "tipo": "estrellas",
+      "cantidad": 1100,
+      "tamano": 1.3,
+      "reaccion": "agudos",
+      "minimo": 0.5
+    },
+    {
+      "tipo": "rayos",
+      "azimut": 0,
+      "altura": 8,
+      "cantidad": 14,
+      "largo": 80,
+      "ancho": 6,
+      "giro": 10,
+      "colores": [
+        "paleta",
+        "paleta2",
+        "paleta3"
+      ],
+      "reaccion": "graves",
+      "minimo": 0.25,
+      "opacidad": 0.8
+    },
+    {
+      "tipo": "espectro",
+      "altura": 90,
+      "radio": 16,
+      "largo": 34,
+      "barras": 72,
+      "giro": 4,
+      "colores": [
+        "paleta",
+        "paleta3"
+      ],
+      "reaccion": "nivel",
+      "minimo": 0.6
+    },
+    {
+      "tipo": "anillos",
+      "altura": 90,
+      "tamano": 110,
+      "duracion": 1.4,
+      "reaccion": "bombo",
+      "umbral": 0.55,
+      "colores": [
+        "paleta",
+        "paleta2"
+      ],
+      "opacidad": 0.8
+    },
+    {
+      "tipo": "tunel",
+      "azimut": 0,
+      "altura": 10,
+      "cantidad": 260,
+      "colores": [
+        "#ffffff",
+        "paleta"
+      ],
+      "solo_fuerte": true,
+      "reaccion": "nivel",
+      "minimo": 0.4
+    },
+    {
+      "tipo": "destello",
+      "color": "#ffffff",
+      "reaccion": "bombo",
+      "umbral": 0.8,
+      "opacidad": 0.35,
+      "solo_fuerte": true
+    }
+  ]
+}

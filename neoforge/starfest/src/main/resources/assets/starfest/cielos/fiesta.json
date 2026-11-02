@@ -1,0 +1,90 @@
+{
+  "oscurecer": 0.9,
+  "arriba": "#12001a",
+  "horizonte": "#4a0636",
+  "abajo": "#080008",
+  "capas": [
+    {
+      "tipo": "caleidoscopio",
+      "textura": "nubes",
+      "altura": 90,
+      "radio": 70,
+      "gajos": 16,
+      "giro": 10,
+      "color": "paleta",
+      "reaccion": "graves",
+      "minimo": 0.45,
+      "opacidad": 0.9
+    },
+    {
+      "tipo": "estrellas",
+      "cantidad": 700,
+      "tamano": 1.6,
+      "colores": [
+        "#ffffff",
+        "paleta2"
+      ],
+      "reaccion": "agudos",
+      "minimo": 0.4
+    },
+    {
+      "tipo": "rayos",
+      "azimut": 0,
+      "altura": 90,
+      "cantidad": 24,
+      "largo": 85,
+      "ancho": 4,
+      "giro": -14,
+      "colores": [
+        "paleta",
+        "paleta2",
+        "paleta3",
+        "paleta4"
+      ],
+      "reaccion": "nivel",
+      "minimo": 0.3,
+      "opacidad": 0.7
+    },
+    {
+      "tipo": "imagen",
+      "archivo": "corazon.gif",
+      "azimut": 0,
+      "altura": 35,
+      "tamano": 22,
+      "latido": 0.35,
+      "reaccion": "bombo",
+      "minimo": 0.7
+    },
+    {
+      "tipo": "imagen",
+      "archivo": "corazon.gif",
+      "azimut": 180,
+      "altura": 35,
+      "tamano": 22,
+      "latido": 0.35,
+      "reaccion": "bombo",
+      "minimo": 0.7
+    },
+    {
+      "tipo": "anillos",
+      "altura": 90,
+      "tamano": 130,
+      "duracion": 1.2,
+      "reaccion": "bombo",
+      "umbral": 0.5,
+      "colores": [
+        "paleta",
+        "paleta3"
+      ],
+      "opacidad": 0.9
+    },
+    {
+      "tipo": "destello",
+      "color": "paleta2",
+      "reaccion": "bombo",
+      "umbral": 0.8,
+      "opacidad": 0.4,
+      "solo_fuerte": true
+    }
+  ]
+}

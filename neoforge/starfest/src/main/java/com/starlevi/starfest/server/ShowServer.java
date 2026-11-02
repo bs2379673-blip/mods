@@ -65,6 +65,81 @@ public final class ShowServer {
     }
 
     private static final Map<String, Zone> ZONES = new HashMap<>();
+
+    /** Zona con un cielo: quien entra lo ve, quien sale deja de verlo. */
+    public static final class SkyZone {
+        public final String id;
+        public final ResourceKey<Level> dim;
+        public final BlockPos center;
+        public final int radius;
+        public String name;
+        String sentVersion = "";
+        final Set<UUID> viewers = new HashSet<>();
+
+        SkyZone(String id, ResourceKey<Level> dim, BlockPos center, int radius, String name) {
+            this.id = id;
+            this.dim = dim;
+            this.center = center;
+            this.radius = radius;
+            this.name = name;
+        }
+    }
+
+    private static final Map<String, SkyZone> SKY_ZONES = new HashMap<>();
+
+    public static Map<String, SkyZone> skyZones() {
+        return SKY_ZONES;
+    }
+
+    public static void sky(String id, ResourceKey<Level> dim, BlockPos center, int radius, String name) {
+        stopSky(id);
+        SKY_ZONES.put(id, new SkyZone(id, dim, center, radius, name));
+    }
+
+    public static void stopSky(String id) {
+        SkyZone z = SKY_ZONES.remove(id);
+        if (z != null && server != null) {
+            for (UUID u : z.viewers) {
+                ServerPlayer p = server.getPlayerList().getPlayer(u);
+                if (p != null) {
+                    PacketDistributor.sendToPlayer(p, new Net.SkyStop(z.id));
+                }
+            }
+        }
+    }
+
+    private static void sendSky(ServerPlayer p, SkyZone z, SkyLibrary.Sky sky) {
+        java.util.List<Net.SkyImage> imgs = new java.util.ArrayList<>();
+        for (Map.Entry<String, String> e : sky.images().entrySet()) {
+            byte[] d = SkyLibrary.imageByHash(e.getValue());
+            if (d != null) {
+                imgs.add(new Net.SkyImage(e.getKey(), e.getValue(), d.length));
+            }
+        }
+        PacketDistributor.sendToPlayer(p, new Net.Sky(z.id, sky.name(), sky.version(), sky.json(), imgs,
+                z.center.getX(), z.center.getY(), z.center.getZ(), z.radius));
+    }
+
+    private static void tickSkies(MinecraftServer s) {
+        for (SkyZone z : new ArrayList<>(SKY_ZONES.values())) {
+            SkyLibrary.Sky sky = SkyLibrary.get(z.name);
+            if (sky == null) {
+                continue;
+            }
+            boolean changed = !sky.version().equals(z.sentVersion);
+            z.sentVersion = sky.version();
+            for (ServerPlayer p : s.getPlayerList().getPlayers()) {
+                boolean same = p.level().dimension() == z.dim;
+                double d2 = same ? p.blockPosition().distSqr(z.center) : Double.MAX_VALUE;
+                boolean inside = d2 <= (double) (z.radius + 16) * (z.radius + 16);
+                if (inside && (z.viewers.add(p.getUUID()) || changed)) {
+                    sendSky(p, z, sky);
+                } else if (!inside && z.viewers.remove(p.getUUID())) {
+                    PacketDistributor.sendToPlayer(p, new Net.SkyStop(z.id));
+                }
+            }
+        }
+    }
     private static final Map<UUID, Deque<Job>> UPLOADS = new HashMap<>();
     private static MinecraftServer server;
 
@@ -74,9 +149,12 @@ public final class ShowServer {
     public static void start(MinecraftServer s) {
         server = s;
         MusicLibrary.scan();
+        SkyLibrary.scan();
+        Dancers.load(s);
     }
 
     public static void stopAll() {
+        SKY_ZONES.clear();
         ZONES.clear();
         UPLOADS.clear();
         server = null;
@@ -154,6 +232,11 @@ public final class ShowServer {
         int now = s.getTickCount();
         if (now % 40 == 0) {
             MusicLibrary.scan();
+            SkyLibrary.scan();
+        }
+        if (now % 10 == 0) {
+            tickSkies(s);
+            Dancers.tick(s);
         }
         if (now % 5 == 0) {
             for (Zone z : new ArrayList<>(ZONES.values())) {
@@ -205,7 +288,8 @@ public final class ShowServer {
 
     public static void need(ServerPlayer p, String hash) {
         MusicLibrary.Track t = MusicLibrary.byHash(hash);
-        if (t == null) {
+        byte[] image = t == null ? SkyLibrary.imageByHash(hash) : null;
+        if (t == null && image == null) {
             return;
         }
         Deque<Job> q = UPLOADS.computeIfAbsent(p.getUUID(), u -> new ArrayDeque<>());
@@ -213,6 +297,10 @@ public final class ShowServer {
             if (j.hash().equals(hash)) {
                 return;
             }
+        }
+        if (image != null) {
+            q.add(new Job(hash, image, new int[1]));
+            return;
         }
         try {
             q.add(new Job(hash, MusicLibrary.read(t), new int[1]));
@@ -226,6 +314,19 @@ public final class ShowServer {
         for (Zone z : ZONES.values()) {
             z.listeners.remove(p.getUUID());
         }
+        for (SkyZone z : SKY_ZONES.values()) {
+            z.viewers.remove(p.getUUID());
+        }
+    }
+
+    /** La musica que suena en un punto (para los bailarines). */
+    public static Zone playingAt(ResourceKey<Level> dim, BlockPos pos) {
+        for (Zone z : ZONES.values()) {
+            if (z.track != null && z.dim == dim && pos.distSqr(z.center) <= (double) z.radius * z.radius) {
+                return z;
+            }
+        }
+        return null;
     }
 
     public static Map<String, Zone> zones() {

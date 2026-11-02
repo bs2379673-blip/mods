@@ -32,6 +32,12 @@ public final class Commands {
 
     private static final SuggestionProvider<CommandSourceStack> SONGS =
             (ctx, b) -> SharedSuggestionProvider.suggest(MusicLibrary.names(), b);
+    private static final SuggestionProvider<CommandSourceStack> SKIES = (ctx, b) -> {
+        SkyLibrary.scan();
+        return SharedSuggestionProvider.suggest(SkyLibrary.names(), b);
+    };
+    private static final SuggestionProvider<CommandSourceStack> DANCES =
+            (ctx, b) -> SharedSuggestionProvider.suggest(List.of("bailar", "aplaudir", "saludar", "desfile_tambor", "marchar"), b);
 
     public static void register(CommandDispatcher<CommandSourceStack> d) {
         d.register(literal("starfest").requires(s -> s.hasPermission(2))
@@ -58,6 +64,50 @@ public final class Commands {
                             ShowServer.stop(ZONE);
                             c.getSource().sendSuccess(() -> Component.literal("Musica detenida"), true);
                             return 1;
+                        })))
+                .then(literal("cielo")
+                        .then(literal("lista").executes(c -> {
+                            SkyLibrary.scan();
+                            List<String> n = SkyLibrary.names();
+                            c.getSource().sendSuccess(() -> Component.literal("Cielos (" + n.size() + "): " + String.join(", ", n)
+                                    + "  -  carpeta: " + SkyLibrary.folder()), false);
+                            return n.size();
+                        }))
+                        .then(literal("parar").executes(c -> {
+                            ShowServer.stopSky(ZONE);
+                            c.getSource().sendSuccess(() -> Component.literal("Cielo quitado"), true);
+                            return 1;
+                        }))
+                        .then(argument("nombre", StringArgumentType.word()).suggests(SKIES)
+                                .executes(c -> sky(c, 160))
+                                .then(argument("radio", IntegerArgumentType.integer(8, 2048))
+                                        .executes(c -> sky(c, IntegerArgumentType.getInteger(c, "radio"))))))
+                .then(literal("bailarines")
+                        .then(literal("agregar").then(argument("quienes", net.minecraft.commands.arguments.EntityArgument.entities())
+                                .executes(c -> addDancers(c, "bailar"))
+                                .then(argument("animacion", StringArgumentType.greedyString()).suggests(DANCES)
+                                        .executes(c -> addDancers(c, StringArgumentType.getString(c, "animacion"))))))
+                        .then(literal("quitar").then(argument("quienes", net.minecraft.commands.arguments.EntityArgument.entities())
+                                .executes(c -> {
+                                    int n = 0;
+                                    for (net.minecraft.world.entity.Entity e : net.minecraft.commands.arguments.EntityArgument.getEntities(c, "quienes")) {
+                                        if (e instanceof net.minecraft.world.entity.LivingEntity le && Dancers.remove(c.getSource().getServer(), le)) {
+                                            n++;
+                                        }
+                                    }
+                                    int k = n;
+                                    c.getSource().sendSuccess(() -> Component.literal(k + " ya no bailan con la musica"), true);
+                                    return n;
+                                })))
+                        .then(literal("lista").executes(c -> {
+                            int n = Dancers.all().size();
+                            c.getSource().sendSuccess(() -> Component.literal(n + " bailarines" + (Dancers.ANNIS ? "" : " (hace falta Annis NPC para que bailen)")), false);
+                            return n;
+                        }))
+                        .then(literal("limpiar").executes(c -> {
+                            int n = Dancers.clear(c.getSource().getServer());
+                            c.getSource().sendSuccess(() -> Component.literal("Se quitaron " + n + " bailarines"), true);
+                            return n;
                         })))
                 .then(literal("fuegos").executes(c -> fireworks(c, 48))
                         .then(argument("radio", IntegerArgumentType.integer(4, 512))
@@ -113,6 +163,36 @@ public final class Commands {
         String what = z.track.name();
         s.sendSuccess(() -> Component.literal("Suena '" + what + "' en un radio de " + radius + " bloques"), true);
         return 1;
+    }
+
+    private static int sky(CommandContext<CommandSourceStack> c, int radius) {
+        SkyLibrary.scan();
+        String name = StringArgumentType.getString(c, "nombre");
+        if (SkyLibrary.get(name) == null) {
+            c.getSource().sendFailure(Component.literal("No existe el cielo '" + name + "' (mira /starfest cielo lista)"));
+            return 0;
+        }
+        CommandSourceStack s = c.getSource();
+        ShowServer.sky(ZONE, s.getLevel().dimension(), BlockPos.containing(s.getPosition()), radius, name.toLowerCase(java.util.Locale.ROOT));
+        s.sendSuccess(() -> Component.literal("Cielo '" + name + "' en un radio de " + radius + " bloques"), true);
+        return 1;
+    }
+
+    private static int addDancers(CommandContext<CommandSourceStack> c, String anim) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        if (!Dancers.ANNIS) {
+            c.getSource().sendFailure(Component.literal("Hace falta Annis NPC para que bailen"));
+            return 0;
+        }
+        int n = 0;
+        for (net.minecraft.world.entity.Entity e : net.minecraft.commands.arguments.EntityArgument.getEntities(c, "quienes")) {
+            if (e instanceof net.minecraft.world.entity.LivingEntity le && !(e instanceof ServerPlayer)) {
+                Dancers.add(le, anim.trim());
+                n++;
+            }
+        }
+        int k = n;
+        c.getSource().sendSuccess(() -> Component.literal(k + " bailaran '" + anim.trim() + "' cuando suene musica"), true);
+        return n;
     }
 
     private static int fireworks(CommandContext<CommandSourceStack> c, int radius) {

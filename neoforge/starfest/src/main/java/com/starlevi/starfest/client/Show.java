@@ -76,7 +76,17 @@ public final class Show {
         }
     };
     private static final Map<String, Analysis> ANALYSES = new ConcurrentHashMap<>();
-    private static final Map<String, byte[]> DOWNLOADS = new HashMap<>();
+    /** Descargas en curso: hash -> bytes y quienes esperan el archivo completo. */
+    private static final class Pending {
+        final byte[] buf;
+        final List<java.util.function.Consumer<byte[]>> waiters = new ArrayList<>();
+
+        Pending(int size) {
+            this.buf = new byte[size];
+        }
+    }
+
+    private static final Map<String, Pending> DOWNLOADS = new HashMap<>();
     private static final Map<String, Net.Play> WAITING = new HashMap<>();
     private static final Map<String, Long> WAITING_SINCE = new HashMap<>();
     static long frameId;
@@ -114,11 +124,14 @@ public final class Show {
         if (data == null) {
             WAITING.put(p.hash(), p);
             WAITING_SINCE.put(p.hash(), System.nanoTime());
-            if (!DOWNLOADS.containsKey(p.hash())) {
-                DOWNLOADS.put(p.hash(), new byte[p.bytes()]);
-                PacketDistributor.sendToServer(new Net.Need(p.hash()));
-                StarFest.LOGGER.info("StarFest: bajando '{}' ({} KB)", p.name(), p.bytes() / 1024);
-            }
+            StarFest.LOGGER.info("StarFest: bajando '{}' ({} KB)", p.name(), p.bytes() / 1024);
+            request(p.hash(), p.bytes(), buf -> {
+                Net.Play w = WAITING.remove(p.hash());
+                Long since = WAITING_SINCE.remove(p.hash());
+                if (w != null) {
+                    start(w, buf, since == null ? 0 : (System.nanoTime() - since) / 1.0e9f);
+                }
+            });
             return;
         }
         start(p, data, 0);
@@ -158,11 +171,28 @@ public final class Show {
         });
     }
 
-    public static void chunk(Net.Chunk c) {
-        byte[] buf = DOWNLOADS.get(c.hash());
-        if (buf == null || buf.length != c.total()) {
+    /** Pide un archivo al servidor (o lo toma de la memoria / del disco) y avisa cuando esta completo. */
+    public static void request(String hash, int size, java.util.function.Consumer<byte[]> done) {
+        byte[] have = cached(hash);
+        if (have != null) {
+            done.accept(have);
             return;
         }
+        Pending p = DOWNLOADS.get(hash);
+        if (p == null) {
+            p = new Pending(size);
+            DOWNLOADS.put(hash, p);
+            PacketDistributor.sendToServer(new Net.Need(hash));
+        }
+        p.waiters.add(done);
+    }
+
+    public static void chunk(Net.Chunk c) {
+        Pending p = DOWNLOADS.get(c.hash());
+        if (p == null || p.buf.length != c.total()) {
+            return;
+        }
+        byte[] buf = p.buf;
         System.arraycopy(c.data(), 0, buf, c.offset(), Math.min(c.data().length, buf.length - c.offset()));
         if (c.offset() + c.data().length < c.total()) {
             return;
@@ -175,11 +205,8 @@ public final class Show {
         } catch (Exception ignored) {
             // queda solo en memoria
         }
-        Net.Play p = WAITING.remove(c.hash());
-        Long since = WAITING_SINCE.remove(c.hash());
-        if (p != null) {
-            float waited = since == null ? 0 : (System.nanoTime() - since) / 1.0e9f;
-            start(p, buf, waited);
+        for (java.util.function.Consumer<byte[]> w : p.waiters) {
+            w.accept(buf);
         }
     }
 

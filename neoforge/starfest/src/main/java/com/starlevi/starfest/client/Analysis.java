@@ -26,6 +26,9 @@ public final class Analysis {
     public final float[] kick;
     /** Intensidad de la parte de la cancion: ~1 normal, mas de 1.2 = la parte fuerte. */
     public final float[] intensity;
+    /** Espectro en BANDS bandas (de graves a agudos), frame a frame: spec[frame * BANDS + banda]. */
+    public final float[] spec;
+    public static final int BANDS = 16;
     public final float bpm;
     /** Segundo del primer pulso de la grilla de tiempos. */
     public final float beatOffset;
@@ -33,7 +36,7 @@ public final class Analysis {
     public final float seconds;
 
     private Analysis(float fps, int frames, float[] bass, float[] mid, float[] high, float[] level, float[] pulse, float[] kick,
-                     float[] intensity, float bpm, float beatOffset, float confidence) {
+                     float[] intensity, float[] spec, float bpm, float beatOffset, float confidence) {
         this.fps = fps;
         this.frames = frames;
         this.bass = bass;
@@ -43,6 +46,7 @@ public final class Analysis {
         this.pulse = pulse;
         this.kick = kick;
         this.intensity = intensity;
+        this.spec = spec;
         this.bpm = bpm;
         this.beatOffset = beatOffset;
         this.confidence = confidence;
@@ -73,8 +77,13 @@ public final class Analysis {
         if (beats < 0) {
             beats = 0;
         }
+        float[] sp = new float[BANDS];
+        int k = Math.max(0, Math.min(this.frames - 1, (int) i));
+        for (int j = 0; j < BANDS; j++) {
+            sp[j] = this.spec[k * BANDS + j];
+        }
         return new Beat(true, t, at(this.bass, i), at(this.mid, i), at(this.high, i), at(this.level, i), at(this.pulse, i),
-                at(this.kick, i), at(this.intensity, i), beats, this.bpm);
+                at(this.kick, i), at(this.intensity, i), beats, this.bpm, sp);
     }
 
     // ------------------------------------------------------------------ analisis
@@ -96,6 +105,17 @@ public final class Analysis {
             float[] re = new float[N], im = new float[N];
             int bassLo = bin(30, rate), bassHi = bin(150, rate), midHi = bin(2500, rate), highHi = Math.min(N / 2, bin(14000, rate));
             Growing gb = new Growing(), gm = new Growing(), gh = new Growing(), gl = new Growing();
+            Growing[] gs = new Growing[BANDS];
+            int[] edges = new int[BANDS + 1];
+            for (int j = 0; j <= BANDS; j++) {
+                edges[j] = Math.min(N / 2, bin((float) (40 * Math.pow(16000 / 40.0, j / (double) BANDS)), rate));
+                if (j > 0 && edges[j] <= edges[j - 1]) {
+                    edges[j] = edges[j - 1] + 1;
+                }
+            }
+            for (int j = 0; j < BANDS; j++) {
+                gs[j] = new Growing();
+            }
             int[] state = new int[4]; // canal actual, posicion en el anillo, desde el ultimo salto, muestras llenas
             float[] acc = new float[1];
             while (in.readChunk(sample -> {
@@ -124,11 +144,18 @@ public final class Analysis {
                     gm.add(band(re, im, bassHi, midHi));
                     gh.add(band(re, im, midHi, highHi));
                     gl.add((float) Math.sqrt(sq / N));
+                    for (int j = 0; j < BANDS; j++) {
+                        gs[j].add(band(re, im, edges[j], edges[j + 1]));
+                    }
                 }
             })) {
                 // sigue leyendo
             }
-            return build(fps, gb.done(), gm.done(), gh.done(), gl.done());
+            float[][] bands = new float[BANDS][];
+            for (int j = 0; j < BANDS; j++) {
+                bands[j] = gs[j].done();
+            }
+            return build(fps, gb.done(), gm.done(), gh.done(), gl.done(), bands);
         }
     }
 
@@ -144,7 +171,7 @@ public final class Analysis {
         return (float) (s / Math.max(1, hi - lo));
     }
 
-    private static Analysis build(float fps, float[] b, float[] m, float[] h, float[] l) {
+    private static Analysis build(float fps, float[] b, float[] m, float[] h, float[] l, float[][] bands) {
         int n = b.length;
         float[] bass = norm(b), mid = norm(m), high = norm(h), level = norm(l);
         // golpes: aumentos bruscos de energia (sobre todo de graves)
@@ -234,7 +261,14 @@ public final class Analysis {
         float bpm = 60.0f * fps / bestP;
         float offset = offsetF / fps;
         float conf = (float) Math.min(1.0, acf(flux, Math.round(lagF)) / zero * 2.0);
-        return new Analysis(fps, n, bassE, midE, highE, levelE, pulse, kick, inten, bpm, offset, conf);
+        float[] spec = new float[n * BANDS];
+        for (int j = 0; j < BANDS; j++) {
+            float[] e = envelope(norm(bands[j]), fps, 0.12f);
+            for (int i = 0; i < n && i < e.length; i++) {
+                spec[i * BANDS + j] = e[i];
+            }
+        }
+        return new Analysis(fps, n, bassE, midE, highE, levelE, pulse, kick, inten, spec, bpm, offset, conf);
     }
 
     private static double acf(float[] x, int lag) {

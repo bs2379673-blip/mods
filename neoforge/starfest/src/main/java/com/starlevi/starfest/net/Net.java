@@ -133,6 +133,63 @@ public final class Net {
         }
     }
 
+    /** Una imagen que usa un cielo: nombre del archivo, hash y tamano. */
+    public record SkyImage(String file, String hash, int bytes) {
+    }
+
+    /** Servidor -> cliente: cielo activo en una zona (json + imagenes que usa). */
+    public record Sky(String zone, String name, String version, String json, java.util.List<SkyImage> images,
+                      int x, int y, int z, int radius) implements CustomPacketPayload {
+        public static final Type<Sky> TYPE = new Type<>(id("sky"));
+        public static final StreamCodec<FriendlyByteBuf, Sky> CODEC = CustomPacketPayload.codec(Sky::write, Sky::new);
+
+        Sky(FriendlyByteBuf b) {
+            this(b.readUtf(64), b.readUtf(128), b.readUtf(64), b.readUtf(262144),
+                    b.readList(x -> new SkyImage(x.readUtf(256), x.readUtf(64), x.readVarInt())),
+                    b.readVarInt(), b.readVarInt(), b.readVarInt(), b.readVarInt());
+        }
+
+        void write(FriendlyByteBuf b) {
+            b.writeUtf(this.zone, 64);
+            b.writeUtf(this.name, 128);
+            b.writeUtf(this.version, 64);
+            b.writeUtf(this.json, 262144);
+            b.writeCollection(this.images, (x, i) -> {
+                x.writeUtf(i.file(), 256);
+                x.writeUtf(i.hash(), 64);
+                x.writeVarInt(i.bytes());
+            });
+            b.writeVarInt(this.x);
+            b.writeVarInt(this.y);
+            b.writeVarInt(this.z);
+            b.writeVarInt(this.radius);
+        }
+
+        @Override
+        public Type<Sky> type() {
+            return TYPE;
+        }
+    }
+
+    /** Servidor -> cliente: se quita el cielo de una zona. */
+    public record SkyStop(String zone) implements CustomPacketPayload {
+        public static final Type<SkyStop> TYPE = new Type<>(id("sky_stop"));
+        public static final StreamCodec<FriendlyByteBuf, SkyStop> CODEC = CustomPacketPayload.codec(SkyStop::write, SkyStop::new);
+
+        SkyStop(FriendlyByteBuf b) {
+            this(b.readUtf(64));
+        }
+
+        void write(FriendlyByteBuf b) {
+            b.writeUtf(this.zone, 64);
+        }
+
+        @Override
+        public Type<SkyStop> type() {
+            return TYPE;
+        }
+    }
+
     /** Del lado del cliente: quien atiende los mensajes (solo existe en el cliente). */
     public interface ClientSide {
         void play(Play p);
@@ -142,6 +199,10 @@ public final class Net {
         void chunk(Chunk p);
 
         void fx(Fx p);
+
+        void sky(Sky p);
+
+        void skyStop(SkyStop p);
     }
 
     public static ClientSide client;
@@ -152,6 +213,8 @@ public final class Net {
         r.playToClient(Stop.TYPE, Stop.CODEC, (p, ctx) -> client.stop(p));
         r.playToClient(Chunk.TYPE, Chunk.CODEC, (p, ctx) -> client.chunk(p));
         r.playToClient(Fx.TYPE, Fx.CODEC, (p, ctx) -> client.fx(p));
+        r.playToClient(Sky.TYPE, Sky.CODEC, (p, ctx) -> client.sky(p));
+        r.playToClient(SkyStop.TYPE, SkyStop.CODEC, (p, ctx) -> client.skyStop(p));
         r.playToServer(Need.TYPE, Need.CODEC, (p, ctx) -> {
             if (ctx.player() instanceof ServerPlayer sp) {
                 ShowServer.need(sp, p.hash());

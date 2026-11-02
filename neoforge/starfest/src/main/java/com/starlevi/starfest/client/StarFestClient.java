@@ -37,6 +37,16 @@ public final class StarFestClient {
             }
 
             @Override
+            public void sky(Net.Sky p) {
+                com.starlevi.starfest.client.sky.SkyClient.sky(p);
+            }
+
+            @Override
+            public void skyStop(Net.SkyStop p) {
+                com.starlevi.starfest.client.sky.SkyClient.stop(p);
+            }
+
+            @Override
             public void fx(Net.Fx p) {
                 if ("fuegos".equals(p.kind())) {
                     Fireworks.volley(p);
@@ -56,6 +66,10 @@ public final class StarFestClient {
         });
         NeoForge.EVENT_BUS.addListener((RenderFrameEvent.Pre e) -> Show.frame());
         NeoForge.EVENT_BUS.addListener(JukeboxWatcher::onPlay);
-        NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut e) -> Show.clear());
+        NeoForge.EVENT_BUS.addListener(com.starlevi.starfest.client.sky.SkyClient::render);
+        NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut e) -> {
+            Show.clear();
+            com.starlevi.starfest.client.sky.SkyClient.clear();
+        });
     }
 }

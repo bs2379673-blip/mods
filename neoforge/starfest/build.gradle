@@ -1,1 +1,4 @@
-// StarFest: sin dependencias externas.
+// StarFest. Annis NPC es opcional: solo para que los NPC bailen con la musica.
+dependencies {
+    compileOnly project(':annisnpc')
+}

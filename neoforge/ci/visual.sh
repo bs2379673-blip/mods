@@ -96,7 +96,18 @@ STAR=('gamerule doDaylightCycle false' 'time set 18000' 'weather clear' 'gamerul
   'sleep 1.1' "${T}foto s06_parte_fuerte_c${E}" 'execute positioned 60 -60 56 run starfest fuegos' 'sleep 1.6' "${T}foto s07_fuegos${E}"
   'tp @a 60 -60 61 180 50' 'sleep 1' "${T}foto s08_piso${E}" 'tp @a 70 -60 57 90 -10' 'sleep 1' "${T}foto s09_costado${E}"
   'starfest musica parar' 'playsound minecraft:music_disc.cat record @a 60 -60 56' 'sleep 6' "${T}foto s10_tocadiscos${E}"
-  'stopsound @a record' 'time set 6000' 'sleep 1')
+  'stopsound @a record' 'sleep 1'
+  # cielos de concierto (al aire libre) con musica, y NPC que bailan
+  'summon annisnpc:npc 58 -60 58 {Tags:["sfb"],NoAI:1b,Protected:0b,Rotation:[0f,0f]}' 'summon annisnpc:npc 62 -60 58 {Tags:["sfb"],NoAI:1b,Protected:0b,Rotation:[0f,0f]}'
+  'starfest bailarines agregar @e[tag=sfb] bailar' 'tp @a 60 -60 68 180 -8' 'sleep 1' "${T}foto s11_bailarines_sin_musica${E}"
+  'execute positioned 60 -60 56 run starfest cielo noche_neon 200' 'sleep 2' "${T}foto c01_neon_sin_musica${E}"
+  'execute positioned 60 -60 56 run starfest musica tocar prueba 40 1' 'sleep 3' "${T}foto s12_bailarines_con_musica${E}"
+  'tp @a 60 -60 68 180 -40' 'sleep 2' "${T}foto c02_neon_a${E}" 'tp @a 60 -60 68 180 -85' 'sleep 1.2' "${T}foto c03_neon_arriba${E}"
+  'execute positioned 60 -60 56 run starfest cielo galaxia 200' 'tp @a 60 -60 68 180 -30' 'sleep 2.5' "${T}foto c04_galaxia${E}" 'tp @a 60 -60 68 180 -85' 'sleep 1' "${T}foto c05_galaxia_arriba${E}"
+  'execute positioned 60 -60 56 run starfest cielo aurora 200' 'tp @a 60 -60 68 90 -15' 'sleep 2.5' "${T}foto c06_aurora${E}"
+  'execute positioned 60 -60 56 run starfest cielo fiesta 200' 'tp @a 60 -60 68 180 -50' 'sleep 2.5' "${T}foto c07_fiesta${E}" 'tp @a 60 -60 68 180 -85' 'sleep 1' "${T}foto c08_fiesta_arriba${E}"
+  'tp @a 60 -60 68 180 -8' 'starfest musica parar' 'sleep 1.5' "${T}foto s13_bailarines_paran${E}"
+  'starfest cielo parar' 'starfest bailarines limpiar' 'kill @e[tag=sfb]' 'time set 6000' 'sleep 1')
 python3 ci/rcon.py 25577 annistest "${STAR[@]}"
 # --- caminata de los NPC con los clips de Punchy (cintura incluida) ---
 LOCO=('gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule sendCommandFeedback false'
