@@ -40,7 +40,7 @@ public final class PunchyPause {
     }
 
     /** Solo para la prueba automatica: mira la pose final de cada jugador. */
-    public static volatile java.util.function.BiConsumer<PlayerModel<?>, Player> probe;
+    public static volatile java.util.function.BiConsumer<PlayerModel<?>, Player> probe, probeBefore;
 
     private PunchyPause() {
     }

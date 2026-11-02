@@ -15,12 +15,17 @@ public abstract class SaveBeforePunchyMixin {
     @Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At("TAIL"))
     private void annis_compat$save(LivingEntity entity, float limbAngle, float limbDistance, float ageInTicks,
                                  float headYaw, float headPitch, CallbackInfo ci) {
-        if (!(entity instanceof Player player) || !PunchyPause.enabled()) {
+        if (!(entity instanceof Player player)) {
             return;
+        }
+        if (PunchyPause.probeBefore != null) {
+            PunchyPause.probeBefore.accept((PlayerModel<?>) (Object) this, player);
         }
         if (ageInTicks == 0.0f && limbAngle == 0.0f && limbDistance == 0.0f) {
             return; // brazo en primera persona
         }
-        PunchyPause.save((PlayerModel<?>) (Object) this, player);
+        if (PunchyPause.enabled()) {
+            PunchyPause.save((PlayerModel<?>) (Object) this, player);
+        }
     }
 }

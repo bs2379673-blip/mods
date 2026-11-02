@@ -123,6 +123,8 @@ public final class TestDriver {
     private static int walkTicks;
     private static boolean walkRight;
     private static int poseTicks;
+    private static int calls;
+    private static float beforeMax;
     private static String poseName = "";
     private static final float[] poseMax = new float[8];
 
@@ -134,12 +136,16 @@ public final class TestDriver {
                 if (poseTicks <= 0 || p != Minecraft.getInstance().player) {
                     return;
                 }
+                calls++;
                 float[] v = {m.rightArm.xRot, m.leftArm.xRot, m.rightArm.zRot, m.rightLeg.xRot, m.leftLeg.xRot, m.body.xRot, m.body.zRot, m.head.xRot};
                 for (int k = 0; k < v.length; k++) {
                     poseMax[k] = Math.max(poseMax[k], Math.abs(v[k]));
                 }
                 if (--poseTicks == 0) {
-                    StringBuilder sb = new StringBuilder();
+                    StringBuilder sb = new StringBuilder("antes(max)=").append(String.format(java.util.Locale.ROOT, "%.1f", Math.toDegrees(beforeMax)))
+                            .append(" llamadas=").append(calls).append(' ');
+                    calls = 0;
+                    beforeMax = 0;
                     String[] n = {"brazoD.x", "brazoI.x", "brazoD.z", "piernaD.x", "piernaI.x", "torso.x", "torso.z", "cabeza.x"};
                     for (int k = 0; k < v.length; k++) {
                         sb.append(n[k]).append('=').append(String.format(java.util.Locale.ROOT, "%.1f", Math.toDegrees(poseMax[k]))).append(' ');
@@ -148,6 +154,12 @@ public final class TestDriver {
                 }
             };
             c.getField("probe").set(null, f);
+            java.util.function.BiConsumer<net.minecraft.client.model.PlayerModel<?>, net.minecraft.world.entity.player.Player> b = (m, p) -> {
+                if (poseTicks > 0 && p == Minecraft.getInstance().player) {
+                    beforeMax = Math.max(beforeMax, Math.max(Math.abs(m.rightLeg.xRot), Math.abs(m.rightArm.xRot)));
+                }
+            };
+            c.getField("probeBefore").set(null, b);
         } catch (Throwable t) {
             AnnisInteract.LOGGER.warn("[TEST] pose: {}", t.toString());
         }
