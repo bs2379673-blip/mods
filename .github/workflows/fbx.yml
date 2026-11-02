@@ -21,7 +21,9 @@ jobs:
           mkdir -p fbx out
           cp tools/fbx/entrada/*.zip fbx/
           cd fbx && for z in *.zip; do unzip -q -o "$z" -d "${z%.zip}"; done; cd ..
-          for f in fbx/*/source/*.fbx; do n=$(basename "$f" .fbx); ./blender/blender -b -P tools/fbx/convertir.py -- "$f" "out/$n.glb" 14000 2>&1 | grep -E 'LISTO|Error|rror' | head -20; done
+          mkdir -p out/render
+          for f in fbx/*/source/*.fbx; do d=$(dirname $(dirname "$f")); ./blender/blender -b -P tools/fbx/render.py -- "$f" out/render "$d/textures/__Diffuse.png" 1,37,73,121,181,300 2>&1 | grep -E 'LISTO|Error|rror' | head -20; done
+          (cd out && tar czf render.tgz render && rm -rf render)
           ls -la out
           gh release delete fbx-out --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
-          gh release create fbx-out out/* -R "$GITHUB_REPOSITORY" --title "FBX convertidos" --notes "auto" --target "$GITHUB_SHA" --prerelease
+          gh release create fbx-out out/*.tgz -R "$GITHUB_REPOSITORY" --title "FBX convertidos" --notes "auto" --target "$GITHUB_SHA" --prerelease
