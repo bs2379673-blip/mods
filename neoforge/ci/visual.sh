@@ -78,7 +78,7 @@ export LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=4.5
 CP=$!
 for i in $(seq 1 160); do grep -q 'joined the game' $S/server.log 2>/dev/null && break; sleep 3; done
 if ! grep -q 'joined the game' $S/server.log; then
-  echo "::warning::Visual> el cliente no entro: $(grep -E 'Exception|Error|error|FAILED' client.log | head -20 | tr '\n' '|' | cut -c1-3000)"
+  echo "::warning::Visual> el cliente no entro: $(grep -E 'Exception|Error|error|FAILED' client.log | head -30 | tr '\n' '|' | cut -c1-4000)"
   echo "::warning::Visual cliente errores> $(grep -B2 -A12 -E 'Exception|Caused by' run/logs/latest.log 2>/dev/null | grep -v 'Narrator\|flite\|text2speech' | grep -E 'Exception|Caused|at com.annis|at net.minecraft|annis' | head -40 | tr '\n' '|' | cut -c1-6000)"
   echo "::warning::Visual cliente log> $(tail -40 run/logs/latest.log 2>/dev/null | tr '\n' '|' | cut -c1-5000)"
   mkdir -p ../out; for p in $(pgrep -f 'java.*(neoforge|DevLaunch|bootstrap)'); do jstack $p >> ../out/jstack.txt 2>&1; done
@@ -139,14 +139,14 @@ python3 ci/rcon.py 25577 annistest "${LOCO[@]}"
 # Annis Compat + Figura: el avatar sigue a Punchy; con una animacion propia del cuerpo, Punchy se pausa
 W='tp @a 100 -60 100 0 0'
 FIG=('gamerule doDaylightCycle false' 'time set 6000' "$W" "${T}hud no${E}" "${T}camara frente${E}" "${T}cuerpo 90${E}" 'sleep 1.5'
-  "${T}caminar derecha${E}" 'sleep 1.5' "${T}foto g01_normal_camina${E}" "${T}caminar no${E}" 'sleep 0.5'
-  "${T}figura cargar prueba${E}" "$W" 'sleep 5' "${T}foto g02_figura_quieto${E}"
-  "${T}caminar derecha${E}" 'sleep 1.5' "${T}foto g03_figura_camina${E}" 'sleep 0.3' "${T}foto g03b_figura_camina${E}" "${T}caminar no${E}" 'sleep 0.5'
-  "$W" "${T}figura anim cola si${E}" "${T}caminar derecha${E}" 'sleep 1.5' "${T}foto g04_cola_camina${E}" "${T}caminar no${E}" "${T}figura anim cola no${E}" 'sleep 0.5'
-  "$W" "${T}figura anim saludo si${E}" "${T}caminar derecha${E}" 'sleep 1.5' "${T}foto g05_saludo_camina${E}" "${T}caminar no${E}" 'sleep 1.2' "${T}foto g06_saludo_quieto${E}"
-  "${T}figura anim saludo no${E}" 'sleep 1.2' "${T}foto g07_sin_saludo${E}" "${T}figura quitar${E}" "${T}cuerpo libre${E}" "${T}camara primera${E}" 'sleep 1')
+  "${T}caminar derecha${E}" 'sleep 1.5' "${T}pose g01_normal_camina${E}" "${T}foto g01_normal_camina${E}" 'sleep 1.6' "${T}caminar no${E}" 'sleep 0.5'
+  "${T}figura cargar prueba${E}" "$W" 'sleep 5' "${T}pose g02_figura_quieto${E}" "${T}foto g02_figura_quieto${E}" 'sleep 1.6'
+  "${T}caminar derecha${E}" 'sleep 1.5' "${T}pose g03_figura_camina${E}" "${T}foto g03_figura_camina${E}" 'sleep 1.6' 'sleep 0.3' "${T}foto g03b_figura_camina${E}" "${T}caminar no${E}" 'sleep 0.5'
+  "$W" "${T}figura anim cola si${E}" "${T}caminar derecha${E}" 'sleep 1.5' "${T}pose g04_cola_camina${E}" "${T}foto g04_cola_camina${E}" 'sleep 1.6' "${T}caminar no${E}" "${T}figura anim cola no${E}" 'sleep 0.5'
+  "$W" "${T}figura anim saludo si${E}" "${T}caminar derecha${E}" 'sleep 1.5' "${T}pose g05_saludo_camina${E}" "${T}foto g05_saludo_camina${E}" 'sleep 1.6' "${T}caminar no${E}" 'sleep 1.2' "${T}pose g06_saludo_quieto${E}" "${T}foto g06_saludo_quieto${E}" 'sleep 1.6'
+  "${T}figura anim saludo no${E}" 'sleep 1.2' "${T}pose g07_sin_saludo${E}" "${T}foto g07_sin_saludo${E}" 'sleep 1.6' "${T}figura quitar${E}" "${T}cuerpo libre${E}" "${T}camara primera${E}" 'sleep 1')
 python3 ci/rcon.py 25577 annistest "${FIG[@]}"
-echo "::notice::Visual Figura> $(grep -E '\[TEST\] (figura|caminar)|Annis Compat|figura.*(ERROR|Exception)' run/logs/latest.log 2>/dev/null | head -20 | tr '\n' '|' | cut -c1-3000)"
+echo "::notice::Visual Figura> $(grep -E '\[TEST\] (figura|pose)|Annis Compat|figura.*(ERROR|Exception)' run/logs/latest.log 2>/dev/null | head -20 | tr '\n' '|' | cut -c1-3000)"
 python3 ci/rcon.py 25577 annistest \
   'gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule sendCommandFeedback false' \
   'tp @a 0 -60 -4 0 12' "${T}hud no${E}" \
