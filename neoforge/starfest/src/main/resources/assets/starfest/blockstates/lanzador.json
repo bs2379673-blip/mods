@@ -1,0 +1,30 @@
+{
+ "variants": {
+  "facing=up": {
+   "model": "starfest:block/lanzador"
+  },
+  "facing=down": {
+   "model": "starfest:block/lanzador",
+   "x": 180
+  },
+  "facing=north": {
+   "model": "starfest:block/lanzador",
+   "x": 90
+  },
+  "facing=south": {
+   "model": "starfest:block/lanzador",
+   "x": 90,
+   "y": 180
+  },
+  "facing=east": {
+   "model": "starfest:block/lanzador",
+   "x": 90,
+   "y": 90
+  },
+  "facing=west": {
+   "model": "starfest:block/lanzador",
+   "x": 90,
+   "y": 270
+  }
+ }
+}

@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved - Starlevi (ver LICENSE.txt)"
+
+[[mods]]
+modId="starfest"
+version="${version}"
+displayName="StarFest"
+authors="Starlevi"
+credits="Propiedad de Starlevi. Todos los derechos reservados."
+description='''Conciertos y boliches: musica desde el servidor (config/starfest/musica, sin reiniciar), focos moviles, reflectores al cielo, piso LED, cabina de DJ y fuegos artificiales que siguen el ritmo de cualquier cancion, y de los tocadiscos.
+Propiedad de Starlevi. Todos los derechos reservados.'''
+
+[[dependencies.starfest]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.starfest]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,1.21.2)"
+ordering="NONE"
+side="BOTH"

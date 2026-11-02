@@ -1,0 +1,22 @@
+{
+ "variants": {
+  "facing=up": {
+   "model": "starfest:block/piso"
+  },
+  "facing=down": {
+   "model": "starfest:block/piso"
+  },
+  "facing=north": {
+   "model": "starfest:block/piso"
+  },
+  "facing=south": {
+   "model": "starfest:block/piso"
+  },
+  "facing=east": {
+   "model": "starfest:block/piso"
+  },
+  "facing=west": {
+   "model": "starfest:block/piso"
+  }
+ }
+}

@@ -1,0 +1,26 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "starfest:block/cabina",
+   "y": 0
+  },
+  "facing=east": {
+   "model": "starfest:block/cabina",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "starfest:block/cabina",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "starfest:block/cabina",
+   "y": 270
+  },
+  "facing=up": {
+   "model": "starfest:block/cabina"
+  },
+  "facing=down": {
+   "model": "starfest:block/cabina"
+  }
+ }
+}

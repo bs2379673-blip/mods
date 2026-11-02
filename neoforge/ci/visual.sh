@@ -10,7 +10,9 @@ NEO=$(grep neo_version gradle.properties | cut -d= -f2)
 curl -sSL -o $S/installer.jar "https://maven.neoforged.net/releases/net/neoforged/neoforge/$NEO/neoforge-$NEO-installer.jar"
 ( cd $S && java -jar installer.jar --installServer > install.log 2>&1 ); tail -3 $S/install.log
 cp libs/playeranimator-1.jar $S/mods/
-cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar libs/cinematic-0.18.30.jar $S/mods/
+cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar ../out/starfest-*.jar libs/cinematic-0.18.30.jar $S/mods/
+# StarFest: una cancion de prueba (128 BPM, parte fuerte entre 20 y 32 s) en la carpeta de musica del servidor
+mkdir -p $S/config/starfest/musica && cp ci/starfest/prueba.ogg $S/config/starfest/musica/
 ls $S/mods
 echo "eula=true" > $S/eula.txt
 # interacciones por archivo (prueba): usan las animaciones del paquete exportado
@@ -81,6 +83,21 @@ fi
 sleep 25
 T='tellraw @a {"text":"[TEST] '
 E='"}'
+# --- StarFest: boliche de prueba de noche, con la cancion del servidor ---
+STAR=('gamerule doDaylightCycle false' 'time set 18000' 'weather clear' 'gamerule sendCommandFeedback false' "${T}hud no${E}"
+  'fill 54 -61 50 66 -61 62 minecraft:black_concrete' 'fill 56 -61 54 64 -61 60 starfest:piso'
+  'setblock 56 -60 52 starfest:foco[facing=up]' 'setblock 58 -60 52 starfest:foco[facing=up]' 'setblock 60 -60 51 starfest:foco[facing=up]'
+  'setblock 62 -60 52 starfest:foco[facing=up]' 'setblock 64 -60 52 starfest:foco[facing=up]'
+  'setblock 54 -60 50 starfest:reflector[facing=up]' 'setblock 66 -60 50 starfest:reflector[facing=up]'
+  'setblock 60 -60 53 starfest:cabina[facing=south]' 'setblock 55 -60 53 starfest:lanzador[facing=up]' 'setblock 65 -60 53 starfest:lanzador[facing=up]'
+  'tp @a 60 -60 68 180 -8' 'sleep 2' "${T}foto s00_sin_musica${E}"
+  'execute positioned 60 -60 56 run starfest musica tocar prueba 40 1' 'sleep 5' "${T}foto s01_musica_a${E}" 'sleep 1.3' "${T}foto s02_musica_b${E}"
+  'sleep 1.7' "${T}foto s03_musica_c${E}" 'sleep 13' "${T}foto s04_parte_fuerte_a${E}" 'sleep 0.6' "${T}foto s05_parte_fuerte_b${E}"
+  'sleep 1.1' "${T}foto s06_parte_fuerte_c${E}" 'execute positioned 60 -60 56 run starfest fuegos' 'sleep 1.6' "${T}foto s07_fuegos${E}"
+  'tp @a 60 -60 61 180 50' 'sleep 1' "${T}foto s08_piso${E}" 'tp @a 70 -60 57 90 -10' 'sleep 1' "${T}foto s09_costado${E}"
+  'starfest musica parar' 'playsound minecraft:music_disc.cat record @a 60 -60 56' 'sleep 6' "${T}foto s10_tocadiscos${E}"
+  'stopsound @a record' 'time set 6000' 'sleep 1')
+python3 ci/rcon.py 25577 annistest "${STAR[@]}"
 # --- caminata de los NPC con los clips de Punchy (cintura incluida) ---
 LOCO=('gamerule doDaylightCycle false' 'time set 6000' 'weather clear' 'gamerule sendCommandFeedback false'
   'tp @a 30 -60 26 0 10' "${T}hud no${E}"
