@@ -66,6 +66,6 @@ model = {"meta": {"format_version": "4.5", "model_format": "free", "box_uv": Fal
 out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prueba")
 os.makedirs(out, exist_ok=True)
 json.dump(model, open(os.path.join(out, "model.bbmodel"), "w"))
-json.dump({"name": "Prueba Annis Compat", "authors": "Starlevi"}, open(os.path.join(out, "avatar.json"), "w"))
+json.dump({"name": "Prueba Annis Compat", "authors": ["Starlevi"]}, open(os.path.join(out, "avatar.json"), "w"))
 open(os.path.join(out, "script.lua"), "w").write("vanilla_model.PLAYER:setVisible(false)\nvanilla_model.ARMOR:setVisible(false)\n")
 print("avatar en", out)
