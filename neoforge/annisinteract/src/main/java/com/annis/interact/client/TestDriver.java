@@ -49,9 +49,9 @@ public final class TestDriver {
                 mc.player.yBodyRotO = mc.player.yBodyRot;
             }
             if (walking && mc.player != null) {
-                mc.options.keyUp.setDown(true);
+                walkKey(mc).setDown(true);
                 if (++walkTicks % 10 == 0) {
-                    AnnisInteract.LOGGER.info("[TEST] caminar: tecla={} impulso={} pos={} paso={} pantalla={}", mc.options.keyUp.isDown(),
+                    AnnisInteract.LOGGER.info("[TEST] caminar: tecla={} impulso={} pos={} paso={} pantalla={}", walkKey(mc).isDown(),
                             mc.player.input.forwardImpulse, mc.player.position(), mc.player.walkAnimation.speed(), mc.screen);
                 }
             }
@@ -83,10 +83,9 @@ public final class TestDriver {
                 case "estacion" -> fakeStation(mc, cmd.length > 1 ? cmd[1] : "ninguna");
                 case "cuerpo" -> bodyOffset = cmd.length > 1 && !cmd[1].equals("libre") ? Float.parseFloat(cmd[1]) : Float.NaN;
                 case "caminar" -> {
-                    walking = cmd.length > 1 && cmd[1].equals("si");
-                    if (!walking) {
-                        mc.options.keyUp.setDown(false);
-                    }
+                    walkKey(mc).setDown(false);
+                    walking = cmd.length > 1 && !cmd[1].equals("no");
+                    walkRight = cmd.length > 1 && cmd[1].equals("derecha");
                 }
                 case "figura" -> figura(mc, cmd);
                 case "hud" -> mc.options.hideGui = cmd.length > 1 && cmd[1].equals("no");
@@ -116,6 +115,11 @@ public final class TestDriver {
     private static float bodyOffset = Float.NaN;
     private static boolean walking;
     private static int walkTicks;
+    private static boolean walkRight;
+
+    private static net.minecraft.client.KeyMapping walkKey(Minecraft mc) {
+        return walkRight ? mc.options.keyRight : mc.options.keyUp;
+    }
 
     /** Prueba con Figura: "figura cargar <carpeta>" o "figura anim <nombre> si|no". */
     private static void figura(Minecraft mc, String[] cmd) {

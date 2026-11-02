@@ -139,11 +139,11 @@ python3 ci/rcon.py 25577 annistest "${LOCO[@]}"
 # Annis Compat + Figura: el avatar sigue a Punchy; con una animacion propia del cuerpo, Punchy se pausa
 W='tp @a 100 -60 100 0 0'
 FIG=('gamerule doDaylightCycle false' 'time set 6000' "$W" "${T}hud no${E}" "${T}camara frente${E}" "${T}cuerpo 90${E}" 'sleep 1.5'
-  "${T}caminar si${E}" 'sleep 1.5' "${T}foto g01_normal_camina${E}" "${T}caminar no${E}" 'sleep 0.5'
+  "${T}caminar derecha${E}" 'sleep 1.5' "${T}foto g01_normal_camina${E}" "${T}caminar no${E}" 'sleep 0.5'
   "${T}figura cargar prueba${E}" "$W" 'sleep 5' "${T}foto g02_figura_quieto${E}"
-  "${T}caminar si${E}" 'sleep 1.5' "${T}foto g03_figura_camina${E}" 'sleep 0.3' "${T}foto g03b_figura_camina${E}" "${T}caminar no${E}" 'sleep 0.5'
-  "$W" "${T}figura anim cola si${E}" "${T}caminar si${E}" 'sleep 1.5' "${T}foto g04_cola_camina${E}" "${T}caminar no${E}" "${T}figura anim cola no${E}" 'sleep 0.5'
-  "$W" "${T}figura anim saludo si${E}" "${T}caminar si${E}" 'sleep 1.5' "${T}foto g05_saludo_camina${E}" "${T}caminar no${E}" 'sleep 1.2' "${T}foto g06_saludo_quieto${E}"
+  "${T}caminar derecha${E}" 'sleep 1.5' "${T}foto g03_figura_camina${E}" 'sleep 0.3' "${T}foto g03b_figura_camina${E}" "${T}caminar no${E}" 'sleep 0.5'
+  "$W" "${T}figura anim cola si${E}" "${T}caminar derecha${E}" 'sleep 1.5' "${T}foto g04_cola_camina${E}" "${T}caminar no${E}" "${T}figura anim cola no${E}" 'sleep 0.5'
+  "$W" "${T}figura anim saludo si${E}" "${T}caminar derecha${E}" 'sleep 1.5' "${T}foto g05_saludo_camina${E}" "${T}caminar no${E}" 'sleep 1.2' "${T}foto g06_saludo_quieto${E}"
   "${T}figura anim saludo no${E}" 'sleep 1.2' "${T}foto g07_sin_saludo${E}" "${T}figura quitar${E}" "${T}cuerpo libre${E}" "${T}camara primera${E}" 'sleep 1')
 python3 ci/rcon.py 25577 annistest "${FIG[@]}"
 echo "::notice::Visual Figura> $(grep -E '\[TEST\] (figura|caminar)|Annis Compat|figura.*(ERROR|Exception)' run/logs/latest.log 2>/dev/null | head -20 | tr '\n' '|' | cut -c1-3000)"
