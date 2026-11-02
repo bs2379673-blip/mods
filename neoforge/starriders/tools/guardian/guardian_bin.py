@@ -18,14 +18,18 @@ def visit(i):
     order.append(i)
 for i in sorted(need): visit(i)
 idx={n:k for k,n in enumerate(order)}
-STEP=2; FR=list(range(0,183,STEP))  # ciclo de caminata, 30 fps
+STEP=1; FR=list(range(0,183,STEP))  # ciclo de caminata, 30 fps
 out=bytearray()
 def w(fmt,*a): out.extend(struct.pack('>'+fmt,*a))
 w('i',len(order)); w('i',len(FR)); w('f',60/STEP)
 for i in order:
     nm=N[i]['name'].encode(); w('h',len(nm)); out.extend(nm)
     par=m.parent.get(i); w('i', idx[par] if par in idx else -1)
-    t,r,s=m.base[i]; w('3f',*t); w('4f',*r); w('3f',*s)
+    t,r,s=m.base[i]
+    if i==arm:
+        # el esqueleto del archivo esta girado 90 grados respecto de la piel: se corrige en la raiz
+        r=np.array([0.,0.,0.,1.])
+    w('3f',*t); w('4f',*r); w('3f',*s)
     anim = any((i,p) in m.ch for p in ('translation','rotation'))
     if anim:
         T=[];R=[]
@@ -41,7 +45,8 @@ for i in order:
         for k in range(len(FR)): w('3f',*T[k]); w('4f',*R[k])
 w('i',len(m.joints))
 for k,j in enumerate(m.joints):
-    w('i',idx[j]); w('16f',*m.ibm[k].ravel())
+    C=np.eye(4); C[1,1]=0; C[1,2]=1; C[2,1]=-1; C[2,2]=0   # (x,y,z) -> (x,z,-y)
+    w('i',idx[j]); w('16f',*(m.ibm[k]@np.linalg.inv(C)).ravel())
 V=len(m.pos); w('i',V)
 for v in range(V):
     w('3f',*m.pos[v]); w('3f',*m.nrm[v]); w('2f',*m.uv[v])

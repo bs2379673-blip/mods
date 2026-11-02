@@ -33,7 +33,7 @@ public class GuardianEntity extends PhoenixEntity {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 120.0).add(Attributes.MOVEMENT_SPEED, 0.12)
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 120.0).add(Attributes.MOVEMENT_SPEED, 0.085)
                 .add(Attributes.FOLLOW_RANGE, 48.0).add(Attributes.STEP_HEIGHT, 1.6).add(Attributes.SAFE_FALL_DISTANCE, 32.0)
                 .add(Attributes.JUMP_STRENGTH, 0.6);
     }
@@ -71,7 +71,7 @@ public class GuardianEntity extends PhoenixEntity {
 
     @Override
     protected Vec3 getPassengerAttachmentPoint(Entity e, EntityDimensions dims, float scale) {
-        return new Vec3(0, 2.05, 0.1);
+        return new Vec3(0, 2.3, 0.15);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class GuardianEntity extends PhoenixEntity {
                 this.level().playSound(null, blockPosition(), SoundEvents.RAVAGER_STEP, SoundSource.NEUTRAL, 1.2f, 0.7f);
             }
         }
-        setSpeed((float) getAttributeValue(Attributes.MOVEMENT_SPEED) * (p.isSprinting() ? 1.75f : 1f));
+        setSpeed((float) getAttributeValue(Attributes.MOVEMENT_SPEED) * (p.isSprinting() ? 1.8f : 1f));
         travelPlain(new Vec3(side * 0.4, in.y, fwd < 0 ? fwd * 0.4 : fwd));
         resetFallDistance();
     }

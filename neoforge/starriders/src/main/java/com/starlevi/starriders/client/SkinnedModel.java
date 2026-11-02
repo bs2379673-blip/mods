@@ -242,6 +242,37 @@ public final class SkinnedModel {
         }
     }
 
+    /** Vertices que mueven sobre todo estos huesos. */
+    public int[] vertsOf(String... boneNames) {
+        java.util.Set<Integer> want = new java.util.HashSet<>();
+        for (String n : boneNames) {
+            want.add(bone(n));
+        }
+        java.util.List<Integer> out = new java.util.ArrayList<>();
+        int nv = this.pos.length / 3;
+        for (int v = 0; v < nv; v++) {
+            int best = 0;
+            for (int k = 1; k < 4; k++) {
+                if (this.we[v * 4 + k] > this.we[v * 4 + best]) {
+                    best = k;
+                }
+            }
+            if (this.we[v * 4 + best] > 0.5f && want.contains(this.jointBone[this.jo[v * 4 + best]])) {
+                out.add(v);
+            }
+        }
+        return out.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    /** Y mas bajo de esos vertices en la piel calculada. */
+    public float minY(int[] verts) {
+        float min = Float.MAX_VALUE;
+        for (int v : verts) {
+            min = Math.min(min, this.sp[v * 3 + 1]);
+        }
+        return verts.length == 0 ? 0 : min;
+    }
+
     /** Y mas bajo de la piel calculada. */
     public float minSkinnedY() {
         float min = Float.MAX_VALUE;

@@ -26,11 +26,9 @@ import java.util.WeakHashMap;
  */
 public class GuardianRenderer extends EntityRenderer<GuardianEntity> {
     static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(StarRiders.MOD_ID, "textures/entity/guardian.png");
-    public static final float SCALE = 2.0f;
-    /** Cuanto hay que subirlo (en metros del modelo) para que apoye las patas en el piso. */
-    private static final float FEET = 0.072f;
+    public static final float SCALE = 2.3f;
     /** Cuadros de la caminata donde apoya cada pata (para el sonido de pisada). */
-    private static final float[] STEPS = {12f, 57f};
+    private static final float[] STEPS = {30f, 120f};
 
     private static SkinnedModel model;
     private static GuardianAnim anim;
@@ -39,7 +37,7 @@ public class GuardianRenderer extends EntityRenderer<GuardianEntity> {
     private static final Map<GuardianEntity, State> STATES = new WeakHashMap<>();
 
     static final class State {
-        float frame, walk, run, air, last = Float.NaN;
+        float frame = GuardianAnim.IDLE_FRAME, walk, run, air, ground = Float.NaN, last = Float.NaN;
     }
 
     public GuardianRenderer(EntityRendererProvider.Context ctx) {
@@ -72,16 +70,22 @@ public class GuardianRenderer extends EntityRenderer<GuardianEntity> {
         st.last = now;
         double vx = e.getX() - e.xo, vz = e.getZ() - e.zo;
         float hs = (float) Math.sqrt(vx * vx + vz * vz);
-        float k = 1 - (float) Math.exp(-dt * 0.25f);
+        // todo se mezcla de a poco (suavizado exponencial por tiempo, no por cuadro)
+        float k = 1 - (float) Math.exp(-dt * 0.16f);
         boolean moving = hs > 0.01f;
         st.walk += ((moving ? 1 : 0) - st.walk) * k;
         st.run += ((hs > 0.32f ? 1 : 0) - st.run) * k * 0.6f;
         st.air += ((!e.onGround() && Math.abs(e.getY() - e.yo) > 0.02 ? 1 : 0) - st.air) * k;
         // avanza la caminata segun la distancia recorrida (con un tope para que no se vea frenetica)
         float perFrame = GuardianAnim.STRIDE_PER_FRAME * SCALE;
-        float speed = moving ? Mth.clamp(hs / perFrame, 0.8f, 6.5f) : 0;
+        // cuadros de la animacion (60 por segundo) que avanza por tick
+        float framesPerTick = Mth.clamp(hs / perFrame, 0, 14f);
+        if (!moving && st.walk > 0.05f) {
+            // al frenar termina el paso con calma en vez de cortarlo
+            framesPerTick = 1.5f * st.walk;
+        }
         float before = st.frame;
-        st.frame += speed * dt * (1 - st.air * 0.8f);
+        st.frame += framesPerTick * dt * (1 - st.air * 0.85f);
         if (st.walk > 0.4f && st.air < 0.3f) {
             for (float s : STEPS) {
                 if (crossed(before, st.frame, s, model.frames)) {
@@ -101,11 +105,17 @@ public class GuardianRenderer extends EntityRenderer<GuardianEntity> {
         p.headYaw = Mth.wrapDegrees(Mth.rotLerp(partial, e.yHeadRotO, e.yHeadRot) - bodyYaw);
         p.headPitch = Mth.lerp(partial, e.xRotO, e.getXRot());
         anim.apply(p);
+        // apoya las patas en el piso (suave, para que no tiemble); en el aire no lo baja de golpe
+        float g = anim.ground();
+        if (Float.isNaN(st.ground)) {
+            st.ground = g;
+        }
+        st.ground += (g - st.ground) * (1 - (float) Math.exp(-dt * 0.6f)) * (1 - st.air);
 
         ps.pushPose();
         ps.mulPose(Axis.YP.rotationDegrees(-bodyYaw));
         ps.scale(SCALE, SCALE, SCALE);
-        ps.translate(0, FEET, 0);
+        ps.translate(0, -st.ground, 0);
         model.render(ps, buffers.getBuffer(RenderType.entityCutoutNoCull(TEX)), light, OverlayTexture.NO_OVERLAY, -1);
         ps.popPose();
         super.render(e, yaw, partial, ps, buffers, light);
