@@ -127,7 +127,7 @@ GUA=('time set 6000' 'weather clear' 'kill @e[type=starriders:fenix]' 'fill 150 
   'tp @a 172 -60 172 90 5' 'sleep 1.5' "${T}foto g02_guardian_costado${E}" 'kill @e[type=starriders:guardian]'
   'starriders dar @r guardian' 'tp @a 160 -60 160 0 5' 'sleep 1' 'starriders llamar @r' 'sleep 0.5' "${T}foto g03_guardian_rugido${E}"
   'sleep 3' "${T}foto g04_guardian_quieto${E}" 'tp @a 160 -60 159 0 5' 'sleep 0.5' 'ride @r mount @e[type=starriders:guardian,limit=1]'
-  "${T}camara atras${E}" 'sleep 1.5' "${T}foto g05_guardian_montado${E}" "${T}caminar si${E}" 'sleep 1.5' "${T}foto g06_guardian_camina${E}"
+  "${T}camara atras${E}" 'sleep 1.5' "${T}foto g05_guardian_montado${E}" "${T}camara frente${E}" 'sleep 0.8' "${T}foto g05b_jinete_frente${E}" "${T}camara atras${E}" "${T}caminar si${E}" 'sleep 1.5' "${T}foto g06_guardian_camina${E}"
   "${T}camara frente${E}" 'sleep 0.6' "${T}foto g07_guardian_camina_frente${E}" "${T}camara atras${E}" "${T}saltar si${E}" 'sleep 0.35'
   "${T}foto g08_guardian_salto${E}" "${T}saltar no${E}" "${T}caminar no${E}" 'sleep 1' 'ride @r dismount' "${T}camara primera${E}"
   'kill @e[type=starriders:guardian]' 'starriders quitar @r todos' 'sleep 0.5')

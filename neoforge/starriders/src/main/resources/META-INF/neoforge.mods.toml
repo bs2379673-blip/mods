@@ -31,3 +31,6 @@ type="optional"
 versionRange="[3,)"
 ordering="NONE"
 side="CLIENT"
+
+[[mixins]]
+config="starriders.mixins.json"

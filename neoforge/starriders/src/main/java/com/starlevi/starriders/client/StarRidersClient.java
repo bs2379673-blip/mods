@@ -27,6 +27,7 @@ public final class StarRidersClient {
         });
         modBus.addListener((FMLClientSetupEvent e) -> e.enqueueWork(DabrCompat::init));
         PhoenixEntity.clientTick = StarRidersClient::particles;
+        RiderPose.init();
         NeoForge.EVENT_BUS.addListener((CalculateDetachedCameraDistanceEvent e) -> {
             var p = Minecraft.getInstance().player;
             if (p != null && p.getVehicle() instanceof PhoenixEntity) {

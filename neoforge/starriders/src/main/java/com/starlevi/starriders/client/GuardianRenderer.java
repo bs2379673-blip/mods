@@ -36,6 +36,15 @@ public class GuardianRenderer extends EntityRenderer<GuardianEntity> {
     private final GuardianAnim.Params params = new GuardianAnim.Params();
     private static final Map<GuardianEntity, State> STATES = new WeakHashMap<>();
 
+    /** Lo que necesita el jinete para moverse con el paso del guardian (null si todavia no se dibujo). */
+    public static float[] riderInfo(GuardianEntity e) {
+        State st = STATES.get(e);
+        if (st == null || model == null) {
+            return null;
+        }
+        return new float[]{st.frame / model.frames, st.walk, st.run, st.air};
+    }
+
     static final class State {
         float frame = GuardianAnim.IDLE_FRAME, walk, run, air, ground = Float.NaN, last = Float.NaN;
     }
