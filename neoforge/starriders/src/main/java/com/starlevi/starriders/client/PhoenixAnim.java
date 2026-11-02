@@ -62,9 +62,9 @@ public final class PhoenixAnim {
             ModelPart arm = m.part("brazo_" + s), fore = m.part("antebrazo_" + s), hand = m.part("mano_" + s);
             // plegadas (en el piso): brazo hacia atras, antebrazo hacia adelante, mano hacia atras
             float fold = ground * (1 - roar);
-            rot(arm, 0.1f * fold, d * 1.3f * fold, d * -0.35f * fold);
-            rot(fore, 0, d * -2.55f * fold, d * 0.15f * fold);
-            rot(hand, 0, d * 2.4f * fold, 0);
+            rot(arm, 0.15f * fold, d * 1.5f * fold, d * -0.6f * fold);
+            rot(fore, 0, d * -2.95f * fold, d * 0.25f * fold);
+            rot(hand, 0, d * 2.85f * fold, d * 0.1f * fold);
             // grito: abiertas y en alto
             rot(arm, 0, d * -0.2f * roar * ground, d * (0.7f + Mth.sin(t * 0.5f) * 0.15f) * roar * ground);
             rot(fore, 0, 0, d * 0.25f * roar * ground);

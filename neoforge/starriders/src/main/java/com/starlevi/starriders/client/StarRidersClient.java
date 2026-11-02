@@ -41,8 +41,8 @@ public final class StarRidersClient {
         float s = PhoenixRenderer.SCALE;
         if (e.isFlyingNow()) {
             Vec3 tail = e.position().add(fwd.scale(-2.6 * s)).add(0, 0.9 * s, 0);
-            for (int i = 0; i < 2; i++) {
-                level.addParticle(r.nextFloat() < 0.3f ? ParticleTypes.FLAME : ParticleTypes.SMALL_FLAME,
+            if (e.tickCount % 2 == 0) {
+                level.addParticle(r.nextFloat() < 0.12f ? ParticleTypes.FLAME : ParticleTypes.SMALL_FLAME,
                         tail.x + (r.nextDouble() - 0.5) * 0.8, tail.y + (r.nextDouble() - 0.5) * 0.5, tail.z + (r.nextDouble() - 0.5) * 0.8,
                         0, 0.01, 0);
             }
