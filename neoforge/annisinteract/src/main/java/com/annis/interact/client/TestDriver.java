@@ -167,8 +167,16 @@ public final class TestDriver {
                                 break;
                             }
                         }
-                        AnnisInteract.LOGGER.info("[TEST] pose detalle: modelo={} pierna={} brazo={} paso={} vis={} pila={}", System.identityHashCode(m),
-                                m.rightLeg.xRot, m.rightArm.xRot, p.walkAnimation.speed(), m.rightLeg.visible, st);
+                        Object players = null;
+                        try {
+                            java.lang.reflect.Field pf = Class.forName("punchymoves.client.PlayerAnimationEngine").getDeclaredField("PLAYERS");
+                            pf.setAccessible(true);
+                            players = ((java.util.Map<?, ?>) pf.get(null)).size();
+                        } catch (Throwable t) {
+                            players = t.toString();
+                        }
+                        AnnisInteract.LOGGER.info("[TEST] pose detalle: camara={} punchyJugadores={} pierna={} brazo={} paso={} pila={}", Minecraft.getInstance().options.getCameraType(),
+                                players, m.rightLeg.xRot, m.rightArm.xRot, p.walkAnimation.speed(), st.substring(0, Math.min(200, st.length())));
                     }
                     beforeMax = Math.max(beforeMax, Math.max(Math.abs(m.rightLeg.xRot), Math.abs(m.rightArm.xRot)));
                 }
