@@ -156,6 +156,20 @@ public final class TestDriver {
             c.getField("probe").set(null, f);
             java.util.function.BiConsumer<net.minecraft.client.model.PlayerModel<?>, net.minecraft.world.entity.player.Player> b = (m, p) -> {
                 if (poseTicks > 0 && p == Minecraft.getInstance().player) {
+                    if (calls < 2) {
+                        StringBuilder st = new StringBuilder();
+                        for (StackTraceElement e : new Throwable().getStackTrace()) {
+                            String c2 = e.getClassName();
+                            if (!c2.startsWith("java.") && !c2.startsWith("com.annis.interact")) {
+                                st.append(c2.substring(c2.lastIndexOf('.') + 1)).append('.').append(e.getMethodName()).append(" < ");
+                            }
+                            if (st.length() > 900) {
+                                break;
+                            }
+                        }
+                        AnnisInteract.LOGGER.info("[TEST] pose detalle: modelo={} pierna={} brazo={} paso={} vis={} pila={}", System.identityHashCode(m),
+                                m.rightLeg.xRot, m.rightArm.xRot, p.walkAnimation.speed(), m.rightLeg.visible, st);
+                    }
                     beforeMax = Math.max(beforeMax, Math.max(Math.abs(m.rightLeg.xRot), Math.abs(m.rightArm.xRot)));
                 }
             };
