@@ -10,7 +10,7 @@ NEO=$(grep neo_version gradle.properties | cut -d= -f2)
 curl -sSL -o $S/installer.jar "https://maven.neoforged.net/releases/net/neoforged/neoforge/$NEO/neoforge-$NEO-installer.jar"
 ( cd $S && java -jar installer.jar --installServer > install.log 2>&1 ); tail -3 $S/install.log
 cp libs/playeranimator-1.jar $S/mods/
-cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar ../out/starfest-*.jar ../out/starsync-*.jar ../out/starspirits-*.jar libs/cinematic-0.18.30.jar libs/waterframes-1.jar libs/creativecore-1.jar $S/mods/
+cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar ../out/starfest-*.jar ../out/starsync-*.jar ../out/starspirits-*.jar ../out/starriders-*.jar libs/cinematic-0.18.30.jar libs/waterframes-1.jar libs/creativecore-1.jar $S/mods/
 # StarFest: una cancion de prueba (128 BPM, parte fuerte entre 20 y 32 s) en la carpeta de musica del servidor
 mkdir -p $S/config/starfest/musica && cp ci/starfest/prueba.ogg $S/config/starfest/musica/
 ls $S/mods
@@ -111,6 +111,19 @@ X=141; for s in champi margarita brotecito campanita luminon rosita loto bonsai;
 SPI+=('tp @a 144.5 -60 147.6 0 18' 'sleep 2.5' "${T}foto p12_fila_dia${E}" 'time set 18000' 'sleep 1.5' "${T}foto p13_fila_noche${E}"
   'time set 6000' 'kill @e[type=starspirits:espiritu]' 'sleep 0.5')
 python3 ci/rcon.py 25577 annistest "${SPI[@]}" 2>&1 | tee rcon-starspirits.txt
+# --- StarRiders: fenix salvaje, llamado con el silbato, montado y volando ---
+FEN=('time set 6000' 'weather clear' "${T}hud no${E}" "${T}camara primera${E}" 'fill 150 -60 150 180 -40 200 air'
+  'starriders salvaje 160 -60 172' 'tp @a 160 -60 162 0 0' 'sleep 3' "${T}foto r01_salvaje${E}" 'sleep 4' "${T}foto r02_salvaje_b${E}"
+  'kill @e[type=starriders:fenix]' 'starriders dar @r' 'tp @a 160 -60 160 0 5' 'sleep 1' 'starriders llamar @r' 'sleep 0.6' "${T}foto r03_llamado${E}"
+  'sleep 2.5' "${T}foto r04_posado${E}" 'tp @a 167 -60 163.5 90 8' 'sleep 1.5' "${T}foto r05_costado${E}"
+  'tp @a 160 -60 159 0 5' 'sleep 0.5' 'ride @r mount @e[type=starriders:fenix,limit=1]' "${T}camara atras${E}" 'sleep 1.5' "${T}foto r06_montado${E}"
+  "${T}mirar 0 -25${E}" "${T}saltar si${E}" 'sleep 0.8' "${T}saltar no${E}" "${T}caminar si${E}" 'sleep 2.5' "${T}foto r07_vuela_atras${E}"
+  "${T}camara frente${E}" 'sleep 0.8' "${T}foto r08_vuela_frente${E}" "${T}camara atras${E}" "${T}mirar 70 -5${E}" 'sleep 0.5' "${T}foto r09_curva${E}"
+  "${T}mirar 70 10${E}" "${T}caminar no${E}" 'sleep 2' "${T}foto r10_planea${E}" 'sleep 4' "${T}foto r11_aterriza${E}"
+  'ride @r dismount' "${T}camara primera${E}" 'kill @e[type=starriders:fenix]' 'time set 18000' 'tp @a 160 -60 160 0 5' 'sleep 1' 'starriders llamar @r'
+  'sleep 3' "${T}foto r12_noche${E}" 'kill @e[type=starriders:fenix]' 'starriders quitar @r todos' 'time set 6000' 'sleep 0.5')
+python3 ci/rcon.py 25577 annistest "${FEN[@]}" 2>&1 | tee rcon-starriders.txt
+echo "::notice::Visual StarRiders> $(grep -v '^$' rcon-starriders.txt | grep -v '^> ' | tr '\n' '|' | cut -c1-2000)"
 echo "::notice::Visual StarSpirits> $(grep -v '^$' rcon-starspirits.txt | grep -v '^> ' | tr '\n' '|' | cut -c1-2500) || $(grep -E 'StarSpirits' run/logs/latest.log 2>/dev/null | head -12 | tr '\n' '|' | cut -c1-2500)"
 # --- StarFest: boliche de prueba de noche, con la cancion del servidor ---
 STAR=('gamerule doDaylightCycle false' 'time set 18000' 'weather clear' 'gamerule sendCommandFeedback false' "${T}hud no${E}"

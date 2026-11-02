@@ -1,0 +1,64 @@
+package com.starlevi.starriders.client;
+
+import com.starlevi.starriders.ModRegistry;
+import com.starlevi.starriders.PhoenixEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.common.NeoForge;
+
+/** Lado del cliente: dibujo, estela de fuego, camara mas lejos al montar y Do a Barrel Roll. */
+public final class StarRidersClient {
+    private StarRidersClient() {
+    }
+
+    public static void init(IEventBus modBus) {
+        modBus.addListener((EntityRenderersEvent.RegisterRenderers e) -> e.registerEntityRenderer(ModRegistry.PHOENIX.get(), PhoenixRenderer::new));
+        modBus.addListener((FMLClientSetupEvent e) -> e.enqueueWork(DabrCompat::init));
+        PhoenixEntity.clientTick = StarRidersClient::particles;
+        NeoForge.EVENT_BUS.addListener((CalculateDetachedCameraDistanceEvent e) -> {
+            var p = Minecraft.getInstance().player;
+            if (p != null && p.getVehicle() instanceof PhoenixEntity) {
+                e.setDistance(e.getDistance() * 2.6f);
+            }
+        });
+    }
+
+    /** Estela de chispas y fuego al volar; brasas suaves posado. */
+    private static void particles(PhoenixEntity e) {
+        Level level = e.level();
+        RandomSource r = level.random;
+        float yaw = e.yBodyRot * Mth.DEG_TO_RAD;
+        Vec3 fwd = new Vec3(-Mth.sin(yaw), 0, Mth.cos(yaw));
+        Vec3 side = new Vec3(fwd.z, 0, -fwd.x);
+        float s = PhoenixRenderer.SCALE;
+        if (e.isFlyingNow()) {
+            Vec3 tail = e.position().add(fwd.scale(-2.6 * s)).add(0, 0.9 * s, 0);
+            for (int i = 0; i < 2; i++) {
+                level.addParticle(r.nextFloat() < 0.3f ? ParticleTypes.FLAME : ParticleTypes.SMALL_FLAME,
+                        tail.x + (r.nextDouble() - 0.5) * 0.8, tail.y + (r.nextDouble() - 0.5) * 0.5, tail.z + (r.nextDouble() - 0.5) * 0.8,
+                        0, 0.01, 0);
+            }
+            if (e.tickCount % 3 == 0) {
+                for (int sd = -1; sd <= 1; sd += 2) {
+                    Vec3 tip = e.position().add(side.scale(sd * 3.6 * s)).add(fwd.scale(-0.6 * s)).add(0, 1.0 * s, 0);
+                    level.addParticle(ParticleTypes.END_ROD, tip.x, tip.y, tip.z, 0, -0.01, 0);
+                }
+            }
+        } else if (e.tickCount % 9 == 0) {
+            Vec3 at = e.position().add(fwd.scale(-1.4 * s)).add(0, 0.8 * s, 0);
+            level.addParticle(ParticleTypes.SMALL_FLAME, at.x + (r.nextDouble() - 0.5), at.y, at.z + (r.nextDouble() - 0.5), 0, 0.015, 0);
+        }
+        if (e.isWild() && e.tickCount % 6 == 0) {
+            level.addParticle(ParticleTypes.WAX_ON, e.getX() + (r.nextDouble() - 0.5) * 2, e.getY() + 1.5 + r.nextDouble(),
+                    e.getZ() + (r.nextDouble() - 0.5) * 2, 0, 0.02, 0);
+        }
+    }
+}

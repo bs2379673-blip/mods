@@ -1,0 +1,33 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved - Starlevi (ver LICENSE.txt)"
+
+[[mods]]
+modId="starriders"
+version="${version}"
+displayName="StarRiders"
+authors="Starlevi"
+credits="Propiedad de Starlevi. Todos los derechos reservados."
+description='''Monturas especiales con silbato propio: las otorgan los admins y, muy de vez en cuando, aparece una salvaje que hay que domar. Primera montura: el Fenix, que camina y vuela (compatible con Do a Barrel Roll).
+Propiedad de Starlevi. Todos los derechos reservados.'''
+
+[[dependencies.starriders]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.starriders]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,1.21.2)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.starriders]]
+modId="do_a_barrel_roll"
+type="optional"
+versionRange="[3,)"
+ordering="NONE"
+side="CLIENT"

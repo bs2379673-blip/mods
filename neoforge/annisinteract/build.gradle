@@ -7,6 +7,7 @@ dependencies {
     runtimeOnly project(':starfest')
     runtimeOnly project(':starsync')
     runtimeOnly project(':starspirits')
+    runtimeOnly project(':starriders')
 }
 
 // El cliente y el servidor de prueba cargan los tres mods
@@ -18,6 +19,7 @@ neoForge {
         starfest { sourceSet project(':starfest').sourceSets.main }
         starsync { sourceSet project(':starsync').sourceSets.main }
         starspirits { sourceSet project(':starspirits').sourceSets.main }
+        starriders { sourceSet project(':starriders').sourceSets.main }
     }
     runs {
         client {

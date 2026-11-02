@@ -48,6 +48,9 @@ public final class TestDriver {
                 mc.player.yBodyRot = mc.player.getYRot() + bodyOffset;
                 mc.player.yBodyRotO = mc.player.yBodyRot;
             }
+            if (jumping && mc.player != null) {
+                mc.options.keyJump.setDown(true);
+            }
             if (walking && mc.player != null) {
                 walkKey(mc).setDown(true);
                 if (++walkTicks % 10 == 0) {
@@ -88,6 +91,16 @@ public final class TestDriver {
                     walkRight = cmd.length > 1 && cmd[1].equals("derecha");
                 }
                 case "figura" -> figura(mc, cmd);
+                case "saltar" -> {
+                    jumping = cmd.length > 1 && cmd[1].equals("si");
+                    mc.options.keyJump.setDown(jumping);
+                }
+                case "mirar" -> {
+                    if (mc.player != null && cmd.length > 2) {
+                        mc.player.setYRot(Float.parseFloat(cmd[1]));
+                        mc.player.setXRot(Float.parseFloat(cmd[2]));
+                    }
+                }
                 case "pose" -> {
                     poseName = cmd.length > 1 ? cmd[1] : "?";
                     java.util.Arrays.fill(poseMax, 0);
@@ -122,6 +135,7 @@ public final class TestDriver {
     private static boolean walking;
     private static int walkTicks;
     private static boolean walkRight;
+    private static boolean jumping;
     private static int poseTicks;
     private static int calls;
     private static float beforeMax;
