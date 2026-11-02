@@ -1,0 +1,19 @@
+{
+  "nombre": "Brotecito",
+  "rareza": "raro",
+  "forma": "arbusto",
+  "descripcion": "Un arbustito curioso. Hace crecer cultivos y plantas a tu alrededor.",
+  "beneficios": [
+    {
+      "tipo": "crecer",
+      "radio": 6,
+      "cada_segundos": 5
+    }
+  ],
+  "biomas": [
+    "#minecraft:is_forest",
+    "minecraft:plains",
+    "minecraft:birch_forest"
+  ],
+  "peso": 1
+}

@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved - Starlevi (ver LICENSE.txt)"
+
+[[mods]]
+modId="starspirits"
+version="${version}"
+displayName="StarSpirits"
+authors="Starlevi"
+credits="Propiedad de Starlevi. Todos los derechos reservados."
+description='''Espiritus de plantas (hongos, flores, arbustitos) que brotan de puntos de extraccion con rarezas, te siguen corriendo y te dan beneficios. Plantalos en macetas para que vivan en tu casa. Los espiritus se definen en el servidor y los jugadores los reciben solos.
+Propiedad de Starlevi. Todos los derechos reservados.'''
+
+[[dependencies.starspirits]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.starspirits]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,1.21.2)"
+ordering="NONE"
+side="BOTH"

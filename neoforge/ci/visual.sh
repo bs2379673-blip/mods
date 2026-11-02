@@ -10,7 +10,7 @@ NEO=$(grep neo_version gradle.properties | cut -d= -f2)
 curl -sSL -o $S/installer.jar "https://maven.neoforged.net/releases/net/neoforged/neoforge/$NEO/neoforge-$NEO-installer.jar"
 ( cd $S && java -jar installer.jar --installServer > install.log 2>&1 ); tail -3 $S/install.log
 cp libs/playeranimator-1.jar $S/mods/
-cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar ../out/starfest-*.jar ../out/starsync-*.jar libs/cinematic-0.18.30.jar libs/waterframes-1.jar libs/creativecore-1.jar $S/mods/
+cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar ../out/starfest-*.jar ../out/starsync-*.jar ../out/starspirits-*.jar libs/cinematic-0.18.30.jar libs/waterframes-1.jar libs/creativecore-1.jar $S/mods/
 # StarFest: una cancion de prueba (128 BPM, parte fuerte entre 20 y 32 s) en la carpeta de musica del servidor
 mkdir -p $S/config/starfest/musica && cp ci/starfest/prueba.ogg $S/config/starfest/musica/
 ls $S/mods
@@ -95,6 +95,23 @@ SYNC=('time set 6000' "${T}hud no${E}" 'fill 78 -60 84 84 -57 84 minecraft:white
   'tp @a 81 -59 77 0 5' 'sleep 6' "${T}foto w01_pantallas_vinculadas${E}"
   "data merge block 83 -59 83 {url:\"x\"}" 'sleep 2' 'data get block 79 -59 83 url' 'sleep 1')
 python3 ci/rcon.py 25577 annistest "${SYNC[@]}" 2>&1 | tee rcon-starsync.txt
+# --- StarSpirits: punto de extraccion, caravana, maceta y los 8 espiritus en fila ---
+SPI=('time set 6000' 'weather clear' "${T}hud no${E}" "${T}camara primera${E}" 'fill 132 -60 136 152 -54 156 air'
+  'setblock 140 -60 146 starspirits:punto_extraccion' 'setblock 136 -60 146 starspirits:maceta'
+  'tp @a 140 -60 141.5 0 14' 'sleep 2.5' "${T}foto p01_punto_listo${E}"
+  'starspirits extraer 140 -60 146 @p luminon' 'sleep 0.8' "${T}foto p02_extrae_a${E}" 'sleep 1.0' "${T}foto p03_extrae_b${E}"
+  'sleep 0.9' "${T}foto p04_extrae_c${E}" 'sleep 0.6' "${T}foto p05_extrae_d${E}" 'sleep 1.6' "${T}foto p06_salio${E}")
+for s in champi margarita brotecito campanita rosita loto bonsai; do SPI+=("starspirits dar @a $s"); done
+SPI+=('tp @a 140 -60 141 180 10' 'sleep 2.5' "${T}camara frente${E}" 'sleep 1' "${T}foto p07_caravana_frente${E}"
+  "${T}caminar si${E}" 'sleep 2.5' "${T}foto p08_caravana_corre${E}" 'sleep 0.6' "${T}foto p09_caravana_corre_b${E}" "${T}caminar no${E}"
+  'sleep 2.5' "${T}foto p10_caravana_quieta${E}"
+  'tp @a 136 -60 143.6 0 28' "${T}camara primera${E}" 'starspirits plantar 136 -60 146 @p 2' 'sleep 2' "${T}foto p11_maceta${E}"
+  'starspirits quitar @p todos' 'kill @e[type=starspirits:espiritu]')
+X=141; for s in champi margarita brotecito campanita luminon rosita loto bonsai; do SPI+=("summon starspirits:espiritu $X -60 151 {tipo:\"$s\",NoAI:1b,Rotation:[180f,0f]}"); X=$((X+1)); done
+SPI+=('tp @a 144.5 -60 147.6 0 18' 'sleep 2.5' "${T}foto p12_fila_dia${E}" 'time set 18000' 'sleep 1.5' "${T}foto p13_fila_noche${E}"
+  'time set 6000' 'kill @e[type=starspirits:espiritu]' 'sleep 0.5')
+python3 ci/rcon.py 25577 annistest "${SPI[@]}" 2>&1 | tee rcon-starspirits.txt
+echo "::notice::Visual StarSpirits> $(grep -v '^$' rcon-starspirits.txt | grep -v '^> ' | tr '\n' '|' | cut -c1-2500) || $(grep -E 'StarSpirits' run/logs/latest.log 2>/dev/null | head -12 | tr '\n' '|' | cut -c1-2500)"
 # --- StarFest: boliche de prueba de noche, con la cancion del servidor ---
 STAR=('gamerule doDaylightCycle false' 'time set 18000' 'weather clear' 'gamerule sendCommandFeedback false' "${T}hud no${E}"
   'fill 54 -61 50 66 -61 62 minecraft:black_concrete' 'fill 56 -61 54 64 -61 60 starfest:piso'

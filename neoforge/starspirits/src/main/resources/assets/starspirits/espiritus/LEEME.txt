@@ -1,0 +1,72 @@
+StarSpirits - espiritus del servidor
+Propiedad de Starlevi. Todos los derechos reservados.
+=================================================================
+
+Cada espiritu es un archivo <id>.json en esta carpeta. Las imagenes (.png) y modelos de
+Blockbench (.geo.json) que usen van en esta misma carpeta. No hace falta reiniciar: el
+servidor revisa la carpeta cada 5 segundos (o usa /starspirits recargar) y los jugadores
+reciben los espiritus nuevos solos, sin instalar nada.
+
+Ejemplo (champi.json):
+
+{
+  "nombre": "Champi",
+  "rareza": "comun",              comun | raro | epico | legendario
+  "forma": "hongo",               hongo | flor | loto | arbusto | bonsai | campana | rosa
+  "textura": "champi_azul.png",   (opcional) textura propia de 64x80 para la forma
+  "brillo": "champi_brillo.png",  (opcional) partes que brillan en la oscuridad
+  "modelo": "mi_bicho.geo.json",  (opcional) modelo propio de Blockbench (reemplaza la forma)
+  "escala": 1.0,                  (opcional) tamano
+  "color": "#7FD957",             (opcional) color de su estrellita cuando es el activo
+  "particulas": "minecraft:glow", (opcional) particula que suelta de vez en cuando
+  "peso": 1,                      probabilidad dentro de su rareza (0 = no sale en los puntos)
+  "habilitado": true,
+  "descripcion": "Texto libre",
+  "biomas": ["#minecraft:is_forest", "minecraft:swamp"],   sale 3 veces mas en estos biomas
+  "beneficios": [ ... ]           lo que da cuando es el espiritu ACTIVO (ver abajo)
+}
+
+Si un espiritu no trae "textura", usa la del mod para su forma (o la propia si su id es uno
+de los ejemplos: champi, margarita, brotecito, campanita, luminon, rosita, loto, bonsai).
+
+BENEFICIOS (se pueden combinar varios):
+  {"tipo": "efecto", "efecto": "minecraft:speed", "nivel": 1}     cualquier efecto de pocion
+  {"tipo": "curar", "cantidad": 0.5, "cada_segundos": 8}           corazones
+  {"tipo": "crecer", "radio": 6, "cada_segundos": 5}               cultivos y plantas
+  {"tipo": "caida", "bloques": 4}                                  menos dano de caida
+  {"tipo": "brillo_monstruos", "radio": 16}                        los monstruos cercanos brillan
+  {"tipo": "espinas", "porcentaje": 30}                            devuelve dano al que te pega
+  {"tipo": "escudo", "corazones": 4, "espera_segundos": 10}        corazones dorados que se recargan
+  {"tipo": "salvar", "recarga_minutos": 10}                        te salva de morir
+
+PROBABILIDADES: config/starspirits/config.json
+  "probabilidades": {"comun": 55, "raro": 28, "epico": 13, "legendario": 4}
+  "recarga_minutos": minutos que tarda un punto en volver a tener un espiritu
+  "duracion_extraccion_ticks": duracion de la animacion (20 ticks = 1 segundo)
+  "max_siguiendo": cuantos espiritus como maximo corren atras de cada jugador
+
+TEXTURAS PARA LAS FORMAS: 64x80 pixeles. ejemplo_textura.png muestra donde va cada parte
+(cuerpo con la carita al frente, patitas, bracitos, parpados y lo que lleva arriba).
+
+MODELOS PROPIOS (Blockbench): proyecto "Bedrock Entity" con UV de caja, exportado como
+.geo.json. Los huesos se animan solos segun su nombre:
+  cuerpo, cabeza (opcional), pierna_izq, pierna_der, brazo_izq, brazo_der,
+  parpados (se muestran solo al parpadear o dormir),
+  y los que empiezan con copa, petalo, hoja, flor, oreja, campana o rosa se mecen.
+  (tambien sirven en ingles: body, head, left_leg, right_leg, left_arm, right_arm, eyelids)
+Los pies del modelo van en y = 0.
+
+JUGADORES:
+  Clic derecho en un punto de extraccion: sale un espiritu y te sigue.
+  Clic derecho en uno de tus espiritus: pasa a ser el activo (el que da beneficio).
+  Shift + clic derecho en tu espiritu: lo eliges para la proxima maceta que toques.
+  Clic derecho en una maceta vacia: tu espiritu se muda ahi (o el ultimo de la fila).
+  Clic derecho en tu maceta ocupada: el espiritu vuelve a seguirte.
+  /starspirits lista       /starspirits activo <n>
+
+ADMINS:
+  /starspirits dar <jugadores> <id>      /starspirits quitar <jugador> <n|todos>
+  /starspirits espiritus                 /starspirits recargar
+  /starspirits puntos [radio]            deja listos los puntos de extraccion cercanos
+  El punto de extraccion se consigue en creativo (pestana StarSpirits). Solo se rompe en
+  creativo. Tambien aparecen solos por el mundo.

@@ -1,0 +1,22 @@
+{
+  "nombre": "Loto lunar",
+  "rareza": "legendario",
+  "forma": "loto",
+  "descripcion": "Una flor que brilla como la luna. Te da un escudo de corazones dorados que se recarga si no te pegan.",
+  "beneficios": [
+    {
+      "tipo": "escudo",
+      "corazones": 4,
+      "espera_segundos": 10
+    }
+  ],
+  "biomas": [
+    "minecraft:swamp",
+    "minecraft:mangrove_swamp",
+    "#minecraft:is_river",
+    "minecraft:cherry_grove",
+    "minecraft:lush_caves"
+  ],
+  "particulas": "minecraft:cherry_leaves",
+  "peso": 1
+}

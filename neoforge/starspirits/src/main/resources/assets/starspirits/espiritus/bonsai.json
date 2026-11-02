@@ -1,0 +1,20 @@
+{
+  "nombre": "Bonsái ancestral",
+  "rareza": "legendario",
+  "forma": "bonsai",
+  "descripcion": "Un brote del Árbol de la Vida. Te salva de morir una vez cada 10 minutos.",
+  "beneficios": [
+    {
+      "tipo": "salvar",
+      "recarga_minutos": 10
+    }
+  ],
+  "biomas": [
+    "minecraft:old_growth_birch_forest",
+    "minecraft:old_growth_pine_taiga",
+    "minecraft:old_growth_spruce_taiga",
+    "#minecraft:is_jungle",
+    "minecraft:cherry_grove"
+  ],
+  "peso": 1
+}

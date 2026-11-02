@@ -1,0 +1,20 @@
+{
+  "nombre": "Margarita",
+  "rareza": "comun",
+  "forma": "flor",
+  "descripcion": "Corre feliz con su corona de pétalos. Te da Velocidad I.",
+  "beneficios": [
+    {
+      "tipo": "efecto",
+      "efecto": "minecraft:speed",
+      "nivel": 1
+    }
+  ],
+  "biomas": [
+    "minecraft:plains",
+    "minecraft:sunflower_plains",
+    "minecraft:meadow",
+    "minecraft:flower_forest"
+  ],
+  "peso": 1
+}

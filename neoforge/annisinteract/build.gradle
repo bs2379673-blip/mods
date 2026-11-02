@@ -6,6 +6,7 @@ dependencies {
     runtimeOnly project(':annis_compat')
     runtimeOnly project(':starfest')
     runtimeOnly project(':starsync')
+    runtimeOnly project(':starspirits')
 }
 
 // El cliente y el servidor de prueba cargan los tres mods
@@ -16,6 +17,7 @@ neoForge {
         annis_compat { sourceSet project(':annis_compat').sourceSets.main }
         starfest { sourceSet project(':starfest').sourceSets.main }
         starsync { sourceSet project(':starsync').sourceSets.main }
+        starspirits { sourceSet project(':starspirits').sourceSets.main }
     }
     runs {
         client {

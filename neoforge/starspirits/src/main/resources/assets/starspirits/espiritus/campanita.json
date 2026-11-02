@@ -1,0 +1,23 @@
+{
+  "nombre": "Campanita",
+  "rareza": "raro",
+  "forma": "campana",
+  "descripcion": "Una flor azul saltarina. Salto II y caídas más suaves.",
+  "beneficios": [
+    {
+      "tipo": "efecto",
+      "efecto": "minecraft:jump_boost",
+      "nivel": 2
+    },
+    {
+      "tipo": "caida",
+      "bloques": 4
+    }
+  ],
+  "biomas": [
+    "minecraft:meadow",
+    "minecraft:cherry_grove",
+    "#minecraft:is_mountain"
+  ],
+  "peso": 1
+}

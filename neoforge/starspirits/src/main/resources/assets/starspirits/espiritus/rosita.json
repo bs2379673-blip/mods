@@ -1,0 +1,18 @@
+{
+  "nombre": "Rosita espinosa",
+  "rareza": "epico",
+  "forma": "rosa",
+  "descripcion": "Tierna pero brava: devuelve parte del daño a quien te pega.",
+  "beneficios": [
+    {
+      "tipo": "espinas",
+      "porcentaje": 30
+    }
+  ],
+  "biomas": [
+    "minecraft:flower_forest",
+    "minecraft:sunflower_plains",
+    "minecraft:cherry_grove"
+  ],
+  "peso": 1
+}

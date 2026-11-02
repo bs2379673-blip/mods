@@ -1,0 +1,26 @@
+{
+  "nombre": "Luminón",
+  "rareza": "epico",
+  "forma": "hongo",
+  "descripcion": "Un hongo que brilla en la oscuridad. Visión nocturna y los monstruos cercanos brillan.",
+  "beneficios": [
+    {
+      "tipo": "efecto",
+      "efecto": "minecraft:night_vision",
+      "nivel": 1
+    },
+    {
+      "tipo": "brillo_monstruos",
+      "radio": 16
+    }
+  ],
+  "biomas": [
+    "minecraft:dark_forest",
+    "minecraft:mushroom_fields",
+    "minecraft:lush_caves",
+    "minecraft:swamp",
+    "minecraft:mangrove_swamp"
+  ],
+  "particulas": "minecraft:glow",
+  "peso": 1
+}

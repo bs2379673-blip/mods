@@ -1,0 +1,21 @@
+{
+  "nombre": "Champi",
+  "rareza": "comun",
+  "forma": "hongo",
+  "descripcion": "Un hongo rojo dormilón. Te cura medio corazón cada tanto.",
+  "beneficios": [
+    {
+      "tipo": "curar",
+      "cantidad": 0.5,
+      "cada_segundos": 8
+    }
+  ],
+  "biomas": [
+    "#minecraft:is_forest",
+    "minecraft:dark_forest",
+    "minecraft:mushroom_fields",
+    "minecraft:swamp"
+  ],
+  "particulas": "minecraft:spore_blossom_air",
+  "peso": 1
+}

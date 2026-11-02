@@ -1,0 +1,6 @@
+{
+ "type": "neoforge:add_features",
+ "biomes": "#minecraft:is_overworld",
+ "features": "starspirits:punto_extraccion",
+ "step": "vegetal_decoration"
+}

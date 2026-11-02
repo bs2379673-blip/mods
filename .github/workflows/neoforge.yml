@@ -57,7 +57,7 @@ jobs:
       - name: Jars finales y paquete de animaciones
         run: |
           mkdir -p out
-          for m in annisnpc annisinteract annisvfx annis_compat starfest starsync; do cp neoforge/$m/build/libs/$m-neoforge-1.21.1-*.jar out/; done
+          for m in annisnpc annisinteract annisvfx annis_compat starfest starsync starspirits; do cp neoforge/$m/build/libs/$m-neoforge-1.21.1-*.jar out/; done
           rm -f out/*-sources.jar out/*-dev.jar
           mkdir -p bake/cls
           javac -d bake/cls $(find annisinteract/src/main/java/com/annis/interact/client/anim -name "*.java") annisinteract/src/main/java/com/annis/interact/Layout.java annisinteract/src/main/java/com/annis/interact/Touch.java annisinteract/tools/BakeAnims.java
