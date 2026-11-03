@@ -75,7 +75,8 @@ public final class ClientDefs {
         Minecraft.getInstance().execute(() -> {
             try {
                 if (file.endsWith(".png")) {
-                    NativeImage img = NativeImage.read(data);
+                    // desde un stream: con byte[] usa la pila de LWJGL (64 KB) y las imagenes grandes la desbordan
+                    NativeImage img = NativeImage.read(new java.io.ByteArrayInputStream(data));
                     ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(StarSpirits.MOD_ID, "servidor/" + hash);
                     Minecraft.getInstance().getTextureManager().register(loc, new DynamicTexture(img));
                     TEXTURES.put(hash, loc);
