@@ -71,7 +71,7 @@ public class GuardianEntity extends PhoenixEntity {
 
     @Override
     protected Vec3 getPassengerAttachmentPoint(Entity e, EntityDimensions dims, float scale) {
-        return new Vec3(0, 3.95, 0.27);
+        return new Vec3(0.2, 3.3, 0.2);
     }
 
     @Override
