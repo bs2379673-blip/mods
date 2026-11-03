@@ -107,6 +107,7 @@ public final class TestDriver {
                     poseTicks = 60;
                     installProbe();
                 }
+                case "cerrar" -> mc.setScreen(null);
                 case "hud" -> mc.options.hideGui = cmd.length > 1 && cmd[1].equals("no");
                 case "tocar" -> {
                     if (mc.screen instanceof TouchScreen ts && cmd.length >= 5) {

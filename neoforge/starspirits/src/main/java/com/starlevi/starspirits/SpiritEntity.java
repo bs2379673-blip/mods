@@ -44,6 +44,9 @@ public class SpiritEntity extends PathfinderMob {
     /** Particulas y detalles del lado del cliente (lo pone el cliente). */
     public static java.util.function.Consumer<SpiritEntity> clientTick;
 
+    /** Casita donde vive suelto (solo servidor; null si sigue a su dueno o es salvaje). */
+    public net.minecraft.world.phys.AABB home;
+
     /** Id de la entrada en los datos del dueno (solo servidor). */
     public UUID entryId;
 
@@ -74,6 +77,7 @@ public class SpiritEntity extends PathfinderMob {
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new WildFleeGoal());
+        this.goalSelector.addGoal(2, new HomeWanderGoal());
         this.goalSelector.addGoal(3, new net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal(this, 0.55) {
             @Override
             public boolean canUse() {
@@ -174,6 +178,43 @@ public class SpiritEntity extends PathfinderMob {
         @Override
         public void stop() {
             this.from = null;
+        }
+    }
+
+    /** En su casita: pasea tranquilo de un lugar a otro, se queda un rato y a veces salta de alegria. */
+    private final class HomeWanderGoal extends net.minecraft.world.entity.ai.goal.Goal {
+        private int wait;
+
+        HomeWanderGoal() {
+            setFlags(java.util.EnumSet.of(Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() {
+            return SpiritEntity.this.home != null && !isWild();
+        }
+
+        @Override
+        public void tick() {
+            if (!getNavigation().isDone()) {
+                return;
+            }
+            if (--this.wait > 0) {
+                return;
+            }
+            this.wait = 60 + getRandom().nextInt(160);
+            if (getRandom().nextInt(5) == 0) {
+                hop();
+                return;
+            }
+            net.minecraft.world.phys.AABB b = SpiritEntity.this.home;
+            for (int i = 0; i < 8; i++) {
+                double x = b.minX + getRandom().nextDouble() * b.getXsize(), z = b.minZ + getRandom().nextDouble() * b.getZsize();
+                double y = Math.max(b.minY, Math.min(b.maxY - 1, getY()));
+                if (getNavigation().moveTo(x, y, z, 0.6)) {
+                    break;
+                }
+            }
         }
     }
 

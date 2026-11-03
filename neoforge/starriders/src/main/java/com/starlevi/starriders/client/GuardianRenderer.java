@@ -35,6 +35,8 @@ public class GuardianRenderer extends EntityRenderer<GuardianEntity> {
     private static SkinnedModel model;
     private static GuardianAnim anim;
     private static boolean failed;
+    /** Lomo en la pose de quieto (invertida), para saber cuanto se movio el lugar del jinete. */
+    private static org.joml.Matrix4f gripRefInv;
     private final GuardianAnim.Params params = new GuardianAnim.Params();
     private static final Map<GuardianEntity, State> STATES = new WeakHashMap<>();
 
@@ -63,6 +65,10 @@ public class GuardianRenderer extends EntityRenderer<GuardianEntity> {
         try (InputStream in = GuardianRenderer.class.getResourceAsStream("/assets/starriders/models/entity/guardian.bin")) {
             model = SkinnedModel.read(in);
             anim = new GuardianAnim(model);
+            GuardianAnim.Params p0 = new GuardianAnim.Params();
+            p0.walkFrame = GuardianAnim.IDLE_FRAME;
+            anim.apply(p0);
+            gripRefInv = new org.joml.Matrix4f().scale(SCALE).translate(0, -anim.ground(), 0).mul(model.world(anim.gripBone())).invert();
         } catch (Exception e) {
             failed = true;
             StarRiders.LOGGER.error("StarRiders: no se pudo cargar el modelo del guardian", e);
@@ -127,6 +133,8 @@ public class GuardianRenderer extends EntityRenderer<GuardianEntity> {
         }
         st.ground += (g - st.ground) * (1 - (float) Math.exp(-dt * 0.6f)) * (1 - st.air);
 
+        // el jinete va pegado al lomo: sube, baja y se inclina con el
+        Carry.of(e, 1)[0].identity().scale(SCALE).translate(0, -st.ground, 0).mul(model.world(anim.gripBone())).mul(gripRefInv);
         ps.pushPose();
         ps.mulPose(Axis.YP.rotationDegrees(-bodyYaw));
         ps.scale(SCALE, SCALE, SCALE);

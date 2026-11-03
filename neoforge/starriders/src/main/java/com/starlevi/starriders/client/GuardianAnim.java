@@ -174,6 +174,11 @@ public final class GuardianAnim {
         return this.m.minY(this.feet);
     }
 
+    /** Hueso del lomo de donde va agarrado el jinete. */
+    public int gripBone() {
+        return this.spine1;
+    }
+
     /** Posicion de la mano (en el modelo, ya calculado). */
     public org.joml.Vector3f hand(boolean left, org.joml.Vector3f out) {
         return this.m.world(left ? this.handL : this.handR).getTranslation(out);

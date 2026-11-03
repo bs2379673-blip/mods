@@ -1,0 +1,11 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [" A ", " G ", " S "],
+ "key": {
+  "A": {"item": "minecraft:amethyst_shard"},
+  "G": {"item": "minecraft:glow_berries"},
+  "S": {"item": "minecraft:stick"}
+ },
+ "result": {"id": "starspirits:varita_espiritus", "count": 1}
+}

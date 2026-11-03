@@ -140,9 +140,18 @@ public final class Caravan {
             ServerLevel level = p.serverLevel();
             Entity leader = p;
             int n = 0;
+            // jugadores de antes (sin elegidos): los primeros que tenga
+            if (d.followers.isEmpty() && !d.followersChosen) {
+                d.followersChosen = true;
+                for (SpiritData.Entry e : d.entries) {
+                    if (d.followers.size() < Config.maxFollowers && !Homes.isHome(e.id())) {
+                        d.followers.add(e.id());
+                    }
+                }
+            }
             for (SpiritData.Entry e : new ArrayList<>(d.entries)) {
                 SpiritEntity s = LIVE.get(e.id());
-                if (n >= Config.maxFollowers || p.isSpectator()) {
+                if (n >= Config.maxFollowers || p.isSpectator() || !d.follows(e.id())) {
                     if (s != null) {
                         LIVE.remove(e.id());
                         s.discard();

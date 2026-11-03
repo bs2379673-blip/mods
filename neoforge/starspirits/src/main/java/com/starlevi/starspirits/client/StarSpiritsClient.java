@@ -23,6 +23,11 @@ public final class StarSpiritsClient {
             public void chunk(Net.Chunk c) {
                 ClientDefs.chunk(c);
             }
+
+            @Override
+            public void menu(Net.Menu m) {
+                SpiritMenuScreen.receive(m);
+            }
         };
         SpiritEntity.clientTick = SpiritEffects::tick;
         ExtractionBlockEntity.clientParticles = SpiritEffects::extraction;

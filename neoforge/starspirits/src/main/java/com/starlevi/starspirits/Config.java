@@ -20,7 +20,7 @@ public final class Config {
     /** Duracion de la animacion de extraccion (ticks). */
     public static int extractTicks = 70;
     /** Cuantos espiritus como maximo corren atras de cada jugador (los demas quedan guardados). */
-    public static int maxFollowers = 30;
+    public static int maxFollowers = 2;
     /** Probabilidad por jugador y por minuto de que aparezca un espiritu salvaje cerca (muy raro). */
     public static double wildChancePerMinute = 0.07;
     /** Minutos que anda un salvaje antes de irse si nadie lo atrapa. */
@@ -67,7 +67,7 @@ public final class Config {
                 wildMinutes = Math.max(1, o.get("minutos_salvaje").getAsInt());
             }
             if (o.has("max_siguiendo")) {
-                maxFollowers = Math.max(1, Math.min(200, o.get("max_siguiendo").getAsInt()));
+                maxFollowers = Math.max(1, Math.min(10, o.get("max_siguiendo").getAsInt()));
             }
         } catch (Exception e) {
             StarSpirits.LOGGER.warn("StarSpirits: error en {}: {}", f, e.toString());

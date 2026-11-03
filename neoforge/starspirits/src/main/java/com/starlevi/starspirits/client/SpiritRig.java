@@ -48,6 +48,12 @@ public final class SpiritRig {
             case "saludo" -> 34;
             case "volar" -> 48;
             case "corazon" -> 30;
+            case "voltereta" -> 30;
+            case "aplausos" -> 40;
+            case "estirarse" -> 56;
+            case "curioso" -> 50;
+            case "sentarse" -> 70;
+            case "gelatina" -> 36;
             default -> 44;
         };
         return cyc < dur ? new String[]{which, Float.toString(cyc / dur)} : null;
@@ -67,7 +73,7 @@ public final class SpiritRig {
      */
     public boolean chibi;
     // transformacion del modelo entero (solo en modo munequito), alrededor de los pies
-    private float gLift, gSpin, gRock, gLean, gSquashX = 1, gSquashY = 1;
+    private float gLift, gSpin, gRock, gLean, gSquashX = 1, gSquashY = 1, gShiftZ;
 
     /** paths: nombre de cada pieza -> camino de hijos desde la raiz. */
     public SpiritRig(ModelPart root, Map<String, List<String>> paths) {
@@ -304,7 +310,7 @@ public final class SpiritRig {
         }
         // el modelo entero: gira, se balancea y se aplasta apoyado en sus pies (y = 24 px)
         pose.pushPose();
-        pose.translate(0, (24 - this.gLift) / 16f, 0);
+        pose.translate(0, (24 - this.gLift) / 16f, this.gShiftZ / 16f);
         pose.mulPose(com.mojang.math.Axis.YP.rotation(this.gSpin));
         pose.mulPose(com.mojang.math.Axis.ZP.rotation(this.gRock));
         pose.mulPose(com.mojang.math.Axis.XP.rotation(this.gLean));
@@ -327,6 +333,7 @@ public final class SpiritRig {
         this.gSpin = 0;
         this.gRock = s * 0.13f * amt + Mth.sin(age * 0.055f) * 0.035f * still;
         this.gLean = amt * 0.1f;
+        this.gShiftZ = 0;
         // respira; al apoyar el pie se aplasta un poquito
         float breath = Mth.sin(age * (p.sleeping ? 0.06f : 0.13f)) * (p.sleeping ? 0.03f : 0.02f);
         float land = amt * (1 - Math.abs(s)) * 0.07f;
@@ -475,8 +482,129 @@ public final class SpiritRig {
                     this.legL.xRot -= b * 0.3f * bell;
                 }
             }
+            case "voltereta" -> { // salta, da una vuelta carnero en el aire (alrededor de la panza) y cae aplastandose
+                float e = f < 0.15f ? 0 : smooth(Mth.clamp((f - 0.15f) / 0.6f, 0, 1));
+                float th = e * Mth.TWO_PI;
+                float h = this.topY * 0.45f;
+                this.gLean += th;
+                this.gLift += h * (1 - Mth.cos(th)) + Mth.sin(Mth.clamp((f - 0.1f) / 0.75f, 0, 1) * Mth.PI) * 6f;
+                this.gShiftZ += h * Mth.sin(th);
+                // agacharse antes y aplastarse al caer
+                float crouch = f < 0.15f ? Mth.sin(f / 0.15f * Mth.PI) : f > 0.8f ? Mth.sin((f - 0.8f) / 0.2f * Mth.PI) : 0;
+                this.gSquashY -= crouch * 0.14f;
+                this.gSquashX += crouch * 0.08f;
+                if (this.armR != null) {
+                    this.armR.zRot += bell * 1.0f;
+                }
+                if (this.armL != null) {
+                    this.armL.zRot -= bell * 1.0f;
+                }
+                if (this.legR != null) {
+                    this.legR.xRot -= bell * 0.6f;
+                }
+                if (this.legL != null) {
+                    this.legL.xRot -= bell * 0.6f;
+                }
+            }
+            case "aplausos" -> { // aplaude contento dando saltitos
+                float clap = 0.5f + 0.5f * Mth.sin(age * 1.7f);
+                if (this.armR != null) {
+                    this.armR.xRot -= bell * 1.25f;
+                    this.armR.yRot -= bell * (0.25f + clap * 0.55f);
+                }
+                if (this.armL != null) {
+                    this.armL.xRot -= bell * 1.25f;
+                    this.armL.yRot += bell * (0.25f + clap * 0.55f);
+                }
+                this.gLift += Math.abs(Mth.sin(f * Mth.PI * 4)) * 1.4f * bell;
+                if (this.head != null) {
+                    this.head.zRot += Mth.sin(f * Mth.TWO_PI * 2) * 0.12f * bell;
+                    this.head.xRot -= bell * 0.12f;
+                }
+            }
+            case "estirarse" -> { // se estira para arriba, bosteza tirando la cabeza atras y se sacude
+                float up = f < 0.65f ? smooth(Mth.clamp(f / 0.3f, 0, 1)) : 1 - smooth((f - 0.65f) / 0.2f > 1 ? 1 : (f - 0.65f) / 0.2f);
+                up = Mth.clamp(up, 0, 1);
+                if (this.armR != null) {
+                    this.armR.xRot -= up * 2.7f;
+                    this.armR.zRot += up * 0.35f;
+                }
+                if (this.armL != null) {
+                    this.armL.xRot -= up * 2.7f;
+                    this.armL.zRot -= up * 0.35f;
+                }
+                this.gSquashY += up * 0.1f;
+                this.gSquashX -= up * 0.05f;
+                this.gLean -= up * 0.08f;
+                if (this.head != null) {
+                    this.head.xRot -= up * 0.45f;
+                }
+                // sacudon al final
+                if (f > 0.82f) {
+                    float sh = Mth.sin((f - 0.82f) / 0.18f * Mth.PI);
+                    this.gRock += Mth.sin(age * 2.2f) * 0.1f * sh;
+                }
+            }
+            case "rebote" -> { // tres botes de gelatina: se estira en el aire, se aplasta al tocar el piso
+                float k = f * 3, u = k - (float) Math.floor(k);
+                float air = Mth.sin(u * Mth.PI);
+                this.gLift += air * (5f - (float) Math.floor(k) * 1.2f);
+                float land = u < 0.12f ? 1 - u / 0.12f : u > 0.9f ? (u - 0.9f) / 0.1f : 0;
+                this.gSquashY += air * 0.08f - land * 0.16f;
+                this.gSquashX += -air * 0.04f + land * 0.1f;
+                if (this.armR != null) {
+                    this.armR.zRot += air * 0.9f;
+                }
+                if (this.armL != null) {
+                    this.armL.zRot -= air * 0.9f;
+                }
+            }
+            case "curioso" -> { // se inclina hacia adelante, ladea la cabecita y mira a un lado y al otro
+                float lean = smooth(Mth.clamp(bell * 1.6f, 0, 1));
+                this.gLean += lean * 0.2f;
+                if (this.head != null) {
+                    this.head.yRot += Mth.sin(f * Mth.TWO_PI) * 0.6f * lean;
+                    this.head.zRot += lean * 0.3f;
+                } else {
+                    this.gSpin += Mth.sin(f * Mth.TWO_PI) * 0.4f * lean;
+                }
+                if (this.armR != null) {
+                    this.armR.xRot -= lean * 0.5f;
+                }
+            }
+            case "sentarse" -> { // se sienta un ratito con las patitas para adelante y se mece
+                float sit = smooth(Mth.clamp(Math.min(f / 0.15f, (1 - f) / 0.15f), 0, 1));
+                if (this.legR != null) {
+                    this.legR.xRot -= sit * 1.45f;
+                }
+                if (this.legL != null) {
+                    this.legL.xRot -= sit * 1.45f;
+                }
+                this.gLift -= sit * 2.6f;
+                this.gLean -= sit * 0.1f;
+                this.gRock += Mth.sin(age * 0.12f) * 0.06f * sit;
+                if (this.armR != null) {
+                    this.armR.xRot -= sit * 0.5f;
+                }
+                if (this.armL != null) {
+                    this.armL.xRot -= sit * 0.5f;
+                }
+                if (this.head != null) {
+                    this.head.zRot += Mth.sin(age * 0.05f) * 0.15f * sit;
+                }
+            }
+            case "gelatina" -> { // tiembla entero como un flan
+                float w = Mth.sin(age * 1.3f) * bell;
+                this.gSquashY += w * 0.09f;
+                this.gSquashX -= w * 0.06f;
+                this.gRock += Mth.sin(age * 0.85f) * 0.07f * bell;
+            }
             default -> {
             }
         }
+    }
+
+    private static float smooth(float x) {
+        return x * x * (3 - 2 * x);
     }
 }

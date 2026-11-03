@@ -14,49 +14,23 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 /**
- * El Pilar Runico: una piedra gigante, un poco torcida, con una runa que late. En el ritual la runa se
- * enciende del color de la rareza, sube un haz de luz y el espiritu baja girando hasta el piso.
+ * El Pilar Runico: un menhir tallado, con la punta rota, piedras con musgo en la base, una runa grande
+ * tallada adelante y atras, una franja de glifos abajo y tres esquirlas runicas que flotan alrededor.
+ * Las runas laten suave; en el ritual se encienden del color de la rareza, las esquirlas se aceleran,
+ * sube un haz de luz y el espiritu baja girando hasta el piso.
  */
 public class PillarRenderer implements BlockEntityRenderer<PillarBlockEntity> {
     private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(StarSpirits.MOD_ID, "textures/block/pilar_runico.png");
-    private static final int SIDES = 7;
-    private static final float[] RING_Y = {-0.05f, 0.7f, 1.9f, 3.3f, 4.7f, 5.9f, 6.7f};
-    private static final float[] RING_R = {1.25f, 1.12f, 1.02f, 0.95f, 0.88f, 0.78f, 0.6f};
-    private static final float TOP = 7.25f;
-    /** Vertices de la piedra (por anillo y lado): x, y, z. Se arma una sola vez (misma forma siempre). */
-    private static final float[][][] V = new float[RING_Y.length][SIDES + 1][];
-    /** Trazos de la runa (pares de puntos en el plano de la cara, x de -1 a 1, y en bloques). */
-    private static final float[][] RUNE = {
-            {0, 2.0f, 0, 5.0f}, {-0.45f, 2.6f, 0, 2.0f}, {0.45f, 2.6f, 0, 2.0f}, {-0.5f, 3.9f, 0, 3.3f}, {0.5f, 3.9f, 0, 3.3f},
-            {-0.45f, 4.4f, 0, 5.0f}, {0.45f, 4.4f, 0, 5.0f}, {-0.3f, 3.0f, 0.3f, 3.0f}};
+    /** Surcos tallados (oscuros) y trazos de luz, de la runa grande y de la franja. */
+    private static final float[] GROOVE = PillarShape.strokes(0.2f, 0.012f, false), GLOW = PillarShape.strokes(0.085f, 0.03f, false),
+            HALO = PillarShape.strokes(0.32f, 0.04f, false), BAND_GROOVE = PillarShape.strokes(0.11f, 0.012f, true),
+            BAND_GLOW = PillarShape.strokes(0.045f, 0.03f, true);
+    private static final float TOP = PillarShape.HEIGHT + 0.3f;
     private final SpiritRig.Pose pose = new SpiritRig.Pose();
-
-    static {
-        RandomSource r = RandomSource.create(1234);
-        float lean = 0.22f;
-        for (int i = 0; i < RING_Y.length; i++) {
-            float y = RING_Y[i];
-            float shift = lean * (y / TOP) * (y / TOP);
-            for (int j = 0; j <= SIDES; j++) {
-                int jj = j % SIDES;
-                // la cara 0 mira al frente (+z): angulo centrado en medio de la cara
-                float a = (jj + 0.5f) * Mth.TWO_PI / SIDES;
-                float rad = RING_R[i] * (0.9f + (i == 0 ? 0.1f : 0.2f) * ((jj * 7 + i * 3) % 5) / 4f);
-                if (j == SIDES) {
-                    V[i][j] = V[i][0];
-                    continue;
-                }
-                V[i][j] = new float[]{Mth.sin(a) * rad + shift, y + (i > 0 && i < RING_Y.length - 1 ? (r.nextFloat() - 0.5f) * 0.25f : 0),
-                        Mth.cos(a) * rad};
-            }
-        }
-    }
 
     public PillarRenderer(BlockEntityRendererProvider.Context ctx) {
     }
@@ -69,13 +43,16 @@ public class PillarRenderer implements BlockEntityRenderer<PillarBlockEntity> {
         float now = be.getLevel().getGameTime() + partial;
         ps.pushPose();
         ps.translate(0.5, 0, 0.5);
-        stone(ps, buffers.getBuffer(RenderType.entityCutoutNoCull(TEX)), light);
-        // runa: late suave; en el ritual se prende del color de la rareza
+        VertexConsumer stone = buffers.getBuffer(RenderType.entityCutoutNoCull(TEX));
+        stone(ps.last(), stone, light);
+        grooves(ps.last(), stone, light, GROOVE);
+        grooves(ps.last(), stone, light, BAND_GROOVE);
+        // runas: laten suave; en el ritual se prenden del color de la rareza
         float f = be.ritualActive() ? Mth.clamp((now - be.start) / Math.max(20, be.duration), 0, 1) : -1;
         SpiritDef d = f >= 0 ? ClientDefs.def(be.ritual) : null;
         Rarity rar = d == null ? Rarity.RARO : d.rarity;
-        float pulse = 0.55f + 0.25f * Mth.sin(now * 0.07f);
-        float cr = 0.45f, cg = 0.95f, cb = 1f, ca = pulse;
+        float pulse = 0.6f + 0.25f * Mth.sin(now * 0.06f);
+        float cr = 0.42f, cg = 0.92f, cb = 1f, ca = pulse;
         if (f >= 0) {
             float k = Mth.clamp(f * 3, 0, 1);
             cr = Mth.lerp(k, cr, rar.r());
@@ -83,89 +60,125 @@ public class PillarRenderer implements BlockEntityRenderer<PillarBlockEntity> {
             cb = Mth.lerp(k, cb, rar.b());
             ca = 0.9f + 0.1f * Mth.sin(now * 0.8f);
         }
-        rune(ps.last(), buffers.getBuffer(Glow.LIGHT), cr, cg, cb, ca);
+        VertexConsumer glow = buffers.getBuffer(Glow.LIGHT);
+        lines(ps.last(), glow, GLOW, cr, cg, cb, ca);
+        lines(ps.last(), glow, HALO, cr, cg, cb, ca * 0.16f);
+        // la franja de abajo se enciende en una ola que da la vuelta
+        lines(ps.last(), glow, BAND_GLOW, cr, cg, cb, ca * (0.55f + 0.3f * Mth.sin(now * 0.11f)));
+        // la gema del rombo de arriba
+        for (int side = 0; side < 2; side++) {
+            float[] gem = PillarShape.onFace(side, 0, 4.75f, 0.06f);
+            ps.pushPose();
+            ps.translate(gem[0], gem[1], gem[2]);
+            Glow.orb(ps, glow, 0.07f + 0.02f * Mth.sin(now * 0.09f), now * 0.04f, cr, cg, cb, ca);
+            ps.popPose();
+        }
+        shards(ps, buffers, light, now, f, cr, cg, cb, ca);
         if (f >= 0) {
             ritual(be, f, now, cr, cg, cb, ps, buffers);
         } else {
             // motitas de luz que suben despacio por la runa
-            for (int i = 0; i < 3; i++) {
-                float t = ((now * 0.01f + i / 3f) % 1f);
+            for (int i = 0; i < 4; i++) {
+                float t = ((now * 0.008f + i / 4f) % 1f);
+                float y = 1.8f + t * 3.6f;
                 ps.pushPose();
-                ps.translate(Mth.sin(now * 0.03f + i * 2) * 0.25f, 2.0f + t * 3.2f, faceZ(2.0f + t * 3.2f) + 0.1f);
-                Glow.orb(ps, buffers.getBuffer(Glow.LIGHT), 0.05f, now * 0.05f, cr, cg, cb, 0.7f * Mth.sin(t * Mth.PI));
+                float[] pt = PillarShape.onFace(i % 2, Mth.sin(now * 0.03f + i * 2) * 0.3f, y, 0.12f);
+                ps.translate(pt[0], pt[1], pt[2]);
+                Glow.orb(ps, glow, 0.045f, now * 0.05f, cr, cg, cb, 0.7f * Mth.sin(t * Mth.PI));
                 ps.popPose();
             }
         }
         ps.popPose();
     }
 
-    /** Distancia del centro a la cara del frente a esa altura (para pegar la runa a la piedra). */
-    private static float faceZ(float y) {
-        for (int i = 0; i < RING_Y.length - 1; i++) {
-            if (y <= RING_Y[i + 1]) {
-                float k = (y - RING_Y[i]) / (RING_Y[i + 1] - RING_Y[i]);
-                float z0 = (V[i][0][2] + V[i][SIDES - 1][2]) * 0.5f, z1 = (V[i + 1][0][2] + V[i + 1][SIDES - 1][2]) * 0.5f;
-                return Mth.lerp(k, z0, z1);
-            }
-        }
-        return 0.6f;
-    }
-
-    private static void stone(PoseStack ps, VertexConsumer vc, int light) {
-        PoseStack.Pose p = ps.last();
+    private static void stone(PoseStack.Pose p, VertexConsumer vc, int light) {
         Matrix4f m = p.pose();
-        Matrix3f n = p.normal();
-        for (int i = 0; i < RING_Y.length - 1; i++) {
-            for (int j = 0; j < SIDES; j++) {
-                float[] a = V[i][j], b = V[i][j + 1], c = V[i + 1][j + 1], e = V[i + 1][j];
-                float u0 = j / (float) SIDES * 3, u1 = (j + 1) / (float) SIDES * 3;
-                vtx(vc, m, n, a, u0, a[1] / 2.2f, light);
-                vtx(vc, m, n, e, u0, e[1] / 2.2f, light);
-                vtx(vc, m, n, c, u1, c[1] / 2.2f, light);
-                vtx(vc, m, n, b, u1, b[1] / 2.2f, light);
+        float[] q = PillarShape.STONE;
+        org.joml.Vector3f n = new org.joml.Vector3f();
+        for (int i = 0; i < q.length; i += 8) {
+            p.normal().transform(q[i + 5], q[i + 6], q[i + 7], n);
+            vc.addVertex(m, q[i], q[i + 1], q[i + 2]).setColor(-1).setUv(q[i + 3], q[i + 4]).setOverlay(OverlayTexture.NO_OVERLAY)
+                    .setLight(light).setNormal(n.x, n.y, n.z);
+        }
+    }
+
+    /** Surcos tallados: un pedacito oscuro de la textura, apenas por delante de la piedra. */
+    private static void grooves(PoseStack.Pose p, VertexConsumer vc, int light, float[] q) {
+        Matrix4f m = p.pose();
+        for (int i = 0; i < q.length; i += 12) {
+            float rx = q[i] + q[i + 6], rz = q[i + 2] + q[i + 8];
+            float l = Mth.sqrt(rx * rx + rz * rz) + 1e-5f;
+            org.joml.Vector3f n = p.normal().transform(rx / l, 0, rz / l, new org.joml.Vector3f());
+            for (int k = 0; k < 4; k++) {
+                int o = i + k * 3;
+                vc.addVertex(m, q[o], q[o + 1], q[o + 2]).setColor(0.32f, 0.3f, 0.36f, 1f).setUv(0.12f + k % 2 * 0.01f, 0.5f + k / 2 * 0.01f)
+                        .setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(n.x, n.y, n.z);
             }
         }
-        // punta
-        int last = RING_Y.length - 1;
-        float[] tip = {0.22f, TOP, 0.05f};
-        for (int j = 0; j < SIDES; j++) {
-            float[] a = V[last][j], b = V[last][j + 1];
-            vtx(vc, m, n, a, j / (float) SIDES * 3, a[1] / 2.2f, light);
-            vtx(vc, m, n, tip, (j + 0.5f) / SIDES * 3, TOP / 2.2f, light);
-            vtx(vc, m, n, tip, (j + 0.5f) / SIDES * 3, TOP / 2.2f, light);
-            vtx(vc, m, n, b, (j + 1) / (float) SIDES * 3, b[1] / 2.2f, light);
+    }
+
+    private static void lines(PoseStack.Pose p, VertexConsumer vc, float[] q, float r, float g, float b, float a) {
+        Matrix4f m = p.pose();
+        for (int i = 0; i < q.length; i += 3) {
+            vc.addVertex(m, q[i], q[i + 1], q[i + 2]).setColor(r, g, b, a);
         }
     }
 
-    private static void vtx(VertexConsumer vc, Matrix4f m, Matrix3f n, float[] v, float u, float vv, int light) {
-        org.joml.Vector3f p = m.transformPosition(v[0], v[1], v[2], new org.joml.Vector3f());
-        float len = Mth.sqrt(v[0] * v[0] + v[2] * v[2]) + 1e-4f;
-        org.joml.Vector3f q = n.transform(v[0] / len, 0.15f, v[2] / len, new org.joml.Vector3f());
-        vc.addVertex(p.x, p.y, p.z).setColor(-1).setUv(u, vv).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(q.x, q.y, q.z);
-    }
-
-    /** La runa: trazos de luz sobre la cara del frente y la de atras. */
-    private static void rune(PoseStack.Pose p, VertexConsumer vc, float r, float g, float b, float a) {
-        for (int side = 0; side < 2; side++) {
-            float sz = side == 0 ? 1 : -1;
-            for (float[] s : RUNE) {
-                float w = 0.07f;
-                float x0 = s[0] * 0.55f, y0 = s[1], x1 = s[2] * 0.55f, y1 = s[3];
-                float dx = x1 - x0, dy = y1 - y0, l = Mth.sqrt(dx * dx + dy * dy) + 1e-4f;
+    /** Tres esquirlas de piedra con un glifo que flotan alrededor; en el ritual giran rapido y se acercan. */
+    private static void shards(PoseStack ps, MultiBufferSource buffers, int light, float now, float f, float cr, float cg, float cb, float ca) {
+        float speed = f >= 0 ? 0.008f + 0.05f * Mth.clamp(f * 2, 0, 1) : 0.008f;
+        VertexConsumer vc = buffers.getBuffer(RenderType.entityCutoutNoCull(TEX));
+        VertexConsumer glow = buffers.getBuffer(Glow.LIGHT);
+        for (int i = 0; i < 3; i++) {
+            float a = now * speed + i * Mth.TWO_PI / 3;
+            float dist = f >= 0 ? Mth.lerp(Mth.clamp(f * 2, 0, 1), 2.1f, 1.55f) : 2.1f;
+            float y = 4.6f + i * 0.55f + Mth.sin(now * 0.05f + i * 2.1f) * 0.25f;
+            ps.pushPose();
+            ps.translate(Mth.sin(a) * dist * 1.1f + 0.1f, y, Mth.cos(a) * dist * 0.85f);
+            ps.mulPose(com.mojang.math.Axis.YP.rotation(a));
+            ps.mulPose(com.mojang.math.Axis.ZP.rotation(Mth.sin(now * 0.03f + i) * 0.25f));
+            float s = 0.75f + i * 0.12f;
+            ps.scale(s, s, s);
+            shard(ps.last(), vc, light, i);
+            // glifo de la esquirla (mira hacia afuera)
+            Matrix4f m = ps.last().pose();
+            float z = 0.135f;
+            float[][] g = PillarShape.GLYPHS[(i * 3 + 1) % PillarShape.GLYPHS.length];
+            for (float[] st : g) {
+                float x0 = (st[0] - 0.3f) * 0.22f, y0 = (st[1] - 0.5f) * 0.3f, x1 = (st[2] - 0.3f) * 0.22f, y1 = (st[3] - 0.5f) * 0.3f;
+                float dx = x1 - x0, dy = y1 - y0, l = Mth.sqrt(dx * dx + dy * dy) + 1e-4f, w = 0.022f;
                 float nx = -dy / l * w, ny = dx / l * w;
-                float z0 = (Math.abs(faceZ(y0)) + 0.02f) * sz, z1 = (Math.abs(faceZ(y1)) + 0.02f) * sz;
-                Matrix4f m = p.pose();
-                vc.addVertex(m, x0 - nx, y0 - ny, z0).setColor(r, g, b, a);
-                vc.addVertex(m, x1 - nx, y1 - ny, z1).setColor(r, g, b, a);
-                vc.addVertex(m, x1 + nx, y1 + ny, z1).setColor(r, g, b, a);
-                vc.addVertex(m, x0 + nx, y0 + ny, z0).setColor(r, g, b, a);
-                // halo
-                float hw = 3.2f;
-                vc.addVertex(m, x0 - nx * hw, y0 - ny * hw, z0 + 0.01f * sz).setColor(r, g, b, a * 0.18f);
-                vc.addVertex(m, x1 - nx * hw, y1 - ny * hw, z1 + 0.01f * sz).setColor(r, g, b, a * 0.18f);
-                vc.addVertex(m, x1 + nx * hw, y1 + ny * hw, z1 + 0.01f * sz).setColor(r, g, b, a * 0.18f);
-                vc.addVertex(m, x0 + nx * hw, y0 + ny * hw, z0 + 0.01f * sz).setColor(r, g, b, a * 0.18f);
+                glow.addVertex(m, x0 - nx, y0 - ny, z).setColor(cr, cg, cb, ca);
+                glow.addVertex(m, x1 - nx, y1 - ny, z).setColor(cr, cg, cb, ca);
+                glow.addVertex(m, x1 + nx, y1 + ny, z).setColor(cr, cg, cb, ca);
+                glow.addVertex(m, x0 + nx, y0 + ny, z).setColor(cr, cg, cb, ca);
             }
+            Glow.orb(ps, glow, 0.22f, now * 0.03f, cr, cg, cb, ca * 0.12f);
+            ps.popPose();
+        }
+    }
+
+    /** Una esquirla: un cristal de piedra irregular de 8 caras (con el frente plano para el glifo). */
+    private static void shard(PoseStack.Pose p, VertexConsumer vc, int light, int seed) {
+        float[][] ring = {{-0.17f, 0.04f, 0.12f}, {0.16f, -0.02f, 0.12f}, {0.2f, 0.02f, -0.1f}, {-0.15f, -0.03f, -0.12f}};
+        float[] top = {0.02f, 0.38f + seed * 0.04f, 0}, bot = {-0.02f, -0.3f, 0.01f};
+        float u = 0.05f + seed * 0.12f;
+        for (int j = 0; j < 4; j++) {
+            float[] a = ring[j], b = ring[(j + 1) % 4];
+            tri(p, vc, light, a, b, top, u);
+            tri(p, vc, light, b, a, bot, u);
+        }
+    }
+
+    private static void tri(PoseStack.Pose p, VertexConsumer vc, int light, float[] a, float[] b, float[] c, float u) {
+        float[] n = PillarShape.normal(a, b, c, c);
+        org.joml.Vector3f nn = p.normal().transform(-n[0], -n[1], -n[2], new org.joml.Vector3f());
+        Matrix4f m = p.pose();
+        float[][] pts = {a, b, c, c};
+        float[][] uv = {{u, 0.3f}, {u + 0.08f, 0.3f}, {u + 0.04f, 0.15f}, {u + 0.04f, 0.15f}};
+        for (int k = 0; k < 4; k++) {
+            vc.addVertex(m, pts[k][0], pts[k][1], pts[k][2]).setColor(-1).setUv(uv[k][0], uv[k][1]).setOverlay(OverlayTexture.NO_OVERLAY)
+                    .setLight(light).setNormal(nn.x, nn.y, nn.z);
         }
     }
 
@@ -177,7 +190,7 @@ public class PillarRenderer implements BlockEntityRenderer<PillarBlockEntity> {
         }
         float bf = Mth.clamp(f / 0.3f, 0, 1), fade = f > 0.85f ? (1 - f) / 0.15f : 1;
         ps.pushPose();
-        ps.translate(0, 7.2f, 0);
+        ps.translate(0.2f, TOP, 0);
         Glow.beam(ps.last(), buffers.getBuffer(Glow.LIGHT), 6 + 20 * bf, 0.2f, 0.5f, cr, cg, cb, 0.8f * bf * fade);
         ps.popPose();
         // el espiritu baja del lado de quien hizo el ritual
@@ -187,8 +200,8 @@ public class PillarRenderer implements BlockEntityRenderer<PillarBlockEntity> {
             ps.mulPose(com.mojang.math.Axis.YP.rotation((float) Math.atan2(dx, dz)));
         }
         // el espiritu: aparece arriba de la punta como una luz, baja girando por delante de la runa y toca el piso
-        float y = Mth.lerp(smooth(f), 7.6f, 0.05f);
-        float zf = faceZ(Math.max(0.5f, y)) + 0.9f;
+        float y = Mth.lerp(smooth(f), TOP + 0.4f, 0.05f);
+        float zf = PillarShape.frontZ(Math.min(PillarShape.HEIGHT - 0.5f, Math.max(0.5f, y))) + 0.9f;
         ps.pushPose();
         ps.translate(0, y, zf * smooth(Mth.clamp(f * 2, 0, 1)));
         if (f < 0.35f) {

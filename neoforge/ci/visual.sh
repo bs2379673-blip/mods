@@ -97,8 +97,9 @@ SYNC=('time set 6000' "${T}hud no${E}" 'fill 78 -60 84 84 -57 84 minecraft:white
 python3 ci/rcon.py 25577 annistest "${SYNC[@]}" 2>&1 | tee rcon-starsync.txt
 # --- StarSpirits: punto de extraccion, caravana, maceta y los 8 espiritus en fila ---
 SPI=('time set 6000' 'weather clear' "${T}hud no${E}" "${T}camara primera${E}" 'fill 132 -60 136 152 -54 156 air'
-  'starspirits pilar 140 -60 146' 'setblock 136 -60 146 starspirits:maceta'
+  'starspirits pilar 140 -60 146'
   'tp @a 140 -60 136 0 -8' 'sleep 3' "${T}foto p01_pilar${E}" 'tp @a 146 -60 141 45 -5' 'sleep 1' "${T}foto p01b_pilar_costado${E}"
+  'time set 18000' 'sleep 1.5' "${T}foto p01c_pilar_noche${E}" 'time set 6000'
   'tp @a 140 -60 136 0 -8' 'starspirits vincular 140 -60 146 @r luminon' 'sleep 1.2' "${T}foto p02_ritual_a${E}" 'sleep 1.3' "${T}foto p03_ritual_b${E}"
   'sleep 1.3' "${T}foto p04_ritual_c${E}" 'sleep 1.0' "${T}foto p05_ritual_d${E}" 'sleep 1.5' "${T}foto p06_vinculado${E}"
   'execute positioned 144 -60 141 run starspirits salvaje champi' 'tp @a 140 -60 137 30 10' 'sleep 1.5' "${T}foto p06b_salvaje${E}")
@@ -106,7 +107,9 @@ for s in champi margarita brotecito campanita rosita loto bonsai; do SPI+=("star
 SPI+=('tp @a 140 -60 141 180 10' 'sleep 2.5' "${T}camara frente${E}" 'sleep 1' "${T}foto p07_caravana_frente${E}"
   "${T}caminar si${E}" 'sleep 2.5' "${T}foto p08_caravana_corre${E}" 'sleep 0.6' "${T}foto p09_caravana_corre_b${E}" "${T}caminar no${E}"
   'sleep 2.5' "${T}foto p10_caravana_quieta${E}"
-  'tp @a 136 -60 143.6 0 28' "${T}camara primera${E}" 'starspirits plantar 136 -60 146 @r 2' 'sleep 2' "${T}foto p11_maceta${E}"
+  "${T}hud si${E}" 'starspirits menu @r' 'sleep 2.5' "${T}foto p10b_menu_varita${E}" "${T}cerrar${E}" "${T}hud no${E}"
+  'starspirits casita @r 131 -60 139 137 -60 145 3' 'starspirits casita @r 131 -60 139 137 -60 145 4'
+  'tp @a 134 -59 135 0 25' "${T}camara primera${E}" 'sleep 4' "${T}foto p11_casita${E}" 'sleep 2' "${T}foto p11b_casita${E}"
   'starspirits quitar @r todos' 'kill @e[type=starspirits:espiritu]')
 X=141; for s in champi margarita brotecito campanita luminon rosita loto bonsai; do SPI+=("summon starspirits:espiritu $X -60 151 {tipo:\"$s\",NoAI:1b,Rotation:[180f,0f]}"); X=$((X+1)); done
 SPI+=('tp @a 144.5 -60 147.6 0 18' 'sleep 2.5' "${T}foto p12_fila_dia${E}" 'time set 18000' 'sleep 1.5' "${T}foto p13_fila_noche${E}"
@@ -145,7 +148,10 @@ SER=('time set 6000' 'kill @e[type=starriders:guardian]' 'fill 150 -60 150 180 -
   'sleep 0.6' "${T}foto n07_serpiente_avanza_b${E}" "${T}camara frente${E}" 'sleep 0.6' "${T}foto n08_serpiente_frente${E}" "${T}camara atras${E}" "${T}caminar no${E}" "${T}saltar si${E}" 'sleep 0.3' "${T}saltar no${E}" 'sleep 0.6' "${T}foto n11_levita_a${E}" 'sleep 1.2' "${T}foto n12_levita_b${E}"
   'sleep 1.4' "${T}caminar si${E}" 'sleep 1' "${T}foto n13_planea${E}" "${T}camara frente${E}" 'sleep 0.6' "${T}foto n14_planea_frente${E}" "${T}camara atras${E}" 'sleep 3'  "${T}caminar no${E}" 'summon villager 160 -60 158 {NoAI:1b,Tags:["psj"]}' 'summon villager 160 -60 158 {NoAI:1b,Tags:["psj"]}' 'summon villager 160 -60 158 {NoAI:1b,Tags:["psj"]}'
   'execute as @e[tag=psj] run ride @s mount @e[type=starriders:serpiente,limit=1]' 'sleep 1.5' "${T}foto n09_serpiente_pasajeros${E}" "${T}caminar si${E}" 'sleep 1.2' "${T}foto n10_serpiente_pasajeros_avanza${E}" 'kill @e[tag=psj]' 
-  "${T}caminar no${E}" 'sleep 1' 'ride @r dismount' "${T}camara primera${E}" 'kill @e[type=starriders:serpiente]' 'starriders quitar @r todos' 'sleep 0.5')
+  "${T}caminar no${E}" 'sleep 1' 'ride @r dismount' "${T}camara primera${E}" 'kill @e[type=starriders:serpiente]'
+  'fill 154 -63 182 174 -61 199 water' 'starriders salvaje 164 -59 191 serpiente' 'tp @a 164 -59 178 0 12' 'sleep 3' "${T}foto n15_serpiente_agua${E}"
+  'sleep 2' "${T}foto n16_serpiente_agua_b${E}" 'kill @e[type=starriders:serpiente]' 'fill 154 -63 182 174 -61 199 stone'
+  'starriders quitar @r todos' 'sleep 0.5')
 FEN+=("${SER[@]}")
 python3 ci/rcon.py 25577 annistest "${FEN[@]}" 2>&1 | tee rcon-starriders.txt
 echo "::notice::Visual StarRiders> $(grep -v '^$' rcon-starriders.txt | grep -v '^> ' | tr '\n' '|' | cut -c1-2000)"

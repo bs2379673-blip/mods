@@ -11,6 +11,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import java.util.List;
+import java.util.UUID;
 
 /** Mensajes: la lista de espiritus del servidor y los archivos (texturas, modelos) por pedazos. */
 public final class Net {
@@ -96,11 +97,76 @@ public final class Net {
         }
     }
 
+    public record MenuSpirit(UUID id, String type, boolean follows, UUID area) {
+    }
+
+    public record MenuArea(UUID id, String name, String size) {
+    }
+
+    /** Servidor -> cliente: el menu de la varita (tus espiritus, tus areas, la seleccion). */
+    public record Menu(boolean open, List<MenuSpirit> spirits, List<MenuArea> areas, String selection, int maxFollow) implements CustomPacketPayload {
+        public static final Type<Menu> TYPE = new Type<>(id("menu"));
+        public static final StreamCodec<FriendlyByteBuf, Menu> CODEC = CustomPacketPayload.codec(Menu::write, Menu::new);
+
+        Menu(FriendlyByteBuf b) {
+            this(b.readBoolean(), b.readList(x -> new MenuSpirit(x.readUUID(), x.readUtf(128), x.readBoolean(), x.readUUID())),
+                    b.readList(x -> new MenuArea(x.readUUID(), x.readUtf(64), x.readUtf(32))), b.readUtf(32), b.readVarInt());
+        }
+
+        void write(FriendlyByteBuf b) {
+            b.writeBoolean(this.open);
+            b.writeCollection(this.spirits, (x, m) -> {
+                x.writeUUID(m.id());
+                x.writeUtf(m.type(), 128);
+                x.writeBoolean(m.follows());
+                x.writeUUID(m.area());
+            });
+            b.writeCollection(this.areas, (x, a) -> {
+                x.writeUUID(a.id());
+                x.writeUtf(a.name(), 64);
+                x.writeUtf(a.size(), 32);
+            });
+            b.writeUtf(this.selection, 32);
+            b.writeVarInt(this.maxFollow);
+        }
+
+        @Override
+        public Type<Menu> type() {
+            return TYPE;
+        }
+    }
+
+    /** Cliente -> servidor: lo que eligio en el menu de la varita. */
+    public record MenuAction(int kind, UUID spirit, UUID area, String name) implements CustomPacketPayload {
+        public static final int FOLLOW = 0, ASSIGN = 1, CREATE = 2, DELETE = 3, REFRESH = 4;
+        public static final Type<MenuAction> TYPE = new Type<>(id("menu_accion"));
+        public static final StreamCodec<FriendlyByteBuf, MenuAction> CODEC = CustomPacketPayload.codec(MenuAction::write, MenuAction::new);
+
+        MenuAction(FriendlyByteBuf b) {
+            this(b.readVarInt(), b.readUUID(), b.readUUID(), b.readUtf(32));
+        }
+
+        void write(FriendlyByteBuf b) {
+            b.writeVarInt(this.kind);
+            b.writeUUID(this.spirit);
+            b.writeUUID(this.area);
+            b.writeUtf(this.name, 32);
+        }
+
+        @Override
+        public Type<MenuAction> type() {
+            return TYPE;
+        }
+    }
+
     /** Lo que hace el cliente con cada mensaje (lo pone el cliente; en el servidor dedicado queda vacio). */
     public interface ClientSide {
         void defs(Defs d);
 
         void chunk(Chunk c);
+
+        default void menu(Menu m) {
+        }
     }
 
     public static ClientSide client = new ClientSide() {
@@ -117,6 +183,16 @@ public final class Net {
         PayloadRegistrar r = event.registrar("1").optional();
         r.playToClient(Defs.TYPE, Defs.CODEC, (p, ctx) -> client.defs(p));
         r.playToClient(Chunk.TYPE, Chunk.CODEC, (p, ctx) -> client.chunk(p));
+        r.playToClient(Menu.TYPE, Menu.CODEC, (p, ctx) -> client.menu(p));
+        r.playToServer(MenuAction.TYPE, MenuAction.CODEC, (p, ctx) -> {
+            if (ctx.player() instanceof ServerPlayer sp) {
+                if (p.kind() == MenuAction.REFRESH) {
+                    com.starlevi.starspirits.server.Homes.openMenu(sp, false);
+                } else {
+                    com.starlevi.starspirits.server.Homes.action(sp, p);
+                }
+            }
+        });
         r.playToServer(Need.TYPE, Need.CODEC, (p, ctx) -> {
             if (ctx.player() instanceof ServerPlayer sp) {
                 Uploads.need(sp, p.hash());

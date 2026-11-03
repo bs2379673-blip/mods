@@ -108,9 +108,21 @@ public class SerpentEntity extends GuardianEntity {
         resetFallDistance();
     }
 
+    /** Flota sobre el agua: la superficie le sirve de piso (como el strider en la lava). */
+    @Override
+    public boolean canStandOnFluid(net.minecraft.world.level.material.FluidState fluid) {
+        return fluid.is(net.minecraft.tags.FluidTags.WATER);
+    }
+
     @Override
     public void aiStep() {
         super.aiStep();
+        // si igual queda dentro del agua (corriente, o aparecio abajo) sube despacio hasta la superficie
+        if (isInWater() && !isNoGravity()) {
+            Vec3 v = getDeltaMovement();
+            setDeltaMovement(v.x * 0.9, Math.min(0.22, Math.max(v.y, 0) + 0.06), v.z * 0.9);
+            resetFallDistance();
+        }
         // sin jinete en el aire: baja planeando suave
         if (!this.level().isClientSide && getControllingPassenger() == null && (this.gliding || this.levitate > 0)) {
             this.levitate = 0;

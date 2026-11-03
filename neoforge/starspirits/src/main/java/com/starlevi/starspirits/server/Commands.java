@@ -134,6 +134,33 @@ public final class Commands {
                                             c.getSource().sendFailure(Component.literal("Ahí no hay un Pilar Rúnico libre"));
                                             return 0;
                                         })))))
+                .then(literal("menu").requires(s -> s.hasPermission(2))
+                        .then(argument("jugador", EntityArgument.player()).executes(c -> {
+                            Homes.openMenu(EntityArgument.getPlayer(c, "jugador"), true);
+                            return 1;
+                        })))
+                .then(literal("casita").requires(s -> s.hasPermission(2))
+                        .then(argument("jugador", EntityArgument.player())
+                                .then(argument("desde", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos())
+                                        .then(argument("hasta", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos())
+                                                .then(argument("n", IntegerArgumentType.integer(1)).executes(c -> {
+                                                    ServerPlayer p = EntityArgument.getPlayer(c, "jugador");
+                                                    Homes.mark(p, net.minecraft.commands.arguments.coordinates.BlockPosArgument.getLoadedBlockPos(c, "desde"));
+                                                    Homes.mark(p, net.minecraft.commands.arguments.coordinates.BlockPosArgument.getLoadedBlockPos(c, "hasta"));
+                                                    java.util.UUID zero = new java.util.UUID(0, 0);
+                                                    Homes.action(p, new com.starlevi.starspirits.net.Net.MenuAction(com.starlevi.starspirits.net.Net.MenuAction.CREATE, zero, zero, "Casita"));
+                                                    java.util.List<Homes.Area> areas = Homes.of(p.getUUID());
+                                                    int n = IntegerArgumentType.getInteger(c, "n");
+                                                    com.starlevi.starspirits.SpiritData sd = Caravan.data(p);
+                                                    if (areas.isEmpty() || n > sd.entries.size()) {
+                                                        c.getSource().sendFailure(Component.literal("No se pudo"));
+                                                        return 0;
+                                                    }
+                                                    Homes.action(p, new com.starlevi.starspirits.net.Net.MenuAction(com.starlevi.starspirits.net.Net.MenuAction.ASSIGN,
+                                                            sd.entries.get(n - 1).id(), areas.get(areas.size() - 1).id, ""));
+                                                    c.getSource().sendSuccess(() -> Component.literal("Casita creada"), true);
+                                                    return 1;
+                                                }))))))
                 .then(literal("recargar").requires(s -> s.hasPermission(2)).executes(c -> {
                     Config.load();
                     SpiritLibrary.scan(true);

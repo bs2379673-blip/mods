@@ -1,0 +1,6 @@
+{
+ "parent": "minecraft:item/handheld",
+ "textures": {
+  "layer0": "starspirits:item/varita_espiritus"
+ }
+}

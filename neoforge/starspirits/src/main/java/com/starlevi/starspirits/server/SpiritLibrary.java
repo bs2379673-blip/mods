@@ -112,6 +112,8 @@ public final class SpiritLibrary {
         ASSETS.clear();
         BY_HASH.clear();
         DEFS.clear();
+        // los que trae el mod adentro (siempre estan y se actualizan con el mod)
+        java.util.Set<String> builtin = loadBuiltins();
         // primero los archivos que usan (imagenes y modelos .geo.json)
         for (Path f : seen.keySet()) {
             String n = f.getFileName().toString().toLowerCase(Locale.ROOT);
@@ -138,6 +140,18 @@ public final class SpiritLibrary {
                 continue;
             }
             String id = n.substring(0, n.length() - 5).replaceAll("[^a-z0-9_.-]+", "_");
+            if (builtin.contains(id)) {
+                // copia vieja de uno que ahora viene en el mod: se aparta para que no confunda
+                try {
+                    Path old = dir.resolve("viejos");
+                    Files.createDirectories(old);
+                    Files.move(f, old.resolve(file), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    StarSpirits.LOGGER.info("StarSpirits: {} ya viene en el mod; la copia de la config se movio a viejos/", file);
+                } catch (IOException ignored) {
+                    // queda donde estaba, pero manda la del mod
+                }
+                continue;
+            }
             try {
                 SpiritDef d = new SpiritDef(id, Files.readString(f, StandardCharsets.UTF_8));
                 for (String need : d.files()) {
@@ -152,6 +166,56 @@ public final class SpiritLibrary {
         }
         StarSpirits.LOGGER.info("StarSpirits: {} espiritus, {} archivos", DEFS.size(), ASSETS.size());
         return true;
+    }
+
+    /** Lista de espiritus incluidos en el mod (assets/starspirits/espiritus/incluidos.txt). */
+    private static java.util.Set<String> loadBuiltins() {
+        java.util.Set<String> ids = new java.util.LinkedHashSet<>();
+        String index = resourceText("incluidos.txt");
+        if (index == null) {
+            return ids;
+        }
+        for (String line : index.split("\\R")) {
+            String id = line.trim().toLowerCase(Locale.ROOT);
+            if (id.isEmpty() || id.startsWith("#")) {
+                continue;
+            }
+            String json = resourceText(id + ".json");
+            if (json == null) {
+                continue;
+            }
+            try {
+                SpiritDef d = new SpiritDef(id, json);
+                for (String need : d.files()) {
+                    byte[] data = resourceBytes(need);
+                    if (data == null) {
+                        StarSpirits.LOGGER.warn("StarSpirits: al espiritu incluido {} le falta {}", id, need);
+                        continue;
+                    }
+                    Asset a = new Asset(need, sha1(data), data);
+                    ASSETS.put(need, a);
+                    BY_HASH.put(a.hash(), a);
+                }
+                DEFS.put(id, d);
+                ids.add(id);
+            } catch (Exception ex) {
+                StarSpirits.LOGGER.warn("StarSpirits: el espiritu incluido {} tiene un error: {}", id, ex.getMessage());
+            }
+        }
+        return ids;
+    }
+
+    private static byte[] resourceBytes(String file) {
+        try (InputStream in = SpiritLibrary.class.getResourceAsStream("/assets/starspirits/espiritus/" + file)) {
+            return in == null ? null : in.readAllBytes();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private static String resourceText(String file) {
+        byte[] b = resourceBytes(file);
+        return b == null ? null : new String(b, StandardCharsets.UTF_8);
     }
 
     /** Manda la lista de espiritus (json + archivos que usa cada uno) a un jugador. */
@@ -236,9 +300,6 @@ public final class SpiritLibrary {
     // ------------------------------------------------------------------ ejemplos
 
     private static void writeExamples(Path dir) {
-        for (String n : BUILTIN) {
-            copy("/assets/starspirits/espiritus/" + n + ".json", dir.resolve(n + ".json"));
-        }
         copy("/assets/starspirits/espiritus/LEEME.txt", dir.resolve("LEEME.txt"));
         copy("/assets/starspirits/espiritus/ejemplo_textura.png", dir.resolve("ejemplo_textura.png"));
     }

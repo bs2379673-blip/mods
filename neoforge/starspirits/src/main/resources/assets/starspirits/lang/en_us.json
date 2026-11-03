@@ -4,5 +4,6 @@
  "entity.starspirits.espiritu": "Spirit",
  "block.starspirits.pilar_runico": "Runic Pillar",
  "block.starspirits.pilar_runico_cuerpo": "Runic Pillar",
- "item.starspirits.espiritu_atrapado": "Caught Spirit"
+ "item.starspirits.espiritu_atrapado": "Caught Spirit",
+ "item.starspirits.varita_espiritus": "Spirit Wand"
 }

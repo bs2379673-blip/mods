@@ -57,16 +57,21 @@ public final class RiderPose {
         NeoForge.EVENT_BUS.addListener((RenderPlayerEvent.Pre e) -> {
             Player p = e.getEntity();
             if (p.getVehicle() instanceof com.starlevi.starriders.SerpentEntity sp) {
-                // pasajeros de la serpiente: se acomodan sobre la curva del lomo
-                float[] o = SerpentRenderer.seatOffset(sp, sp.seatOf(p));
-                if (o != null) {
-                    float yaw = Mth.rotLerp(e.getPartialTick(), sp.yBodyRotO, sp.yBodyRot);
-                    net.minecraft.world.phys.Vec3 w = new net.minecraft.world.phys.Vec3(o[0], o[1], o[2]).yRot(-yaw * Mth.DEG_TO_RAD);
-                    PoseStack ps = e.getPoseStack();
-                    ps.pushPose();
+                // pasajeros de la serpiente: pegados a su parte del lomo
+                org.joml.Matrix4f m = Carry.get(sp, sp.seatOf(p));
+                if (m != null) {
+                    e.getPoseStack().pushPose();
                     PUSHED.add(p);
-                    ps.translate(w.x, w.y, w.z);
-                    ps.mulPose(Axis.YP.rotationDegrees(o[3]));
+                    Carry.apply(e.getPoseStack(), sp, p, e.getPartialTick(), m);
+                }
+                return;
+            }
+            if (p.getVehicle() instanceof com.starlevi.starriders.PhoenixEntity ph && !(ph instanceof GuardianEntity)) {
+                org.joml.Matrix4f m = Carry.get(ph, 0);
+                if (m != null && ph.getControllingPassenger() == p) {
+                    e.getPoseStack().pushPose();
+                    PUSHED.add(p);
+                    Carry.apply(e.getPoseStack(), ph, p, e.getPartialTick(), m);
                 }
                 return;
             }
@@ -82,6 +87,11 @@ public final class RiderPose {
             PoseStack ps = e.getPoseStack();
             ps.pushPose();
             PUSHED.add(p);
+            // pegado al lomo: sube, baja y se inclina con el
+            org.joml.Matrix4f m = Carry.get(g, 0);
+            if (m != null) {
+                Carry.apply(ps, g, p, e.getPartialTick(), m);
+            }
             // el cuerpo del jugador sigue al guardian, no a la camara
             outer(ps, yaw, Mth.rotLerp(e.getPartialTick(), p.yBodyRotO, p.yBodyRot), sw, phase, walk);
         });
@@ -99,8 +109,6 @@ public final class RiderPose {
 
     /** Gira todo el cuerpo alrededor de las manos (que quedan fijas en la melena). */
     public static void outer(PoseStack ps, float bodyYaw, float playerYaw, Swing sw, float phase, float walk) {
-        float bob = Mth.sin(phase) * 0.05f * walk;
-        ps.translate(0, bob, 0);
         ps.mulPose(Axis.YP.rotationDegrees(-bodyYaw));
         ps.translate(0, HANDS, 0);
         ps.mulPose(Axis.XP.rotationDegrees(sw.pitch));

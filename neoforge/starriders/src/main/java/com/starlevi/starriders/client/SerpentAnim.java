@@ -23,6 +23,8 @@ public final class SerpentAnim {
     private final SkinnedModel m;
     private final int com, head, mouth, tongue;
     private final int[] seats;
+    /** Huesos del cuerpo, de la cabeza a la cola (son hermanos: cada uno se mueve por su cuenta). */
+    private final int[] body;
     private final Quaternionf[] parentRef;
 
     public SerpentAnim(SkinnedModel m) {
@@ -31,6 +33,14 @@ public final class SerpentAnim {
         this.head = m.bone("b_f_head_01");
         this.mouth = m.bone("b_f_mouse_01");
         this.tongue = m.bone("b_f_tongue_01");
+        java.util.List<Integer> bl = new java.util.ArrayList<>();
+        for (int i = 1; i <= 40; i++) {
+            int b = m.bone(String.format("b_f_body_%02d", i));
+            if (b >= 0) {
+                bl.add(b);
+            }
+        }
+        this.body = bl.stream().mapToInt(Integer::intValue).toArray();
         this.seats = new int[SEAT_BONES.length];
         for (int i = 0; i < SEAT_BONES.length; i++) {
             this.seats[i] = m.bone(SEAT_BONES[i]);
@@ -81,6 +91,25 @@ public final class SerpentAnim {
         turn(this.com, 0, 1, 0, Mth.sin(t * 0.12f) * 0.1f * move);
         turn(this.com, 1, 0, 0, Mth.sin(t * 0.12f + 1) * 0.06f * move);
         turn(this.com, 0, 0, 1, -0.12f * move - 0.1f * run);
+        // avanzando: una onda corre de la cabeza a la cola (de costado y un poco de arriba abajo), como si
+        // nadara en el aire; corriendo es mas rapida y mas ancha; la cabeza cabecea con cada ola
+        float wave = Mth.clamp(move * (1 - p.riseWeight), 0, 1);
+        if (wave > 0.01f) {
+            float speed = 0.22f + run * 0.12f, amp = (0.24f + run * 0.1f) * smooth(wave);
+            int n = this.body.length;
+            for (int i = 0; i < n; i++) {
+                int b = this.body[i];
+                float ph = t * speed - i * 0.42f;
+                // la cola se mueve mas que el cuello; la cabeza poco (sigue mirando adelante)
+                float along = 0.35f + 0.65f * Math.min(1, i / 8f);
+                m.tr[b].add(0, Mth.cos(ph * 0.5f) * amp * 0.35f * along, Mth.sin(ph) * amp * along);
+                turn(b, 0, 1, 0, Mth.cos(ph) * amp * 0.9f * along);
+            }
+            float ph0 = t * speed;
+            m.tr[this.head].add(0, Mth.cos(ph0 * 0.5f) * amp * 0.35f * 0.35f, Mth.sin(ph0) * amp * 0.35f);
+            turn(this.head, 0, 0, 1, Mth.sin(ph0 - 0.8f) * 0.07f * smooth(wave));
+            turn(this.head, 0, 1, 0, -Mth.cos(ph0) * amp * 0.6f);
+        }
         // mirar
         float hy = Mth.clamp(p.headYaw, -60, 60) * Mth.DEG_TO_RAD * 0.6f;
         float hp = Mth.clamp(p.headPitch, -35, 35) * Mth.DEG_TO_RAD * 0.5f;
@@ -99,6 +128,11 @@ public final class SerpentAnim {
             turn(this.tongue, 0, 1, 0, Mth.sin(t * 1.7f) * 0.2f * flick);
         }
         m.compute();
+    }
+
+    /** Hueso del asiento n. */
+    public int seatBone(int n) {
+        return this.seats[Math.min(n, this.seats.length - 1)];
     }
 
     /** Posicion (modelo, metros) arriba del hueso del asiento n. */

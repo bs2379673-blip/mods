@@ -100,6 +100,9 @@ public class PhoenixRenderer extends EntityRenderer<PhoenixEntity> {
         p.tailSpeed = Mth.clamp(hs * 1.3f, 0, 1);
         PhoenixAnim.apply(this.model, p);
 
+        // el jinete se inclina y se ladea junto con el fenix (sus ejes estan girados media vuelta)
+        Carry.of(e, 1)[0].identity().rotateY(Mth.PI).translate(0, CENTER * SCALE, 0).rotateX(st.pitch * Mth.DEG_TO_RAD).rotateZ(st.bank)
+                .translate(0, -CENTER * SCALE, 0).rotateY(-Mth.PI);
         ps.pushPose();
         ps.mulPose(Axis.YP.rotationDegrees(180 - bodyYaw));
         ps.translate(0, CENTER * SCALE, 0);

@@ -44,17 +44,17 @@ public class SerpentRenderer extends EntityRenderer<SerpentEntity> {
 
     static final class State {
         float move, run, last = Float.NaN, slither, rise = -1, riseW, glide, bank, lastYaw = Float.NaN;
-        /** Por asiento: cuanto hay que correr al pasajero (bloques, ejes de la serpiente) y girarlo (grados). */
-        final float[][] seats = new float[SerpentEntity.SEATS][4];
     }
 
     /** Altura a la que flota (bloques), sin contar el vaiven. */
     public static final float HOVER = 0.5f;
 
-    /** Correccion del asiento n (x costado, y, z adelante, giro en grados), o null si no se dibujo todavia. */
-    public static float[] seatOffset(SerpentEntity e, int n) {
-        State st = STATES.get(e);
-        return st == null || n < 0 || n >= SerpentEntity.SEATS ? null : st.seats[n];
+    /** Por asiento: la pose de referencia del hueso (invertida) y el corrimiento hasta el asiento. */
+    private static org.joml.Matrix4f[] seatRefInv;
+
+    /** De los ejes del modelo a los de la serpiente (z adelante), flotando y ladeada. */
+    private static org.joml.Matrix4f base(org.joml.Matrix4f m, float hover, float bank) {
+        return m.identity().translate(0, hover, 0).rotateY(-Mth.HALF_PI).rotateX(bank * Mth.DEG_TO_RAD).scale(SCALE);
     }
 
     public SerpentRenderer(EntityRendererProvider.Context ctx) {
@@ -69,6 +69,16 @@ public class SerpentRenderer extends EntityRenderer<SerpentEntity> {
         try (InputStream in = SerpentRenderer.class.getResourceAsStream("/assets/starriders/models/entity/serpiente.bin")) {
             model = SkinnedModel.read(in);
             anim = new SerpentAnim(model);
+            anim.apply(new SerpentAnim.Params());
+            seatRefInv = new org.joml.Matrix4f[SerpentEntity.SEATS];
+            for (int n = 0; n < SerpentEntity.SEATS; n++) {
+                org.joml.Matrix4f ref = base(new org.joml.Matrix4f(), HOVER, 0).mul(model.world(anim.seatBone(n)));
+                org.joml.Vector3f at = ref.getTranslation(new org.joml.Vector3f());
+                float[] seat = SerpentEntity.SEAT_POS[n];
+                // el pasajero va sentado arriba del hueso; despues sigue cada movimiento y giro de ese hueso
+                seatRefInv[n] = new org.joml.Matrix4f(ref).invert()
+                        .translate(at.x - seat[0], at.y + 0.36f - seat[1], at.z - seat[2]);
+            }
         } catch (Exception e) {
             failed = true;
             StarRiders.LOGGER.error("StarRiders: no se pudo cargar el modelo de la serpiente", e);
@@ -130,17 +140,10 @@ public class SerpentRenderer extends EntityRenderer<SerpentEntity> {
         p.headPitch = Mth.lerp(partial, e.xRotO, e.getXRot());
         anim.apply(p);
         float hover = HOVER + Mth.sin(now * 0.08f) * 0.08f + st.glide * 0.1f;
-        // pasajeros: siguen a su hueso del enroscado
-        org.joml.Vector3f v = new org.joml.Vector3f();
+        // pasajeros: pegados a su hueso del enroscado (se mueven, giran y se ladean con el)
+        org.joml.Matrix4f[] carry = Carry.of(e, SerpentEntity.SEATS);
         for (int n = 0; n < SerpentEntity.SEATS; n++) {
-            anim.seat(n, v);
-            float[] st0 = SerpentEntity.SEAT_POS[n];
-            float[] o = st.seats[n];
-            // modelo (x adelante, z costado) -> serpiente (z adelante, x costado)
-            o[0] = -v.z * SCALE - (float) st0[0];
-            o[1] = v.y * SCALE + hover - (float) st0[1];
-            o[2] = v.x * SCALE - (float) st0[2];
-            o[3] = 0;
+            base(carry[n], hover, st.bank).mul(model.world(anim.seatBone(n))).mul(seatRefInv[n]);
         }
 
         ps.pushPose();

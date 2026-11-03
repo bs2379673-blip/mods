@@ -54,6 +54,9 @@ public final class ModRegistry {
     public static final DeferredItem<com.starlevi.starspirits.item.SpiritItem> CAUGHT = ITEMS.register("espiritu_atrapado",
             () -> new com.starlevi.starspirits.item.SpiritItem(new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.RARE)));
 
+    public static final DeferredItem<com.starlevi.starspirits.item.WandItem> WAND = ITEMS.register("varita_espiritus",
+            () -> new com.starlevi.starspirits.item.WandItem(new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.UNCOMMON)));
+
     static {
         ITEMS.register("pilar_runico", () -> new BlockItem(PILLAR.get(), new Item.Properties()));
         ITEMS.register("punto_extraccion", () -> new BlockItem(EXTRACTION.get(), new Item.Properties()));
@@ -80,7 +83,7 @@ public final class ModRegistry {
                 .icon(() -> new ItemStack(POT.get()))
                 .displayItems((params, out) -> {
                     out.accept(PILLAR.get());
-                    out.accept(POT.get());
+                    out.accept(WAND.get());
                 })
                 .build());
     }

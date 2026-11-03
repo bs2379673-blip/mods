@@ -37,6 +37,7 @@ public final class StarSpirits {
         });
         Caravan.init();
         com.starlevi.starspirits.server.Wild.init();
+        com.starlevi.starspirits.server.Homes.init();
         Benefits.init();
         if (FMLEnvironment.dist.isClient()) {
             com.starlevi.starspirits.client.StarSpiritsClient.init(modBus);

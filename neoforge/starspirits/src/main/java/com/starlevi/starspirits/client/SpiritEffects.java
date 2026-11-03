@@ -81,6 +81,21 @@ public final class SpiritEffects {
                             }
                         }
                     }
+                    case "aplausos" -> {
+                        if (age % 8 == 0) {
+                            level.addParticle(ParticleTypes.WAX_ON, e.getX() + (r.nextDouble() - 0.5) * 0.3, top, e.getZ() + (r.nextDouble() - 0.5) * 0.3, 0, 0.02, 0);
+                        }
+                    }
+                    case "voltereta", "rebote" -> {
+                        if (age % 9 == 0) {
+                            level.addParticle(ParticleTypes.CLOUD, e.getX(), e.getY() + 0.05, e.getZ(), 0, 0.01, 0);
+                        }
+                    }
+                    case "estirarse" -> {
+                        if (f > 0.4f && f < 0.6f && age % 6 == 0) {
+                            level.addParticle(ParticleTypes.POOF, e.getX(), top + 0.1, e.getZ(), 0, 0.03, 0);
+                        }
+                    }
                     case "baile" -> {
                         if (age % 10 == 0) {
                             level.addParticle(ParticleTypes.NOTE, e.getX(), top + 0.3, e.getZ(), r.nextDouble(), 0, 0);

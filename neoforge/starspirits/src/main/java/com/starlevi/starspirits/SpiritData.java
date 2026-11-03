@@ -20,7 +20,8 @@ public final class SpiritData {
     public static final Codec<SpiritData> CODEC = RecordCodecBuilder.create(i -> i.group(
             Entry.CODEC.listOf().fieldOf("espiritus").forGetter(d -> d.entries),
             UUIDUtil.CODEC.optionalFieldOf("activo").forGetter(d -> Optional.ofNullable(d.active)),
-            Codec.LONG.optionalFieldOf("bonsai", 0L).forGetter(d -> d.saveReadyAt)).apply(i, SpiritData::new));
+            Codec.LONG.optionalFieldOf("bonsai", 0L).forGetter(d -> d.saveReadyAt),
+            UUIDUtil.CODEC.listOf().optionalFieldOf("siguen", List.of()).forGetter(d -> d.followers)).apply(i, SpiritData::new));
 
     public final List<Entry> entries;
     public UUID active;
@@ -28,15 +29,25 @@ public final class SpiritData {
     public long saveReadyAt;
     /** Espiritu elegido para la maceta (shift + clic): no se guarda. */
     public transient UUID potPick;
+    /** Ya se eligieron los que siguen (para no volver a llenar la lista si el jugador la vacio). */
+    public transient boolean followersChosen;
+
+    /** Los que te siguen (como mucho Config.maxFollowers, elegidos con la varita). */
+    public final List<UUID> followers;
 
     public SpiritData() {
-        this(new ArrayList<>(), Optional.empty(), 0L);
+        this(new ArrayList<>(), Optional.empty(), 0L, List.of());
     }
 
-    private SpiritData(List<Entry> entries, Optional<UUID> active, long saveReadyAt) {
+    private SpiritData(List<Entry> entries, Optional<UUID> active, long saveReadyAt, List<UUID> followers) {
         this.entries = new ArrayList<>(entries);
         this.active = active.orElse(null);
         this.saveReadyAt = saveReadyAt;
+        this.followers = new ArrayList<>(followers);
+    }
+
+    public boolean follows(UUID id) {
+        return this.followers.contains(id);
     }
 
     public Entry find(UUID id) {
@@ -57,11 +68,16 @@ public final class SpiritData {
     public Entry add(String type) {
         Entry e = new Entry(UUID.randomUUID(), type);
         this.entries.add(e);
+        // si hay lugar, el nuevo te sigue
+        if (this.followers.size() < com.starlevi.starspirits.Config.maxFollowers) {
+            this.followers.add(e.id());
+        }
         return e;
     }
 
     public boolean remove(UUID id) {
         boolean r = this.entries.removeIf(e -> e.id().equals(id));
+        this.followers.remove(id);
         if (id.equals(this.active)) {
             this.active = null;
         }
