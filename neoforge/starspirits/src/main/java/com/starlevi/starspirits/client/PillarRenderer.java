@@ -74,6 +74,7 @@ public class PillarRenderer implements BlockEntityRenderer<PillarBlockEntity> {
             ps.popPose();
         }
         shards(ps, buffers, light, now, f, cr, cg, cb, ca);
+        glow = buffers.getBuffer(Glow.LIGHT);
         if (f >= 0) {
             ritual(be, f, now, cr, cg, cb, ps, buffers);
         } else {
@@ -127,8 +128,7 @@ public class PillarRenderer implements BlockEntityRenderer<PillarBlockEntity> {
     /** Tres esquirlas de piedra con un glifo que flotan alrededor; en el ritual giran rapido y se acercan. */
     private static void shards(PoseStack ps, MultiBufferSource buffers, int light, float now, float f, float cr, float cg, float cb, float ca) {
         float speed = f >= 0 ? 0.008f + 0.05f * Mth.clamp(f * 2, 0, 1) : 0.008f;
-        VertexConsumer vc = buffers.getBuffer(RenderType.entityCutoutNoCull(TEX));
-        VertexConsumer glow = buffers.getBuffer(Glow.LIGHT);
+        // ojo: pedir cada buffer justo antes de usarlo (pedir otro cierra el anterior)
         for (int i = 0; i < 3; i++) {
             float a = now * speed + i * Mth.TWO_PI / 3;
             float dist = f >= 0 ? Mth.lerp(Mth.clamp(f * 2, 0, 1), 2.1f, 1.55f) : 2.1f;
@@ -139,7 +139,8 @@ public class PillarRenderer implements BlockEntityRenderer<PillarBlockEntity> {
             ps.mulPose(com.mojang.math.Axis.ZP.rotation(Mth.sin(now * 0.03f + i) * 0.25f));
             float s = 0.75f + i * 0.12f;
             ps.scale(s, s, s);
-            shard(ps.last(), vc, light, i);
+            shard(ps.last(), buffers.getBuffer(RenderType.entityCutoutNoCull(TEX)), light, i);
+            VertexConsumer glow = buffers.getBuffer(Glow.LIGHT);
             // glifo de la esquirla (mira hacia afuera)
             Matrix4f m = ps.last().pose();
             float z = 0.135f;
