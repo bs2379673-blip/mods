@@ -33,6 +33,8 @@ public final class SerpentAnim {
     private final Quaternionf mouthParentRef, tongueParentRef;
     private final float[] cx, cy, cz, cyaw, cpitch;
     private final int steps;
+    // de la ultima pose: el asiento y cuanto se subio la curva
+    private float lastSx, lastSy, lastSz, lastSyaw, lastLift;
 
     public SerpentAnim(SkinnedModel m) {
         this.m = m;
@@ -117,6 +119,11 @@ public final class SerpentAnim {
             floor = Math.min(floor, this.cy[i]);
         }
         float lift = BASE_Y - Math.min(floor, sy);
+        this.lastSx = sx;
+        this.lastSy = sy;
+        this.lastSz = sz;
+        this.lastSyaw = syaw;
+        this.lastLift = lift;
         Quaternionf around = new Quaternionf().rotationY(-syaw);
         Vector3f tmp = new Vector3f();
         for (int k = 0; k < this.body.length; k++) {
@@ -140,6 +147,23 @@ public final class SerpentAnim {
             turnLocal(this.tongue, this.tongueParentRef, 0, 1, 0, Mth.sin(t * 1.7f) * 0.2f * flick);
         }
         m.compute();
+    }
+
+    /**
+     * Punto del lomo a la distancia s de la cabeza (metros del modelo), en el marco del asiento:
+     * out = {x adelante, y arriba (eje del cuerpo), z costado, giro}.
+     */
+    public void point(float s, float[] out) {
+        float f = Mth.clamp(s / DS, 0, this.steps - 1.001f);
+        int i = (int) f;
+        float k = f - i;
+        Vector3f v = new Vector3f(Mth.lerp(k, this.cx[i], this.cx[i + 1]) - this.lastSx,
+                Mth.lerp(k, this.cy[i], this.cy[i + 1]) - this.lastSy, Mth.lerp(k, this.cz[i], this.cz[i + 1]) - this.lastSz);
+        new Quaternionf().rotationY(-this.lastSyaw).transform(v);
+        out[0] = v.x;
+        out[1] = v.y + this.lastSy + this.lastLift;
+        out[2] = v.z;
+        out[3] = Mth.lerp(k, this.cyaw[i], this.cyaw[i + 1]) - this.lastSyaw;
     }
 
     /** Pone un hueso sobre la curva, en la distancia s desde la cabeza. */

@@ -44,6 +44,14 @@ public class SerpentRenderer extends EntityRenderer<SerpentEntity> {
 
     static final class State {
         float phase, move, run, last = Float.NaN, slither;
+        /** Por asiento: cuanto hay que correr al pasajero (bloques, ejes de la serpiente) y girarlo (grados). */
+        final float[][] seats = new float[SerpentEntity.SEATS][4];
+    }
+
+    /** Correccion del asiento n (x costado, y, z adelante, giro en grados), o null si no se dibujo todavia. */
+    public static float[] seatOffset(SerpentEntity e, int n) {
+        State st = STATES.get(e);
+        return st == null || n < 0 || n >= SerpentEntity.SEATS ? null : st.seats[n];
     }
 
     public SerpentRenderer(EntityRendererProvider.Context ctx) {
@@ -104,6 +112,19 @@ public class SerpentRenderer extends EntityRenderer<SerpentEntity> {
         p.headYaw = Mth.wrapDegrees(Mth.rotLerp(partial, e.yHeadRotO, e.yHeadRot) - bodyYaw);
         p.headPitch = Mth.lerp(partial, e.xRotO, e.getXRot());
         anim.apply(p);
+        // los pasajeros de atras van sobre el lomo aunque el cuerpo ondule
+        float[] base = new float[4], pt = new float[4];
+        anim.point(SerpentAnim.SEAT, base);
+        for (int n = 0; n < SerpentEntity.SEATS; n++) {
+            float s = SerpentAnim.SEAT + n * SerpentEntity.SPACING / SCALE;
+            anim.point(s, pt);
+            float[] o = st.seats[n];
+            // modelo (x adelante, z costado) -> serpiente (z adelante, x costado); el asiento fijo esta en -n*SPACING
+            o[0] = -pt[2] * SCALE;
+            o[1] = (pt[1] - base[1]) * SCALE;
+            o[2] = pt[0] * SCALE + n * SerpentEntity.SPACING;
+            o[3] = pt[3] * Mth.RAD_TO_DEG;
+        }
 
         ps.pushPose();
         ps.mulPose(Axis.YP.rotationDegrees(-bodyYaw - 90));

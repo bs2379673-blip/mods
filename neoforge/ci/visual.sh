@@ -137,7 +137,8 @@ SER=('time set 6000' 'kill @e[type=starriders:guardian]' 'starriders salvaje 160
   'starriders dar @r serpiente' 'tp @a 160 -60 160 0 5' 'sleep 1' 'starriders llamar @r' 'sleep 0.6' "${T}foto n03_serpiente_siseo${E}"
   'sleep 3' "${T}foto n04_serpiente_quieta${E}" 'tp @a 160 -60 163 0 5' 'sleep 0.5' 'ride @r mount @e[type=starriders:serpiente,limit=1]'
   "${T}camara atras${E}" 'sleep 1.5' "${T}foto n05_serpiente_montada${E}" "${T}caminar si${E}" 'sleep 1.0' "${T}foto n06_serpiente_avanza${E}"
-  'sleep 0.6' "${T}foto n07_serpiente_avanza_b${E}" "${T}camara frente${E}" 'sleep 0.6' "${T}foto n08_serpiente_frente${E}" "${T}camara atras${E}"
+  'sleep 0.6' "${T}foto n07_serpiente_avanza_b${E}" "${T}camara frente${E}" 'sleep 0.6' "${T}foto n08_serpiente_frente${E}" "${T}camara atras${E}" "${T}caminar no${E}" 'summon villager 160 -60 158 {NoAI:1b,Tags:["psj"]}' 'summon villager 160 -60 158 {NoAI:1b,Tags:["psj"]}' 'summon villager 160 -60 158 {NoAI:1b,Tags:["psj"]}'
+  'execute as @e[tag=psj] run ride @s mount @e[type=starriders:serpiente,limit=1]' 'sleep 1.5' "${T}foto n09_serpiente_pasajeros${E}" "${T}caminar si${E}" 'sleep 1.2' "${T}foto n10_serpiente_pasajeros_avanza${E}" 'kill @e[tag=psj]' 
   "${T}caminar no${E}" 'sleep 1' 'ride @r dismount' "${T}camara primera${E}" 'kill @e[type=starriders:serpiente]' 'starriders quitar @r todos' 'sleep 0.5')
 FEN+=("${SER[@]}")
 python3 ci/rcon.py 25577 annistest "${FEN[@]}" 2>&1 | tee rcon-starriders.txt

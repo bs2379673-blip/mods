@@ -1,6 +1,9 @@
 package com.starlevi.starriders;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -60,9 +63,71 @@ public class SerpentEntity extends GuardianEntity {
         this.level().playSound(null, blockPosition(), SoundEvents.RAVAGER_ROAR, SoundSource.NEUTRAL, 0.6f, 1.4f);
     }
 
+    /** Cuantos pueden ir sentados en el lomo (el dueno adelante, el resto en fila detras). */
+    public static final int SEATS = 8;
+    /** Separacion entre asientos (bloques). */
+    public static final float SPACING = 1.8f;
+
+    /** Asiento de un pasajero: 0 el dueno, despues los demas en el orden en que subieron. */
+    public int seatOf(Entity e) {
+        if (e.getUUID().equals(ownerId())) {
+            return 0;
+        }
+        int n = 1;
+        for (Entity p : getPassengers()) {
+            if (p == e) {
+                return n;
+            }
+            if (!p.getUUID().equals(ownerId())) {
+                n++;
+            }
+        }
+        return n;
+    }
+
     @Override
     protected Vec3 getPassengerAttachmentPoint(Entity e, EntityDimensions dims, float scale) {
-        return new Vec3(0, 1.05, 0);
+        return new Vec3(0, 1.05, -seatOf(e) * SPACING);
+    }
+
+    @Override
+    public LivingEntity getControllingPassenger() {
+        // solo la maneja el dueno, aunque haya subido despues que los demas
+        for (Entity p : getPassengers()) {
+            if (p instanceof Player pl && pl.getUUID().equals(ownerId())) {
+                return pl;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected boolean canAddPassenger(Entity e) {
+        if (getPassengers().size() >= SEATS) {
+            return false;
+        }
+        // el lugar del dueno siempre queda libre para el
+        return e.getUUID().equals(ownerId()) || getPassengers().size() < SEATS - 1
+                || getPassengers().stream().anyMatch(p -> p.getUUID().equals(ownerId()));
+    }
+
+    @Override
+    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (isWild() || player.isSecondaryUseActive() || hasPassenger(player)) {
+            return super.mobInteract(player, hand);
+        }
+        // cualquiera puede subirse al lomo; solo el dueno la maneja
+        if (!this.level().isClientSide) {
+            if (canAddPassenger(player)) {
+                player.startRiding(this);
+                if (!player.getUUID().equals(ownerId())) {
+                    player.displayClientMessage(Component.literal("🐍 Te subiste al lomo de la serpiente (la maneja su dueño)"), true);
+                }
+            } else {
+                player.displayClientMessage(Component.literal("🐍 No hay más lugar en el lomo"), true);
+            }
+        }
+        return InteractionResult.sidedSuccess(this.level().isClientSide);
     }
 
     @Override

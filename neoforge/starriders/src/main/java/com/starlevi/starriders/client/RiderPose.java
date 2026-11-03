@@ -56,6 +56,20 @@ public final class RiderPose {
     public static void init() {
         NeoForge.EVENT_BUS.addListener((RenderPlayerEvent.Pre e) -> {
             Player p = e.getEntity();
+            if (p.getVehicle() instanceof com.starlevi.starriders.SerpentEntity sp) {
+                // pasajeros de la serpiente: se acomodan sobre la curva del lomo
+                float[] o = SerpentRenderer.seatOffset(sp, sp.seatOf(p));
+                if (o != null) {
+                    float yaw = Mth.rotLerp(e.getPartialTick(), sp.yBodyRotO, sp.yBodyRot);
+                    net.minecraft.world.phys.Vec3 w = new net.minecraft.world.phys.Vec3(o[0], o[1], o[2]).yRot(-yaw * Mth.DEG_TO_RAD);
+                    PoseStack ps = e.getPoseStack();
+                    ps.pushPose();
+                    PUSHED.add(p);
+                    ps.translate(w.x, w.y, w.z);
+                    ps.mulPose(Axis.YP.rotationDegrees(o[3]));
+                }
+                return;
+            }
             if (!(p.getVehicle() instanceof GuardianEntity g) || g instanceof com.starlevi.starriders.SerpentEntity) {
                 return;
             }
