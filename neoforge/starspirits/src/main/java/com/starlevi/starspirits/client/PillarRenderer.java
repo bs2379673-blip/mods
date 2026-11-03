@@ -180,6 +180,12 @@ public class PillarRenderer implements BlockEntityRenderer<PillarBlockEntity> {
         ps.translate(0, 7.2f, 0);
         Glow.beam(ps.last(), buffers.getBuffer(Glow.LIGHT), 6 + 20 * bf, 0.2f, 0.5f, cr, cg, cb, 0.8f * bf * fade);
         ps.popPose();
+        // el espiritu baja del lado de quien hizo el ritual
+        net.minecraft.world.entity.player.Player owner = be.owner == null ? null : be.getLevel().getPlayerByUUID(be.owner);
+        if (owner != null) {
+            double dx = owner.getX() - (be.getBlockPos().getX() + 0.5), dz = owner.getZ() - (be.getBlockPos().getZ() + 0.5);
+            ps.mulPose(com.mojang.math.Axis.YP.rotation((float) Math.atan2(dx, dz)));
+        }
         // el espiritu: aparece arriba de la punta como una luz, baja girando por delante de la runa y toca el piso
         float y = Mth.lerp(smooth(f), 7.6f, 0.05f);
         float zf = faceZ(Math.max(0.5f, y)) + 0.9f;
