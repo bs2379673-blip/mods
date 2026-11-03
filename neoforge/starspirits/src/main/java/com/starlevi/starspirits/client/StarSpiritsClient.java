@@ -30,6 +30,7 @@ public final class StarSpiritsClient {
             e.registerEntityRenderer(ModRegistry.SPIRIT.get(), SpiritRenderer::new);
             e.registerBlockEntityRenderer(ModRegistry.EXTRACTION_BE.get(), ExtractionRenderer::new);
             e.registerBlockEntityRenderer(ModRegistry.POT_BE.get(), PotRenderer::new);
+            e.registerBlockEntityRenderer(ModRegistry.PILLAR_BE.get(), PillarRenderer::new);
         });
     }
 }

@@ -26,6 +26,117 @@ import net.minecraft.world.phys.Vec3;
  */
 public class GuardianEntity extends PhoenixEntity {
     private int leapCooldown;
+    /** Raices enganchadas: punto donde se agarraron y tick en que se lanzaron (-1 = no hay). */
+    private static final net.minecraft.network.syncher.EntityDataAccessor<org.joml.Vector3f> ROOT_AT =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(GuardianEntity.class, net.minecraft.network.syncher.EntityDataSerializers.VECTOR3);
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Integer> ROOT_TICK =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(GuardianEntity.class, net.minecraft.network.syncher.EntityDataSerializers.INT);
+    /** Lado del que maneja (prediccion): raices activas, punto y ticks. */
+    private Vec3 grappleAt;
+    private int grappleTicks = -1;
+    /** Distancia maxima a la que se pueden lanzar las raices. */
+    public static final double ROOT_RANGE = 24;
+
+    @Override
+    protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder b) {
+        super.defineSynchedData(b);
+        b.define(ROOT_AT, new org.joml.Vector3f());
+        b.define(ROOT_TICK, -1);
+    }
+
+    /** Punto donde estan enganchadas las raices (para dibujarlas), o null. */
+    public Vec3 rootAnchor() {
+        if (this.grappleTicks >= 0 && this.grappleAt != null) {
+            return this.grappleAt;
+        }
+        if (this.entityData.get(ROOT_TICK) < 0) {
+            return null;
+        }
+        org.joml.Vector3f v = this.entityData.get(ROOT_AT);
+        return new Vec3(v.x, v.y, v.z);
+    }
+
+    /** Ticks desde que lanzo las raices (con decimales), o -1. */
+    public float rootAge(float partial) {
+        if (this.grappleTicks >= 0) {
+            return this.grappleTicks + partial;
+        }
+        int t = this.entityData.get(ROOT_TICK);
+        return t < 0 ? -1 : this.tickCount - t + partial;
+    }
+
+    private void startGrapple(Vec3 at) {
+        this.grappleAt = at;
+        this.grappleTicks = 0;
+        if (!this.level().isClientSide) {
+            this.entityData.set(ROOT_AT, new org.joml.Vector3f((float) at.x, (float) at.y, (float) at.z));
+            this.entityData.set(ROOT_TICK, this.tickCount);
+            this.level().playSound(null, blockPosition(), SoundEvents.ROOTED_DIRT_BREAK, SoundSource.NEUTRAL, 1.5f, 0.6f);
+            this.level().playSound(null, BlockPos.containing(at), SoundEvents.WOOD_PLACE, SoundSource.NEUTRAL, 1.5f, 0.5f);
+        }
+    }
+
+    private void endGrapple() {
+        this.grappleTicks = -1;
+        this.grappleAt = null;
+        setNoGravity(false);
+        if (!this.level().isClientSide) {
+            this.entityData.set(ROOT_TICK, -1);
+        }
+    }
+
+    /** Raices: 8 ticks se estiran y se clavan; despues tiran del cuerpo hasta arriba. */
+    private void grappleTick() {
+        int t = ++this.grappleTicks;
+        Vec3 chest = position().add(0, 2.2, 0);
+        Vec3 to = this.grappleAt.subtract(chest);
+        double d = to.length();
+        if (t < 8) {
+            setDeltaMovement(getDeltaMovement().scale(0.5));
+            move(net.minecraft.world.entity.MoverType.SELF, getDeltaMovement());
+            return;
+        }
+        if (d < 2.4 || t > 80 || (t > 20 && getDeltaMovement().lengthSqr() < 0.004)) {
+            // llego: se impulsa un poquito para subirse arriba
+            setDeltaMovement(to.normalize().scale(0.35).add(0, 0.6, 0));
+            this.hasImpulse = true;
+            endGrapple();
+            this.leapCooldown = 10;
+            return;
+        }
+        setNoGravity(true);
+        double speed = Math.min(1.1, 0.25 + (t - 8) * 0.05);
+        Vec3 v = getDeltaMovement().lerp(to.normalize().scale(speed), 0.35);
+        setDeltaMovement(v);
+        move(net.minecraft.world.entity.MoverType.SELF, v);
+        if (t % 5 == 0 && !this.level().isClientSide) {
+            this.level().playSound(null, blockPosition(), SoundEvents.WOOD_HIT, SoundSource.NEUTRAL, 0.8f, 0.6f);
+        }
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+        if (this.grappleTicks >= 0 && getControllingPassenger() == null) {
+            endGrapple();
+        }
+    }
+
+    /** Con salto mirando hacia arriba (a un lugar alto): lanza raices en vez de saltar. */
+    private boolean tryGrapple(Player p) {
+        if (p.getXRot() > -12) {
+            return false;
+        }
+        Vec3 eye = p.getEyePosition();
+        Vec3 end = eye.add(p.getLookAngle().scale(ROOT_RANGE));
+        net.minecraft.world.phys.BlockHitResult hit = this.level().clip(new net.minecraft.world.level.ClipContext(eye, end,
+                net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE, p));
+        if (hit.getType() != net.minecraft.world.phys.HitResult.Type.BLOCK || hit.getLocation().y < getY() + 2.5) {
+            return false;
+        }
+        startGrapple(hit.getLocation());
+        return true;
+    }
     private int sinkTicks = -1;
 
     public GuardianEntity(EntityType<? extends PathfinderMob> type, Level level) {
@@ -71,7 +182,7 @@ public class GuardianEntity extends PhoenixEntity {
 
     @Override
     protected Vec3 getPassengerAttachmentPoint(Entity e, EntityDimensions dims, float scale) {
-        return new Vec3(0.2, 3.3, 0.2);
+        return new Vec3(0.2, 2.9, 0.8);
     }
 
     @Override
@@ -104,6 +215,15 @@ public class GuardianEntity extends PhoenixEntity {
         float fwd = p.zza, side = p.xxa;
         if (this.leapCooldown > 0) {
             this.leapCooldown--;
+        }
+        if (this.grappleTicks >= 0 && this.grappleAt != null) {
+            grappleTick();
+            resetFallDistance();
+            calculateEntityAnimation(false);
+            return;
+        }
+        if (canLeap() && jumping(p) && this.leapCooldown == 0 && tryGrapple(p)) {
+            return;
         }
         if (canLeap() && jumping(p) && onGround() && this.leapCooldown == 0) {
             // salto largo hacia adelante

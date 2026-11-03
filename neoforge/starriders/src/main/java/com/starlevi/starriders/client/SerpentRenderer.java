@@ -24,7 +24,7 @@ import java.util.WeakHashMap;
  * codigo). Cada parte del cuerpo tiene su textura; los ojos y las marcas de la cabeza brillan.
  */
 public class SerpentRenderer extends EntityRenderer<SerpentEntity> {
-    public static final float SCALE = 1.8f;
+    public static final float SCALE = 1.1f;
     private static final ResourceLocation[] TEX = new ResourceLocation[8];
     private static final ResourceLocation[] GLOW = new ResourceLocation[8];
 
@@ -43,10 +43,13 @@ public class SerpentRenderer extends EntityRenderer<SerpentEntity> {
     private static final Map<SerpentEntity, State> STATES = new WeakHashMap<>();
 
     static final class State {
-        float phase, move, run, last = Float.NaN, slither;
+        float move, run, last = Float.NaN, slither, rise = -1, riseW, glide, bank, lastYaw = Float.NaN;
         /** Por asiento: cuanto hay que correr al pasajero (bloques, ejes de la serpiente) y girarlo (grados). */
         final float[][] seats = new float[SerpentEntity.SEATS][4];
     }
+
+    /** Altura a la que flota (bloques), sin contar el vaiven. */
+    public static final float HOVER = 0.5f;
 
     /** Correccion del asiento n (x costado, y, z adelante, giro en grados), o null si no se dibujo todavia. */
     public static float[] seatOffset(SerpentEntity e, int n) {
@@ -56,7 +59,7 @@ public class SerpentRenderer extends EntityRenderer<SerpentEntity> {
 
     public SerpentRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
-        this.shadowRadius = 1.4f;
+        this.shadowRadius = 1.6f;
     }
 
     private static boolean load() {
@@ -76,7 +79,7 @@ public class SerpentRenderer extends EntityRenderer<SerpentEntity> {
     @Override
     public boolean shouldRender(SerpentEntity e, net.minecraft.client.renderer.culling.Frustum f, double x, double y, double z) {
         // es muy larga: se dibuja aunque la caja chica de colision quede fuera de la pantalla
-        return e.distanceToSqr(x, y, z) < 160 * 160;
+        return e.distanceToSqr(x, y, z) < 96 * 96;
     }
 
     @Override
@@ -88,49 +91,63 @@ public class SerpentRenderer extends EntityRenderer<SerpentEntity> {
         float now = e.tickCount + partial;
         float dt = Float.isNaN(st.last) ? 0 : Mth.clamp(now - st.last, 0, 3);
         st.last = now;
-        double vx = e.getX() - e.xo, vz = e.getZ() - e.zo;
+        double vx = e.getX() - e.xo, vy = e.getY() - e.yo, vz = e.getZ() - e.zo;
         float hs = (float) Math.sqrt(vx * vx + vz * vz);
         float k = 1 - (float) Math.exp(-dt * 0.12f);
+        boolean air = !e.onGround();
+        boolean rising = air && vy > 0.03;
         st.move += ((hs > 0.01f ? 1 : 0) - st.move) * k;
         st.run += ((hs > 0.38f ? 1 : 0) - st.run) * k * 0.6f;
-        // la onda avanza lo mismo que el cuerpo (en metros del modelo), asi el cuerpo no patina
-        float dist = hs / SCALE;
-        st.phase += dist / SerpentAnim.WAVE * Mth.TWO_PI * dt;
-        st.slither += hs * dt;
-        if (st.slither > 3.5f) {
-            st.slither = 0;
-            Minecraft.getInstance().level.playLocalSound(e.getX(), e.getY(), e.getZ(), SoundEvents.SAND_STEP, SoundSource.NEUTRAL,
-                    0.5f, 0.6f, false);
+        // levitar: se enrosca girando y se levanta; despues planea estirada
+        if (rising) {
+            st.rise = st.rise < 0 ? 0 : Math.min(1, st.rise + dt / 55f);
+        } else if (!air) {
+            st.rise = -1;
         }
+        st.riseW += ((rising ? 1 : 0) - st.riseW) * k * 0.8f;
+        st.glide += ((air && !rising ? 1 : 0) - st.glide) * k * 0.6f;
         float bodyYaw = Mth.rotLerp(partial, e.yBodyRotO, e.yBodyRot);
+        // se ladea en las curvas al planear
+        float dYaw = Float.isNaN(st.lastYaw) ? 0 : Mth.wrapDegrees(bodyYaw - st.lastYaw);
+        st.lastYaw = bodyYaw;
+        float bankT = air ? Mth.clamp(-dYaw / Math.max(0.05f, dt) * 1.6f, -25, 25) : 0;
+        st.bank += (bankT - st.bank) * k * 0.6f;
+        st.slither += hs * dt;
+        if (st.slither > 5f && !air) {
+            st.slither = 0;
+            Minecraft.getInstance().level.playLocalSound(e.getX(), e.getY(), e.getZ(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.NEUTRAL,
+                    0.25f, 0.5f + e.getRandom().nextFloat() * 0.2f, false);
+        }
         SerpentAnim.Params p = this.params;
         p.age = now;
-        p.phase = st.phase;
         p.move = st.move;
         p.run = st.run;
+        p.rise = st.rise;
+        p.riseWeight = st.riseW;
+        p.glide = st.glide;
         p.hiss = e.roarProgress(partial);
         p.headYaw = Mth.wrapDegrees(Mth.rotLerp(partial, e.yHeadRotO, e.yHeadRot) - bodyYaw);
         p.headPitch = Mth.lerp(partial, e.xRotO, e.getXRot());
         anim.apply(p);
-        // los pasajeros de atras van sobre el lomo aunque el cuerpo ondule
-        float[] base = new float[4], pt = new float[4];
-        anim.point(SerpentAnim.SEAT, base);
+        float hover = HOVER + Mth.sin(now * 0.08f) * 0.08f + st.glide * 0.1f;
+        // pasajeros: siguen a su hueso del enroscado
+        org.joml.Vector3f v = new org.joml.Vector3f();
         for (int n = 0; n < SerpentEntity.SEATS; n++) {
-            float s = SerpentAnim.SEAT + n * SerpentEntity.SPACING / SCALE;
-            anim.point(s, pt);
+            anim.seat(n, v);
+            float[] st0 = SerpentEntity.SEAT_POS[n];
             float[] o = st.seats[n];
-            // modelo (x adelante, z costado) -> serpiente (z adelante, x costado); el asiento fijo esta en -n*SPACING
-            o[0] = -pt[2] * SCALE;
-            o[1] = (pt[1] - base[1]) * SCALE;
-            o[2] = pt[0] * SCALE + n * SerpentEntity.SPACING;
-            o[3] = pt[3] * Mth.RAD_TO_DEG;
+            // modelo (x adelante, z costado) -> serpiente (z adelante, x costado)
+            o[0] = -v.z * SCALE - (float) st0[0];
+            o[1] = v.y * SCALE + hover - (float) st0[1];
+            o[2] = v.x * SCALE - (float) st0[2];
+            o[3] = 0;
         }
 
         ps.pushPose();
+        ps.translate(0, hover, 0);
         ps.mulPose(Axis.YP.rotationDegrees(-bodyYaw - 90));
+        ps.mulPose(Axis.XP.rotationDegrees(st.bank));
         ps.scale(SCALE, SCALE, SCALE);
-        // el eje del cuerpo esta a 0.3 m y la panza a ~0.32 m por debajo: queda apoyada en el piso
-        ps.translate(0, 0.02f, 0);
         model.renderGroups(ps, g -> g < TEX.length ? buffers.getBuffer(RenderType.entityCutoutNoCull(TEX[g])) : null, light,
                 OverlayTexture.NO_OVERLAY, -1);
         model.renderGroups(ps, g -> g < GLOW.length && GLOW[g] != null ? buffers.getBuffer(RenderType.eyes(GLOW[g])) : null, light,

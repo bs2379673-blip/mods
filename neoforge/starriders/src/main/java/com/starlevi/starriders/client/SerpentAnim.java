@@ -1,197 +1,113 @@
 package com.starlevi.starriders.client;
 
 import net.minecraft.util.Mth;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * La serpiente se mueve por codigo: el cuerpo sigue una curva que ondula (la onda viaja hacia la cola
- * a la misma velocidad con la que avanza, asi no "patina"), el cuello se levanta como una cobra y la
- * cabeza mira, saca la lengua y sisea. Todo queda centrado en el lomo donde va el jinete.
+ * La serpiente mistica: usa las animaciones que trae el modelo (se enrosca girando y se levanta,
+ * quieta erguida sobre su enroscado, se estira hacia arriba) mezcladas suave entre si, y le suma por
+ * codigo el vaiven al flotar, mirar, sacar la lengua y sisear.
  */
 public final class SerpentAnim {
-    /** Distancia (metros del modelo) desde la cabeza hasta el asiento del jinete. */
-    public static final float SEAT = 4.6f;
-    /** Alto del eje del cuerpo en reposo (metros del modelo). */
-    private static final float BASE_Y = 0.3f;
-    private static final float DS = 0.08f;
-    /** Largo de la onda del cuerpo (metros del modelo). */
-    public static final float WAVE = 5.5f;
+    /** Cuadros (de la animacion guardada, 25 por segundo) de cada parte. */
+    public static final float RISE_A = 4, RISE_B = 88, IDLE_A = 88, IDLE_B = 130, REAR_A = 158, REAR_B = 228;
+    /** Huesos sobre los que van sentados los pasajeros (el primero es el del dueno). */
+    public static final String[] SEAT_BONES = {"b_f_body_13", "b_f_body_11", "b_f_body_16", "b_f_body_22", "b_f_body_25", "b_f_body_19"};
 
     public static final class Params {
-        public float age, phase, move, run, hiss = -1, headYaw, headPitch;
+        /** ticks; move 0..1; run 0..1; rise 0..1 mientras se levanta (o -1); glide 0..1. */
+        public float age, move, run, rise = -1, riseWeight, glide, hiss = -1, headYaw, headPitch;
     }
 
     private final SkinnedModel m;
-    private final int head, mouth, tongue;
-    private final int[] body;
-    private final float[] bodyS;
-    private final Matrix4f[] bindWorld;
-    private final Vector3f[] bindPos;
-    private final float headS;
-    private final Quaternionf mouthParentRef, tongueParentRef;
-    private final float[] cx, cy, cz, cyaw, cpitch;
-    private final int steps;
-    // de la ultima pose: el asiento y cuanto se subio la curva
-    private float lastSx, lastSy, lastSz, lastSyaw, lastLift;
+    private final int com, head, mouth, tongue;
+    private final int[] seats;
+    private final Quaternionf[] parentRef;
 
     public SerpentAnim(SkinnedModel m) {
         this.m = m;
+        this.com = m.bone("b_com_01");
         this.head = m.bone("b_f_head_01");
         this.mouth = m.bone("b_f_mouse_01");
         this.tongue = m.bone("b_f_tongue_01");
-        m.sample(0);
+        this.seats = new int[SEAT_BONES.length];
+        for (int i = 0; i < SEAT_BONES.length; i++) {
+            this.seats[i] = m.bone(SEAT_BONES[i]);
+        }
+        m.sample(IDLE_A + 20);
         m.compute();
-        this.bindWorld = new Matrix4f[m.bones];
-        this.bindPos = new Vector3f[m.bones];
+        this.parentRef = new Quaternionf[m.bones];
         for (int b = 0; b < m.bones; b++) {
-            this.bindWorld[b] = new Matrix4f(m.world(b));
-            this.bindPos[b] = m.world(b).getTranslation(new Vector3f());
+            int p = m.parent[b];
+            this.parentRef[b] = p < 0 ? new Quaternionf() : m.world(p).getUnnormalizedRotation(new Quaternionf()).normalize();
         }
-        this.headS = 0;
-        float headX = this.bindPos[this.head].x;
-        java.util.List<Integer> list = new java.util.ArrayList<>();
-        for (int i = 1; i <= 28; i++) {
-            int b = m.bone(String.format("b_f_body_%02d", i));
-            if (b >= 0) {
-                list.add(b);
-            }
-        }
-        this.body = list.stream().mapToInt(Integer::intValue).toArray();
-        this.bodyS = new float[this.body.length];
-        float maxS = 0;
-        for (int i = 0; i < this.body.length; i++) {
-            this.bodyS[i] = headX - this.bindPos[this.body[i]].x;
-            maxS = Math.max(maxS, this.bodyS[i]);
-        }
-        this.steps = Mth.ceil((maxS + 1) / DS) + 2;
-        this.cx = new float[this.steps];
-        this.cy = new float[this.steps];
-        this.cz = new float[this.steps];
-        this.cyaw = new float[this.steps];
-        this.cpitch = new float[this.steps];
-        int hp = m.parent[this.mouth];
-        this.mouthParentRef = m.world(hp).getUnnormalizedRotation(new Quaternionf()).normalize();
-        this.tongueParentRef = this.tongue < 0 ? new Quaternionf()
-                : m.world(m.parent[this.tongue]).getUnnormalizedRotation(new Quaternionf()).normalize();
     }
 
-    private static float smooth(float e0, float e1, float x) {
-        float t = Mth.clamp((x - e0) / (e1 - e0), 0, 1);
-        return t * t * (3 - 2 * t);
+    private static float pingPong(float t, float a, float b) {
+        float len = b - a;
+        float x = t % (2 * len);
+        if (x < 0) {
+            x += 2 * len;
+        }
+        // ida y vuelta con frenado suave en los extremos
+        float k = x < len ? x / len : 2 - x / len;
+        return a + len * (0.5f - 0.5f * Mth.cos(k * Mth.PI));
+    }
+
+    private void turn(int b, float ax, float ay, float az, float angle) {
+        if (b < 0 || angle == 0) {
+            return;
+        }
+        Vector3f axis = this.parentRef[b].conjugate(new Quaternionf()).transform(new Vector3f(ax, ay, az));
+        this.m.rot[b].premul(new Quaternionf().rotationAxis(angle, axis.normalize()));
     }
 
     public void apply(Params p) {
-        float move = Mth.clamp(p.move, 0, 1), run = Mth.clamp(p.run, 0, 1), still = 1 - move;
+        SkinnedModel m = this.m;
         float t = p.age;
-        // cuanto se levanta el cuello: alto quieto (cobra), mas bajo al avanzar, casi al ras corriendo
+        // quieta erguida, respirando (va y vuelve sobre su propio movimiento)
+        m.sample(pingPong(t * 0.55f, IDLE_A, IDLE_B));
+        // planeando: se estira hacia arriba, ondulando lento
+        if (p.glide > 0) {
+            m.blend(pingPong(t * 0.4f, REAR_A + 10, REAR_B - 6), smooth(Mth.clamp(p.glide, 0, 1)) * 0.85f);
+        }
+        // levitando: se enrosca girando y se levanta (la animacion del modelo)
+        if (p.rise >= 0 && p.riseWeight > 0) {
+            m.blend(Mth.lerp(Mth.clamp(p.rise, 0, 1), RISE_A, RISE_B), smooth(Mth.clamp(p.riseWeight, 0, 1)));
+        }
+        // flotando al avanzar: se mece de lado a lado y se inclina un poco hacia adelante
+        float move = Mth.clamp(p.move, 0, 1), run = Mth.clamp(p.run, 0, 1);
+        turn(this.com, 0, 1, 0, Mth.sin(t * 0.12f) * 0.1f * move);
+        turn(this.com, 1, 0, 0, Mth.sin(t * 0.12f + 1) * 0.06f * move);
+        turn(this.com, 0, 0, 1, -0.12f * move - 0.1f * run);
+        // mirar
+        float hy = Mth.clamp(p.headYaw, -60, 60) * Mth.DEG_TO_RAD * 0.6f;
+        float hp = Mth.clamp(p.headPitch, -35, 35) * Mth.DEG_TO_RAD * 0.5f;
+        turn(this.head, 0, 1, 0, -hy);
+        turn(this.head, 0, 0, 1, -hp);
+        // sisear: levanta la cabeza y abre la boca grande
         float hiss = p.hiss >= 0 ? Mth.sin(Mth.clamp(p.hiss, 0, 1) * Mth.PI) : 0;
-        float rise = 0.95f - move * 0.4f - run * 0.25f + hiss * 0.3f + Mth.sin(t * 0.05f) * 0.04f * still;
-        float riseLen = 2.8f;
-        // ondulacion: fuerte al moverse, suave respirando quieta
-        float amp = 0.1f + move * 0.42f + run * 0.12f;
-        float idleWave = t * 0.03f;
-        // se integra la curva desde la cabeza hacia la cola
-        float x = 0, y = 0, z = 0;
-        for (int i = 0; i < this.steps; i++) {
-            float s = i * DS;
-            float a = amp * smooth(1.2f, 4.5f, s) * (1 - 0.35f * smooth(10f, 15f, s));
-            float yaw = a * Mth.sin(Mth.TWO_PI * s / WAVE - p.phase - idleWave);
-            // el cuello: vertical cerca de la cabeza, despues se acuesta
-            float pitch = rise * (1 - smooth(riseLen * 0.35f, riseLen, s)) * smooth(0.0f, 0.5f, s);
-            this.cx[i] = x;
-            this.cy[i] = y;
-            this.cz[i] = z;
-            this.cyaw[i] = yaw;
-            this.cpitch[i] = pitch;
-            float cp = Mth.cos(pitch);
-            x -= Mth.cos(yaw) * cp * DS;
-            y -= Mth.sin(pitch) * DS;
-            z += Mth.sin(yaw) * cp * DS;
-        }
-        // centra todo en el asiento: ahi queda en (0, BASE_Y, 0) mirando hacia +x
-        int si = Math.min(this.steps - 1, Math.round(SEAT / DS));
-        float sx = this.cx[si], sy = this.cy[si], sz = this.cz[si], syaw = this.cyaw[si];
-        // la cola queda en el piso: la altura minima de la curva va a BASE_Y
-        float floor = Float.MAX_VALUE;
-        for (int i = si; i < this.steps; i++) {
-            floor = Math.min(floor, this.cy[i]);
-        }
-        float lift = BASE_Y - Math.min(floor, sy);
-        this.lastSx = sx;
-        this.lastSy = sy;
-        this.lastSz = sz;
-        this.lastSyaw = syaw;
-        this.lastLift = lift;
-        Quaternionf around = new Quaternionf().rotationY(-syaw);
-        Vector3f tmp = new Vector3f();
-        for (int k = 0; k < this.body.length; k++) {
-            place(this.body[k], this.bodyS[k], sx, sy, sz, syaw, lift, around, tmp, 0, 0);
-        }
-        // cabeza: horizontal, mira hacia donde mira el jinete
-        float hy = Mth.clamp(p.headYaw, -60, 60) * Mth.DEG_TO_RAD * 0.7f;
-        float hp = Mth.clamp(p.headPitch, -30, 30) * Mth.DEG_TO_RAD * 0.5f;
-        float sway = Mth.sin(t * 0.045f) * 0.12f * still;
-        place(this.head, this.headS, sx, sy, sz, syaw, lift, around, tmp, -hy + sway, -hp - this.cpitch[0] + hiss * 0.35f);
-        // boca y lengua: la lengua sale cada tanto; al sisear abre grande la boca
+        turn(this.head, 0, 0, 1, hiss * 0.3f);
         float flickT = (t % 70f) / 70f;
         float flick = flickT < 0.18f ? Mth.sin(flickT / 0.18f * Mth.PI) : 0;
-        m.sample(0);
         if (this.mouth >= 0) {
-            float open = hiss * 0.75f + flick * 0.08f;
-            turnLocal(this.mouth, this.mouthParentRef, 0, 0, 1, -open);
+            turn(this.mouth, 0, 0, 1, -(hiss * 0.7f + flick * 0.06f));
         }
         if (this.tongue >= 0) {
-            turnLocal(this.tongue, this.tongueParentRef, 0, 0, 1, Mth.sin(t * 2.6f) * 0.25f * flick);
-            turnLocal(this.tongue, this.tongueParentRef, 0, 1, 0, Mth.sin(t * 1.7f) * 0.2f * flick);
+            turn(this.tongue, 0, 0, 1, Mth.sin(t * 2.6f) * 0.25f * flick);
+            turn(this.tongue, 0, 1, 0, Mth.sin(t * 1.7f) * 0.2f * flick);
         }
         m.compute();
     }
 
-    /**
-     * Punto del lomo a la distancia s de la cabeza (metros del modelo), en el marco del asiento:
-     * out = {x adelante, y arriba (eje del cuerpo), z costado, giro}.
-     */
-    public void point(float s, float[] out) {
-        float f = Mth.clamp(s / DS, 0, this.steps - 1.001f);
-        int i = (int) f;
-        float k = f - i;
-        Vector3f v = new Vector3f(Mth.lerp(k, this.cx[i], this.cx[i + 1]) - this.lastSx,
-                Mth.lerp(k, this.cy[i], this.cy[i + 1]) - this.lastSy, Mth.lerp(k, this.cz[i], this.cz[i + 1]) - this.lastSz);
-        new Quaternionf().rotationY(-this.lastSyaw).transform(v);
-        out[0] = v.x;
-        out[1] = v.y + this.lastSy + this.lastLift;
-        out[2] = v.z;
-        out[3] = Mth.lerp(k, this.cyaw[i], this.cyaw[i + 1]) - this.lastSyaw;
+    /** Posicion (modelo, metros) arriba del hueso del asiento n. */
+    public Vector3f seat(int n, Vector3f out) {
+        int b = this.seats[Math.min(n, this.seats.length - 1)];
+        return this.m.world(b).getTranslation(out).add(0, 0.33f, 0);
     }
 
-    /** Pone un hueso sobre la curva, en la distancia s desde la cabeza. */
-    private void place(int b, float s, float sx, float sy, float sz, float syaw, float lift, Quaternionf around, Vector3f tmp,
-                       float extraYaw, float extraPitch) {
-        float f = Mth.clamp(s / DS, 0, this.steps - 1.001f);
-        int i = (int) f;
-        float k = f - i;
-        float px = Mth.lerp(k, this.cx[i], this.cx[i + 1]) - sx;
-        float py = Mth.lerp(k, this.cy[i], this.cy[i + 1]) - sy;
-        float pz = Mth.lerp(k, this.cz[i], this.cz[i + 1]) - sz;
-        float yaw = Mth.lerp(k, this.cyaw[i], this.cyaw[i + 1]) - syaw + extraYaw;
-        float pitch = Mth.lerp(k, this.cpitch[i], this.cpitch[i + 1]) + extraPitch;
-        around.transform(tmp.set(px, py, pz));
-        Vector3f bp = this.bindPos[b];
-        // mundo = T(punto) * R(tangente) * T(-pos de reposo) * mundo de reposo
-        Matrix4f w = this.m.forced[b] == null ? (this.m.forced[b] = new Matrix4f()) : this.m.forced[b];
-        w.translation(tmp.x, tmp.y + sy + lift, tmp.z)
-                .rotateY(yaw).rotateZ(pitch)
-                .translate(-bp.x, -bp.y, -bp.z)
-                .mul(this.bindWorld[b]);
-    }
-
-    private void turnLocal(int b, Quaternionf parentRef, float ax, float ay, float az, float angle) {
-        if (angle == 0) {
-            return;
-        }
-        Vector3f axis = parentRef.conjugate(new Quaternionf()).transform(new Vector3f(ax, ay, az));
-        this.m.rot[b].premul(new Quaternionf().rotationAxis(angle, axis.normalize()));
+    private static float smooth(float x) {
+        return x * x * (3 - 2 * x);
     }
 }

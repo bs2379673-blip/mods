@@ -97,10 +97,11 @@ SYNC=('time set 6000' "${T}hud no${E}" 'fill 78 -60 84 84 -57 84 minecraft:white
 python3 ci/rcon.py 25577 annistest "${SYNC[@]}" 2>&1 | tee rcon-starsync.txt
 # --- StarSpirits: punto de extraccion, caravana, maceta y los 8 espiritus en fila ---
 SPI=('time set 6000' 'weather clear' "${T}hud no${E}" "${T}camara primera${E}" 'fill 132 -60 136 152 -54 156 air'
-  'setblock 140 -60 146 starspirits:punto_extraccion' 'setblock 136 -60 146 starspirits:maceta'
-  'tp @a 140 -60 141.5 0 14' 'sleep 2.5' "${T}foto p01_punto_listo${E}"
-  'starspirits extraer 140 -60 146 @r luminon' 'sleep 0.8' "${T}foto p02_extrae_a${E}" 'sleep 1.0' "${T}foto p03_extrae_b${E}"
-  'sleep 0.9' "${T}foto p04_extrae_c${E}" 'sleep 0.6' "${T}foto p05_extrae_d${E}" 'sleep 1.6' "${T}foto p06_salio${E}")
+  'starspirits pilar 140 -60 146' 'setblock 136 -60 146 starspirits:maceta'
+  'tp @a 140 -60 136 0 -8' 'sleep 3' "${T}foto p01_pilar${E}" 'tp @a 146 -60 141 45 -5' 'sleep 1' "${T}foto p01b_pilar_costado${E}"
+  'tp @a 140 -60 136 0 -8' 'starspirits vincular 140 -60 146 @r luminon' 'sleep 1.2' "${T}foto p02_ritual_a${E}" 'sleep 1.3' "${T}foto p03_ritual_b${E}"
+  'sleep 1.3' "${T}foto p04_ritual_c${E}" 'sleep 1.0' "${T}foto p05_ritual_d${E}" 'sleep 1.5' "${T}foto p06_vinculado${E}"
+  'execute positioned 144 -60 141 run starspirits salvaje champi' 'tp @a 140 -60 137 30 10' 'sleep 1.5' "${T}foto p06b_salvaje${E}")
 for s in champi margarita brotecito campanita rosita loto bonsai; do SPI+=("starspirits dar @a $s"); done
 SPI+=('tp @a 140 -60 141 180 10' 'sleep 2.5' "${T}camara frente${E}" 'sleep 1' "${T}foto p07_caravana_frente${E}"
   "${T}caminar si${E}" 'sleep 2.5' "${T}foto p08_caravana_corre${E}" 'sleep 0.6' "${T}foto p09_caravana_corre_b${E}" "${T}caminar no${E}"
@@ -129,15 +130,20 @@ GUA=('time set 6000' 'weather clear' 'kill @e[type=starriders:fenix]' 'fill 150 
   'sleep 3' "${T}foto g04_guardian_quieto${E}" 'tp @a 160 -60 159 0 5' 'sleep 0.5' 'ride @r mount @e[type=starriders:guardian,limit=1]'
   "${T}camara atras${E}" 'sleep 1.5' "${T}foto g05_guardian_montado${E}" "${T}camara frente${E}" 'sleep 0.8' "${T}foto g05b_jinete_frente${E}" "${T}camara atras${E}" "${T}caminar si${E}" 'sleep 1.5' "${T}foto g06_guardian_camina${E}"
   "${T}camara frente${E}" 'sleep 0.6' "${T}foto g07_guardian_camina_frente${E}" "${T}camara atras${E}" "${T}saltar si${E}" 'sleep 0.35'
-  "${T}foto g08_guardian_salto${E}" "${T}saltar no${E}" "${T}caminar no${E}" 'sleep 1' 'ride @r dismount' "${T}camara primera${E}"
+  "${T}foto g08_guardian_salto${E}" "${T}saltar no${E}" "${T}caminar no${E}" 'sleep 1.5'
+  'execute at @e[type=starriders:guardian,limit=1] run fill ~-2 ~ ~6 ~2 ~9 ~8 minecraft:stone' "${T}mirar 0 -40${E}" 'sleep 1'
+  "${T}saltar si${E}" 'sleep 0.25' "${T}saltar no${E}" "${T}foto g09_raices_lanza${E}" 'sleep 0.6' "${T}foto g10_raices_tira${E}"
+  'sleep 0.8' "${T}foto g11_raices_arriba${E}" "${T}camara frente${E}" 'sleep 0.3' "${T}foto g12_raices_frente${E}" "${T}camara atras${E}"
+  'sleep 1.5' "${T}mirar 0 5${E}" 'ride @r dismount' "${T}camara primera${E}"
   'kill @e[type=starriders:guardian]' 'starriders quitar @r todos' 'sleep 0.5')
 FEN+=("${GUA[@]}")
-SER=('time set 6000' 'kill @e[type=starriders:guardian]' 'starriders salvaje 160 -60 175 serpiente' 'tp @a 150 -60 165 -45 20' 'sleep 3' "${T}foto n01_serpiente_salvaje${E}"
+SER=('time set 6000' 'kill @e[type=starriders:guardian]' 'fill 150 -60 150 180 -45 200 air' 'starriders salvaje 160 -60 175 serpiente' 'tp @a 150 -60 165 -45 20' 'sleep 3' "${T}foto n01_serpiente_salvaje${E}"
   'tp @a 172 -60 175 90 15' 'sleep 1.5' "${T}foto n02_serpiente_costado${E}" 'kill @e[type=starriders:serpiente]'
   'starriders dar @r serpiente' 'tp @a 160 -60 160 0 5' 'sleep 1' 'starriders llamar @r' 'sleep 0.6' "${T}foto n03_serpiente_siseo${E}"
   'sleep 3' "${T}foto n04_serpiente_quieta${E}" 'tp @a 160 -60 163 0 5' 'sleep 0.5' 'ride @r mount @e[type=starriders:serpiente,limit=1]'
   "${T}camara atras${E}" 'sleep 1.5' "${T}foto n05_serpiente_montada${E}" "${T}caminar si${E}" 'sleep 1.0' "${T}foto n06_serpiente_avanza${E}"
-  'sleep 0.6' "${T}foto n07_serpiente_avanza_b${E}" "${T}camara frente${E}" 'sleep 0.6' "${T}foto n08_serpiente_frente${E}" "${T}camara atras${E}" "${T}caminar no${E}" 'summon villager 160 -60 158 {NoAI:1b,Tags:["psj"]}' 'summon villager 160 -60 158 {NoAI:1b,Tags:["psj"]}' 'summon villager 160 -60 158 {NoAI:1b,Tags:["psj"]}'
+  'sleep 0.6' "${T}foto n07_serpiente_avanza_b${E}" "${T}camara frente${E}" 'sleep 0.6' "${T}foto n08_serpiente_frente${E}" "${T}camara atras${E}" "${T}caminar no${E}" "${T}saltar si${E}" 'sleep 0.3' "${T}saltar no${E}" 'sleep 0.6' "${T}foto n11_levita_a${E}" 'sleep 1.2' "${T}foto n12_levita_b${E}"
+  'sleep 1.4' "${T}caminar si${E}" 'sleep 1' "${T}foto n13_planea${E}" "${T}camara frente${E}" 'sleep 0.6' "${T}foto n14_planea_frente${E}" "${T}camara atras${E}" 'sleep 3'  "${T}caminar no${E}" 'summon villager 160 -60 158 {NoAI:1b,Tags:["psj"]}' 'summon villager 160 -60 158 {NoAI:1b,Tags:["psj"]}' 'summon villager 160 -60 158 {NoAI:1b,Tags:["psj"]}'
   'execute as @e[tag=psj] run ride @s mount @e[type=starriders:serpiente,limit=1]' 'sleep 1.5' "${T}foto n09_serpiente_pasajeros${E}" "${T}caminar si${E}" 'sleep 1.2' "${T}foto n10_serpiente_pasajeros_avanza${E}" 'kill @e[tag=psj]' 
   "${T}caminar no${E}" 'sleep 1' 'ride @r dismount' "${T}camara primera${E}" 'kill @e[type=starriders:serpiente]' 'starriders quitar @r todos' 'sleep 0.5')
 FEN+=("${SER[@]}")

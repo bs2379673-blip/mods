@@ -194,6 +194,7 @@ public final class ObjModel {
         Map<String, List<String>> paths = new HashMap<>();
         SpiritRig rig = new SpiritRig(root.bake(new ArrayList<>(), paths), paths);
         rig.topY = HEIGHT;
+        rig.chibi = true;
         return rig;
     }
 

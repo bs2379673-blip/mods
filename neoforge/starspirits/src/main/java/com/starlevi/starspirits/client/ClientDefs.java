@@ -125,6 +125,12 @@ public final class ClientDefs {
         return builtin(FORM_TEX.getOrDefault(formOf(id), "champi"));
     }
 
+    /** Textura con los ojos cerrados, o null si el espiritu no tiene. */
+    public static ResourceLocation blink(String id) {
+        SpiritDef d = DEFS.get(id);
+        return d == null || d.blinkFile == null ? null : TEXTURES.get(FILE_HASH.get(d.blinkFile));
+    }
+
     /** Textura que brilla (luz propia), o null. */
     public static ResourceLocation glow(String id) {
         SpiritDef d = DEFS.get(id);

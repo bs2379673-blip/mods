@@ -47,6 +47,82 @@ public class SerpentEntity extends GuardianEntity {
         return "serpiente";
     }
 
+    /**
+     * Montada: flota sobre el piso; con salto levita unos segundos enroscandose hacia arriba y despues
+     * planea hacia donde mira el jinete, bajando despacio.
+     */
+    @Override
+    protected void ridden(Player p, Vec3 in) {
+        float yaw = p.getYRot();
+        this.setYRot(yaw);
+        this.yRotO = yaw;
+        this.setXRot(p.getXRot() * 0.5f);
+        this.yBodyRot = yaw;
+        this.yHeadRot = yaw;
+        float fwd = p.zza, side = p.xxa;
+        if (this.glideCooldown > 0) {
+            this.glideCooldown--;
+        }
+        Vec3 look = Vec3.directionFromRotation(0, yaw);
+        if (this.levitate > 0) {
+            this.levitate--;
+            setNoGravity(true);
+            Vec3 want = new Vec3(look.x * 0.12 * Math.max(0, fwd), 0.26, look.z * 0.12 * Math.max(0, fwd));
+            Vec3 v = getDeltaMovement().lerp(want, 0.12);
+            setDeltaMovement(v);
+            move(net.minecraft.world.entity.MoverType.SELF, v);
+            if (this.levitate == 0) {
+                this.gliding = true;
+            }
+            resetFallDistance();
+            calculateEntityAnimation(false);
+            return;
+        }
+        if (this.gliding && !onGround()) {
+            setNoGravity(true);
+            double speed = fwd > 0 ? (p.isSprinting() ? 0.85 : 0.6) : 0.3;
+            Vec3 want = look.scale(speed).add(0, fwd > 0 ? -0.06 : -0.12, 0);
+            Vec3 v = getDeltaMovement().lerp(want, 0.07);
+            setDeltaMovement(v);
+            move(net.minecraft.world.entity.MoverType.SELF, v);
+            resetFallDistance();
+            calculateEntityAnimation(false);
+            return;
+        }
+        if (this.gliding) {
+            // aterrizo
+            this.gliding = false;
+            this.glideCooldown = 30;
+        }
+        setNoGravity(false);
+        if (jumping(p) && onGround() && this.glideCooldown == 0) {
+            this.levitate = 60;
+            setDeltaMovement(getDeltaMovement().add(0, 0.3, 0));
+            if (!this.level().isClientSide) {
+                roar();
+            }
+            return;
+        }
+        setSpeed((float) getAttributeValue(Attributes.MOVEMENT_SPEED) * (p.isSprinting() ? sprintBoost() : 1f));
+        travelPlain(new Vec3(side * 0.4, in.y, fwd < 0 ? fwd * 0.4 : fwd));
+        resetFallDistance();
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+        // sin jinete en el aire: baja planeando suave
+        if (!this.level().isClientSide && getControllingPassenger() == null && (this.gliding || this.levitate > 0)) {
+            this.levitate = 0;
+            Vec3 v = getDeltaMovement();
+            setDeltaMovement(v.x * 0.95, Math.max(v.y - 0.02, -0.15), v.z * 0.95);
+            if (onGround()) {
+                this.gliding = false;
+                setNoGravity(false);
+            }
+        }
+    }
+
     @Override
     protected boolean canLeap() {
         return false;
@@ -63,10 +139,13 @@ public class SerpentEntity extends GuardianEntity {
         this.level().playSound(null, blockPosition(), SoundEvents.RAVAGER_ROAR, SoundSource.NEUTRAL, 0.6f, 1.4f);
     }
 
-    /** Cuantos pueden ir sentados en el lomo (el dueno adelante, el resto en fila detras). */
-    public static final int SEATS = 8;
-    /** Separacion entre asientos (bloques). */
-    public static final float SPACING = 1.8f;
+    /** Cuantos pueden ir sentados sobre el enroscado (el dueno detras del cuello, el resto alrededor). */
+    public static final int SEATS = 6;
+    /** Donde se sienta cada uno (bloques, ejes de la serpiente: x costado, y alto, z adelante), flotando incluido. */
+    public static final float[][] SEAT_POS = {{0.3f, 2.7f, -1.41f}, {0.82f, 2.65f, -0.58f}, {-0.95f, 2.0f, -1.92f},
+            {-2.27f, 1.88f, 0.22f}, {-1.52f, 1.74f, 1.49f}, {-2.05f, 1.2f, -1.15f}};
+    private int levitate, glideCooldown;
+    private boolean gliding;
 
     /** Asiento de un pasajero: 0 el dueno, despues los demas en el orden en que subieron. */
     public int seatOf(Entity e) {
@@ -87,7 +166,8 @@ public class SerpentEntity extends GuardianEntity {
 
     @Override
     protected Vec3 getPassengerAttachmentPoint(Entity e, EntityDimensions dims, float scale) {
-        return new Vec3(0, 1.05, -seatOf(e) * SPACING);
+        float[] p = SEAT_POS[Math.min(seatOf(e), SEATS - 1)];
+        return new Vec3(p[0], p[1], p[2]);
     }
 
     @Override

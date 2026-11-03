@@ -25,6 +25,8 @@ public final class SpiritDef {
     public final String modelFile;
     public final String textureFile;
     public final String glowFile;
+    /** Textura con los ojos cerrados (para parpadear y dormir), o null. */
+    public final String blinkFile;
     public final float scale;
     /** Giro del modelo en grados (para modelos que vienen mirando de costado). */
     public final float turn;
@@ -51,6 +53,7 @@ public final class SpiritDef {
         this.modelFile = lower(str(o, "modelo", null));
         this.textureFile = lower(str(o, "textura", null));
         this.glowFile = lower(str(o, "brillo", null));
+        this.blinkFile = lower(str(o, "textura_parpadeo", null));
         this.scale = o.has("escala") ? Math.max(0.3f, Math.min(3f, o.get("escala").getAsFloat())) : 1f;
         this.turn = o.has("giro") ? o.get("giro").getAsFloat() : 0f;
         this.weight = o.has("peso") ? Math.max(0, o.get("peso").getAsInt()) : 1;
@@ -103,6 +106,9 @@ public final class SpiritDef {
         }
         if (this.modelFile != null) {
             out.add(this.modelFile);
+        }
+        if (this.blinkFile != null) {
+            out.add(this.blinkFile);
         }
         return out;
     }

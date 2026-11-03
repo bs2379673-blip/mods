@@ -32,6 +32,15 @@ public final class SpiritDraw {
         ps.scale(-s, -s, s);
         ps.translate(0, -1.501f, 0);
         ResourceLocation tex = ClientDefs.texture(id);
+        // parpadeo: cada tanto (a veces doble) cierra los ojos; dormido los tiene cerrados
+        ResourceLocation closed = ClientDefs.blink(id);
+        if (closed != null) {
+            float cyc = (pose.age + pose.seed * 29) % 95;
+            boolean blink = pose.sleeping || cyc < 3.2f || (pose.seed % 3 == 0 && cyc > 8 && cyc < 11);
+            if (blink) {
+                tex = closed;
+            }
+        }
         if (tex != null) {
             rig.render(ps, buffers.getBuffer(RenderType.entityCutoutNoCull(tex)), light, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
         }

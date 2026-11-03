@@ -33,7 +33,7 @@ public final class RiderPose {
         public void step(float now, float phase, float walk, float run, float air) {
             float dt = Float.isNaN(this.last) ? 0 : Mth.clamp(now - this.last, 0, 3);
             this.last = now;
-            float targetPitch = lean(walk, run, air) + Mth.sin(phase - 0.6f) * 6f * walk * (1 + run * 0.5f);
+            float targetPitch = lean(walk, run, air) + Mth.sin(phase - 0.6f) * 3f * walk * (1 + run * 0.5f);
             float targetRoll = Mth.sin(phase * 0.5f - 0.4f) * 5f * walk;
             if (Float.isNaN(this.pitch)) {
                 this.pitch = targetPitch;
@@ -82,7 +82,8 @@ public final class RiderPose {
             PoseStack ps = e.getPoseStack();
             ps.pushPose();
             PUSHED.add(p);
-            outer(ps, yaw, sw, phase, walk);
+            // el cuerpo del jugador sigue al guardian, no a la camara
+            outer(ps, yaw, Mth.rotLerp(e.getPartialTick(), p.yBodyRotO, p.yBodyRot), sw, phase, walk);
         });
         NeoForge.EVENT_BUS.addListener((RenderPlayerEvent.Post e) -> {
             if (PUSHED.remove(e.getEntity())) {
@@ -93,19 +94,20 @@ public final class RiderPose {
 
     /** Grados que se inclina el cuerpo hacia el lomo (los pies quedan atras, colgando). */
     static float lean(float walk, float run, float air) {
-        return 38f + run * 5f + air * 8f;
+        return 46f + run * 4f + air * 6f;
     }
 
     /** Gira todo el cuerpo alrededor de las manos (que quedan fijas en la melena). */
-    public static void outer(PoseStack ps, float bodyYaw, Swing sw, float phase, float walk) {
+    public static void outer(PoseStack ps, float bodyYaw, float playerYaw, Swing sw, float phase, float walk) {
         float bob = Mth.sin(phase) * 0.05f * walk;
         ps.translate(0, bob, 0);
         ps.mulPose(Axis.YP.rotationDegrees(-bodyYaw));
         ps.translate(0, HANDS, 0);
         ps.mulPose(Axis.XP.rotationDegrees(sw.pitch));
-        ps.mulPose(Axis.ZP.rotationDegrees(sw.roll));
+        ps.mulPose(Axis.ZP.rotationDegrees(sw.roll * 0.3f));
         ps.translate(0, -HANDS, 0);
-        ps.mulPose(Axis.YP.rotationDegrees(bodyYaw));
+        // el render del jugador gira segun su propio cuerpo (que sigue a la camara): se compensa
+        ps.mulPose(Axis.YP.rotationDegrees(playerYaw));
     }
 
     /** Despues de setupAnim (y de Punchy): brazos arriba agarrados, piernas sueltas. */
@@ -116,7 +118,7 @@ public final class RiderPose {
         float[] st = GuardianRenderer.riderInfo(g);
         Swing sw = SWING.get(p);
         parts(m, st == null ? 0 : st[0] * Mth.TWO_PI * 2, st == null ? 0 : st[1], st == null ? 0 : st[3],
-                sw == null ? 0 : sw.pitchVel, sw == null ? 38f : sw.pitch, age);
+                sw == null ? 0 : sw.pitchVel, sw == null ? 46f : sw.pitch, age);
     }
 
     public static void parts(PlayerModel<?> m, float phase, float walk, float air, float pitchVel, float pitch, float age) {
@@ -140,7 +142,7 @@ public final class RiderPose {
         m.leftLeg.zRot = -0.1f - sR * 0.06f * walk;
         // cabeza: mira hacia arriba y adelante, y se sacude apenas con los pasos
         m.head.xRot = -0.35f + Mth.sin(phase - 0.9f) * 0.08f * walk;
-        m.head.yRot = Mth.sin(age * 0.05f) * 0.15f * (1 - walk);
+        m.head.yRot = 0;
         m.head.zRot = 0;
         m.body.xRot = 0;
         m.body.yRot = 0;

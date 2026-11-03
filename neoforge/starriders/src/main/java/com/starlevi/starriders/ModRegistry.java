@@ -33,7 +33,7 @@ public final class ModRegistry {
                     .clientTrackingRange(16).updateInterval(1).build("guardian"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<SerpentEntity>> SERPENT = ENTITIES.register("serpiente",
-            () -> EntityType.Builder.<SerpentEntity>of(SerpentEntity::new, MobCategory.MISC).sized(2.4f, 1.6f)
+            () -> EntityType.Builder.<SerpentEntity>of(SerpentEntity::new, MobCategory.MISC).sized(3.0f, 2.6f)
                     .clientTrackingRange(16).updateInterval(1).build("serpiente"));
 
     public static final DeferredItem<WhistleItem> WHISTLE = ITEMS.register("silbato",

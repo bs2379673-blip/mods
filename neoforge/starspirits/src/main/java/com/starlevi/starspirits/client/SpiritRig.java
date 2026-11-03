@@ -60,6 +60,14 @@ public final class SpiritRig {
     private final List<ModelPart> petals = new ArrayList<>();
     /** Alto del modelo en pixeles (para poner la estrellita encima). */
     public float topY = 9;
+    /**
+     * Cuerpo tipo munequito (modelos .obj): todo lo que mueve al bicho entero (saltitos, giros,
+     * balanceo, aplastarse) se hace sobre el modelo completo apoyado en el piso, asi patas, brazos y
+     * cabeza nunca se despegan del cuerpo.
+     */
+    public boolean chibi;
+    // transformacion del modelo entero (solo en modo munequito), alrededor de los pies
+    private float gLift, gSpin, gRock, gLean, gSquashX = 1, gSquashY = 1;
 
     /** paths: nombre de cada pieza -> camino de hijos desde la raiz. */
     public SpiritRig(ModelPart root, Map<String, List<String>> paths) {
@@ -102,6 +110,10 @@ public final class SpiritRig {
     }
 
     public void animate(Pose p) {
+        if (this.chibi) {
+            animateChibi(p);
+            return;
+        }
         this.root.getAllParts().forEach(ModelPart::resetPose);
         float age = p.age + p.seed * 13;
         float amt = Mth.clamp(p.walkAmount, 0, 1);
@@ -286,6 +298,185 @@ public final class SpiritRig {
     }
 
     public void render(PoseStack pose, VertexConsumer vc, int light, int overlay, int color) {
+        if (!this.chibi) {
+            this.root.render(pose, vc, light, overlay, color);
+            return;
+        }
+        // el modelo entero: gira, se balancea y se aplasta apoyado en sus pies (y = 24 px)
+        pose.pushPose();
+        pose.translate(0, (24 - this.gLift) / 16f, 0);
+        pose.mulPose(com.mojang.math.Axis.YP.rotation(this.gSpin));
+        pose.mulPose(com.mojang.math.Axis.ZP.rotation(this.gRock));
+        pose.mulPose(com.mojang.math.Axis.XP.rotation(this.gLean));
+        pose.scale(this.gSquashX, this.gSquashY, this.gSquashX);
+        pose.translate(0, -24 / 16f, 0);
         this.root.render(pose, vc, light, overlay, color);
+        pose.popPose();
+    }
+
+    /** Animacion para cuerpos tipo munequito (cabeza grande, patitas y bracitos cortos). */
+    private void animateChibi(Pose p) {
+        this.root.getAllParts().forEach(ModelPart::resetPose);
+        float age = p.age + p.seed * 13;
+        float amt = Mth.clamp(p.walkAmount, 0, 1), still = 1 - amt;
+        float step = p.walk * 1.15f;
+        float s = Mth.sin(step), c = Mth.cos(step);
+        // al caminar: pasitos cortos, se bambolea de lado a lado y da saltitos
+        float hop = Math.abs(s) * 1.3f * amt;
+        this.gLift = hop;
+        this.gSpin = 0;
+        this.gRock = s * 0.13f * amt + Mth.sin(age * 0.055f) * 0.035f * still;
+        this.gLean = amt * 0.1f;
+        // respira; al apoyar el pie se aplasta un poquito
+        float breath = Mth.sin(age * (p.sleeping ? 0.06f : 0.13f)) * (p.sleeping ? 0.03f : 0.02f);
+        float land = amt * (1 - Math.abs(s)) * 0.07f;
+        this.gSquashY = 1 + breath - land;
+        this.gSquashX = 1 - breath * 0.5f + land * 0.6f;
+        if (this.legR != null) {
+            this.legR.xRot += c * 0.55f * amt;
+        }
+        if (this.legL != null) {
+            this.legL.xRot -= c * 0.55f * amt;
+        }
+        // brazos: van al reves que las piernas; quietos se mecen apenas
+        if (this.armR != null) {
+            this.armR.xRot -= c * 0.5f * amt;
+            this.armR.zRot += Mth.sin(age * 0.07f) * 0.04f * still;
+        }
+        if (this.armL != null) {
+            this.armL.xRot += c * 0.5f * amt;
+            this.armL.zRot -= Mth.sin(age * 0.07f + 1.3f) * 0.04f * still;
+        }
+        // cabeza: mira, inclina la cabecita de vez en cuando y cabecea con los pasos
+        ModelPart look = this.head != null ? this.head : this.body;
+        if (look != null) {
+            look.yRot += Mth.clamp(p.headYaw, -55, 55) * Mth.DEG_TO_RAD * 0.8f;
+            look.xRot += Mth.clamp(p.headPitch, -30, 30) * Mth.DEG_TO_RAD * 0.5f - s * 0.06f * amt;
+            float tilt = Mth.sin(age * 0.021f) * Mth.sin(age * 0.047f);
+            look.zRot += tilt * 0.14f * still;
+        }
+        if (p.sleeping) {
+            this.gSquashY -= 0.06f;
+            this.gLean += 0.12f;
+            if (look != null) {
+                look.xRot += 0.35f;
+            }
+        }
+        // orejas, pelo y cola: se mecen solos y rebotan con los pasos
+        for (int i = 0; i < this.wobble.size(); i++) {
+            ModelPart w = this.wobble.get(i);
+            float side = Math.signum(w.x == 0 ? 1 : w.x);
+            w.zRot += side * (Mth.sin(age * 0.1f + i) * 0.06f + Math.abs(s) * 0.1f * amt);
+            w.xRot += Mth.cos(age * 0.08f + i * 2) * 0.04f - amt * 0.06f;
+            w.yRot += Mth.sin(age * 0.09f + i) * 0.05f;
+        }
+        // saltito de alegria (al recibir algo)
+        if (p.happy >= 0) {
+            float h = Mth.sin(p.happy * Mth.PI);
+            this.gLift += h * 5f;
+            this.gSpin += p.happy * Mth.TWO_PI;
+            this.gSquashY += h * 0.06f;
+            if (this.armR != null) {
+                this.armR.zRot += h * 1.4f;
+            }
+            if (this.armL != null) {
+                this.armL.zRot -= h * 1.4f;
+            }
+        }
+        chibiSpecials(p, age, amt);
+    }
+
+    /** Especiales del munequito: siempre moviendo el modelo entero, nunca piezas sueltas. */
+    private void chibiSpecials(Pose p, float age, float amt) {
+        String[] sp = currentSpecial(p);
+        String which = sp == null ? "" : sp[0];
+        float f = sp == null ? 0 : Float.parseFloat(sp[1]);
+        float bell = Mth.sin(f * Mth.PI);
+        boolean flying = which.equals("volar");
+        if (!p.wings.isEmpty()) {
+            float speed = p.sleeping ? 0.05f : 0.35f + amt * 0.6f + (flying ? 0.7f * bell : 0);
+            float amp = p.sleeping ? 0.04f : 0.2f + amt * 0.25f + (flying ? 0.35f * bell : 0);
+            for (String w : p.wings) {
+                ModelPart part = this.byName.get(w);
+                if (part != null) {
+                    float side = Math.signum(part.x == 0 ? 1 : part.x);
+                    part.zRot += side * (0.12f + Mth.sin(age * speed * 1.6f) * amp) * (p.sleeping ? 0.2f : 1);
+                }
+            }
+            this.gLift += amt * (1.4f + Mth.sin(age * 0.5f) * 0.5f);
+        }
+        switch (which) {
+            case "vueltita" -> { // salta, gira entero y cae con un rebotito
+                float e = 1 - (1 - f) * (1 - f);
+                this.gSpin += e * Mth.TWO_PI;
+                this.gLift += bell * 4.5f;
+                this.gSquashY += bell * 0.05f - (f > 0.85f ? (f - 0.85f) * 0.5f : 0);
+                if (this.armR != null) {
+                    this.armR.zRot += bell * 1.2f;
+                }
+                if (this.armL != null) {
+                    this.armL.zRot -= bell * 1.2f;
+                }
+            }
+            case "saludo" -> { // levanta el bracito y saluda
+                ModelPart arm = this.armR != null ? this.armR : this.armL;
+                if (arm != null) {
+                    float side = arm == this.armR ? 1 : -1;
+                    arm.xRot -= bell * 2.5f;
+                    arm.zRot += side * bell * (0.25f + Mth.sin(age * 0.9f) * 0.3f);
+                }
+                this.gRock += bell * 0.08f * (this.armR != null ? -1 : 1);
+                if (this.head != null) {
+                    this.head.zRot += bell * 0.15f;
+                }
+            }
+            case "volar" -> { // sube flotando, patitas colgando
+                this.gLift += bell * 6f + Mth.sin(age * 0.6f) * bell * 0.6f;
+                this.gLean += Mth.sin(age * 0.3f) * 0.06f * bell;
+                if (this.legR != null) {
+                    this.legR.xRot += 0.35f * bell;
+                }
+                if (this.legL != null) {
+                    this.legL.xRot += 0.25f * bell;
+                }
+            }
+            case "corazon" -> { // se abraza y se balancea feliz
+                if (this.armR != null) {
+                    this.armR.xRot -= bell * 0.9f;
+                    this.armR.yRot -= bell * 0.5f;
+                }
+                if (this.armL != null) {
+                    this.armL.xRot -= bell * 0.9f;
+                    this.armL.yRot += bell * 0.5f;
+                }
+                this.gRock += Mth.sin(f * Mth.TWO_PI * 2) * 0.14f * bell;
+                if (this.head != null) {
+                    this.head.xRot -= bell * 0.2f;
+                }
+            }
+            case "baile" -> { // bailecito: salta de lado a lado con los brazos arriba
+                float b = Mth.sin(f * Mth.TWO_PI * 3);
+                this.gRock += b * 0.2f * bell;
+                this.gLift += Math.abs(b) * 1.5f * bell;
+                this.gSpin += Mth.sin(f * Mth.TWO_PI * 1.5f) * 0.35f * bell;
+                if (this.head != null) {
+                    this.head.zRot -= b * 0.15f * bell;
+                }
+                if (this.armR != null) {
+                    this.armR.zRot += (1.1f + b * 0.4f) * bell;
+                }
+                if (this.armL != null) {
+                    this.armL.zRot -= (1.1f - b * 0.4f) * bell;
+                }
+                if (this.legR != null) {
+                    this.legR.xRot += b * 0.3f * bell;
+                }
+                if (this.legL != null) {
+                    this.legL.xRot -= b * 0.3f * bell;
+                }
+            }
+            default -> {
+            }
+        }
     }
 }

@@ -19,11 +19,25 @@ for i in sorted(need): visit(i)
 idx={n:k for k,n in enumerate(order)}
 out=bytearray()
 def w(fmt,*a): out.extend(struct.pack('>'+fmt,*a))
-w('i',len(order)); w('i',1); w('f',20.0)
+FR=list(range(186,421))  # clips: se enrosca girando y se levanta, quieta erguida, se estira
+w('i',len(order)); w('i',len(FR)); w('f',25.0)
 for i in order:
     nm=N[i]['name'].encode(); w('h',len(nm)); out.extend(nm)
     par=m.parent.get(i); w('i', idx[par] if par in idx else -1)
-    t,r,s=m.base[i]; w('3f',*t); w('4f',*r); w('3f',*s); w('b',0)
+    t,r,s=m.base[i]; w('3f',*t); w('4f',*r); w('3f',*s)
+    anim = any((i,p) in m.ch for p in ('translation','rotation'))
+    if anim:
+        T=[];R=[]
+        for f in FR:
+            tt,rr,ss=m.local(i,f); T.append(tt); R.append(np.array(rr)/np.linalg.norm(rr))
+        R=np.array(R)
+        for k in range(1,len(R)):
+            if np.dot(R[k],R[k-1])<0: R[k]=-R[k]
+        T=np.array(T)
+        if np.ptp(T,0).max()<1e-4 and np.ptp(R,0).max()<1e-5: anim=False
+    w('b',1 if anim else 0)
+    if anim:
+        for k in range(len(FR)): w('3f',*T[k]); w('4f',*R[k])
 w('i',len(m.joints))
 for k,j in enumerate(m.joints):
     w('i',idx[j]); w('16f',*m.ibm[k].ravel())

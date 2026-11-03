@@ -20,6 +20,8 @@ Ejemplo (champi.json):
   "giro": 0,                      (opcional) grados para girar un modelo que viene mirando de costado
   "especiales": ["vueltita", "saludo"],  (opcional) animaciones especiales que hace de vez en cuando:
                                   vueltita, saludo, baile, volar, corazon
+  "textura_parpadeo": "x_parpadeo.png",  (opcional) la misma textura con los ojos cerrados: parpadea y
+                                  duerme con los ojos cerrados
   "alas": ["pelo", "pelo_2"],     (opcional) piezas que aletean como alas (si tiene alas, al correr
                                   va flotando)
   "color": "#7FD957",             (opcional) color de su estrellita cuando es el activo
@@ -86,3 +88,14 @@ ADMINS:
   /starspirits puntos [radio]            deja listos los puntos de extraccion cercanos
   El punto de extraccion se consigue en creativo (pestana StarSpirits). Solo se rompe en
   creativo. Tambien aparecen solos por el mundo.
+
+
+CÓMO SE CONSIGUEN
+Los espíritus andan sueltos por el mundo, muy de vez en cuando (salvajes, con brillitos). Se escapan
+de los jugadores; si te acercás agachado se dan cuenta mucho más tarde, y después de correr un rato se
+cansan unos segundos (ahí es el momento). Con clic derecho lo atrapás y queda en tu inventario.
+Si lo soltás (clic derecho con él en la mano o tirándolo), se escapa.
+Para que sea tuyo, llevalo a un Pilar Rúnico (piedra gigante con una runa) y hacé clic con él:
+el pilar lo vincula y desde ahí te sigue.
+config.json: "probabilidad_salvaje_por_minuto" (por jugador) y "minutos_salvaje".
+Admins: /starspirits salvaje <espíritu>  y  /starspirits pilar <x y z>

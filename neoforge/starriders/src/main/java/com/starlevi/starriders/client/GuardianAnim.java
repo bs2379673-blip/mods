@@ -17,11 +17,11 @@ public final class GuardianAnim {
     public static final float STRIDE_PER_FRAME = 0.00576f;
 
     public static final class Params {
-        public float age, walkFrame, walkAmount, run, air, roar = -1, headYaw, headPitch;
+        public float age, walkFrame, walkAmount, run, air, roar = -1, headYaw, headPitch, grapple;
     }
 
     private final SkinnedModel m;
-    private final int spine, spine1, neck, head, clavL, clavR, armL, armR, foreL, foreR, thighL, thighR, calfL, calfR;
+    private final int handL, handR, spine, spine1, neck, head, clavL, clavR, armL, armR, foreL, foreR, thighL, thighR, calfL, calfR;
     private final int[] maneL, maneR;
     /** Rotacion del padre de cada hueso en la pose de quieto (para girar en ejes del modelo). */
     private final Quaternionf[] parentRef;
@@ -44,6 +44,8 @@ public final class GuardianAnim {
         this.thighR = m.bone("Bip001_R_Thigh");
         this.calfL = m.bone("Bip001_L_Calf");
         this.calfR = m.bone("Bip001_R_Calf");
+        this.handL = m.bone("Bip001_L_Hand");
+        this.handR = m.bone("Bip001_R_Hand");
         this.maneL = new int[]{m.bone("BN_L_TreeHKmane_0"), m.bone("BN_L_TreeHKmane_1"), m.bone("BN_L_TreeHKmane_2")};
         this.maneR = new int[]{m.bone("BN_R_TreeHKmane_0"), m.bone("BN_R_TreeHKmane_1"), m.bone("BN_R_TreeHKmane_2")};
         m.sample(IDLE_FRAME);
@@ -135,6 +137,18 @@ public final class GuardianAnim {
             yaw(this.head, shake * 0.1f);
             yaw(this.neck, shake * 0.06f);
         }
+        // raices: estira los brazos hacia arriba y adelante, el cuerpo se arquea hacia el enganche
+        float gr = smooth(Mth.clamp(p.grapple, 0, 1));
+        if (gr > 0) {
+            pitch(this.armL, -1.5f * gr);
+            pitch(this.armR, -1.5f * gr);
+            pitch(this.foreL, -0.5f * gr);
+            pitch(this.foreR, -0.5f * gr);
+            pitch(this.spine, -0.25f * gr);
+            pitch(this.neck, -0.2f * gr);
+            pitch(this.thighL, -0.3f * gr);
+            pitch(this.thighR, -0.2f * gr);
+        }
         // mirar hacia donde mira el jinete / el jugador
         float hy = Mth.clamp(p.headYaw, -70, 70) * Mth.DEG_TO_RAD, hp = Mth.clamp(p.headPitch, -40, 40) * Mth.DEG_TO_RAD;
         yaw(this.neck, -hy * 0.4f);
@@ -158,6 +172,11 @@ public final class GuardianAnim {
     /** Altura de las patas (lo mas bajo de pies y dedos) en la pose ya calculada. */
     public float ground() {
         return this.m.minY(this.feet);
+    }
+
+    /** Posicion de la mano (en el modelo, ya calculado). */
+    public org.joml.Vector3f hand(boolean left, org.joml.Vector3f out) {
+        return this.m.world(left ? this.handL : this.handR).getTranslation(out);
     }
 
     private static float smooth(float x) {

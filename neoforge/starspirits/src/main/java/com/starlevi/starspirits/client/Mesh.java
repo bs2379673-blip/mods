@@ -37,6 +37,11 @@ public final class Mesh {
 
     /** Un vertice: posicion (pixeles), textura (0..1 de la imagen entera) y normal. */
     private final List<float[]> quads = new ArrayList<>();
+    /**
+     * Cuantas veces mas finas que el diseno son las mallas redondas. Con shaders (Iris/Oculus) cada
+     * cuadrito se ilumina plano, asi que mas detalle hace que se vea liso.
+     */
+    public static final int DETAIL = 2;
 
     private static float u(float[] r, float t) {
         return (r[0] + (r[2] - r[0]) * t) / Uv.SIZE;
@@ -69,6 +74,8 @@ public final class Mesh {
      */
     public Mesh ellipsoid(float cx, float cy, float cz, float rx, float ry, float rz, float lat0, float lat1,
                           int seg, int rings, float[] uv) {
+        seg *= DETAIL;
+        rings *= DETAIL;
         for (int i = 0; i < rings; i++) {
             float t0 = i / (float) rings, t1 = (i + 1) / (float) rings;
             float th0 = lat0 + (lat1 - lat0) * t0, th1 = lat0 + (lat1 - lat0) * t1;
@@ -112,6 +119,7 @@ public final class Mesh {
      * v = a lo largo del perfil.
      */
     public Mesh lathe(float cx, float cy, float cz, float[][] profile, int seg, float[] uv) {
+        seg *= DETAIL;
         int n = profile.length;
         for (int i = 0; i < n - 1; i++) {
             float t0 = i / (float) (n - 1), t1 = (i + 1) / (float) (n - 1);
@@ -140,7 +148,7 @@ public final class Mesh {
      * Textura: u = ancho, v = 0 en la base y 1 en la punta.
      */
     public Mesh petal(float start, float length, float width, float tilt, float curl, float cup, int steps, float[] uv) {
-        float[][][] g = new float[steps + 1][3][];
+        float[][][] g = new float[steps + 1][][];
         float px = 0, py = 0;
         float[] path = new float[(steps + 1) * 2];
         for (int i = 0; i <= steps; i++) {
@@ -153,22 +161,34 @@ public final class Mesh {
             path[i * 2] = start + px;
             path[i * 2 + 1] = py;
         }
+        final int cols = 5;
         for (int i = 0; i <= steps; i++) {
             float t = i / (float) steps;
             float w = width * 0.5f * Mth.sin(Mth.PI * (0.18f + 0.82f * t)) * (t > 0.85f ? 1.4f - (t - 0.85f) * 2.5f : 1f);
             w = Math.max(0.05f, w);
-            for (int k = 0; k < 3; k++) {
-                float side = k - 1; // -1, 0, 1
-                float up = cup * (1 - (side == 0 ? 0 : 0)) * Math.abs(side) * Mth.sin(Mth.PI * t);
-                g[i][k] = new float[]{side * w, -path[i * 2 + 1] - up, -path[i * 2], k * 0.5f, t};
+            g[i] = new float[cols][];
+            for (int k = 0; k < cols; k++) {
+                float side = k / (float) (cols - 1) * 2 - 1; // -1..1
+                float up = cup * side * side * Mth.sin(Mth.PI * t);
+                g[i][k] = new float[]{side * w, -path[i * 2 + 1] - up, -path[i * 2], k / (float) (cols - 1), t};
+            }
+        }
+        // normal suave en cada punto (diferencias con los vecinos)
+        float[][][] nn = new float[steps + 1][cols][];
+        for (int i = 0; i <= steps; i++) {
+            for (int k = 0; k < cols; k++) {
+                float[] a0 = g[Math.max(0, i - 1)][k], a1 = g[Math.min(steps, i + 1)][k];
+                float[] b0 = g[i][Math.max(0, k - 1)], b1 = g[i][Math.min(cols - 1, k + 1)];
+                Vector3f n = new Vector3f(a1[0] - a0[0], a1[1] - a0[1], a1[2] - a0[2]).cross(b1[0] - b0[0], b1[1] - b0[1], b1[2] - b0[2]);
+                nn[i][k] = new float[]{n.x, n.y, n.z};
             }
         }
         for (int i = 0; i < steps; i++) {
-            for (int k = 0; k < 2; k++) {
+            for (int k = 0; k < cols - 1; k++) {
                 float[] a = g[i][k], b = g[i + 1][k], c = g[i + 1][k + 1], d = g[i][k + 1];
-                Vector3f n = new Vector3f(b[0] - a[0], b[1] - a[1], b[2] - a[2]).cross(d[0] - a[0], d[1] - a[1], d[2] - a[2]);
-                quad(vert(a[0], a[1], a[2], u(uv, a[3]), v(uv, a[4]), n.x, n.y, n.z), vert(b[0], b[1], b[2], u(uv, b[3]), v(uv, b[4]), n.x, n.y, n.z),
-                        vert(c[0], c[1], c[2], u(uv, c[3]), v(uv, c[4]), n.x, n.y, n.z), vert(d[0], d[1], d[2], u(uv, d[3]), v(uv, d[4]), n.x, n.y, n.z));
+                float[] na = nn[i][k], nb = nn[i + 1][k], nc = nn[i + 1][k + 1], nd = nn[i][k + 1];
+                quad(vert(a[0], a[1], a[2], u(uv, a[3]), v(uv, a[4]), na[0], na[1], na[2]), vert(b[0], b[1], b[2], u(uv, b[3]), v(uv, b[4]), nb[0], nb[1], nb[2]),
+                        vert(c[0], c[1], c[2], u(uv, c[3]), v(uv, c[4]), nc[0], nc[1], nc[2]), vert(d[0], d[1], d[2], u(uv, d[3]), v(uv, d[4]), nd[0], nd[1], nd[2]));
             }
         }
         return this;

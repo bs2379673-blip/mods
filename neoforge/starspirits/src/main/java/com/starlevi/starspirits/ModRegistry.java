@@ -20,6 +20,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -43,13 +44,26 @@ public final class ModRegistry {
             BlockBehaviour.Properties.of().mapColor(MapColor.TERRACOTTA_ORANGE).strength(1.0f).sound(SoundType.DECORATED_POT)
                     .noOcclusion().lightLevel(s -> 3)));
 
+    /** Pilar Runico: piedra gigante donde se vinculan los espiritus atrapados. No se rompe en supervivencia. */
+    public static final DeferredBlock<com.starlevi.starspirits.block.PillarBlock> PILLAR = BLOCKS.register("pilar_runico",
+            () -> new com.starlevi.starspirits.block.PillarBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)
+                    .strength(-1.0f, 3600000.0f).sound(SoundType.STONE).noOcclusion().lightLevel(s -> 9).pushReaction(PushReaction.BLOCK)));
+    public static final DeferredBlock<com.starlevi.starspirits.block.PillarBodyBlock> PILLAR_BODY = BLOCKS.register("pilar_runico_cuerpo",
+            () -> new com.starlevi.starspirits.block.PillarBodyBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)
+                    .strength(-1.0f, 3600000.0f).sound(SoundType.STONE).noOcclusion().noLootTable().pushReaction(PushReaction.BLOCK)));
+    public static final DeferredItem<com.starlevi.starspirits.item.SpiritItem> CAUGHT = ITEMS.register("espiritu_atrapado",
+            () -> new com.starlevi.starspirits.item.SpiritItem(new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.RARE)));
+
     static {
+        ITEMS.register("pilar_runico", () -> new BlockItem(PILLAR.get(), new Item.Properties()));
         ITEMS.register("punto_extraccion", () -> new BlockItem(EXTRACTION.get(), new Item.Properties()));
         ITEMS.register("maceta", () -> new BlockItem(POT.get(), new Item.Properties()));
     }
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExtractionBlockEntity>> EXTRACTION_BE = BLOCK_ENTITIES.register(
             "punto_extraccion", () -> BlockEntityType.Builder.of(ExtractionBlockEntity::new, EXTRACTION.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.starlevi.starspirits.block.PillarBlockEntity>> PILLAR_BE = BLOCK_ENTITIES.register(
+            "pilar_runico", () -> BlockEntityType.Builder.of(com.starlevi.starspirits.block.PillarBlockEntity::new, PILLAR.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PotBlockEntity>> POT_BE = BLOCK_ENTITIES.register(
             "maceta", () -> BlockEntityType.Builder.of(PotBlockEntity::new, POT.get()).build(null));
 
@@ -65,7 +79,7 @@ public final class ModRegistry {
                 .title(Component.literal("StarSpirits"))
                 .icon(() -> new ItemStack(POT.get()))
                 .displayItems((params, out) -> {
-                    out.accept(EXTRACTION.get());
+                    out.accept(PILLAR.get());
                     out.accept(POT.get());
                 })
                 .build());

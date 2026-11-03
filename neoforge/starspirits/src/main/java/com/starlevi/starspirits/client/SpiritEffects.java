@@ -91,6 +91,16 @@ public final class SpiritEffects {
                 }
             }
         }
+        if (e.isWild()) {
+            // salvaje: brillitos que lo delatan; cansado, nubecitas de jadeo
+            if (age % 7 == 0) {
+                level.addParticle(ParticleTypes.END_ROD, e.getX() + (r.nextDouble() - 0.5) * 0.5, e.getY() + 0.2 + r.nextDouble() * 0.6,
+                        e.getZ() + (r.nextDouble() - 0.5) * 0.5, 0, 0.015, 0);
+            }
+            if (e.isTired() && age % 9 == 0) {
+                level.addParticle(ParticleTypes.CLOUD, e.getX(), e.getY() + 0.8 * (d == null ? 1 : d.scale), e.getZ(), 0, 0.03, 0);
+            }
+        }
         Rarity rarity = d == null ? Rarity.COMUN : d.rarity;
         if (rarity == Rarity.LEGENDARIO && age % 9 == 0) {
             level.addParticle(ParticleTypes.END_ROD, e.getX() + (r.nextDouble() - 0.5) * 0.6, e.getY() + 0.3 + r.nextDouble() * 0.6,

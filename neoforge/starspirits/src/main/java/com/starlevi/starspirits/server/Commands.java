@@ -103,6 +103,37 @@ public final class Commands {
                                     c.getSource().sendSuccess(() -> Component.literal("Espíritu quitado"), true);
                                     return 1;
                                 }))))
+                .then(literal("salvaje").requires(s -> s.hasPermission(2))
+                        .then(argument("tipo", StringArgumentType.word()).executes(c -> {
+                            String t = StringArgumentType.getString(c, "tipo");
+                            if (SpiritLibrary.get(t) == null) {
+                                c.getSource().sendFailure(Component.literal("No existe el espíritu " + t));
+                                return 0;
+                            }
+                            com.starlevi.starspirits.server.Wild.spawn(c.getSource().getLevel(), c.getSource().getPosition(), t);
+                            c.getSource().sendSuccess(() -> Component.literal("Apareció " + t + " salvaje"), true);
+                            return 1;
+                        })))
+                .then(literal("pilar").requires(s -> s.hasPermission(2))
+                        .then(argument("pos", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos()).executes(c -> {
+                            net.minecraft.core.BlockPos bp = net.minecraft.commands.arguments.coordinates.BlockPosArgument.getLoadedBlockPos(c, "pos");
+                            c.getSource().getLevel().setBlock(bp, com.starlevi.starspirits.ModRegistry.PILLAR.get().defaultBlockState(), 3);
+                            c.getSource().sendSuccess(() -> Component.literal("Pilar Rúnico puesto"), true);
+                            return 1;
+                        })))
+                .then(literal("vincular").requires(s -> s.hasPermission(2))
+                        .then(argument("pos", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos())
+                                .then(argument("jugador", EntityArgument.player())
+                                        .then(argument("tipo", StringArgumentType.word()).executes(c -> {
+                                            net.minecraft.core.BlockPos bp = net.minecraft.commands.arguments.coordinates.BlockPosArgument.getLoadedBlockPos(c, "pos");
+                                            if (c.getSource().getLevel().getBlockEntity(bp) instanceof com.starlevi.starspirits.block.PillarBlockEntity be
+                                                    && be.startRitual(EntityArgument.getPlayer(c, "jugador"), StringArgumentType.getString(c, "tipo"))) {
+                                                c.getSource().sendSuccess(() -> Component.literal("Ritual empezado"), true);
+                                                return 1;
+                                            }
+                                            c.getSource().sendFailure(Component.literal("Ahí no hay un Pilar Rúnico libre"));
+                                            return 0;
+                                        })))))
                 .then(literal("recargar").requires(s -> s.hasPermission(2)).executes(c -> {
                     Config.load();
                     SpiritLibrary.scan(true);

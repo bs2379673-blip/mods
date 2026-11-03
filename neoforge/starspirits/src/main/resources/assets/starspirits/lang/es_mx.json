@@ -1,5 +1,8 @@
 {
  "block.starspirits.punto_extraccion": "Punto de extracción",
  "block.starspirits.maceta": "Maceta de espíritu",
- "entity.starspirits.espiritu": "Espíritu"
+ "entity.starspirits.espiritu": "Espíritu",
+ "block.starspirits.pilar_runico": "Pilar Rúnico",
+ "block.starspirits.pilar_runico_cuerpo": "Pilar Rúnico",
+ "item.starspirits.espiritu_atrapado": "Espíritu atrapado"
 }

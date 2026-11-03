@@ -21,6 +21,12 @@ public final class Config {
     public static int extractTicks = 70;
     /** Cuantos espiritus como maximo corren atras de cada jugador (los demas quedan guardados). */
     public static int maxFollowers = 30;
+    /** Probabilidad por jugador y por minuto de que aparezca un espiritu salvaje cerca (muy raro). */
+    public static double wildChancePerMinute = 0.07;
+    /** Minutos que anda un salvaje antes de irse si nadie lo atrapa. */
+    public static int wildMinutes = 5;
+    /** Duracion del ritual del pilar (ticks). */
+    public static int ritualTicks = 90;
 
     private Config() {
     }
@@ -54,6 +60,12 @@ public final class Config {
             if (o.has("duracion_extraccion_ticks")) {
                 extractTicks = Math.max(30, Math.min(400, o.get("duracion_extraccion_ticks").getAsInt()));
             }
+            if (o.has("probabilidad_salvaje_por_minuto")) {
+                wildChancePerMinute = Math.max(0, o.get("probabilidad_salvaje_por_minuto").getAsDouble());
+            }
+            if (o.has("minutos_salvaje")) {
+                wildMinutes = Math.max(1, o.get("minutos_salvaje").getAsInt());
+            }
             if (o.has("max_siguiendo")) {
                 maxFollowers = Math.max(1, Math.min(200, o.get("max_siguiendo").getAsInt()));
             }
@@ -73,6 +85,8 @@ public final class Config {
         o.addProperty("recarga_minutos", rechargeMinutes);
         o.addProperty("duracion_extraccion_ticks", extractTicks);
         o.addProperty("max_siguiendo", maxFollowers);
+        o.addProperty("probabilidad_salvaje_por_minuto", wildChancePerMinute);
+        o.addProperty("minutos_salvaje", wildMinutes);
         return g.toJson(o);
     }
 }
