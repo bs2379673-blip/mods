@@ -56,7 +56,7 @@ public final class RiderPose {
     public static void init() {
         NeoForge.EVENT_BUS.addListener((RenderPlayerEvent.Pre e) -> {
             Player p = e.getEntity();
-            if (!(p.getVehicle() instanceof GuardianEntity g)) {
+            if (!(p.getVehicle() instanceof GuardianEntity g) || g instanceof com.starlevi.starriders.SerpentEntity) {
                 return;
             }
             float[] st = GuardianRenderer.riderInfo(g);
@@ -96,7 +96,7 @@ public final class RiderPose {
 
     /** Despues de setupAnim (y de Punchy): brazos arriba agarrados, piernas sueltas. */
     public static void apply(PlayerModel<?> m, Player p, float age) {
-        if (!(p.getVehicle() instanceof GuardianEntity g)) {
+        if (!(p.getVehicle() instanceof GuardianEntity g) || g instanceof com.starlevi.starriders.SerpentEntity) {
             return;
         }
         float[] st = GuardianRenderer.riderInfo(g);

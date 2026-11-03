@@ -35,7 +35,7 @@ public final class Mounts {
     private static final Map<UUID, PhoenixEntity> LIVE = new HashMap<>();
     private static PhoenixEntity wild;
     /** Tipos de montura que existen. */
-    public static final java.util.List<String> TYPES = java.util.List.of("fenix", "guardian");
+    public static final java.util.List<String> TYPES = java.util.List.of("fenix", "guardian", "serpiente");
 
     private Mounts() {
     }
@@ -68,15 +68,19 @@ public final class Mounts {
         return switch (type) {
             case "fenix" -> "Fénix";
             case "guardian" -> "Guardián del Bosque";
+            case "serpiente" -> "Serpiente Gigante";
             default -> type;
         };
     }
 
     private static String icon(String type) {
-        return "guardian".equals(type) ? "🌳" : "🔥";
+        return "guardian".equals(type) ? "🌳" : "serpiente".equals(type) ? "🐍" : "🔥";
     }
 
     private static PhoenixEntity create(ServerLevel level, String type) {
+        if ("serpiente".equals(type)) {
+            return ModRegistry.SERPENT.get().create(level);
+        }
         return "guardian".equals(type) ? ModRegistry.GUARDIAN.get().create(level) : ModRegistry.PHOENIX.get().create(level);
     }
 
@@ -163,6 +167,11 @@ public final class Mounts {
     }
 
     private static void burst(ServerLevel l, Vec3 at, String type) {
+        if ("serpiente".equals(type)) {
+            l.sendParticles(ParticleTypes.WITCH, at.x, at.y + 1.0, at.z, 50, 1.5, 0.8, 1.5, 0.05);
+            l.sendParticles(ParticleTypes.LARGE_SMOKE, at.x, at.y + 0.5, at.z, 25, 1.5, 0.3, 1.5, 0.02);
+            return;
+        }
         if ("guardian".equals(type)) {
             l.sendParticles(ParticleTypes.COMPOSTER, at.x, at.y + 1.2, at.z, 50, 1.0, 1.0, 1.0, 0.05);
             l.sendParticles(ParticleTypes.SPORE_BLOSSOM_AIR, at.x, at.y + 1.0, at.z, 40, 1.2, 0.8, 1.2, 0);
@@ -250,7 +259,8 @@ public final class Mounts {
                 continue;
             }
             PhoenixEntity w = spawnWild(level, new Vec3(x + 0.5, y, z + 0.5), null);
-            p.displayClientMessage(Component.literal(w instanceof GuardianEntity ? "🌳 La tierra retumba a lo lejos… algo enorme se despertó"
+            p.displayClientMessage(Component.literal(w instanceof com.starlevi.starriders.SerpentEntity ? "🐍 Se escucha un siseo enorme a lo lejos…"
+                    : w instanceof GuardianEntity ? "🌳 La tierra retumba a lo lejos… algo enorme se despertó"
                     : "🔥 Se escucha un canto de fuego a lo lejos…").withStyle(ChatFormatting.GOLD), true);
             return;
         }

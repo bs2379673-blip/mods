@@ -12,3 +12,5 @@ redistribution without Starlevi's written permission.
 Excepcion: el modelo y la textura del Guardian del Bosque (guardian.bin, guardian.png) son
 "Tree Heretic Keeper" de Vasian-Digital3D, bajo licencia CC BY 4.0, con cambios; ver CREDITOS.txt.
 Esa licencia sigue valiendo para esos archivos.
+Tambien: el modelo y las texturas de la Serpiente Gigante (serpiente.bin, serpiente_*.png) son "Snake"
+de Vasian-Digital3D, bajo licencia CC BY 4.0, con cambios; ver CREDITOS.txt.

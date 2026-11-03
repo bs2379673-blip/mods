@@ -31,6 +31,10 @@ public final class SkinnedModel {
     final float[] pos, nrm, uv, we;
     final byte[] jo;
     final int[] idx;
+    /** Grupos de triangulos por textura: (inicio, cantidad) en idx. */
+    public final int[] groups;
+    /** Matrices del mundo impuestas por codigo (null = la normal, de la pose). */
+    public final Matrix4f[] forced;
     private final Map<String, Integer> byName = new HashMap<>();
 
     /** Pose actual (local por hueso): se llena con sample() y se le suman rotaciones. */
@@ -113,6 +117,16 @@ public final class SkinnedModel {
         for (int i = 0; i < ni; i++) {
             this.idx[i] = in.readUnsignedShort();
         }
+        if (in.available() > 0) {
+            int ng = in.readInt();
+            this.groups = new int[ng * 2];
+            for (int g = 0; g < ng * 2; g++) {
+                this.groups[g] = in.readInt();
+            }
+        } else {
+            this.groups = new int[]{0, ni};
+        }
+        this.forced = new Matrix4f[this.bones];
         this.rot = new Quaternionf[this.bones];
         this.tr = new Vector3f[this.bones];
         this.tmpR = new Quaternionf[this.bones];
@@ -201,6 +215,10 @@ public final class SkinnedModel {
 
     public void compute() {
         for (int b = 0; b < this.bones; b++) {
+            if (this.forced[b] != null) {
+                this.world[b].set(this.forced[b]);
+                continue;
+            }
             this.m4.translationRotateScale(this.tr[b], this.rot[b], this.baseS[b]);
             if (this.parent[b] >= 0) {
                 this.world[b].set(this.world[this.parent[b]]).mul(this.m4);
@@ -284,11 +302,25 @@ public final class SkinnedModel {
 
     /** Dibuja la piel ya calculada (triangulos como cuadros con el ultimo vertice repetido). */
     public void render(PoseStack ps, VertexConsumer vc, int light, int overlay, int color) {
+        renderRange(ps, vc, light, overlay, color, 0, this.idx.length);
+    }
+
+    /** Dibuja cada grupo con su propia textura (o se saltea si la funcion devuelve null). */
+    public void renderGroups(PoseStack ps, java.util.function.IntFunction<VertexConsumer> buffers, int light, int overlay, int color) {
+        for (int g = 0; g < this.groups.length / 2; g++) {
+            VertexConsumer vc = buffers.apply(g);
+            if (vc != null) {
+                renderRange(ps, vc, light, overlay, color, this.groups[g * 2], this.groups[g * 2] + this.groups[g * 2 + 1]);
+            }
+        }
+    }
+
+    private void renderRange(PoseStack ps, VertexConsumer vc, int light, int overlay, int color, int from, int to) {
         PoseStack.Pose pose = ps.last();
         Matrix4f m = pose.pose();
         Matrix3f n = pose.normal();
         Vector3f p = new Vector3f(), q = new Vector3f();
-        for (int i = 0; i < this.idx.length; i += 3) {
+        for (int i = from; i < to; i += 3) {
             for (int c = 0; c < 4; c++) {
                 int v = this.idx[i + Math.min(c, 2)];
                 m.transformPosition(this.sp[v * 3], this.sp[v * 3 + 1], this.sp[v * 3 + 2], p);

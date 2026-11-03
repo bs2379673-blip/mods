@@ -9,4 +9,9 @@ Modelos de terceros usados con permiso de su licencia:
   agregaron animaciones (quieto, correr, salto, rugido, melena que se mece). La caminata es la del
   modelo original.
 
+- Serpiente Gigante: modelo "Snake" de Vasian-Digital3D (Sketchfab) - licencia Creative Commons
+  Attribution 4.0 (CC BY 4.0), https://creativecommons.org/licenses/by/4.0/
+  Cambios: se convirtió a un formato propio, se redujo y se animó por código (se desliza
+  ondulando, levanta el cuello como una cobra, saca la lengua y sisea).
+
 El resto del mod (código, el Fénix, texturas propias) es de Starlevi; ver LICENSE.txt.

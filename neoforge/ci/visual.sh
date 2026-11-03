@@ -132,6 +132,14 @@ GUA=('time set 6000' 'weather clear' 'kill @e[type=starriders:fenix]' 'fill 150 
   "${T}foto g08_guardian_salto${E}" "${T}saltar no${E}" "${T}caminar no${E}" 'sleep 1' 'ride @r dismount' "${T}camara primera${E}"
   'kill @e[type=starriders:guardian]' 'starriders quitar @r todos' 'sleep 0.5')
 FEN+=("${GUA[@]}")
+SER=('time set 6000' 'kill @e[type=starriders:guardian]' 'starriders salvaje 160 -60 175 serpiente' 'tp @a 150 -60 165 -45 20' 'sleep 3' "${T}foto n01_serpiente_salvaje${E}"
+  'tp @a 172 -60 175 90 15' 'sleep 1.5' "${T}foto n02_serpiente_costado${E}" 'kill @e[type=starriders:serpiente]'
+  'starriders dar @r serpiente' 'tp @a 160 -60 160 0 5' 'sleep 1' 'starriders llamar @r' 'sleep 0.6' "${T}foto n03_serpiente_siseo${E}"
+  'sleep 3' "${T}foto n04_serpiente_quieta${E}" 'tp @a 160 -60 163 0 5' 'sleep 0.5' 'ride @r mount @e[type=starriders:serpiente,limit=1]'
+  "${T}camara atras${E}" 'sleep 1.5' "${T}foto n05_serpiente_montada${E}" "${T}caminar si${E}" 'sleep 1.0' "${T}foto n06_serpiente_avanza${E}"
+  'sleep 0.6' "${T}foto n07_serpiente_avanza_b${E}" "${T}camara frente${E}" 'sleep 0.6' "${T}foto n08_serpiente_frente${E}" "${T}camara atras${E}"
+  "${T}caminar no${E}" 'sleep 1' 'ride @r dismount' "${T}camara primera${E}" 'kill @e[type=starriders:serpiente]' 'starriders quitar @r todos' 'sleep 0.5')
+FEN+=("${SER[@]}")
 python3 ci/rcon.py 25577 annistest "${FEN[@]}" 2>&1 | tee rcon-starriders.txt
 echo "::notice::Visual StarRiders> $(grep -v '^$' rcon-starriders.txt | grep -v '^> ' | tr '\n' '|' | cut -c1-2000)"
 echo "::notice::Visual StarSpirits> $(grep -v '^$' rcon-starspirits.txt | grep -v '^> ' | tr '\n' '|' | cut -c1-2500) || $(grep -E 'StarSpirits' run/logs/latest.log 2>/dev/null | head -12 | tr '\n' '|' | cut -c1-2500)"

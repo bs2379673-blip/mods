@@ -29,6 +29,7 @@ public final class StarRiders {
         modBus.addListener((EntityAttributeCreationEvent e) -> {
             e.put(ModRegistry.PHOENIX.get(), PhoenixEntity.createAttributes().build());
             e.put(ModRegistry.GUARDIAN.get(), GuardianEntity.createAttributes().build());
+            e.put(ModRegistry.SERPENT.get(), SerpentEntity.createAttributes().build());
         });
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> Commands.register(e.getDispatcher()));
         NeoForge.EVENT_BUS.addListener((ServerStartingEvent e) -> Config.load());

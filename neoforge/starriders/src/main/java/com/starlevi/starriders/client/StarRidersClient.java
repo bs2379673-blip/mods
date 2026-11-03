@@ -24,6 +24,7 @@ public final class StarRidersClient {
         modBus.addListener((EntityRenderersEvent.RegisterRenderers e) -> {
             e.registerEntityRenderer(ModRegistry.PHOENIX.get(), PhoenixRenderer::new);
             e.registerEntityRenderer(ModRegistry.GUARDIAN.get(), GuardianRenderer::new);
+            e.registerEntityRenderer(ModRegistry.SERPENT.get(), SerpentRenderer::new);
         });
         modBus.addListener((FMLClientSetupEvent e) -> e.enqueueWork(DabrCompat::init));
         PhoenixEntity.clientTick = StarRidersClient::particles;
@@ -40,6 +41,13 @@ public final class StarRidersClient {
     private static void particles(PhoenixEntity e) {
         Level level = e.level();
         RandomSource r = level.random;
+        if (e instanceof com.starlevi.starriders.SerpentEntity) {
+            if (e.isWild() && e.tickCount % 6 == 0) {
+                level.addParticle(ParticleTypes.WITCH, e.getX() + (r.nextDouble() - 0.5) * 2, e.getY() + 1 + r.nextDouble(),
+                        e.getZ() + (r.nextDouble() - 0.5) * 2, 0, 0.02, 0);
+            }
+            return;
+        }
         if (e instanceof GuardianEntity) {
             guardianParticles(e, level, r);
             return;

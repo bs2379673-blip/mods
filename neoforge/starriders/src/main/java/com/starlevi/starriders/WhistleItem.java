@@ -74,6 +74,9 @@ public class WhistleItem extends Item {
         if ("guardian".equals(t.getString("tipo"))) {
             lines.add(Component.literal("Modelo: \"Tree Heretic Keeper\" de Vasian-Digital3D (CC BY 4.0)").withStyle(ChatFormatting.DARK_GRAY));
         }
+        if ("serpiente".equals(t.getString("tipo"))) {
+            lines.add(Component.literal("Modelo: \"Snake\" de Vasian-Digital3D (CC BY 4.0)").withStyle(ChatFormatting.DARK_GRAY));
+        }
     }
 
     @Override

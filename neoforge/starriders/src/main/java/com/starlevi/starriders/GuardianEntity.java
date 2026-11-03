@@ -83,6 +83,16 @@ public class GuardianEntity extends PhoenixEntity {
 
     // ------------------------------------------------------------------ montado
 
+    /** Con salto pega un salto largo (la serpiente no). */
+    protected boolean canLeap() {
+        return true;
+    }
+
+    /** Cuanto mas rapido va con sprint. */
+    protected float sprintBoost() {
+        return 1.8f;
+    }
+
     @Override
     protected void ridden(Player p, Vec3 in) {
         float yaw = p.getYRot();
@@ -95,7 +105,7 @@ public class GuardianEntity extends PhoenixEntity {
         if (this.leapCooldown > 0) {
             this.leapCooldown--;
         }
-        if (jumping(p) && onGround() && this.leapCooldown == 0) {
+        if (canLeap() && jumping(p) && onGround() && this.leapCooldown == 0) {
             // salto largo hacia adelante
             Vec3 look = Vec3.directionFromRotation(0, yaw);
             double push = p.isSprinting() ? 0.9 : 0.55;
@@ -106,7 +116,7 @@ public class GuardianEntity extends PhoenixEntity {
                 this.level().playSound(null, blockPosition(), SoundEvents.RAVAGER_STEP, SoundSource.NEUTRAL, 1.2f, 0.7f);
             }
         }
-        setSpeed((float) getAttributeValue(Attributes.MOVEMENT_SPEED) * (p.isSprinting() ? 1.8f : 1f));
+        setSpeed((float) getAttributeValue(Attributes.MOVEMENT_SPEED) * (p.isSprinting() ? sprintBoost() : 1f));
         travelPlain(new Vec3(side * 0.4, in.y, fwd < 0 ? fwd * 0.4 : fwd));
         resetFallDistance();
     }
