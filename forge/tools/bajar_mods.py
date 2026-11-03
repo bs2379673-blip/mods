@@ -53,7 +53,8 @@ fetch("punchymoves", ["punchy-moves"], "Punchy Moves", dest)
 fetch("punchystudio", ["punchy-studio"], "Punchy Studio", dest)
 if LOADER == "neoforge":
     # WaterFrames (pantallas) para StarSync y el audio de las pantallas en StarFest
-    fetch("waterframes", ["waterframes"], "WaterFrames", dest)
+    # se fija la 2.x: la 3.0 (alfa) cambio la API de las pantallas
+    fetch("waterframes", ["waterframes"], "WaterFrames", dest, "2.")
     # WaterFrames 2.1 pide WATERMeDIA 2.1.x (la 3.0 cambio todo)
     fetch("watermedia", ["watermedia"], "WATERMeDIA", dest, "2.1.")
     fetch("creativecore", ["creativecore"], "CreativeCore", dest)
