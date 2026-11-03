@@ -21,7 +21,7 @@ jobs:
           mkdir -p fbx out
           cp tools/fbx/entrada/*.zip fbx/
           cd fbx && for z in *.zip; do unzip -q -o "$z" -d "${z%.zip}"; done; cd ..
-          for f in fbx/*/source/*.fbx; do n=$(basename "$f" .fbx); ./blender/blender -b -P tools/fbx/convertir.py -- "$f" "out/$n.glb" 20000 2>&1 | grep -E 'LISTO|Error|rror' | cut -c1-6000 | head -20; done
+          for f in fbx/*/source/*.fbx; do n=$(basename "$f" .fbx); ./blender/blender -b -P tools/fbx/convertir.py -- "$f" "out/$n.glb" 5000 2>&1 | grep -E 'LISTO|Error|rror' | cut -c1-6000 | head -20; done
           (cd out && tar czf glb.tgz *.glb *.json)
           ls -la out
           gh release delete fbx-out --cleanup-tag --yes -R "$GITHUB_REPOSITORY" || true
