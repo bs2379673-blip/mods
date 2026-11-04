@@ -34,6 +34,8 @@ import java.util.regex.Pattern;
  * frente hacia -z), relativo a la articulacion de cada parte.
  */
 public final class AvatarBuilder {
+    /** Marca de triangulo con piel (ropa 3D). */
+    static final int SKIN = -1;
     public static final int HEAD = 0, BODY = 1, RIGHT_ARM = 2, LEFT_ARM = 3, RIGHT_LEG = 4, LEFT_LEG = 5;
     public static final String[] PART_NAMES = {"cabeza", "torso", "brazo_der", "brazo_izq", "pierna_der", "pierna_izq"};
     private static final Pattern NUMBERED = Pattern.compile("^(.*?)(\\d+)$");
@@ -65,11 +67,18 @@ public final class AvatarBuilder {
         public int triangles() {
             return this.data.length / 24;
         }
+
+        public static final int SKIN_STRIDE = 14;
     }
 
     public static final class Result {
         public final List<Material> materials = new ArrayList<>();
         public final List<List<Batch>> parts = new ArrayList<>();
+        /**
+         * Ropa 3D (layered clothing): cada vertice sigue a varias partes a la vez, con pesos, como en
+         * Roblox. Por vertice: x, y, z (modelo, absolutos), nx, ny, nz, u, v y el peso de las 6 partes.
+         */
+        public final List<Batch> skinned = new ArrayList<>();
         /** Articulacion de cada parte en el espacio del modelo del jugador (pixeles). */
         public final float[][] joints = new float[6][3];
         public int triangles;
@@ -341,6 +350,32 @@ public final class AvatarBuilder {
         }
         float halfW = box[BODY] != null ? (box[BODY][3] - box[BODY][0]) / 2 : headW / 2;
         float zMin = box[BODY] != null ? box[BODY][2] : head.min[2], zMax = box[BODY] != null ? box[BODY][5] : head.max[2];
+        if (box[RIGHT_LEG] == null || box[LEFT_LEG] == null) {
+            // sin piernas propias (las hace la ropa 3D, o faltan): ancho y fondo de lo que hay debajo de la cadera
+            float lx0 = Float.MAX_VALUE, lx1 = -Float.MAX_VALUE, lz0 = Float.MAX_VALUE, lz1 = -Float.MAX_VALUE;
+            for (Group g : handles) {
+                for (int[] t : g.tris) {
+                    for (int k = 0; k < 3; k++) {
+                        float[] q = V[t[k]];
+                        if (q[1] < hipY) {
+                            lx0 = Math.min(lx0, q[0]);
+                            lx1 = Math.max(lx1, q[0]);
+                            lz0 = Math.min(lz0, q[2]);
+                            lz1 = Math.max(lz1, q[2]);
+                        }
+                    }
+                }
+            }
+            if (lx0 < lx1) {
+                float shrink = 0.15f * (lx1 - lx0);
+                if (box[RIGHT_LEG] == null) {
+                    box[RIGHT_LEG] = new float[]{cx, feet, lz0, lx1 - shrink, hipY, lz1};
+                }
+                if (box[LEFT_LEG] == null) {
+                    box[LEFT_LEG] = new float[]{lx0 + shrink, feet, lz0, cx, hipY, lz1};
+                }
+            }
+        }
         if (box[RIGHT_LEG] == null) {
             box[RIGHT_LEG] = new float[]{cx, feet, zMin, cx + halfW, hipY, zMax};
         }
@@ -363,6 +398,9 @@ public final class AvatarBuilder {
         }
         Map<String, String> force = map(opt, "forzar");
         Set<String> split = strings(opt, "separar");
+        Set<String> clothing = strings(opt, "ropa");
+        Map<Group, boolean[]> clothAllow = new HashMap<>();
+        Set<String> rigid = strings(opt, "rigido");
         for (Group g : handles) {
             int[] p = new int[g.tris.size()];
             String f = force.get(g.name);
@@ -397,32 +435,37 @@ public final class AvatarBuilder {
                     count[best]++;
                 }
                 int total = p.length;
-                boolean legs = count[RIGHT_LEG] > 0.2f * total && count[LEFT_LEG] > 0.2f * total;
-                boolean arms = count[RIGHT_ARM] > 0.2f * total && count[LEFT_ARM] > 0.2f * total;
-                if ((legs || arms) && !(legs && arms)) {
-                    // ropa de piernas (o de brazos): se reparte solo entre esas partes y el torso
-                    int[] allowed = legs ? new int[]{BODY, RIGHT_LEG, LEFT_LEG} : new int[]{BODY, RIGHT_ARM, LEFT_ARM};
-                    for (int i = 0; i < p.length; i++) {
-                        int[] t = g.tris.get(i);
-                        float x = 0, y = 0, z = 0;
-                        for (int k = 0; k < 3; k++) {
-                            x += V[t[k]][0] / 3;
-                            y += V[t[k]][1] / 3;
-                            z += V[t[k]][2] / 3;
-                        }
-                        int best = BODY;
-                        float bd = Float.MAX_VALUE;
-                        for (int b : allowed) {
-                            float d = dist(box[b], x, y, z);
-                            if (d < bd - 1e-4f) {
-                                bd = d;
-                                best = b;
-                            }
-                        }
-                        p[i] = best;
+                // ropa 3D: pegada al cuerpo (casi todos sus vertices cerca de alguna parte) y cubriendo
+                // mas de una parte (torso y piernas, torso y brazos...). Va con piel, no rigida.
+                int partsCovered = 0;
+                for (int b = 1; b < 6; b++) {
+                    if (count[b] > 0.1f * total) {
+                        partsCovered++;
                     }
                 }
-                if (!(split.contains(g.name) || legs || arms)) {
+                boolean cloth = clothing.contains(g.name) || (!rigid.contains(g.name) && partsCovered >= 2
+                        && hugs(V, g, box, 0.06f * (neckY - feet)));
+                if (cloth) {
+                    // solo sigue a las partes que de verdad cubre (un pantalon no se dobla con las manos que cuelgan cerca)
+                    boolean[] allow = new boolean[6];
+                    allow[BODY] = true;
+                    for (int b = 2; b < 6; b++) {
+                        allow[b] = count[b] > 0.1f * total;
+                    }
+                    if (allow[RIGHT_LEG] || allow[LEFT_LEG]) {
+                        allow[RIGHT_LEG] = allow[LEFT_LEG] = true;
+                    }
+                    if (allow[RIGHT_ARM] && allow[LEFT_ARM] || clothAllowArmsBoth(count, total)) {
+                        allow[RIGHT_ARM] = allow[LEFT_ARM] = true;
+                    }
+                    clothAllow.put(g, allow);
+                    java.util.Arrays.fill(p, SKIN);
+                    triPart.put(g, p);
+                    res.log.add(g.name + ": ropa 3D (con piel)");
+                    continue;
+                }
+                // accesorio rigido (alas, mochilas, cosas que flotan): entero a la parte que mas toca
+                if (!split.contains(g.name)) {
                     int best = BODY;
                     for (int b = 0; b < 6; b++) {
                         if (count[b] > count[best]) {
@@ -455,6 +498,24 @@ public final class AvatarBuilder {
         for (int side : new int[]{RIGHT_LEG, LEFT_LEG}) {
             float[] b = box[side];
             joint[side] = new float[]{(b[0] + b[3]) / 2, hipY, (b[2] + b[5]) / 2};
+        }
+
+        // --- pesos de la ropa 3D: cuanto sigue cada vertice a cada parte (suave cerca de las articulaciones)
+        Map<Integer, float[]> weights = new HashMap<>();
+        float sigma = 0.06f * (neckY - feet);
+        for (Map.Entry<Group, int[]> e : triPart.entrySet()) {
+            List<int[]> tris = e.getKey().tris;
+            for (int i = 0; i < tris.size(); i++) {
+                if (e.getValue()[i] != SKIN) {
+                    continue;
+                }
+                for (int k = 0; k < 3; k++) {
+                    int vi = tris.get(i)[k];
+                    if (!weights.containsKey(vi)) {
+                        weights.put(vi, skinWeights(box, V[vi], sigma, clothAllow.get(e.getKey())));
+                    }
+                }
+            }
         }
 
         // --- bajar los brazos abiertos (giro alrededor del hombro, en el plano del frente)
@@ -496,6 +557,17 @@ public final class AvatarBuilder {
                     float qx = p[0] - sh[0], qy = p[1] - sh[1];
                     V[vi] = new float[]{c * qx - s * qy + sh[0], s * qx + c * qy + sh[1], p[2]};
                 }
+                // la ropa 3D se dobla segun cuanto sigue a ese brazo (la manga baja entera, el torso no)
+                for (Map.Entry<Integer, float[]> w : weights.entrySet()) {
+                    float a = w.getValue()[side];
+                    if (a < 1e-3f) {
+                        continue;
+                    }
+                    float cc = (float) Math.cos(phi * a), ss = (float) Math.sin(phi * a);
+                    float[] p = V[w.getKey()];
+                    float qx = p[0] - sh[0], qy = p[1] - sh[1];
+                    V[w.getKey()] = new float[]{cc * qx - ss * qy + sh[0], ss * qx + cc * qy + sh[1], p[2]};
+                }
                 res.log.add(PART_NAMES[side] + " bajado " + Math.round(Math.toDegrees(phi)) + " grados");
             }
         }
@@ -525,6 +597,7 @@ public final class AvatarBuilder {
         }
 
         // --- normales suaves por pieza y lotes por parte y material
+        Map<Integer, FloatList> skinAcc = new HashMap<>();
         List<Map<Integer, FloatList>> acc = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
             acc.add(new HashMap<>());
@@ -534,9 +607,31 @@ public final class AvatarBuilder {
             int[] parts = e.getValue();
             int mi = matIndex.get(g.material == null ? "" : g.material);
             float[][][] normals = smoothNormals(V, g.tris, 55);
+            FloatList skin = null;
             for (int i = 0; i < g.tris.size(); i++) {
                 int[] t = g.tris.get(i);
                 int part = parts[i];
+                if (part == SKIN) {
+                    if (skin == null) {
+                        skin = skinAcc.computeIfAbsent(mi, x -> new FloatList());
+                    }
+                    float mu = 0, mv = 0;
+                    for (int k = 0; k < 3; k++) {
+                        float[] uv = t[3 + k] >= 0 && t[3 + k] < VT.length ? VT[t[3 + k]] : new float[]{0, 0};
+                        mu += uv[0] / 3;
+                        mv += uv[1] / 3;
+                    }
+                    float su = (float) Math.floor(mu), sv = (float) Math.floor(mv);
+                    for (int k = 0; k < 3; k++) {
+                        float[] m = toModel(V[t[k]], cx, cz, feet, S);
+                        float[] nn = normals[i][k];
+                        float[] uv = t[3 + k] >= 0 && t[3 + k] < VT.length ? VT[t[3 + k]] : new float[]{0, 0};
+                        float[] w = weights.get(t[k]);
+                        skin.add(m[0], m[1], m[2], -nn[0], -nn[1], nn[2], uv[0] - su, 1 - (uv[1] - sv), w[0], w[1], w[2], w[3], w[4], w[5]);
+                    }
+                    res.triangles++;
+                    continue;
+                }
                 float[] j = res.joints[part];
                 FloatList fl = acc.get(part).computeIfAbsent(mi, x -> new FloatList());
                 float mu = 0, mv = 0;
@@ -561,6 +656,9 @@ public final class AvatarBuilder {
                 list.add(new Batch(e.getKey(), e.getValue().toArray()));
             }
             res.parts.add(list);
+        }
+        for (Map.Entry<Integer, FloatList> e : skinAcc.entrySet()) {
+            res.skinned.add(new Batch(e.getKey(), e.getValue().toArray()));
         }
         res.log.add("triangulos: " + res.triangles);
         return res;
@@ -602,6 +700,67 @@ public final class AvatarBuilder {
             }
         }
         return best;
+    }
+
+    /** Si la pieza va pegada al cuerpo: la mayoria de sus vertices a menos de maxD de alguna parte. */
+    private static boolean hugs(float[][] V, Group g, float[][] box, float maxD) {
+        int near = 0, n = 0;
+        float lim = maxD * maxD;
+        for (int[] t : g.tris) {
+            for (int k = 0; k < 3; k++) {
+                float[] p = V[t[k]];
+                float best = Float.MAX_VALUE;
+                for (int b = 1; b < 6; b++) {
+                    if (box[b] != null) {
+                        best = Math.min(best, dist(box[b], p[0], p[1], p[2]));
+                    }
+                }
+                if (best <= lim) {
+                    near++;
+                }
+                n++;
+            }
+        }
+        return near >= 0.75f * n;
+    }
+
+    /** Pesos de un vertice de ropa: segun lo cerca que esta de cada parte (no la cabeza), suavizado. */
+    private static boolean clothAllowArmsBoth(int[] count, int total) {
+        return false;
+    }
+
+    private static float[] skinWeights(float[][] box, float[] p, float sigma, boolean[] allow) {
+        float[] w = new float[6];
+        float sum = 0;
+        float s2 = sigma * sigma;
+        float min = Float.MAX_VALUE;
+        float[] d = new float[6];
+        for (int b = 1; b < 6; b++) {
+            d[b] = box[b] == null || allow != null && !allow[b] ? Float.MAX_VALUE : dist(box[b], p[0], p[1], p[2]);
+            min = Math.min(min, d[b]);
+        }
+        for (int b = 1; b < 6; b++) {
+            if (d[b] == Float.MAX_VALUE) {
+                continue;
+            }
+            // relativo a la parte mas cercana: lejos del cuerpo sigue a la mas cercana, igual que en Roblox
+            w[b] = (float) Math.exp(-(d[b] - min) / s2);
+            sum += w[b];
+        }
+        for (int b = 1; b < 6; b++) {
+            w[b] = w[b] / sum;
+            if (w[b] < 0.02f) {
+                w[b] = 0;
+            }
+        }
+        float s = 0;
+        for (int b = 1; b < 6; b++) {
+            s += w[b];
+        }
+        for (int b = 1; b < 6; b++) {
+            w[b] /= s;
+        }
+        return w;
     }
 
     private static float[] union(float[] b, Group g) {

@@ -19,7 +19,7 @@ def box(name, mat, x0, y0, z0, x1, y1, z1, rot=None, piv=None, uvr=(0, 0, 1, 1))
     tb = len(VT)
     VT.extend([(u0, v0), (u1, v0), (u1, v1), (u0, v1)])
     idx = lambda x, y, z: base + x * 4 + y * 2 + z
-    # caras con vertices en orden antihorario visto desde afuera
+    # caras (al escribir el .obj se dan vuelta para quedar como Roblox)
     faces = [
         [idx(0, 0, 0), idx(1, 0, 0), idx(1, 1, 0), idx(0, 1, 0)],  # -z (frente)
         [idx(1, 0, 1), idx(0, 0, 1), idx(0, 1, 1), idx(1, 1, 1)],  # +z
@@ -46,6 +46,29 @@ box(P + '9', 'Cuerpo', 0.2, 1.0, -0.4, 0.8, 1.7, 0.2, uvr=(0, 0, 0.5, 0.5))     
 # sombrero (accesorio): copa y ala
 box('Handle1', 'Handle1Mtl', -0.75, 7.15, -0.75, 0.75, 7.3, 0.75)
 box('Handle1', 'Handle1Mtl', -0.45, 7.3, -0.45, 0.45, 8.0, 0.45)
+# pantalon 3D (ropa en capas): una sola pieza que cubre cadera y las dos piernas, bien subdividida
+def sbox(name, mat, x0, y0, z0, x1, y1, z1, n=8):
+    tb = len(VT)
+    VT.extend([(0, 0), (1, 0), (1, 1), (0, 1)])
+    faces = []
+    def quad(p):
+        base = len(V)
+        V.extend(p)
+        faces.append([base, base + 1, base + 2, base + 3])
+    for i in range(n):
+        for j in range(n):
+            a0, a1, b0, b1 = i / n, (i + 1) / n, j / n, (j + 1) / n
+            X = lambda t: x0 + (x1 - x0) * t
+            Y = lambda t: y0 + (y1 - y0) * t
+            Z = lambda t: z0 + (z1 - z0) * t
+            quad([(X(a0), Y(b0), z0), (X(a1), Y(b0), z0), (X(a1), Y(b1), z0), (X(a0), Y(b1), z0)])  # frente
+            quad([(X(a1), Y(b0), z1), (X(a0), Y(b0), z1), (X(a0), Y(b1), z1), (X(a1), Y(b1), z1)])  # atras
+            quad([(x0, Y(b0), Z(a1)), (x0, Y(b0), Z(a0)), (x0, Y(b1), Z(a0)), (x0, Y(b1), Z(a1))])  # -x
+            quad([(x1, Y(b0), Z(a0)), (x1, Y(b0), Z(a1)), (x1, Y(b1), Z(a1)), (x1, Y(b1), Z(a0))])  # +x
+    groups.append((name, mat, faces, tb))
+
+
+sbox('Handle2', 'Handle2Mtl', -1.1, 2.2, -0.6, 1.1, 4.3, 0.6)
 # piso del lugar (tiene que ignorarse)
 box('Baseplate1', 'Piso', -50, -1, -50, 50, 0, 50)
 
@@ -62,11 +85,12 @@ with open(os.path.join(out, 'muneco.obj'), 'w') as f:
             last = name
         f.write('usemtl %s\n' % mat)
         for q in faces:
-            f.write('f ' + ' '.join('%d/%d' % (q[i] + 1, tb + i + 1) for i in range(4)) + '\n')
+            # orden como Roblox (antihorario visto desde afuera)
+            f.write('f ' + ' '.join('%d/%d' % (q[i] + 1, tb + i + 1) for i in (3, 2, 1, 0)) + '\n')
 with open(os.path.join(out, 'muneco.mtl'), 'w') as f:
     for m, col, tex, ov in [('Cuerpo', '0.2 0.5 0.9', 'cuerpo.png', True), ('Derecho', '0.9 0.2 0.2', None, False),
                             ('Izquierdo', '0.2 0.8 0.3', None, False), ('Cara', '1 0.85 0.3', 'cara.png', True),
-                            ('Handle1Mtl', '0.37 0.37 0.38', 'Handle1_diff.png', True), ('Piso', '0.3 0.3 0.3', None, False)]:
+                            ('Handle1Mtl', '0.37 0.37 0.38', 'Handle1_diff.png', True), ('Handle2Mtl', '0.95 0.6 0.1', None, False), ('Piso', '0.3 0.3 0.3', None, False)]:
         f.write('newmtl %s\nKd %s\nd 1\n' % (m, col))
         if tex:
             f.write('map_Kd %s\n' % tex)
