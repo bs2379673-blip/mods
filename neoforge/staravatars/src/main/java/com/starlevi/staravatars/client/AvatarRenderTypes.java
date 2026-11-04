@@ -8,7 +8,10 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Como entityCutout de Minecraft, pero con la textura suavizada y con mipmaps (si no, la fuerza al pixel mas cercano). */
+/**
+ * Como entityCutout de Minecraft, pero con la textura suavizada y con mipmaps (si no, la fuerza al pixel mas cercano),
+ * y de triangulos (los modelos de Roblox son triangulos: con cuadrados habria que mandar un vertice de mas por cada uno).
+ */
 public final class AvatarRenderTypes extends RenderType {
     private static final Map<ResourceLocation, RenderType> WITH_CULL = new HashMap<>(), WITHOUT_CULL = new HashMap<>();
 
@@ -19,7 +22,7 @@ public final class AvatarRenderTypes extends RenderType {
     public static RenderType cutout(ResourceLocation tex, boolean doubleSided) {
         Map<ResourceLocation, RenderType> cache = doubleSided ? WITHOUT_CULL : WITH_CULL;
         return cache.computeIfAbsent(tex, t -> create("staravatars_cutout" + (doubleSided ? "_nocull" : ""), DefaultVertexFormat.NEW_ENTITY,
-                VertexFormat.Mode.QUADS, 1536, true, false, CompositeState.builder()
+                VertexFormat.Mode.TRIANGLES, 1536, true, false, CompositeState.builder()
                         .setShaderState(RENDERTYPE_ENTITY_CUTOUT_SHADER)
                         .setTextureState(new TextureStateShard(t, true, true))
                         .setTransparencyState(NO_TRANSPARENCY)

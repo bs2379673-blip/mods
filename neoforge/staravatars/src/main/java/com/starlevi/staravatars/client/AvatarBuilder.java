@@ -61,28 +61,30 @@ public final class AvatarBuilder {
     /** Triangulos de una parte con un material: x, y, z (modelo, absolutos), nx, ny, nz, u, v por vertice. */
     public static final class Batch {
         public final int material;
+        /** Parte que lo mueve, o -1 en las uniones (cada vertice con su parte). */
+        public final int part;
         public float[] data;
 
-        Batch(int material, float[] data) {
+        Batch(int material, int part, float[] data) {
             this.material = material;
+            this.part = part;
             this.data = data;
         }
 
-        public int triangles() {
-            return this.data.length / 24;
-        }
-
-        public static final int SKIN_STRIDE = 8 + PARTS;
+        /** Unión: x, y, z, nx, ny, nz, u, v y la parte de ese vertice. */
+        public static final int SEAM_STRIDE = 9;
     }
 
     public static final class Result {
         public final List<Material> materials = new ArrayList<>();
         public final List<List<Batch>> parts = new ArrayList<>();
         /**
-         * Ropa 3D (layered clothing): cada vertice sigue a varias partes a la vez, con pesos, como en
-         * Roblox. Por vertice: x, y, z (modelo, absolutos), nx, ny, nz, u, v y el peso de cada parte.
+         * Uniones de la ropa 3D: triangulos cuyos vertices van pegados a partes distintas (la tela entre
+         * el muslo y la pantorrilla, por ejemplo). Se estiran al doblar en vez de abrirse un agujero.
          */
-        public final List<Batch> skinned = new ArrayList<>();
+        public final List<Batch> seams = new ArrayList<>();
+        /** Todo junto por material (para dibujar cada textura de una sola vez). */
+        public final List<List<Batch>> byMaterial = new ArrayList<>();
         /** Articulacion de cada parte en el espacio del modelo del jugador (pixeles); las partes 6-9 son codos y rodillas. */
         public final float[][] joints = new float[PARTS][3];
         public int triangles;
@@ -312,6 +314,36 @@ public final class AvatarBuilder {
             throw new IllegalArgumentException("no encontre el cuerpo R15 (las piezas con el nombre del usuario)");
         }
         res.log.add("cuerpo: " + bodyPrefix + " (" + body.size() + " piezas), accesorios: " + handles.size());
+        // --- menos triangulos (las texturas quedan iguales): lo que mas pesa al dibujar
+        int budget = opt.has("triangulos_max") ? opt.get("triangulos_max").getAsInt() : 14000;
+        List<Group> used = new ArrayList<>(body);
+        used.addAll(handles);
+        int before = 0;
+        for (Group g : used) {
+            before += g.tris.size();
+        }
+        if (budget > 0 && before > budget) {
+            // las piezas chicas no se tocan; las grandes (pelo, ropa) se reparten lo que queda
+            int small = 0, big = 0;
+            for (Group g : used) {
+                if (g.tris.size() <= 300) {
+                    small += g.tris.size();
+                } else {
+                    big += g.tris.size();
+                }
+            }
+            float ratio = Math.max(0.25f, Math.min(1, (budget - small) / (float) Math.max(1, big)));
+            int after = 0;
+            for (Group g : used) {
+                if (g.tris.size() > 300) {
+                    List<int[]> st = MeshSimplify.simplify(V, VT, VN, g.tris, Math.round(g.tris.size() * ratio));
+                    g.tris.clear();
+                    g.tris.addAll(st);
+                }
+                after += g.tris.size();
+            }
+            res.log.add("triangulos: " + before + " -> " + after);
+        }
         GltfRig rig = null;
         if (gltfData != null) {
             try {
@@ -717,6 +749,10 @@ public final class AvatarBuilder {
                 w[side + 4] = w[side] * f;
                 w[side] *= 1 - f;
             }
+            // ropa solida: cada vertice queda pegado entero a una sola parte (no se mezcla con la otra pierna)
+            int o = owner(w);
+            java.util.Arrays.fill(w, 0);
+            w[o] = 1;
             e.setValue(w);
         }
 
@@ -809,7 +845,7 @@ public final class AvatarBuilder {
         }
 
         // --- normales suaves por pieza y lotes por parte y material
-        Map<Integer, FloatList> skinAcc = new HashMap<>();
+        Map<Integer, FloatList> seamAcc = new HashMap<>();
         List<Map<Integer, FloatList>> acc = new ArrayList<>();
         for (int i = 0; i < PARTS; i++) {
             acc.add(new HashMap<>());
@@ -819,14 +855,17 @@ public final class AvatarBuilder {
             int[] parts = e.getValue();
             int mi = matIndex.get(g.material == null ? "" : g.material);
             float[][][] normals = smoothNormals(V, g.tris, 55);
-            FloatList skin = null;
             for (int i = 0; i < g.tris.size(); i++) {
                 int[] t = g.tris.get(i);
                 int part = parts[i];
                 if (part == SKIN) {
-                    if (skin == null) {
-                        skin = skinAcc.computeIfAbsent(mi, x -> new FloatList());
+                    int p0 = owner(weights.get(t[0])), p1 = owner(weights.get(t[1])), p2 = owner(weights.get(t[2]));
+                    if (p0 == p1 && p1 == p2) {
+                        part = p0; // entero en una parte: va solido con ella
                     }
+                }
+                if (part == SKIN) {
+                    FloatList skin = seamAcc.computeIfAbsent(mi, x -> new FloatList());
                     float mu = 0, mv = 0;
                     for (int k = 0; k < 3; k++) {
                         float[] uv = t[3 + k] >= 0 && t[3 + k] < VT.length ? VT[t[3 + k]] : new float[]{0, 0};
@@ -838,9 +877,7 @@ public final class AvatarBuilder {
                         float[] m = toModel(V[t[k]], cx, cz, feet, S);
                         float[] nn = normalOf(t, k, VN, turned, normals[i][k]);
                         float[] uv = t[3 + k] >= 0 && t[3 + k] < VT.length ? VT[t[3 + k]] : new float[]{0, 0};
-                        float[] w = weights.get(t[k]);
-                        skin.add(m[0], m[1], m[2], -nn[0], -nn[1], nn[2], uv[0] - su, 1 - (uv[1] - sv));
-                        skin.add(w);
+                        skin.add(m[0], m[1], m[2], -nn[0], -nn[1], nn[2], uv[0] - su, 1 - (uv[1] - sv), owner(weights.get(t[k])));
                     }
                     res.triangles++;
                     continue;
@@ -865,12 +902,23 @@ public final class AvatarBuilder {
         for (int i = 0; i < PARTS; i++) {
             List<Batch> list = new ArrayList<>();
             for (Map.Entry<Integer, FloatList> e : acc.get(i).entrySet()) {
-                list.add(new Batch(e.getKey(), e.getValue().toArray()));
+                list.add(new Batch(e.getKey(), i, e.getValue().toArray()));
             }
             res.parts.add(list);
         }
-        for (Map.Entry<Integer, FloatList> e : skinAcc.entrySet()) {
-            res.skinned.add(new Batch(e.getKey(), e.getValue().toArray()));
+        for (Map.Entry<Integer, FloatList> e : seamAcc.entrySet()) {
+            res.seams.add(new Batch(e.getKey(), -1, e.getValue().toArray()));
+        }
+        for (int m = 0; m < res.materials.size(); m++) {
+            res.byMaterial.add(new ArrayList<>());
+        }
+        for (List<Batch> l : res.parts) {
+            for (Batch b : l) {
+                res.byMaterial.get(b.material).add(b);
+            }
+        }
+        for (Batch b : res.seams) {
+            res.byMaterial.get(b.material).add(b);
         }
         res.log.add("triangulos: " + res.triangles);
         return res;
@@ -1208,6 +1256,17 @@ public final class AvatarBuilder {
             }
         }
         return n == 0 ? 0 : s / n;
+    }
+
+    /** La parte que se lleva un vertice de ropa 3D: la de mas peso (la ropa va solida, sin mezclar). */
+    private static int owner(float[] w) {
+        int best = BODY;
+        for (int i = 0; i < w.length; i++) {
+            if (w[i] > w[best]) {
+                best = i;
+            }
+        }
+        return best;
     }
 
     /** Distancia a lo largo de un miembro (en el plano del frente), desde su articulacion. */
