@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved - Starlevi (ver LICENSE.txt)"
+
+[[mods]]
+modId="staravatars"
+version="${version}"
+displayName="StarAvatars"
+authors="Starlevi"
+credits="Propiedad de Starlevi. Todos los derechos reservados."
+description='''Personajes exportados de Roblox Studio (cuerpo R15, ropa, cara y accesorios) como modelo del jugador, en su calidad original. El servidor los carga desde config/staravatars/personajes y los jugadores los reciben solos.
+Propiedad de Starlevi. Todos los derechos reservados.'''
+
+[[dependencies.staravatars]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.staravatars]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,1.21.2)"
+ordering="NONE"
+side="BOTH"

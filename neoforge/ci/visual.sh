@@ -10,9 +10,11 @@ NEO=$(grep neo_version gradle.properties | cut -d= -f2)
 curl -sSL -o $S/installer.jar "https://maven.neoforged.net/releases/net/neoforged/neoforge/$NEO/neoforge-$NEO-installer.jar"
 ( cd $S && java -jar installer.jar --installServer > install.log 2>&1 ); tail -3 $S/install.log
 cp libs/playeranimator-1.jar $S/mods/
-cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar ../out/starfest-*.jar ../out/starsync-*.jar ../out/starspirits-*.jar ../out/starriders-*.jar libs/cinematic-0.18.30.jar libs/waterframes-1.jar libs/creativecore-1.jar $S/mods/
+cp ../out/annisnpc-*.jar ../out/annisinteract-*.jar ../out/annisvfx-*.jar ../out/annis_compat-*.jar ../out/starfest-*.jar ../out/starsync-*.jar ../out/starspirits-*.jar ../out/starriders-*.jar ../out/staravatars-*.jar libs/cinematic-0.18.30.jar libs/waterframes-1.jar libs/creativecore-1.jar $S/mods/
 # StarFest: una cancion de prueba (128 BPM, parte fuerte entre 20 y 32 s) en la carpeta de musica del servidor
 mkdir -p $S/config/starfest/musica && cp ci/starfest/prueba.ogg $S/config/starfest/musica/
+# StarAvatars: un personaje de prueba con la forma de un export de Roblox (los de verdad no van al repo)
+python3 -I ci/staravatars/muneco.py $S/config/staravatars/personajes/muneco
 ls $S/mods
 echo "eula=true" > $S/eula.txt
 # interacciones por archivo (prueba): usan las animaciones del paquete exportado
@@ -115,6 +117,12 @@ X=141; for s in champi margarita brotecito campanita luminon rosita loto bonsai;
 SPI+=('tp @a 144.5 -60 147.6 0 18' 'sleep 2.5' "${T}foto p12_fila_dia${E}" 'time set 18000' 'sleep 1.5' "${T}foto p13_fila_noche${E}"
   'time set 6000' 'kill @e[type=starspirits:espiritu]' 'sleep 0.5')
 python3 ci/rcon.py 25577 annistest "${SPI[@]}" 2>&1 | tee rcon-starspirits.txt
+# --- StarAvatars: el personaje de prueba en lugar del jugador (frente, caminando, espalda) ---
+AV=('time set 6000' 'weather clear' "${T}hud no${E}" 'fill 200 -60 200 212 -55 212 air' 'tp @a 206 -60 206 180 0' 'staravatars lista'
+  'staravatars usar muneco @r' 'sleep 6' "${T}camara frente${E}" 'sleep 1' "${T}foto a01_muneco_frente${E}"
+  "${T}caminar si${E}" 'sleep 1.2' "${T}foto a02_muneco_camina${E}" "${T}caminar no${E}" "${T}camara atras${E}" 'sleep 1' "${T}foto a03_muneco_espalda${E}"
+  "${T}camara frente${E}" 'tp @a 206 -60 206 90 0' 'sleep 0.5' "${T}foto a04_muneco_costado${E}" "${T}camara primera${E}" 'staravatars quitar @r')
+python3 ci/rcon.py 25577 annistest "${AV[@]}" 2>&1 | tee rcon-staravatars.txt
 # --- StarRiders: fenix salvaje, llamado con el silbato, montado y volando ---
 FEN=('time set 6000' 'weather clear' "${T}hud no${E}" "${T}camara primera${E}" 'fill 150 -60 150 180 -40 200 air'
   'starriders salvaje 160 -60 172' 'tp @a 160 -60 162 0 0' 'sleep 3' "${T}foto r01_salvaje${E}" 'sleep 4' "${T}foto r02_salvaje_b${E}"
@@ -155,6 +163,7 @@ SER=('time set 6000' 'kill @e[type=starriders:guardian]' 'fill 150 -60 150 180 -
 FEN+=("${SER[@]}")
 python3 ci/rcon.py 25577 annistest "${FEN[@]}" 2>&1 | tee rcon-starriders.txt
 echo "::notice::Visual StarRiders> $(grep -v '^$' rcon-starriders.txt | grep -v '^> ' | tr '\n' '|' | cut -c1-2000)"
+echo "::notice::Visual StarAvatars> $(grep -v '^$' rcon-staravatars.txt | grep -v '^> ' | tr '\n' '|' | cut -c1-600) || $(grep -E 'StarAvatars' run/logs/latest.log 2>/dev/null | head -12 | tr '\n' '|' | cut -c1-1500)"
 echo "::notice::Visual StarSpirits> $(grep -v '^$' rcon-starspirits.txt | grep -v '^> ' | tr '\n' '|' | cut -c1-2500) || $(grep -E 'StarSpirits' run/logs/latest.log 2>/dev/null | head -12 | tr '\n' '|' | cut -c1-2500)"
 # --- StarFest: boliche de prueba de noche, con la cancion del servidor ---
 STAR=('gamerule doDaylightCycle false' 'time set 18000' 'weather clear' 'gamerule sendCommandFeedback false' "${T}hud no${E}"
