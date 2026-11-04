@@ -64,8 +64,7 @@ public class AvatarLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
             PoseStack.Pose pose = ps.last();
             for (AvatarBuilder.Batch b : m.parts.get(i)) {
                 AvatarBuilder.Material mat = m.materials.get(b.material);
-                RenderType type = mat.doubleSided ? RenderType.entityCutoutNoCull(r.textures[b.material])
-                        : RenderType.entityCutout(r.textures[b.material]);
+                RenderType type = AvatarRenderTypes.cutout(r.textures[b.material], mat.doubleSided);
                 emit(buffers.getBuffer(type), pose, b.data, light, overlay);
             }
             ps.popPose();
@@ -100,8 +99,7 @@ public class AvatarLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<A
         int st = AvatarBuilder.Batch.SKIN_STRIDE;
         for (AvatarBuilder.Batch b : m.skinned) {
             AvatarBuilder.Material mat = m.materials.get(b.material);
-            VertexConsumer vc = buffers.getBuffer(mat.doubleSided ? RenderType.entityCutoutNoCull(r.textures[b.material])
-                    : RenderType.entityCutout(r.textures[b.material]));
+            VertexConsumer vc = buffers.getBuffer(AvatarRenderTypes.cutout(r.textures[b.material], mat.doubleSided));
             float[] dd = b.data;
             for (int t = 0; t < dd.length; t += 3 * st) {
                 for (int k = 0; k < 4; k++) {

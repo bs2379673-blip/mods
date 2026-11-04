@@ -201,6 +201,7 @@ public final class AvatarBuilder {
         // --- OBJ
         List<float[]> vs = new ArrayList<>();
         List<float[]> vts = new ArrayList<>();
+        List<float[]> vns = new ArrayList<>();
         Map<String, Group> groups = new LinkedHashMap<>();
         Group cur = null;
         String curMat = null;
@@ -223,6 +224,9 @@ public final class AvatarBuilder {
             } else if (c0 == 'v' && c1 == 't') {
                 String[] t = l.split("\\s+");
                 vts.add(new float[]{f(t[1]), t.length > 2 ? f(t[2]) : 0});
+            } else if (c0 == 'v' && c1 == 'n') {
+                String[] t = l.split("\\s+");
+                vns.add(new float[]{f(t[1]), f(t[2]), f(t[3])});
             } else if (c0 == 'g' || c0 == 'o') {
                 String name = l.substring(1).trim();
                 cur = groups.computeIfAbsent(name, Group::new);
@@ -241,7 +245,7 @@ public final class AvatarBuilder {
                 }
                 String[] t = l.split("\\s+");
                 int k = t.length - 1;
-                int[] vi = new int[k], ti = new int[k];
+                int[] vi = new int[k], ti = new int[k], ni = new int[k];
                 for (int i = 0; i < k; i++) {
                     String[] p = t[i + 1].split("/");
                     int a = Integer.parseInt(p[0]);
@@ -252,14 +256,23 @@ public final class AvatarBuilder {
                     } else {
                         ti[i] = -1;
                     }
+                    if (p.length > 2 && !p[2].isEmpty()) {
+                        int c = Integer.parseInt(p[2]);
+                        ni[i] = c < 0 ? vns.size() + c : c - 1;
+                    } else {
+                        ni[i] = -1;
+                    }
                 }
                 for (int i = 1; i + 1 < k; i++) {
-                    cur.tris.add(new int[]{vi[0], vi[i], vi[i + 1], ti[0], ti[i], ti[i + 1]});
+                    cur.tris.add(new int[]{vi[0], vi[i], vi[i + 1], ti[0], ti[i], ti[i + 1], ni[0], ni[i], ni[i + 1]});
                 }
             }
         }
         float[][] V = vs.toArray(new float[0][]);
         float[][] VT = vts.toArray(new float[0][]);
+        float[][] VN = vns.toArray(new float[0][]);
+        // giro que se le aplico a cada vertice al bajar los brazos (para girar tambien su normal)
+        Map<Integer, Float> turned = new HashMap<>();
         for (Group g : groups.values()) {
             for (int[] t : g.tris) {
                 for (int i = 0; i < 3; i++) {
@@ -568,6 +581,7 @@ public final class AvatarBuilder {
                     float[] p = V[vi];
                     float qx = p[0] - sh[0], qy = p[1] - sh[1];
                     V[vi] = new float[]{c * qx - s * qy + sh[0], s * qx + c * qy + sh[1], p[2]};
+                    turned.put(vi, (float) phi);
                 }
                 // la ropa 3D se dobla segun cuanto sigue a ese brazo (la manga baja entera, el torso no)
                 for (Map.Entry<Integer, float[]> w : weights.entrySet()) {
@@ -579,6 +593,7 @@ public final class AvatarBuilder {
                     float[] p = V[w.getKey()];
                     float qx = p[0] - sh[0], qy = p[1] - sh[1];
                     V[w.getKey()] = new float[]{cc * qx - ss * qy + sh[0], ss * qx + cc * qy + sh[1], p[2]};
+                    turned.merge(w.getKey(), (float) (phi * a), Float::sum);
                 }
                 res.log.add(PART_NAMES[side] + " bajado " + Math.round(Math.toDegrees(phi)) + " grados");
             }
@@ -636,7 +651,7 @@ public final class AvatarBuilder {
                     float su = (float) Math.floor(mu), sv = (float) Math.floor(mv);
                     for (int k = 0; k < 3; k++) {
                         float[] m = toModel(V[t[k]], cx, cz, feet, S);
-                        float[] nn = normals[i][k];
+                        float[] nn = normalOf(t, k, VN, turned, normals[i][k]);
                         float[] uv = t[3 + k] >= 0 && t[3 + k] < VT.length ? VT[t[3 + k]] : new float[]{0, 0};
                         float[] w = weights.get(t[k]);
                         skin.add(m[0], m[1], m[2], -nn[0], -nn[1], nn[2], uv[0] - su, 1 - (uv[1] - sv), w[0], w[1], w[2], w[3], w[4], w[5]);
@@ -655,7 +670,7 @@ public final class AvatarBuilder {
                 float su = (float) Math.floor(mu), sv = (float) Math.floor(mv);
                 for (int k = 0; k < 3; k++) {
                     float[] m = toModel(V[t[k]], cx, cz, feet, S);
-                    float[] nn = normals[i][k];
+                    float[] nn = normalOf(t, k, VN, turned, normals[i][k]);
                     float[] uv = t[3 + k] >= 0 && t[3 + k] < VT.length ? VT[t[3 + k]] : new float[]{0, 0};
                     fl.add(m[0] - j[0], m[1] - j[1], m[2] - j[2], -nn[0], -nn[1], nn[2], uv[0] - su, 1 - (uv[1] - sv));
                 }
@@ -1083,6 +1098,20 @@ public final class AvatarBuilder {
             }
         }
         return out;
+    }
+
+    /** La normal que trae el archivo (como la sombrea Roblox), girada si ese vertice se giro al bajar el brazo. */
+    private static float[] normalOf(int[] t, int k, float[][] VN, Map<Integer, Float> turned, float[] fallback) {
+        float[] n = t.length > 6 && t[6 + k] >= 0 && t[6 + k] < VN.length ? unit(VN[t[6 + k]]) : fallback;
+        if (n[0] == 0 && n[1] == 0 && n[2] == 0) {
+            n = fallback;
+        }
+        Float a = turned.get(t[k]);
+        if (a == null || a == 0) {
+            return n;
+        }
+        float c = (float) Math.cos(a), s = (float) Math.sin(a);
+        return new float[]{c * n[0] - s * n[1], s * n[0] + c * n[1], n[2]};
     }
 
     private static long key(float[] p) {

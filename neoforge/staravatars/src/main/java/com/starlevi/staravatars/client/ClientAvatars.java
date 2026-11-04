@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.starlevi.staravatars.StarAvatars;
 import com.starlevi.staravatars.net.Net;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -149,7 +148,7 @@ public final class ClientAvatars {
                 }
                 m.argb = null;
                 ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(StarAvatars.MOD_ID, "avatar/" + a.id() + "_" + (textureSeq++));
-                Minecraft.getInstance().getTextureManager().register(loc, new DynamicTexture(img));
+                Minecraft.getInstance().getTextureManager().register(loc, new AvatarTexture(img));
                 tex[i] = loc;
             }
             READY.put(a.id(), new Ready(res, tex));
