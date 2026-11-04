@@ -68,7 +68,10 @@ def sbox(name, mat, x0, y0, z0, x1, y1, z1, n=8):
     groups.append((name, mat, faces, tb))
 
 
-sbox('Handle2', 'Handle2Mtl', -1.1, 2.2, -0.6, 1.1, 4.3, 0.6)
+# como un pantalon de Roblox: cintura y dos piernas separadas
+sbox('Handle2', 'Handle2Mtl', -1.1, 3.7, -0.6, 1.1, 4.3, 0.6)
+sbox('Handle2', 'Handle2Mtl', 0.0, 2.2, -0.58, 1.08, 3.7, 0.58)
+sbox('Handle2', 'Handle2Mtl', -1.08, 2.2, -0.58, 0.0, 3.7, 0.58)
 # piso del lugar (tiene que ignorarse)
 box('Baseplate1', 'Piso', -50, -1, -50, 50, 0, 50)
 

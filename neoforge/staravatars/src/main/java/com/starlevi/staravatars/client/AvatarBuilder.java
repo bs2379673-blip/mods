@@ -503,6 +503,9 @@ public final class AvatarBuilder {
         // --- pesos de la ropa 3D: cuanto sigue cada vertice a cada parte (suave cerca de las articulaciones)
         Map<Integer, float[]> weights = new HashMap<>();
         float sigma = 0.06f * (neckY - feet);
+        // entrepierna: un poco debajo de la cadera; mas abajo cada pierna va sola
+        float crotchY = hipY - 0.12f * (hipY - feet);
+        float band = 0.03f * (neckY - feet);
         for (Map.Entry<Group, int[]> e : triPart.entrySet()) {
             List<int[]> tris = e.getKey().tris;
             for (int i = 0; i < tris.size(); i++) {
@@ -512,7 +515,7 @@ public final class AvatarBuilder {
                 for (int k = 0; k < 3; k++) {
                     int vi = tris.get(i)[k];
                     if (!weights.containsKey(vi)) {
-                        weights.put(vi, skinWeights(box, V[vi], sigma, clothAllow.get(e.getKey())));
+                        weights.put(vi, skinWeights(box, V[vi], sigma, clothAllow.get(e.getKey()), cx, hipY, crotchY, band));
                     }
                 }
             }
@@ -729,36 +732,75 @@ public final class AvatarBuilder {
         return false;
     }
 
-    private static float[] skinWeights(float[][] box, float[] p, float sigma, boolean[] allow) {
+    /**
+     * Pesos de un vertice de ropa 3D. Entre el torso y una pierna (o un brazo) se mezcla suave segun la
+     * distancia, como la cintura o el hombro de una prenda en Roblox. Entre pierna derecha e izquierda
+     * NO se mezcla: cada pierna del pantalon sigue solo a su pierna (salvo una franja finita en el medio
+     * de la cintura, arriba de la entrepierna), asi al caminar se separan.
+     */
+    private static float[] skinWeights(float[][] box, float[] p, float sigma, boolean[] allow, float cx, float hipY, float crotchY,
+                                       float band) {
         float[] w = new float[6];
-        float sum = 0;
         float s2 = sigma * sigma;
-        float min = Float.MAX_VALUE;
+        float dBody = box[BODY] == null ? Float.MAX_VALUE : dist(box[BODY], p[0], p[1], p[2]);
+        boolean legs = allow == null || allow[RIGHT_LEG] || allow[LEFT_LEG];
+        float dLeg = Float.MAX_VALUE;
+        if (legs) {
+            dLeg = Math.min(box[RIGHT_LEG] == null ? Float.MAX_VALUE : dist(box[RIGHT_LEG], p[0], p[1], p[2]),
+                    box[LEFT_LEG] == null ? Float.MAX_VALUE : dist(box[LEFT_LEG], p[0], p[1], p[2]));
+        }
         float[] d = new float[6];
-        for (int b = 1; b < 6; b++) {
-            d[b] = box[b] == null || allow != null && !allow[b] ? Float.MAX_VALUE : dist(box[b], p[0], p[1], p[2]);
+        java.util.Arrays.fill(d, Float.MAX_VALUE);
+        d[BODY] = dBody;
+        for (int b : new int[]{RIGHT_ARM, LEFT_ARM}) {
+            if (box[b] != null && (allow == null || allow[b])) {
+                d[b] = dist(box[b], p[0], p[1], p[2]);
+            }
+        }
+        float min = Math.min(dBody, dLeg);
+        for (int b : new int[]{RIGHT_ARM, LEFT_ARM}) {
             min = Math.min(min, d[b]);
         }
+        float wb = dBody == Float.MAX_VALUE ? 0 : (float) Math.exp(-(dBody - min) / s2);
+        float wl = dLeg == Float.MAX_VALUE ? 0 : (float) Math.exp(-(dLeg - min) / s2);
+        // debajo de la cadera no hay torso: la pierna manda (si no, el pantalon quedaria pegado al cuerpo)
+        if (legs && p[1] < hipY) {
+            float k = Math.min(1, (hipY - p[1]) / Math.max(1e-3f, hipY - crotchY));
+            wb *= 1 - k;
+        }
+        w[BODY] = wb;
+        for (int b : new int[]{RIGHT_ARM, LEFT_ARM}) {
+            w[b] = d[b] == Float.MAX_VALUE ? 0 : (float) Math.exp(-(d[b] - min) / s2);
+        }
+        // de que lado: Roblox mira a -z, su derecha es +x
+        float side;
+        if (p[1] < crotchY) {
+            side = p[0] >= cx ? 1 : 0;
+        } else {
+            side = Math.max(0, Math.min(1, 0.5f + (p[0] - cx) / (2 * band)));
+        }
+        w[RIGHT_LEG] = wl * side;
+        w[LEFT_LEG] = wl * (1 - side);
+        float sum = 0;
         for (int b = 1; b < 6; b++) {
-            if (d[b] == Float.MAX_VALUE) {
-                continue;
-            }
-            // relativo a la parte mas cercana: lejos del cuerpo sigue a la mas cercana, igual que en Roblox
-            w[b] = (float) Math.exp(-(d[b] - min) / s2);
             sum += w[b];
         }
+        if (sum <= 0) {
+            w[BODY] = 1;
+            return w;
+        }
         for (int b = 1; b < 6; b++) {
-            w[b] = w[b] / sum;
+            w[b] /= sum;
             if (w[b] < 0.02f) {
                 w[b] = 0;
             }
         }
-        float s = 0;
+        sum = 0;
         for (int b = 1; b < 6; b++) {
-            s += w[b];
+            sum += w[b];
         }
         for (int b = 1; b < 6; b++) {
-            w[b] /= s;
+            w[b] /= sum;
         }
         return w;
     }
