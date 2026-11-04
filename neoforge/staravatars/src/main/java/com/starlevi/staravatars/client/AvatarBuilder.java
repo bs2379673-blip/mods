@@ -37,7 +37,11 @@ public final class AvatarBuilder {
     /** Marca de triangulo con piel (ropa 3D). */
     static final int SKIN = -1;
     public static final int HEAD = 0, BODY = 1, RIGHT_ARM = 2, LEFT_ARM = 3, RIGHT_LEG = 4, LEFT_LEG = 5;
-    public static final String[] PART_NAMES = {"cabeza", "torso", "brazo_der", "brazo_izq", "pierna_der", "pierna_izq"};
+    /** Antebrazos y pantorrillas: cuelgan del brazo o la pierna (parte - 4) y se doblan en el codo o la rodilla. */
+    public static final int RIGHT_FOREARM = 6, LEFT_FOREARM = 7, RIGHT_SHIN = 8, LEFT_SHIN = 9;
+    public static final int PARTS = 10;
+    public static final String[] PART_NAMES = {"cabeza", "torso", "brazo_der", "brazo_izq", "pierna_der", "pierna_izq", "antebrazo_der",
+            "antebrazo_izq", "pantorrilla_der", "pantorrilla_izq"};
     private static final Pattern NUMBERED = Pattern.compile("^(.*?)(\\d+)$");
     private static final Set<String> SCENERY = Set.of("baseplate", "wheel", "spawnlocation", "driversseat", "seat", "part", "terrain", "head",
             "meshpart", "union", "camera");
@@ -54,7 +58,7 @@ public final class AvatarBuilder {
         }
     }
 
-    /** Triangulos de una parte con un material: x, y, z, nx, ny, nz, u, v por vertice. */
+    /** Triangulos de una parte con un material: x, y, z (modelo, absolutos), nx, ny, nz, u, v por vertice. */
     public static final class Batch {
         public final int material;
         public float[] data;
@@ -68,7 +72,7 @@ public final class AvatarBuilder {
             return this.data.length / 24;
         }
 
-        public static final int SKIN_STRIDE = 14;
+        public static final int SKIN_STRIDE = 8 + PARTS;
     }
 
     public static final class Result {
@@ -76,11 +80,11 @@ public final class AvatarBuilder {
         public final List<List<Batch>> parts = new ArrayList<>();
         /**
          * Ropa 3D (layered clothing): cada vertice sigue a varias partes a la vez, con pesos, como en
-         * Roblox. Por vertice: x, y, z (modelo, absolutos), nx, ny, nz, u, v y el peso de las 6 partes.
+         * Roblox. Por vertice: x, y, z (modelo, absolutos), nx, ny, nz, u, v y el peso de cada parte.
          */
         public final List<Batch> skinned = new ArrayList<>();
-        /** Articulacion de cada parte en el espacio del modelo del jugador (pixeles). */
-        public final float[][] joints = new float[6][3];
+        /** Articulacion de cada parte en el espacio del modelo del jugador (pixeles); las partes 6-9 son codos y rodillas. */
+        public final float[][] joints = new float[PARTS][3];
         public int triangles;
         public final List<String> log = new ArrayList<>();
     }
@@ -183,7 +187,7 @@ public final class AvatarBuilder {
             opt = new JsonObject();
         }
         Map<String, byte[]> byLower = new HashMap<>();
-        byte[] objData = null, mtlData = null;
+        byte[] objData = null, mtlData = null, gltfData = null;
         for (Map.Entry<String, byte[]> e : files.entrySet()) {
             String n = e.getKey().toLowerCase(Locale.ROOT);
             byLower.put(n, e.getValue());
@@ -191,6 +195,8 @@ public final class AvatarBuilder {
                 objData = e.getValue();
             } else if (n.endsWith(".mtl") && mtlData == null) {
                 mtlData = e.getValue();
+            } else if ((n.endsWith(".gltf") || n.endsWith(".glb")) && gltfData == null) {
+                gltfData = e.getValue();
             }
         }
         if (objData == null) {
@@ -306,6 +312,14 @@ public final class AvatarBuilder {
             throw new IllegalArgumentException("no encontre el cuerpo R15 (las piezas con el nombre del usuario)");
         }
         res.log.add("cuerpo: " + bodyPrefix + " (" + body.size() + " piezas), accesorios: " + handles.size());
+        GltfRig rig = null;
+        if (gltfData != null) {
+            try {
+                rig = GltfRig.read(gltfData, opt.has("gltf_nombre") ? opt.get("gltf_nombre").getAsString() : bodyPrefix, res.log);
+            } catch (Exception e) {
+                res.log.add("glTF: no se pudo leer (" + e + ")");
+            }
+        }
 
         // cabeza: la pieza mas alta; torso: las centradas; el resto son brazos o piernas
         Group head = body.get(0);
@@ -347,9 +361,33 @@ public final class AvatarBuilder {
         float cx = box[BODY] != null ? (box[BODY][0] + box[BODY][3]) / 2 : hx;
         float cz = box[BODY] != null ? (box[BODY][2] + box[BODY][5]) / 2 : (head.min[2] + head.max[2]) / 2;
         float neckY = headBottom;
+        // esqueleto del glTF pasado a este .obj (puede estar en otro lugar del mapa o a otra escala)
+        Map<String, float[]> rj = new HashMap<>();
+        if (rig != null && rig.bounds.containsKey("Head") && (rig.bounds.containsKey("LeftFoot") || rig.bounds.containsKey("RightFoot"))) {
+            float[] hb = rig.bounds.get("Head");
+            float gFeet = Float.MAX_VALUE;
+            for (String f : new String[]{"LeftFoot", "RightFoot"}) {
+                if (rig.bounds.containsKey(f)) {
+                    gFeet = Math.min(gFeet, rig.bounds.get(f)[1]);
+                }
+            }
+            float sc = (headTop - feet) / (hb[4] - gFeet);
+            if (Math.abs(sc - 1) < 0.08f) {
+                sc = 1;
+            }
+            float gcx = (hb[0] + hb[3]) / 2, gcz = (hb[2] + hb[5]) / 2, ocx = head.cx(), ocz = (head.min[2] + head.max[2]) / 2;
+            float dy = ((feet - gFeet * sc) + (headTop - hb[4] * sc)) / 2;
+            for (Map.Entry<String, float[]> e : rig.joints.entrySet()) {
+                float[] p = e.getValue();
+                rj.put(e.getKey(), new float[]{(p[0] - gcx) * sc + ocx, p[1] * sc + dy, (p[2] - gcz) * sc + ocz});
+            }
+            res.log.add("glTF alineado: escala " + sc);
+        }
         // piernas que faltan (cuerpos sin piernas, o con pantalon 3D): cajas imaginarias debajo de la cadera
         float hipY;
-        if (box[BODY] != null && box[BODY][1] > feet + 0.1f * (neckY - feet) && box[BODY][3] - box[BODY][0] > 0.35f * headW) {
+        if (rj.containsKey("LeftUpperLeg") && rj.containsKey("RightUpperLeg")) {
+            hipY = (rj.get("LeftUpperLeg")[1] + rj.get("RightUpperLeg")[1]) / 2; // la cadera de verdad, del esqueleto
+        } else if (box[BODY] != null && box[BODY][1] > feet + 0.1f * (neckY - feet) && box[BODY][3] - box[BODY][0] > 0.35f * headW) {
             hipY = box[BODY][1]; // la cadera es donde termina el torso (aunque las piernas sean cortas o falten)
         } else if (box[RIGHT_LEG] != null || box[LEFT_LEG] != null) {
             hipY = Math.max(box[RIGHT_LEG] == null ? -Float.MAX_VALUE : box[RIGHT_LEG][4], box[LEFT_LEG] == null ? -Float.MAX_VALUE : box[LEFT_LEG][4]);
@@ -513,6 +551,128 @@ public final class AvatarBuilder {
             joint[side] = new float[]{(b[0] + b[3]) / 2, hipY, (b[2] + b[5]) / 2};
         }
 
+        // --- codos y rodillas: hasta donde llega el brazo (o el muslo), medido a lo largo del miembro
+        float[] bendAt = new float[PARTS];
+        float[][] limbDir = new float[PARTS][];
+        boolean[] byGroup = new boolean[PARTS];
+        for (int side = RIGHT_ARM; side <= LEFT_LEG; side++) {
+            boolean arm = side <= LEFT_ARM;
+            float[] o = joint[side];
+            float[] d = arm && armDir[side] != null ? armDir[side] : new float[]{0, -1};
+            limbDir[side] = d;
+            List<float[]> grp = new ArrayList<>(); // centro, minimo y maximo de cada pieza, a lo largo del miembro
+            float len = 0;
+            for (int i = 0; i < body.size(); i++) {
+                if (role[i] != side) {
+                    continue;
+                }
+                float mn = Float.MAX_VALUE, mx = -Float.MAX_VALUE, sum = 0;
+                int c = 0;
+                for (int[] t : body.get(i).tris) {
+                    for (int k = 0; k < 3; k++) {
+                        float sp = along(V[t[k]], o, d);
+                        mn = Math.min(mn, sp);
+                        mx = Math.max(mx, sp);
+                        sum += sp;
+                        c++;
+                    }
+                }
+                grp.add(new float[]{sum / c, mn, mx});
+                len = Math.max(len, mx);
+            }
+            if (!arm) {
+                len = Math.max(len, hipY - feet);
+            }
+            if (len <= 0) {
+                len = 0.45f * (neckY - feet);
+            }
+            grp.sort((a, b) -> Float.compare(a[0], b[0]));
+            byGroup[side] = grp.size() >= 2;
+            float t = -1;
+            String how = "estimado";
+            if (grp.size() >= 2) {
+                // entre la pieza de arriba (muslo, brazo) y la siguiente (pantorrilla, antebrazo)
+                float b = (grp.get(0)[2] + grp.get(1)[1]) / 2;
+                if (b > 0.3f * len && b < 0.72f * len) {
+                    t = b;
+                    how = "piezas del cuerpo";
+                }
+            }
+            String pre = side == RIGHT_ARM || side == RIGHT_LEG ? "Right" : "Left";
+            if (t < 0 && !arm && rj.containsKey(pre + "LowerLeg")) {
+                float b = hipY - rj.get(pre + "LowerLeg")[1];
+                if (b > 0.15f * len && b < 0.85f * len) {
+                    t = b;
+                    how = "glTF";
+                }
+            }
+            if (t < 0 && arm && rig != null) {
+                float[] sh = rig.joints.get(pre + "UpperArm"), el = rig.joints.get(pre + "LowerArm"), wr = rig.joints.get(pre + "Hand");
+                float[] hb = rig.bounds.get(pre + "Hand");
+                if (sh != null && el != null && wr != null && hb != null) {
+                    float ux = wr[0] - sh[0], uy = wr[1] - sh[1], uz = wr[2] - sh[2];
+                    float ul = (float) Math.sqrt(ux * ux + uy * uy + uz * uz) + 1e-6f;
+                    float far = 0;
+                    for (int c = 0; c < 8; c++) {
+                        float x = hb[(c & 1) == 0 ? 0 : 3], y = hb[(c & 2) == 0 ? 1 : 4], z = hb[(c & 4) == 0 ? 2 : 5];
+                        far = Math.max(far, ((x - sh[0]) * ux + (y - sh[1]) * uy + (z - sh[2]) * uz) / ul);
+                    }
+                    float r = ((el[0] - sh[0]) * ux + (el[1] - sh[1]) * uy + (el[2] - sh[2]) * uz) / ul / Math.max(1e-4f, far);
+                    if (r > 0.25f && r < 0.75f) {
+                        t = r * len;
+                        how = "glTF";
+                    }
+                }
+            }
+            if (t < 0) {
+                t = (arm ? 0.47f : 0.5f) * len;
+            }
+            bendAt[side] = t;
+            res.log.add((arm ? "codo " : "rodilla ") + PART_NAMES[side] + ": " + how + " (" + Math.round(100 * t / len) + "%)");
+        }
+        // cada pieza (o triangulo, si el miembro es una sola malla) va arriba o abajo del codo/rodilla
+        for (Map.Entry<Group, int[]> e : triPart.entrySet()) {
+            Group g = e.getKey();
+            int[] p = e.getValue();
+            int bi = body.indexOf(g);
+            boolean whole = bi >= 0 ? byGroup[Math.max(0, Math.min(PARTS - 1, role[bi]))] : !split.contains(g.name);
+            if (whole && p.length > 0) {
+                int side = p[0];
+                boolean same = true;
+                for (int v : p) {
+                    same &= v == side;
+                }
+                if (same && side >= RIGHT_ARM && side <= LEFT_LEG) {
+                    float sum = 0;
+                    int c = 0;
+                    for (int[] t : g.tris) {
+                        for (int k = 0; k < 3; k++) {
+                            sum += along(V[t[k]], joint[side], limbDir[side]);
+                            c++;
+                        }
+                    }
+                    if (sum / c > bendAt[side]) {
+                        java.util.Arrays.fill(p, side + 4);
+                    }
+                    continue;
+                }
+            }
+            for (int i = 0; i < p.length; i++) {
+                int side = p[i];
+                if (side < RIGHT_ARM || side > LEFT_LEG) {
+                    continue;
+                }
+                int[] t = g.tris.get(i);
+                float sp = 0;
+                for (int k = 0; k < 3; k++) {
+                    sp += along(V[t[k]], joint[side], limbDir[side]) / 3;
+                }
+                if (sp > bendAt[side]) {
+                    p[i] = side + 4;
+                }
+            }
+        }
+
         // --- pesos de la ropa 3D: cuanto sigue cada vertice a cada parte (suave cerca de las articulaciones)
         Map<Integer, float[]> weights = new HashMap<>();
         float sigma = 0.06f * (neckY - feet);
@@ -542,10 +702,28 @@ public final class AvatarBuilder {
                 legTubes(V, e.getKey(), weights, cx, hipY, crotchY);
             }
         }
+        // --- la tela tambien se estira en el codo y la rodilla: el peso de cada miembro se reparte entre
+        // la parte de arriba y la de abajo, con una franja suave alrededor de la articulacion
+        float bendBand = 0.04f * (neckY - feet);
+        for (Map.Entry<Integer, float[]> e : weights.entrySet()) {
+            float[] w = java.util.Arrays.copyOf(e.getValue(), PARTS);
+            for (int side = RIGHT_ARM; side <= LEFT_LEG; side++) {
+                if (w[side] <= 0) {
+                    continue;
+                }
+                float sp = along(V[e.getKey()], joint[side], limbDir[side]);
+                float f = Math.max(0, Math.min(1, (sp - (bendAt[side] - bendBand)) / (2 * bendBand)));
+                f = f * f * (3 - 2 * f);
+                w[side + 4] = w[side] * f;
+                w[side] *= 1 - f;
+            }
+            e.setValue(w);
+        }
 
         // --- bajar los brazos abiertos (giro alrededor del hombro, en el plano del frente)
         boolean lower = !opt.has("brazos_abajo") || opt.get("brazos_abajo").getAsBoolean();
         Set<Integer> moved = new HashSet<>();
+        float[] lowered = new float[PARTS];
         if (lower) {
             for (int side : new int[]{RIGHT_ARM, LEFT_ARM}) {
                 boolean has = false;
@@ -567,7 +745,7 @@ public final class AvatarBuilder {
                 for (Map.Entry<Group, int[]> e : triPart.entrySet()) {
                     List<int[]> tris = e.getKey().tris;
                     for (int i = 0; i < tris.size(); i++) {
-                        if (e.getValue()[i] == side) {
+                        if (e.getValue()[i] == side || e.getValue()[i] == side + 4) {
                             for (int k = 0; k < 3; k++) {
                                 verts.add(tris.get(i)[k]);
                             }
@@ -585,7 +763,7 @@ public final class AvatarBuilder {
                 }
                 // la ropa 3D se dobla segun cuanto sigue a ese brazo (la manga baja entera, el torso no)
                 for (Map.Entry<Integer, float[]> w : weights.entrySet()) {
-                    float a = w.getValue()[side];
+                    float a = w.getValue()[side] + w.getValue()[side + 4];
                     if (a < 1e-3f) {
                         continue;
                     }
@@ -595,6 +773,7 @@ public final class AvatarBuilder {
                     V[w.getKey()] = new float[]{cc * qx - ss * qy + sh[0], ss * qx + cc * qy + sh[1], p[2]};
                     turned.merge(w.getKey(), (float) (phi * a), Float::sum);
                 }
+                lowered[side] = (float) phi;
                 res.log.add(PART_NAMES[side] + " bajado " + Math.round(Math.toDegrees(phi)) + " grados");
             }
         }
@@ -603,6 +782,12 @@ public final class AvatarBuilder {
         float S = 32f / (headTop - feet);
         for (int i = 0; i < 6; i++) {
             res.joints[i] = toModel(joint[i], cx, cz, feet, S);
+        }
+        for (int side = RIGHT_ARM; side <= LEFT_LEG; side++) {
+            float[] o = joint[side], d = limbDir[side];
+            float c = (float) Math.cos(lowered[side]), sn = (float) Math.sin(lowered[side]);
+            float dx = c * d[0] - sn * d[1], dy = sn * d[0] + c * d[1];
+            res.joints[side + 4] = toModel(new float[]{o[0] + dx * bendAt[side], o[1] + dy * bendAt[side], o[2]}, cx, cz, feet, S);
         }
 
         // --- materiales
@@ -626,7 +811,7 @@ public final class AvatarBuilder {
         // --- normales suaves por pieza y lotes por parte y material
         Map<Integer, FloatList> skinAcc = new HashMap<>();
         List<Map<Integer, FloatList>> acc = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < PARTS; i++) {
             acc.add(new HashMap<>());
         }
         for (Map.Entry<Group, int[]> e : triPart.entrySet()) {
@@ -654,12 +839,12 @@ public final class AvatarBuilder {
                         float[] nn = normalOf(t, k, VN, turned, normals[i][k]);
                         float[] uv = t[3 + k] >= 0 && t[3 + k] < VT.length ? VT[t[3 + k]] : new float[]{0, 0};
                         float[] w = weights.get(t[k]);
-                        skin.add(m[0], m[1], m[2], -nn[0], -nn[1], nn[2], uv[0] - su, 1 - (uv[1] - sv), w[0], w[1], w[2], w[3], w[4], w[5]);
+                        skin.add(m[0], m[1], m[2], -nn[0], -nn[1], nn[2], uv[0] - su, 1 - (uv[1] - sv));
+                        skin.add(w);
                     }
                     res.triangles++;
                     continue;
                 }
-                float[] j = res.joints[part];
                 FloatList fl = acc.get(part).computeIfAbsent(mi, x -> new FloatList());
                 float mu = 0, mv = 0;
                 for (int k = 0; k < 3; k++) {
@@ -672,12 +857,12 @@ public final class AvatarBuilder {
                     float[] m = toModel(V[t[k]], cx, cz, feet, S);
                     float[] nn = normalOf(t, k, VN, turned, normals[i][k]);
                     float[] uv = t[3 + k] >= 0 && t[3 + k] < VT.length ? VT[t[3 + k]] : new float[]{0, 0};
-                    fl.add(m[0] - j[0], m[1] - j[1], m[2] - j[2], -nn[0], -nn[1], nn[2], uv[0] - su, 1 - (uv[1] - sv));
+                    fl.add(m[0], m[1], m[2], -nn[0], -nn[1], nn[2], uv[0] - su, 1 - (uv[1] - sv));
                 }
                 res.triangles++;
             }
         }
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < PARTS; i++) {
             List<Batch> list = new ArrayList<>();
             for (Map.Entry<Integer, FloatList> e : acc.get(i).entrySet()) {
                 list.add(new Batch(e.getKey(), e.getValue().toArray()));
@@ -1025,6 +1210,11 @@ public final class AvatarBuilder {
         return n == 0 ? 0 : s / n;
     }
 
+    /** Distancia a lo largo de un miembro (en el plano del frente), desde su articulacion. */
+    private static float along(float[] p, float[] o, float[] d) {
+        return (p[0] - o[0]) * d[0] + (p[1] - o[1]) * d[1];
+    }
+
     /** Roblox (studs, y arriba, frente -z, derecha +x) -> modelo del jugador (pixeles, y abajo, derecha -x). */
     private static float[] toModel(float[] p, float cx, float cz, float feet, float S) {
         return new float[]{-(p[0] - cx) * S, 24 - (p[1] - feet) * S, (p[2] - cz) * S};
@@ -1038,6 +1228,10 @@ public final class AvatarBuilder {
             case "brazo_izq", "brazo_izquierdo", "leftarm" -> LEFT_ARM;
             case "pierna_der", "pierna_derecha", "rightleg" -> RIGHT_LEG;
             case "pierna_izq", "pierna_izquierda", "leftleg" -> LEFT_LEG;
+            case "antebrazo_der", "mano_der", "rightlowerarm", "righthand" -> RIGHT_FOREARM;
+            case "antebrazo_izq", "mano_izq", "leftlowerarm", "lefthand" -> LEFT_FOREARM;
+            case "pantorrilla_der", "pie_der", "rightlowerleg", "rightfoot" -> RIGHT_SHIN;
+            case "pantorrilla_izq", "pie_izq", "leftlowerleg", "leftfoot" -> LEFT_SHIN;
             default -> -1;
         };
     }

@@ -53,7 +53,8 @@ public final class AvatarLibrary {
 
     private static boolean wanted(String name) {
         String n = name.toLowerCase(Locale.ROOT);
-        return n.endsWith(".obj") || n.endsWith(".mtl") || n.endsWith(".png") || n.endsWith(".jpg") || n.endsWith(".json");
+        return n.endsWith(".obj") || n.endsWith(".mtl") || n.endsWith(".png") || n.endsWith(".jpg") || n.endsWith(".json")
+                || n.endsWith(".gltf") || n.endsWith(".glb");
     }
 
     public static synchronized int scan() {

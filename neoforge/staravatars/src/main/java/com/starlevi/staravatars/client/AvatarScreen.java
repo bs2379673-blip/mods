@@ -141,7 +141,7 @@ public class AvatarScreen extends Screen {
         ps.scale(-1, -1, 1);
         ps.translate(0, -1.501f, 0);
         Lighting.setupForEntityInInventory();
-        this.drawer.draw(ps, g.bufferSource(), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, r, parts);
+        this.drawer.draw(ps, g.bufferSource(), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, r, parts, false);
         g.flush();
         Lighting.setupFor3DItems();
         ps.popPose();
