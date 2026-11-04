@@ -521,6 +521,15 @@ public final class AvatarBuilder {
             }
         }
 
+        // --- pantalones anchos: las piernas se tocan en el medio. Cada vertice va con la pierna del tubo al
+        // que pertenece (recorriendo la superficie desde abajo de cada pierna), no con el lado del centro.
+        for (Map.Entry<Group, boolean[]> e : clothAllow.entrySet()) {
+            boolean[] al = e.getValue();
+            if (al[RIGHT_LEG] || al[LEFT_LEG]) {
+                legTubes(V, e.getKey(), weights, cx, hipY, crotchY);
+            }
+        }
+
         // --- bajar los brazos abiertos (giro alrededor del hombro, en el plano del frente)
         boolean lower = !opt.has("brazos_abajo") || opt.get("brazos_abajo").getAsBoolean();
         Set<Integer> moved = new HashSet<>();
@@ -728,6 +737,108 @@ public final class AvatarBuilder {
     }
 
     /** Pesos de un vertice de ropa: segun lo cerca que esta de cada parte (no la cabeza), suavizado. */
+    /**
+     * Separa las dos piernas de una prenda por la superficie: desde los vertices de abajo de cada lado se
+     * recorre la malla (camino mas corto por las aristas) y cada vertice queda con la pierna que llega
+     * primero. Debajo de la entrepierna esa pierna se lleva todo el peso de pierna.
+     */
+    private static void legTubes(float[][] V, Group g, Map<Integer, float[]> weights, float cx, float hipY, float crotchY) {
+        // vertices soldados por posicion (Roblox duplica en las costuras de la textura)
+        Map<Long, Integer> idOf = new HashMap<>();
+        Map<Integer, Integer> node = new HashMap<>();
+        List<float[]> pos = new ArrayList<>();
+        for (int[] t : g.tris) {
+            for (int k = 0; k < 3; k++) {
+                int vi = t[k];
+                if (node.containsKey(vi)) {
+                    continue;
+                }
+                long key = key(V[vi]);
+                Integer id = idOf.get(key);
+                if (id == null) {
+                    id = pos.size();
+                    idOf.put(key, id);
+                    pos.add(V[vi]);
+                }
+                node.put(vi, id);
+            }
+        }
+        int n = pos.size();
+        List<List<int[]>> adj = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            adj.add(new ArrayList<>());
+        }
+        float minY = Float.MAX_VALUE;
+        for (float[] p : pos) {
+            minY = Math.min(minY, p[1]);
+        }
+        for (int[] t : g.tris) {
+            for (int k = 0; k < 3; k++) {
+                int a = node.get(t[k]), b = node.get(t[(k + 1) % 3]);
+                if (a != b) {
+                    adj.get(a).add(new int[]{b});
+                    adj.get(b).add(new int[]{a});
+                }
+            }
+        }
+        // semillas: lo mas bajo de cada lado (los botamangas), bien separado del centro
+        float[] dist = new float[n];
+        int[] label = new int[n];
+        java.util.Arrays.fill(dist, Float.MAX_VALUE);
+        java.util.PriorityQueue<float[]> q = new java.util.PriorityQueue<>((x, y) -> Float.compare(x[0], y[0]));
+        float span = 0;
+        for (float[] p : pos) {
+            span = Math.max(span, Math.abs(p[0] - cx));
+        }
+        float lowBand = minY + 0.2f * (crotchY - minY);
+        int seeds = 0;
+        for (int i = 0; i < n; i++) {
+            float[] p = pos.get(i);
+            if (p[1] <= lowBand && Math.abs(p[0] - cx) > 0.3f * span) {
+                dist[i] = 0;
+                label[i] = p[0] >= cx ? RIGHT_LEG : LEFT_LEG;
+                q.add(new float[]{0, i});
+                seeds++;
+            }
+        }
+        if (seeds == 0) {
+            return;
+        }
+        while (!q.isEmpty()) {
+            float[] top = q.poll();
+            int i = (int) top[1];
+            if (top[0] > dist[i]) {
+                continue;
+            }
+            float[] p = pos.get(i);
+            for (int[] e : adj.get(i)) {
+                int j = e[0];
+                float[] o = pos.get(j);
+                if (o[1] > hipY) {
+                    continue; // por encima de la cadera no hace falta (ahi manda el torso)
+                }
+                float dx = o[0] - p[0], dy = o[1] - p[1], dz = o[2] - p[2];
+                float nd = dist[i] + (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+                if (nd < dist[j]) {
+                    dist[j] = nd;
+                    label[j] = label[i];
+                    q.add(new float[]{nd, j});
+                }
+            }
+        }
+        for (Map.Entry<Integer, Integer> e : node.entrySet()) {
+            int id = e.getValue();
+            float[] p = pos.get(id);
+            float[] w = weights.get(e.getKey());
+            if (w == null || dist[id] == Float.MAX_VALUE || p[1] >= crotchY) {
+                continue;
+            }
+            float leg = w[RIGHT_LEG] + w[LEFT_LEG];
+            w[RIGHT_LEG] = label[id] == RIGHT_LEG ? leg : 0;
+            w[LEFT_LEG] = label[id] == LEFT_LEG ? leg : 0;
+        }
+    }
+
     private static boolean clothAllowArmsBoth(int[] count, int total) {
         return false;
     }
