@@ -526,6 +526,16 @@ public final class AvatarBuilder {
                         partsCovered++;
                     }
                 }
+                // a un costado (pulseras, puños, cosas de una sola mano o pierna): de ese brazo o pierna, solido
+                float half = box[BODY] != null ? (box[BODY][3] - box[BODY][0]) / 2 : headW / 2;
+                boolean sideOnly = !clothing.contains(g.name) && Math.abs(g.cx() - cx) > 0.9f * half;
+                if (sideOnly) {
+                    int sideBest = g.cy() < hipY ? (g.cx() > cx ? RIGHT_LEG : LEFT_LEG) : (g.cx() > cx ? RIGHT_ARM : LEFT_ARM);
+                    java.util.Arrays.fill(p, sideBest);
+                    triPart.put(g, p);
+                    res.log.add(g.name + ": de un costado (" + PART_NAMES[sideBest] + ")");
+                    continue;
+                }
                 boolean cloth = clothing.contains(g.name) || (!rigid.contains(g.name) && partsCovered >= 2
                         && hugs(V, g, box, 0.06f * (neckY - feet)));
                 if (cloth) {
@@ -547,13 +557,19 @@ public final class AvatarBuilder {
                     res.log.add(g.name + ": ropa 3D (con piel)");
                     continue;
                 }
-                // accesorio rigido (alas, mochilas, cosas que flotan): entero a la parte que mas toca
+                // accesorio rigido (alas, mochilas, cosas que flotan): entero a la parte que mas toca; si toca los
+                // dos lados (alas, capas, cinturones) va con el torso, no con un brazo o una pierna
                 if (!split.contains(g.name)) {
                     int best = BODY;
                     for (int b = 0; b < 6; b++) {
                         if (count[b] > count[best]) {
                             best = b;
                         }
+                    }
+                    int right = count[RIGHT_ARM] + count[RIGHT_LEG], left = count[LEFT_ARM] + count[LEFT_LEG];
+                    boolean crosses = g.min[0] < cx - 0.2f * headW && g.max[0] > cx + 0.2f * headW;
+                    if (best != HEAD && (right > 0.15f * total && left > 0.15f * total || crosses)) {
+                        best = BODY;
                     }
                     java.util.Arrays.fill(p, best);
                 }
@@ -585,6 +601,7 @@ public final class AvatarBuilder {
 
         // --- codos y rodillas: hasta donde llega el brazo (o el muslo), medido a lo largo del miembro
         float[] bendAt = new float[PARTS];
+        float[] limbLen = new float[PARTS], limbRad = new float[PARTS];
         float[][] limbDir = new float[PARTS][];
         boolean[] byGroup = new boolean[PARTS];
         for (int side = RIGHT_ARM; side <= LEFT_LEG; side++) {
@@ -603,6 +620,8 @@ public final class AvatarBuilder {
                 for (int[] t : body.get(i).tris) {
                     for (int k = 0; k < 3; k++) {
                         float sp = along(V[t[k]], o, d);
+                        float[] q = V[t[k]];
+                        limbRad[side] = Math.max(limbRad[side], Math.abs(-(q[0] - o[0]) * d[1] + (q[1] - o[1]) * d[0]));
                         mn = Math.min(mn, sp);
                         mx = Math.max(mx, sp);
                         sum += sp;
@@ -660,6 +679,10 @@ public final class AvatarBuilder {
                 t = (arm ? 0.47f : 0.5f) * len;
             }
             bendAt[side] = t;
+            limbLen[side] = len;
+            if (limbRad[side] <= 0) {
+                limbRad[side] = 0.12f * (neckY - feet);
+            }
             res.log.add((arm ? "codo " : "rodilla ") + PART_NAMES[side] + ": " + how + " (" + Math.round(100 * t / len) + "%)");
         }
         // cada pieza (o triangulo, si el miembro es una sola malla) va arriba o abajo del codo/rodilla
@@ -736,22 +759,39 @@ public final class AvatarBuilder {
         }
         // --- la tela tambien se estira en el codo y la rodilla: el peso de cada miembro se reparte entre
         // la parte de arriba y la de abajo, con una franja suave alrededor de la articulacion
-        float bendBand = 0.04f * (neckY - feet);
         for (Map.Entry<Integer, float[]> e : weights.entrySet()) {
-            float[] w = java.util.Arrays.copyOf(e.getValue(), PARTS);
-            for (int side = RIGHT_ARM; side <= LEFT_LEG; side++) {
-                if (w[side] <= 0) {
-                    continue;
+            // ropa solida: cada vertice queda pegado entero a una sola parte. Debajo de la cadera, a su pierna
+            // (la del tubo del pantalon al que pertenece); arriba, al torso o al brazo que tiene mas cerca.
+            float[] w6 = e.getValue();
+            float[] p = V[e.getKey()];
+            int o;
+            float legW = w6[RIGHT_LEG] + w6[LEFT_LEG];
+            if (p[1] < hipY && legW > 0) {
+                o = w6[RIGHT_LEG] > w6[LEFT_LEG] ? RIGHT_LEG : w6[LEFT_LEG] > w6[RIGHT_LEG] ? LEFT_LEG : p[0] >= cx ? RIGHT_LEG : LEFT_LEG;
+            } else {
+                // torso o brazo: la distancia al brazo se mide a su tubo (el brazo puede venir abierto en diagonal
+                // y su caja taparia el costado del torso)
+                o = BODY;
+                float best = box[BODY] == null ? Float.MAX_VALUE : (float) Math.sqrt(dist(box[BODY], p[0], p[1], p[2]));
+                for (int b : new int[]{RIGHT_ARM, LEFT_ARM}) {
+                    if (w6[b] <= 0 || limbDir[b] == null) {
+                        continue;
+                    }
+                    float tt = Math.max(0, Math.min(limbLen[b], along(p, joint[b], limbDir[b])));
+                    float qx = joint[b][0] + limbDir[b][0] * tt - p[0], qy = joint[b][1] + limbDir[b][1] * tt - p[1], qz = joint[b][2] - p[2];
+                    float da = Math.max(0, (float) Math.sqrt(qx * qx + qy * qy + qz * qz) - limbRad[b]);
+                    // empate (adentro de los dos): si esta mas afuera que el costado del torso, es manga
+                    boolean outside = box[BODY] != null && Math.abs(p[0] - cx) > 0.9f * (box[BODY][3] - box[BODY][0]) / 2;
+                    if (da < best || da == best && outside) {
+                        best = da;
+                        o = b;
+                    }
                 }
-                float sp = along(V[e.getKey()], joint[side], limbDir[side]);
-                float f = Math.max(0, Math.min(1, (sp - (bendAt[side] - bendBand)) / (2 * bendBand)));
-                f = f * f * (3 - 2 * f);
-                w[side + 4] = w[side] * f;
-                w[side] *= 1 - f;
             }
-            // ropa solida: cada vertice queda pegado entero a una sola parte (no se mezcla con la otra pierna)
-            int o = owner(w);
-            java.util.Arrays.fill(w, 0);
+            if (o >= RIGHT_ARM && o <= LEFT_LEG && along(p, joint[o], limbDir[o]) > bendAt[o]) {
+                o += 4;
+            }
+            float[] w = new float[PARTS];
             w[o] = 1;
             e.setValue(w);
         }
@@ -862,6 +902,10 @@ public final class AvatarBuilder {
                     int p0 = owner(weights.get(t[0])), p1 = owner(weights.get(t[1])), p2 = owner(weights.get(t[2]));
                     if (p0 == p1 && p1 == p2) {
                         part = p0; // entero en una parte: va solido con ella
+                    } else if (!canStretch(p0, p1) || !canStretch(p1, p2) || !canStretch(p0, p2)) {
+                        // entre las piernas o entre la cadera y una pierna no se estira nada: el triangulo va
+                        // entero con la parte de la mayoria (como un pedazo solido), asi las piernas se separan limpias
+                        part = p0 == p1 || p0 == p2 ? p0 : p1 == p2 ? p1 : Math.min(p0, Math.min(p1, p2));
                     }
                 }
                 if (part == SKIN) {
@@ -1256,6 +1300,21 @@ public final class AvatarBuilder {
             }
         }
         return n == 0 ? 0 : s / n;
+    }
+
+    /**
+     * Si la tela puede estirarse entre dos partes: dentro de un mismo brazo o pierna (codo, rodilla) y
+     * entre el torso y un brazo (hombro). Nunca entre piernas ni entre la cadera y una pierna.
+     */
+    private static boolean canStretch(int a, int b) {
+        if (a == b) {
+            return true;
+        }
+        int la = a >= RIGHT_FOREARM ? a - 4 : a, lb = b >= RIGHT_FOREARM ? b - 4 : b;
+        if (la == lb && la >= RIGHT_ARM) {
+            return true;
+        }
+        return (a == BODY && (b == RIGHT_ARM || b == LEFT_ARM)) || (b == BODY && (a == RIGHT_ARM || a == LEFT_ARM));
     }
 
     /** La parte que se lleva un vertice de ropa 3D: la de mas peso (la ropa va solida, sin mezclar). */
