@@ -35,6 +35,9 @@ jobs:
         run: |
           python3 fabric/tools/bajar_modrinth.py watermedia 1.21.11 fabric/starframes/libs watermedia.jar | tee wm.txt
           python3 fabric/tools/bajar_modrinth.py "watermedia binaries" 1.21.11 fabric/starframes/libs watermedia-binaries.jar | tee -a wm.txt
+          # en desarrollo Loom no carga los jars anidados: se saca WaterConfig aparte
+          unzip -p fabric/starframes/libs/watermedia.jar "META-INF/jarjar/waterconfig-*.jar" > fabric/starframes/libs/waterconfig.jar
+          ls -la fabric/starframes/libs
           echo "::notice::$(tr '\n' '|' < wm.txt)"
       - name: Compilar
         run: |

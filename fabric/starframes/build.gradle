@@ -19,7 +19,7 @@ dependencies {
     // WaterMedia 3 (reproduce imagenes, video y YouTube; el CI la baja de Modrinth a libs/). No se incluye en el jar:
     // los jugadores la instalan aparte, con WaterMedia: Binaries.
     modCompileOnly files('libs/watermedia.jar')
-    modRuntimeOnly files('libs/watermedia.jar', 'libs/watermedia-binaries.jar')
+    modRuntimeOnly files('libs/watermedia.jar', 'libs/watermedia-binaries.jar', 'libs/waterconfig.jar')
 }
 
 // Prueba visual: abre el juego, pone un NPC de prueba y saca capturas (runClientGameTest)
