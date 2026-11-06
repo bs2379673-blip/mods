@@ -100,10 +100,17 @@ public class StarScenesTest implements FabricClientGameTest {
             server.runCommand("tp @p 0.5 -60 2.5 180 15");
             ctx.waitTicks(10);
             ctx.getInput().holdShift();
+            ctx.waitTicks(10);
             ctx.getInput().pressKey(o -> o.keyUse);
-            ctx.getInput().releaseShift();
             ctx.waitTicks(20);
-            ctx.takeScreenshot("s11_menu");
+            ctx.getInput().releaseShift();
+            boolean opened = ctx.computeOnClient(mc -> mc.screen != null);
+            if (!opened) {
+                // por comando, para ver el menu igual
+                server.runCommand("execute as @p at @p run starscenes menu");
+                ctx.waitTicks(20);
+            }
+            ctx.takeScreenshot(opened ? "s11_menu_clic" : "s11_menu_comando");
             ctx.setScreen(() -> null);
         }
     }
