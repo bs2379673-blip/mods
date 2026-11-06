@@ -1,0 +1,52 @@
+name: Star Fabric 1.21.11
+on:
+  push:
+    branches: [forge-1.20.1]
+    paths: ['fabric/**', '.github/workflows/fabric.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.2.1'
+      - name: Ultimas versiones de Fabric para 1.21.11
+        id: v
+        run: |
+          L=$(curl -s https://meta.fabricmc.net/v2/versions/loader/1.21.11 | python3 -c "import json,sys; print(json.load(sys.stdin)[0]['loader']['version'])")
+          F=$(curl -s https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/maven-metadata.xml | grep -oE '<version>[^<]+\+1\.21\.11</version>' | sed 's/<[^>]*>//g' | tail -1)
+          echo "loader=$L" >> $GITHUB_OUTPUT
+          echo "fabric=$F" >> $GITHUB_OUTPUT
+          echo "::notice::Fabric loader $L, Fabric API $F"
+      - name: Compilar StarScenes
+        working-directory: fabric/starscenes
+        run: |
+          set -o pipefail
+          gradle build copiarClasspath --no-daemon --stacktrace -Ploader_version=${{ steps.v.outputs.loader }} -Pfabric_version=${{ steps.v.outputs.fabric }} 2>&1 | tee build.log || {
+            grep -E "error:|What went wrong|FAILED|Execution failed|Could not|Caused by|warning: \[" -A3 build.log | head -80 | while IFS= read -r l; do echo "::error::${l}"; done
+            exit 1
+          }
+      - name: Publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          mkdir -p out
+          cp fabric/starscenes/build/libs/starscenes-fabric-1.21.11-*.jar out/
+          rm -f out/*-sources.jar out/*-dev.jar
+          ls -la out
+          gh release view star-fabric-1.21.11 >/dev/null 2>&1 || gh release create star-fabric-1.21.11 --title "Star Fabric 1.21.11" --notes "Mods de Starlevi para Fabric 1.21.11"
+          gh release upload star-fabric-1.21.11 out/*.jar --clobber
+          (cd fabric/starscenes/build && tar czf ../../../fabric-cp.tgz cp)
+          gh release view fabric-ci >/dev/null 2>&1 || gh release create fabric-ci --title "fabric-ci" --notes "classpath para compilar"
+          gh release upload fabric-ci fabric-cp.tgz --clobber

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "starscenes",
+  "version": "${version}",
+  "name": "StarScenes",
+  "description": "NPCs animados con modelos de Blockbench (.bbmodel): reposan, te miran, reaccionan al verte y al tocarlos, con skin, nombre e items. El servidor los carga desde config/starscenes y los jugadores los reciben solos. Propiedad de Starlevi. Todos los derechos reservados.",
+  "authors": ["Starlevi"],
+  "license": "All Rights Reserved - Starlevi (ver LICENSE.txt)",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.starlevi.starscenes.StarScenes"],
+    "client": ["com.starlevi.starscenes.client.StarScenesClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.17.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
