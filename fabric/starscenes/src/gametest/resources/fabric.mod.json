@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "starscenes-test",
+  "version": "1.0.0",
+  "name": "StarScenes (pruebas)",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-client-gametest": ["com.starlevi.starscenes.test.StarScenesTest"]
+  },
+  "depends": {"starscenes": "*"}
+}

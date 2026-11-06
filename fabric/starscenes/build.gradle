@@ -17,6 +17,17 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
+// Prueba visual: abre el juego, pone un NPC de prueba y saca capturas (runClientGameTest)
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = "starscenes-test"
+        enableGameTests = false
+        enableClientGameTests = true
+        eula = true
+    }
+}
+
 processResources {
     inputs.property 'version', project.version
     filesMatching('fabric.mod.json') {

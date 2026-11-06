@@ -36,6 +36,17 @@ jobs:
             grep -E "error:|What went wrong|FAILED|Execution failed|Could not|Caused by|warning: \[" -A3 build.log | head -80 | while IFS= read -r l; do echo "::error::${l}"; done
             exit 1
           }
+      - name: Prueba visual (juego real con capturas)
+        working-directory: fabric/starscenes
+        run: |
+          sudo apt-get update -qq >/dev/null && sudo apt-get install -y -qq xvfb >/dev/null
+          set +e
+          timeout 1500 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClientGameTest --no-daemon -Ploader_version=${{ steps.v.outputs.loader }} -Pfabric_version=${{ steps.v.outputs.fabric }} > gametest.log 2>&1
+          echo "rc=$?"
+          grep -E "StarScenes|ERROR|Exception|FAILED|Test failed|AssertionError" gametest.log | grep -v "^\s*at " | head -40 | while IFS= read -r l; do echo "::notice::${l:0:300}"; done
+          find . -name "s[0-9][0-9]_*.png" | head -20
+          tar czf ../../fabric-vis.tgz gametest.log $(find . -name "s[0-9][0-9]_*.png") $(find . -path "*logs/latest.log" | head -2) 2>/dev/null
+          true
       - name: Publicar
         env:
           GH_TOKEN: ${{ github.token }}
@@ -50,3 +61,4 @@ jobs:
           (cd fabric/starscenes/build && tar czf ../../../fabric-cp.tgz cp)
           gh release view fabric-ci >/dev/null 2>&1 || gh release create fabric-ci --title "fabric-ci" --notes "classpath para compilar"
           gh release upload fabric-ci fabric-cp.tgz --clobber
+          test -f fabric-vis.tgz && gh release upload fabric-ci fabric-vis.tgz --clobber || true
