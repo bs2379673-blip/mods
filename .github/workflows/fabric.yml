@@ -44,8 +44,8 @@ jobs:
           timeout 1500 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClientGameTest --no-daemon -Ploader_version=${{ steps.v.outputs.loader }} -Pfabric_version=${{ steps.v.outputs.fabric }} > gametest.log 2>&1
           echo "rc=$?"
           grep -E "StarScenes|ERROR|Exception|FAILED|Test failed|AssertionError" gametest.log | grep -v "^\s*at " | head -40 | while IFS= read -r l; do echo "::notice::${l:0:300}"; done
-          find . -name "s[0-9][0-9]_*.png" | head -20
-          tar czf ../../fabric-vis.tgz gametest.log $(find . -name "s[0-9][0-9]_*.png") $(find . -path "*logs/latest.log" | head -2) 2>/dev/null
+          find . -name "*s[0-9][0-9]_*.png" | head -20
+          tar czf ../../fabric-vis.tgz gametest.log $(find . -name "*s[0-9][0-9]_*.png") $(find . -path "*logs/latest.log" | head -2) 2>/dev/null
           true
       - name: Publicar
         env:
