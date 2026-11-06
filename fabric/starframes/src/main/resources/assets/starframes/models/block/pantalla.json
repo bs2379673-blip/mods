@@ -1,0 +1,26 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "starframes:block/pantalla_marco",
+    "frente": "starframes:block/pantalla_frente",
+    "marco": "starframes:block/pantalla_marco"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 15], "to": [16, 16, 16],
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#frente"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#marco", "cullface": "south"},
+        "east": {"uv": [15, 0, 16, 16], "texture": "#marco"},
+        "west": {"uv": [0, 0, 1, 16], "texture": "#marco"},
+        "up": {"uv": [0, 15, 16, 16], "texture": "#marco"},
+        "down": {"uv": [0, 0, 16, 1], "texture": "#marco"}
+      }
+    }
+  ],
+  "display": {
+    "gui": {"rotation": [30, 225, 0], "translation": [0, 0, 0], "scale": [0.625, 0.625, 0.625]},
+    "firstperson_righthand": {"rotation": [0, 135, 0], "scale": [0.4, 0.4, 0.4]},
+    "thirdperson_righthand": {"rotation": [75, 45, 0], "translation": [0, 2.5, 0], "scale": [0.375, 0.375, 0.375]}
+  }
+}

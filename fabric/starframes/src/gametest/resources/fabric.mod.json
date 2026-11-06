@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "starframes-test",
+  "version": "1.0.0",
+  "name": "StarFrames (pruebas)",
+  "environment": "*",
+  "entrypoints": {"fabric-client-gametest": ["com.starlevi.starframes.test.StarFramesTest"]},
+  "depends": {"starframes": "*"}
+}

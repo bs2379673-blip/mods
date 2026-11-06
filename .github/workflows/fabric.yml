@@ -52,7 +52,8 @@ jobs:
           mkdir -p vis
           for m in $MODS; do
             [ -d fabric/$m/src/gametest ] || continue
-            [ -x fabric/$m/ci/antes.sh ] && fabric/$m/ci/antes.sh fabric/$m
+            [ -x fabric/$m/ci/antes.sh ] && fabric/$m/ci/antes.sh $PWD/fabric/$m
+            export STARFRAMES_PRUEBA=$PWD/fabric/$m/build/prueba
             ok=0
             for intento in 1 2; do
               (cd fabric/$m && timeout 1500 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClientGameTest --no-daemon -Ploader_version=${{ steps.v.outputs.loader }} -Pfabric_version=${{ steps.v.outputs.fabric }} > gametest.log 2>&1) && { ok=1; break; }
@@ -60,7 +61,7 @@ jobs:
               echo "::notice::$m: el mundo tardo en cargar, otra vez"
             done
             echo "::notice::$m prueba: $([ $ok = 1 ] && echo bien || echo FALLO)"
-            grep -E "StarScenes|StarFrames|WaterMedia|ERROR|Exception|Test failed|AssertionError" fabric/$m/gametest.log | grep -vE "^\s*at |narrator|flite|OpenAL device|Realms|Anisotropic|cursor shape|GL ERROR|@ Render|ALSA" | head -40 | while IFS= read -r l; do echo "::notice::$m: ${l:0:300}"; done
+            grep -E "StarScenes|StarFrames|WaterMedia|WATERMeDIA|ERROR|Exception|Test failed|AssertionError" fabric/$m/gametest.log | grep -vE "^\s*at |narrator|flite|OpenAL device|Realms|Anisotropic|cursor shape|GL ERROR|@ Render|ALSA" | head -40 | while IFS= read -r l; do echo "::notice::$m: ${l:0:300}"; done
             mkdir -p vis/$m
             cp fabric/$m/gametest.log vis/$m/ 2>/dev/null
             find fabric/$m -name "*s[0-9][0-9]_*.png" -exec cp {} vis/$m/ \;

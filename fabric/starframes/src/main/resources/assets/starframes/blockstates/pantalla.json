@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": {"model": "starframes:block/pantalla"},
+    "facing=east": {"model": "starframes:block/pantalla", "y": 90},
+    "facing=south": {"model": "starframes:block/pantalla", "y": 180},
+    "facing=west": {"model": "starframes:block/pantalla", "y": 270}
+  }
+}

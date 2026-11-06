@@ -35,7 +35,14 @@ public class StarScenesTest implements FabricClientGameTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        try (TestSingleplayerContext sp = ctx.worldBuilder().create()) {
+        // mundo plano: se genera al instante (el normal a veces se traba en la maquina de GitHub)
+        try (TestSingleplayerContext sp = ctx.worldBuilder().adjustSettings(st -> {
+            st.getNormalPresetList().stream().filter(w -> w.preset().is(net.minecraft.world.level.levelgen.presets.WorldPresets.FLAT)).findFirst()
+                    .or(() -> st.getAltPresetList().stream().filter(w -> w.preset().is(net.minecraft.world.level.levelgen.presets.WorldPresets.FLAT)).findFirst())
+                    .ifPresent(st::setWorldType);
+            st.setGenerateStructures(false);
+            st.setAllowCommands(true);
+        }).create()) {
             sp.getClientWorld().waitForChunksRender();
             ctx.runOnClient(mc -> mc.options.hideGui = true);
             var server = sp.getServer();
