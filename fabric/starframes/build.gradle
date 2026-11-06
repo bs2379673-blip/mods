@@ -1,0 +1,57 @@
+// StarFrames (Fabric 1.21.11): pantallas de imagen y video (con WaterMedia), vinculadas y sincronizadas. Propiedad de Starlevi.
+plugins {
+    id 'fabric-loom' version '1.13-SNAPSHOT'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // WaterMedia 3 (reproduce imagenes, video y YouTube; el CI la baja de Modrinth a libs/). No se incluye en el jar:
+    // los jugadores la instalan aparte, con WaterMedia: Binaries.
+    modCompileOnly files('libs/watermedia.jar')
+    modRuntimeOnly files('libs/watermedia.jar', 'libs/watermedia-binaries.jar')
+}
+
+// Prueba visual: abre el juego, pone un NPC de prueba y saca capturas (runClientGameTest)
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = "starframes-test"
+        enableGameTests = false
+        enableClientGameTests = true
+        eula = true
+    }
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+    it.options.encoding = 'UTF-8'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+// Para compilar afuera de Gradle: copia el classpath (Minecraft con nombres de Mojang + Fabric API) a build/cp
+tasks.register('copiarClasspath', Copy) {
+    from sourceSets.main.compileClasspath
+    into layout.buildDirectory.dir('cp')
+}

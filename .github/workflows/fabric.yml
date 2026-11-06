@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  MODS: starscenes starframes
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,37 +31,58 @@ jobs:
           echo "loader=$L" >> $GITHUB_OUTPUT
           echo "fabric=$F" >> $GITHUB_OUTPUT
           echo "::notice::Fabric loader $L, Fabric API $F"
-      - name: Compilar StarScenes
-        working-directory: fabric/starscenes
+      - name: Bajar WaterMedia (para StarFrames)
+        run: |
+          python3 fabric/tools/bajar_modrinth.py watermedia 1.21.11 fabric/starframes/libs watermedia.jar | tee wm.txt
+          python3 fabric/tools/bajar_modrinth.py "watermedia binaries" 1.21.11 fabric/starframes/libs watermedia-binaries.jar | tee -a wm.txt
+          echo "::notice::$(tr '\n' '|' < wm.txt)"
+      - name: Compilar
         run: |
           set -o pipefail
-          gradle build copiarClasspath --no-daemon --stacktrace -Ploader_version=${{ steps.v.outputs.loader }} -Pfabric_version=${{ steps.v.outputs.fabric }} 2>&1 | tee build.log || {
-            grep -E "error:|What went wrong|FAILED|Execution failed|Could not|Caused by|warning: \[" -A3 build.log | head -80 | while IFS= read -r l; do echo "::error::${l}"; done
-            exit 1
-          }
-      - name: Prueba visual (juego real con capturas)
-        working-directory: fabric/starscenes
+          for m in $MODS; do
+            echo "== $m"
+            (cd fabric/$m && gradle build copiarClasspath --no-daemon --stacktrace -Ploader_version=${{ steps.v.outputs.loader }} -Pfabric_version=${{ steps.v.outputs.fabric }} 2>&1 | tee build.log) || {
+              grep -E "error:|What went wrong|FAILED|Execution failed|Could not|Caused by|warning: \[" -A3 fabric/$m/build.log | head -80 | while IFS= read -r l; do echo "::error::$m: ${l}"; done
+              exit 1
+            }
+          done
+      - name: Pruebas visuales (juego real con capturas)
         run: |
-          sudo apt-get update -qq >/dev/null && sudo apt-get install -y -qq xvfb >/dev/null
-          set +e
-          timeout 1500 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClientGameTest --no-daemon -Ploader_version=${{ steps.v.outputs.loader }} -Pfabric_version=${{ steps.v.outputs.fabric }} > gametest.log 2>&1
-          echo "rc=$?"
-          grep -E "StarScenes|ERROR|Exception|FAILED|Test failed|AssertionError" gametest.log | grep -v "^\s*at " | head -40 | while IFS= read -r l; do echo "::notice::${l:0:300}"; done
-          find . -name "*s[0-9][0-9]_*.png" | head -20
-          tar czf ../../fabric-vis.tgz gametest.log $(find . -name "*s[0-9][0-9]_*.png") $(find . -path "*logs/latest.log" | head -2) 2>/dev/null
+          sudo apt-get update -qq >/dev/null && sudo apt-get install -y -qq xvfb ffmpeg >/dev/null
+          mkdir -p vis
+          for m in $MODS; do
+            [ -d fabric/$m/src/gametest ] || continue
+            [ -x fabric/$m/ci/antes.sh ] && fabric/$m/ci/antes.sh fabric/$m
+            ok=0
+            for intento in 1 2; do
+              (cd fabric/$m && timeout 1500 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClientGameTest --no-daemon -Ploader_version=${{ steps.v.outputs.loader }} -Pfabric_version=${{ steps.v.outputs.fabric }} > gametest.log 2>&1) && { ok=1; break; }
+              grep -q "Timeout loading world" fabric/$m/gametest.log || break
+              echo "::notice::$m: el mundo tardo en cargar, otra vez"
+            done
+            echo "::notice::$m prueba: $([ $ok = 1 ] && echo bien || echo FALLO)"
+            grep -E "StarScenes|StarFrames|WaterMedia|ERROR|Exception|Test failed|AssertionError" fabric/$m/gametest.log | grep -vE "^\s*at |narrator|flite|OpenAL device|Realms|Anisotropic|cursor shape|GL ERROR|@ Render|ALSA" | head -40 | while IFS= read -r l; do echo "::notice::$m: ${l:0:300}"; done
+            mkdir -p vis/$m
+            cp fabric/$m/gametest.log vis/$m/ 2>/dev/null
+            find fabric/$m -name "*s[0-9][0-9]_*.png" -exec cp {} vis/$m/ \;
+            find fabric/$m -path "*clientGameTest/logs/latest.log" -exec cp {} vis/$m/latest.log \;
+          done
+          tar czf fabric-vis.tgz vis
           true
       - name: Publicar
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -e
-          mkdir -p out
-          cp fabric/starscenes/build/libs/starscenes-fabric-1.21.11-*.jar out/
+          mkdir -p out cp
+          for m in $MODS; do
+            cp fabric/$m/build/libs/$m-fabric-1.21.11-*.jar out/
+            cp -n fabric/$m/build/cp/*.jar cp/ 2>/dev/null || true
+          done
+          cp fabric/starframes/libs/*.jar cp/ 2>/dev/null || true
           rm -f out/*-sources.jar out/*-dev.jar
           ls -la out
           gh release view star-fabric-1.21.11 >/dev/null 2>&1 || gh release create star-fabric-1.21.11 --title "Star Fabric 1.21.11" --notes "Mods de Starlevi para Fabric 1.21.11"
           gh release upload star-fabric-1.21.11 out/*.jar --clobber
-          (cd fabric/starscenes/build && tar czf ../../../fabric-cp.tgz cp)
+          tar czf fabric-cp.tgz cp
           gh release view fabric-ci >/dev/null 2>&1 || gh release create fabric-ci --title "fabric-ci" --notes "classpath para compilar"
-          gh release upload fabric-ci fabric-cp.tgz --clobber
-          test -f fabric-vis.tgz && gh release upload fabric-ci fabric-vis.tgz --clobber || true
+          gh release upload fabric-ci fabric-cp.tgz fabric-vis.tgz --clobber

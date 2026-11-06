@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "starframes",
+  "version": "${version}",
+  "name": "StarFrames",
+  "description": "Pantallas de imagen, GIF, video y YouTube, con pantallas vinculadas que reproducen lo mismo para todos en el mismo segundo, control remoto y lista de reproduccion. Usa WaterMedia. Propiedad de Starlevi. Todos los derechos reservados.",
+  "authors": ["Starlevi"],
+  "license": "All Rights Reserved - Starlevi (ver LICENSE.txt)",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.starlevi.starframes.StarFrames"],
+    "client": ["com.starlevi.starframes.client.StarFramesClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.17.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*",
+    "watermedia": ">=3.0.0 <3.1.0"
+  }
+}
