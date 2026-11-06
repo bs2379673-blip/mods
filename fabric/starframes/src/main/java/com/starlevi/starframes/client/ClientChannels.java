@@ -181,7 +181,13 @@ public final class ClientChannels {
                             return PlayerAPI.alEngine(true);
                         } catch (Throwable t) {
                             StarFrames.LOGGER.warn("StarFrames: sin sonido posicional ({}), sonido comun", t.toString());
-                            return (SFXEngine) PlayerAPI.alEngine();
+                            try {
+                                return (SFXEngine) PlayerAPI.alEngine();
+                            } catch (Throwable t2) {
+                                // sin sistema de sonido: el video se ve igual, mudo
+                                StarFrames.LOGGER.warn("StarFrames: sin sonido ({}), solo imagen", t2.toString());
+                                return null;
+                            }
                         }
                     });
                     if (c.player == null) {

@@ -58,7 +58,7 @@ jobs:
             [ -x fabric/$m/ci/antes.sh ] && fabric/$m/ci/antes.sh $PWD/fabric/$m
             export STARFRAMES_PRUEBA=$PWD/fabric/$m/build/prueba
             ok=0
-            for intento in 1 2; do
+            for intento in 1 2 3; do
               (cd fabric/$m && timeout 1500 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClientGameTest --no-daemon -Ploader_version=${{ steps.v.outputs.loader }} -Pfabric_version=${{ steps.v.outputs.fabric }} > gametest.log 2>&1) && { ok=1; break; }
               grep -q "Timeout loading world" fabric/$m/gametest.log || break
               echo "::notice::$m: el mundo tardo en cargar, otra vez"
