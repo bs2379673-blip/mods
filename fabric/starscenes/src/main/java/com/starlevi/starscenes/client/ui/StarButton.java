@@ -12,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 /** Boton con el estilo de StarScenes (normal, de color, peligroso, fantasma o pestaña elegida). */
 public class StarButton extends AbstractButton {
     public enum Style {
-        NORMAL, ACCENT, DANGER, GHOST, TAB, TAB_ON
+        NORMAL, ACCENT, DANGER, GHOST, TAB, TAB_ON, CHOICE
     }
 
     private final Runnable action;
@@ -80,6 +80,11 @@ public class StarButton extends AbstractButton {
                 border = hot ? UI.BORDER_HI : UI.BORDER;
                 text = hot ? UI.TEXT : UI.MUTED;
             }
+            case CHOICE -> {
+                fill = hot ? 0xF05A3A8C : 0xE01A1426;
+                border = hot ? 0xFFE2C4FF : 0xFF6A5492;
+                text = hot ? 0xFFFFFFFF : 0xFFE9E0F5;
+            }
             case TAB_ON -> {
                 fill = UI.BG3;
                 border = UI.ACCENT;
@@ -98,6 +103,11 @@ public class StarButton extends AbstractButton {
         }
         int x = getX(), y = getY(), w = getWidth(), h = getHeight();
         UI.box(g, x, y, w, h, fill, border);
+        if (this.style == Style.CHOICE && hot) {
+            // brillo a los costados al pasar el mouse
+            g.fill(x + 2, y + 2, x + 4, y + h - 2, 0xFFFFC66B);
+            g.fill(x + w - 4, y + 2, x + w - 2, y + h - 2, 0xFFFFC66B);
+        }
         if (this.style == Style.TAB_ON) {
             g.fill(x + 1, y + h - 2, x + w - 1, y + h - 1, UI.ACCENT);
         }
