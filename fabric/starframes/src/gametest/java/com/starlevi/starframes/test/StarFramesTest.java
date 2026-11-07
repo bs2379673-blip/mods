@@ -100,6 +100,26 @@ public class StarFramesTest implements FabricClientGameTest {
             ctx.waitTicks(60);
             log(ctx, "cine");
             ctx.takeScreenshot("s07_siguiente_imagen");
+
+            // links de internet, puestos como lo hace un jugador (menu de la pantalla > Reproducir)
+            String[][] web = {{"web_mp4", "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"},
+                    {"web_img", "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Example.jpg/320px-Example.jpg"},
+                    {"web_yt", "https://www.youtube.com/watch?v=jNQXAC9IVRw"}};
+            for (int i = 0; i < web.length; i++) {
+                String ch = web[i][0], url = web[i][1];
+                server.runOnServer(s -> {
+                    ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+                    Channels.getOrCreate(ch);
+                    ((ScreenBlockEntity) s.overworld().getBlockEntity(B)).set("canal", ch);
+                    Channels.editScreen(p, B, "url", url);
+                });
+                server.runCommand("tp @p 5.5 -59 8.5 180 5");
+                for (int k = 0; k < 6; k++) {
+                    ctx.waitTicks(40);
+                    log(ctx, ch);
+                }
+                ctx.takeScreenshot("s" + (8 + i) + "_" + ch);
+            }
         }
     }
 
