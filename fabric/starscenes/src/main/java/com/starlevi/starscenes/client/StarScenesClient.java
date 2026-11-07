@@ -26,12 +26,14 @@ public final class StarScenesClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(Net.OpenMenu.TYPE, (p, ctx) -> Minecraft.getInstance().setScreen(new NpcScreen(p)));
         ClientPlayNetworking.registerGlobalReceiver(Net.Talk.TYPE, (p, ctx) -> TalkScreen.show(p));
+        ClientPlayNetworking.registerGlobalReceiver(Net.Say.TYPE, (p, ctx) -> Bubbles.show(p.entity(), p.text(), p.ticks()));
         ClientPlayNetworking.registerGlobalReceiver(Net.TalkEnd.TYPE, (p, ctx) -> TalkScreen.end());
         ClientPlayNetworking.registerGlobalReceiver(Net.ShopOpen.TYPE, (p, ctx) -> ShopScreen.show(p));
         ClientPlayNetworking.registerGlobalReceiver(Net.QuestHud.TYPE, (p, ctx) -> QuestHud.lines = p.lines());
         QuestHud.register();
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             ClientScenes.disconnect();
+            Bubbles.clear();
             QuestHud.lines = java.util.List.of();
         });
     }

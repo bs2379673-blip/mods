@@ -66,6 +66,22 @@ public class StarVillagersTest implements FabricClientGameTest {
                         + ", funciones desconocidas " + com.starlevi.starscenes.emf.Expr.UNKNOWN;
             });
             System.out.println("StarVillagers prueba: " + client);
+            // pasar al lado: algun aldeano tiene que saludar con un globito
+            server.runCommand("tp @p 0.5 -60 1.5 180 10");
+            ctx.waitTicks(120);
+            System.out.println("StarVillagers prueba: globitos " + ctx.computeOnClient(mc -> {
+                int n = 0;
+                for (var e : mc.level.entitiesForRendering()) {
+                    String b = com.starlevi.starscenes.client.Bubbles.get(e.getId());
+                    if (b != null) {
+                        n++;
+                        System.out.println("StarVillagers prueba: dice \"" + b + "\"");
+                    }
+                }
+                return n;
+            }));
+            server.runCommand("tp @p 0.5 -59 5 180 10");
+            ctx.waitTicks(10);
             ctx.runOnClient(mc -> mc.options.hideGui = true);
             ctx.waitTicks(5);
             ctx.takeScreenshot("s01_aldeanos");

@@ -64,6 +64,14 @@ public final class StarScenesAPI {
         }
     }
 
+    /** Un globito de texto arriba del personaje (lo ven todos los que estan cerca) por unos segundos. */
+    public static void say(Entity actor, String text, float seconds) {
+        Net.Say msg = new Net.Say(actor.getId(), text.replace('&', '§'), Math.max(10, (int) (seconds * 20)));
+        for (ServerPlayer p : PlayerLookup.tracking(actor)) {
+            ServerPlayNetworking.send(p, msg);
+        }
+    }
+
     /** Abre un dialogo (config/starscenes/dialogos/&lt;id&gt;.json) con este hablante (o null). */
     public static boolean talk(ServerPlayer player, Entity speaker, String dialogue) {
         return Dialogues.open(player, speaker, dialogue);

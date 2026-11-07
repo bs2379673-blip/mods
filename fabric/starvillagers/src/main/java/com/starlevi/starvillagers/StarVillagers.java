@@ -116,6 +116,7 @@ public final class StarVillagers implements ModInitializer {
         StarScenesAPI.registerCondition("aldeana", (p, s, v) -> s instanceof Villager vil && identity(vil) != null && identity(vil).female());
         writeDialogue();
         readConfig();
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(com.starlevi.starvillagers.server.Greetings::tick);
     }
 
     private static void readConfig() {

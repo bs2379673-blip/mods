@@ -41,6 +41,8 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         java.util.List<com.starlevi.starscenes.emf.EmfRig.Draw> emf;
         float yRot;
         float scale = 1;
+        /** Globito de texto (o null). */
+        String bubble;
         final ItemStackRenderState main = new ItemStackRenderState(), off = new ItemStackRenderState(), head = new ItemStackRenderState();
     }
 
@@ -76,6 +78,7 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         s.skin = own != null ? own : ClientScenes.skin(npc.sceneSkin());
         s.mats = null;
         s.emf = null;
+        s.bubble = Bubbles.get(npc.getId());
         String emfName = npc.sceneEmfModel();
         com.starlevi.starscenes.emf.JemModel jem = emfName == null ? null : com.starlevi.starscenes.emf.EmfModels.get(emfName);
         if (jem != null) {
@@ -135,6 +138,7 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
             final var draws = s.emf;
             collector.submitCustomGeometry(ps, RenderTypes.entityTranslucent(s.skin), (pose, vc) -> emitEmf(pose, vc, draws, light));
             ps.popPose();
+            bubble(s, ps, collector, camera);
             super.submit(s, ps, collector, camera);
             return;
         }
@@ -160,7 +164,18 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
             item(ps, collector, s, s.head, at.headBone, at.head, true, light);
             ps.popPose();
         }
+        bubble(s, ps, collector, camera);
         super.submit(s, ps, collector, camera);
+    }
+
+    /** El globito de texto, arriba de la cabeza (y del nombre, si se ve). */
+    private static void bubble(State s, PoseStack ps, SubmitNodeCollector collector, CameraRenderState camera) {
+        if (s.bubble == null || s.isInvisible) {
+            return;
+        }
+        double y = s.boundingBoxHeight + 0.5 + (s.nameTag != null ? 0.28 : 0);
+        collector.submitNameTag(ps, new net.minecraft.world.phys.Vec3(0, y, 0), 0, net.minecraft.network.chat.Component.literal(s.bubble), true,
+                s.lightCoords, s.distanceToCameraSq, camera);
     }
 
     private static void emitEmf(PoseStack.Pose pose, VertexConsumer vc, java.util.List<com.starlevi.starscenes.emf.EmfRig.Draw> draws, int light) {

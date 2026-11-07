@@ -312,12 +312,34 @@ public final class Net {
         }
     }
 
+    /** Servidor -> cliente: un globito de texto arriba de un personaje por un rato. */
+    public record Say(int entity, String text, int ticks) implements CustomPacketPayload {
+        public static final Type<Say> TYPE = new Type<>(Net.id("decir"));
+        public static final StreamCodec<FriendlyByteBuf, Say> CODEC = CustomPacketPayload.codec(Say::write, Say::new);
+
+        Say(FriendlyByteBuf b) {
+            this(b.readVarInt(), b.readUtf(256), b.readVarInt());
+        }
+
+        void write(FriendlyByteBuf b) {
+            b.writeVarInt(this.entity);
+            b.writeUtf(this.text, 256);
+            b.writeVarInt(this.ticks);
+        }
+
+        @Override
+        public Type<Say> type() {
+            return TYPE;
+        }
+    }
+
     public static void register() {
         PayloadTypeRegistry.playS2C().register(Index.TYPE, Index.CODEC);
         PayloadTypeRegistry.playS2C().register(Chunk.TYPE, Chunk.CODEC);
         PayloadTypeRegistry.playS2C().register(Play.TYPE, Play.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenMenu.TYPE, OpenMenu.CODEC);
         PayloadTypeRegistry.playS2C().register(Talk.TYPE, Talk.CODEC);
+        PayloadTypeRegistry.playS2C().register(Say.TYPE, Say.CODEC);
         PayloadTypeRegistry.playS2C().register(TalkEnd.TYPE, TalkEnd.CODEC);
         PayloadTypeRegistry.playS2C().register(QuestHud.TYPE, QuestHud.CODEC);
         PayloadTypeRegistry.playS2C().register(ShopOpen.TYPE, ShopOpen.CODEC);
