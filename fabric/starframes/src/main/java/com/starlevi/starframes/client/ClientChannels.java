@@ -243,7 +243,7 @@ public final class ClientChannels {
         }
         // registro de diagnostico cada 5 s (para ver en latest.log que pasa con el video)
         long nowMs = System.currentTimeMillis();
-        if (nowMs - c.lastLog > 5000) {
+        if (nowMs - c.lastLog > 60000) {
             c.lastLog = nowMs;
             StarFrames.LOGGER.info("StarFrames: {} estado {} tiempo {}/{} textura {} {}x{} copia {} volumen {} espacial {} parlantes {} pantallas cerca {}",
                     c.url, c.player.status(), c.player.time(), c.player.duration(), c.player.texture(), c.player.width(), c.player.height(),
@@ -307,7 +307,7 @@ public final class ClientChannels {
     }
 
     /** Si copiar el video a una textura propia anda en esta compu (si no, se usa la de WaterMedia directo). */
-    private static boolean copyWorks = true;
+    private static boolean copyWorks = false;
 
     /**
      * El tamaño del video que suena en el canal (para dibujar), o null; y lo marca como visto. Cada cuadro

@@ -89,7 +89,7 @@ public class ScreenRenderer implements BlockEntityRenderer<ScreenBlockEntity, Sc
             }
             final float a = vx0, b = vy0, c = vx1, d = vy1;
             ps.translate(0, 0, 0.002f);
-            collector.submitCustomGeometry(ps, RenderTypes.entitySolid(s.video), (pose, vc) -> quad(pose, vc, a, b, c, d, 0, 1, 1, 0, light, 0xFFFFFFFF));
+            collector.submitCustomGeometry(ps, RenderTypes.entityCutoutNoCull(s.video), (pose, vc) -> quad(pose, vc, a, b, c, d, 0, 1, 1, 0, light, 0xFFFFFFFF));
         }
         ps.popPose();
     }
