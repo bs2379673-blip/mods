@@ -54,6 +54,8 @@ public final class Personality {
     public static final Map<String, Personality> ALL = new LinkedHashMap<>();
     /** Lo comun a todos (textos generales y gustos por oficio). */
     public static Personality common;
+    /** Lo comun que trae el mod (por si tu archivo es de una version vieja y le faltan textos). */
+    private static Personality builtin;
     public static final Map<String, List<ItemSpec>> PROFESSION_LIKES = new HashMap<>();
 
     public static Personality get(String id) {
@@ -74,6 +76,9 @@ public final class Personality {
         List<String> l = lines.get(key);
         if ((l == null || l.isEmpty()) && common != null && common != this) {
             l = common.lines.get(key);
+        }
+        if ((l == null || l.isEmpty()) && builtin != null) {
+            l = builtin.lines.get(key);
         }
         if (l == null || l.isEmpty()) {
             return "";
@@ -131,6 +136,11 @@ public final class Personality {
             var r = new com.google.gson.stream.JsonReader(new java.io.StringReader(Files.readString(f, StandardCharsets.UTF_8)));
             r.setStrictness(com.google.gson.Strictness.LENIENT);
             JsonObject root = com.google.gson.JsonParser.parseReader(r).getAsJsonObject();
+            try (var in = Personality.class.getResourceAsStream("/starvillagers_dialogos/personalidades.json")) {
+                var br = new com.google.gson.stream.JsonReader(new java.io.InputStreamReader(in, StandardCharsets.UTF_8));
+                br.setStrictness(com.google.gson.Strictness.LENIENT);
+                builtin = new Personality("_comun", com.google.gson.JsonParser.parseReader(br).getAsJsonObject().getAsJsonObject("_comun"));
+            }
             ALL.clear();
             PROFESSION_LIKES.clear();
             common = null;

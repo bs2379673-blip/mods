@@ -313,6 +313,27 @@ public final class Net {
     }
 
     /** Servidor -> cliente: un globito de texto arriba de un personaje por un rato. */
+    /** Un gesto del modelo humano en un jugador (abrazo, beso...); ticks 0 = cortarlo. */
+    public record Gesture(int entity, String anim, int ticks) implements CustomPacketPayload {
+        public static final Type<Gesture> TYPE = new Type<>(Net.id("gesto"));
+        public static final StreamCodec<FriendlyByteBuf, Gesture> CODEC = CustomPacketPayload.codec(Gesture::write, Gesture::new);
+
+        Gesture(FriendlyByteBuf b) {
+            this(b.readVarInt(), b.readUtf(64), b.readVarInt());
+        }
+
+        void write(FriendlyByteBuf b) {
+            b.writeVarInt(this.entity);
+            b.writeUtf(this.anim, 64);
+            b.writeVarInt(this.ticks);
+        }
+
+        @Override
+        public Type<Gesture> type() {
+            return TYPE;
+        }
+    }
+
     public record Say(int entity, String text, int ticks) implements CustomPacketPayload {
         public static final Type<Say> TYPE = new Type<>(Net.id("decir"));
         public static final StreamCodec<FriendlyByteBuf, Say> CODEC = CustomPacketPayload.codec(Say::write, Say::new);
@@ -340,6 +361,7 @@ public final class Net {
         PayloadTypeRegistry.playS2C().register(OpenMenu.TYPE, OpenMenu.CODEC);
         PayloadTypeRegistry.playS2C().register(Talk.TYPE, Talk.CODEC);
         PayloadTypeRegistry.playS2C().register(Say.TYPE, Say.CODEC);
+        PayloadTypeRegistry.playS2C().register(Gesture.TYPE, Gesture.CODEC);
         PayloadTypeRegistry.playS2C().register(TalkEnd.TYPE, TalkEnd.CODEC);
         PayloadTypeRegistry.playS2C().register(QuestHud.TYPE, QuestHud.CODEC);
         PayloadTypeRegistry.playS2C().register(ShopOpen.TYPE, ShopOpen.CODEC);

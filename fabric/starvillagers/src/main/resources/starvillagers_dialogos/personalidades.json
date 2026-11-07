@@ -34,6 +34,15 @@
     "relacion_buen_amigo": ["Sos de las personas que más quiero en el pueblo.", "Con vos puedo hablar de cualquier cosa."],
     "relacion_mejor_amigo": ["¡Sos mi mejor amigo, %jugador%! No sé qué haría sin vos.", "Te quiero un montón, %jugador%."],
 
+    "juntos_chocar": ["¡Eso! ¡Choque!", "¡Bien ahí!", "¡Arriba esa mano!"],
+    "juntos_abrazar": ["Awww... qué lindo abrazo.", "¡Gracias, lo necesitaba!", "Sos muy cálido, %jugador%."],
+    "juntos_besar": ["...♥", "Me hiciste sonrojar...", "%jugador%... ♥"],
+    "juntos_mano": ["¿Vamos a pasear?", "¡Dale, te sigo!", "Qué lindo caminar así."],
+    "juntos_mano_fin": ["¡Gracias por el paseo!", "Me gustó caminar con vos.", "¡Otro día seguimos!"],
+    "juntos_no": ["Eh... todavía no nos conocemos tanto.", "Mmm, quizás más adelante."],
+    "juntos_sin_ganas": ["Hoy no estoy de humor, perdón...", "Ahora no, ¿sí?"],
+    "animacion_juntos_no": ["shrug"], "animacion_juntos_sin_ganas": ["sad"],
+
     "regalo_nada": ["¿Mmm? No tenés nada en la mano."],
     "regalo_demasiado": ["¡Ya me diste un montón hoy! Guardalo para otro día.", "Gracias, pero ya es mucho por hoy."],
     "regalo_encanta": ["¡¿Un %item%?! ¡Me encanta! ¡Gracias, %jugador%!", "¡No puede ser! ¡Justo lo que quería!"],
@@ -83,7 +92,7 @@
   },
   "timido": {
     "nombre": "Tímido", "humor_base": 0, "ganas_de_saludar": 15,
-    "animacion_saludo": ["shy"], "animacion_respuesta": ["shy"], "animacion_charla": ["shy", "talk"], "animacion_encanta": ["shy", "receive"], "animacion_relacion_amigo": ["shy"],
+    "animacion_saludo": ["shy"], "animacion_respuesta": ["shy"], "juntos_besar": ["¡¿Q-qué?! ...♥", "N-no sé qué decir... ♥"], "animacion_charla": ["shy", "talk"], "animacion_encanta": ["shy", "receive"], "animacion_relacion_amigo": ["shy"],
     "saludo": ["H-hola...", "Ah... hola, %jugador%.", "..."],
     "saludo_amigo": ["¡Ah, %jugador%! Hola... me alegra verte.", "Hola... te estaba esperando, un poquito."],
     "charla": ["N-no soy muy bueno charlando... perdón.", "A veces miro las estrellas solo. Es tranquilo.", "Me gusta leer... cuando nadie mira."],

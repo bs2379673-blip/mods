@@ -3,6 +3,7 @@
 // config/starvillagers/personalidades.json), %npc% y %jugador%.
 // Acciones: "comerciar", "charlar" (suma amistad una vez por día), "regalar" (le da lo que tenés en la mano),
 // "amistad:5", "humor:10". "animacion" puede usar %anim_saludo% %anim_charla% %anim_humor% %anim_relacion%.
+// "juntos:chocar|abrazar|mano|besar" (necesitan 20/40/60/80 de amistad; la mano se suelta agachándote).
 // Condiciones: "amistad:>=40", "humor:<0", "personalidad:timido", "en_mano".
 {
   "inicio": "hola",
@@ -16,6 +17,7 @@
         {"texto": "¿Cómo andás?", "ir": "estado"},
         {"texto": "¿Qué tenés para cambiar?", "si": ["amistad:>=0"], "acciones": ["comerciar"]},
         {"texto": "¿Qué pensás de mí?", "ir": "relacion"},
+        {"texto": "Hagamos algo juntos", "si": ["amistad:>=20"], "ir": "juntos"},
         {"texto": "Contame algo del pueblo", "si": ["amistad:>=0"], "ir": "pueblo"},
         {"texto": "Perdón por lo de antes...", "si": ["amistad:<0"], "ir": "perdon"},
         {"texto": "Nada, ¡chau!", "acciones": ["animar:wave"]}
@@ -54,6 +56,16 @@
       "opciones": [
         {"texto": "Volver", "ir": "hola"},
         {"texto": "Chau", "acciones": ["animar:wave"]}
+      ]
+    },
+    "juntos": {
+      "texto": ["¿Qué tenés ganas de hacer?", "¡Dale! ¿Qué hacemos?"],
+      "opciones": [
+        {"texto": "¡Chocá esos cinco!", "acciones": ["juntos:chocar"]},
+        {"texto": "¿Un abrazo?", "si": ["amistad:>=40"], "acciones": ["juntos:abrazar"]},
+        {"texto": "¿Me das la mano? Vamos a pasear", "si": ["amistad:>=60"], "acciones": ["juntos:mano"]},
+        {"texto": "Un beso...", "si": ["amistad:>=80"], "acciones": ["juntos:besar"]},
+        {"texto": "Volver", "ir": "hola"}
       ]
     },
     "perdon": {

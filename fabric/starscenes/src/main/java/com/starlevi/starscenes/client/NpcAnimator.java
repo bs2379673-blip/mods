@@ -21,17 +21,20 @@ final class NpcAnimator {
     private static final float BLEND = 0.25f;
 
     private BBModel model;
-    private BBModel.Anim cur, prev;
-    private float curStart, prevStart, blendStart = -100;
+    /** La animacion de base (reposar / caminar / correr), con mezcla al cambiar. */
+    private BBModel.Anim base, basePrev;
+    private float baseStart, basePrevStart, baseBlend = -100;
+    /** El gesto de encima (saludar, hablar, reir...): solo mueve los huesos que tiene animados. */
+    private BBModel.Anim gest;
+    private float gestStart, gestRefresh, gestEnd = Float.MAX_VALUE;
     private boolean near;
     private float yaw, pitch;
-    private float[] a, b, out;
+    private float[] a, b, g, out;
     final List<Matrix4f> mats = new ArrayList<>();
     private String pending;
-    private float[] ov;
     /**
-     * Para el modelo de EMF: los huesos que mueve el gesto de ahora (saludar, reir...), con su giro en
-     * grados (como en Blockbench) y cuanto pesa (0..1, para entrar y salir suave). Vacio si no hay gesto.
+     * Para el modelo de EMF: los huesos que mueve el gesto de ahora, con su giro en grados (como en
+     * Blockbench) y cuanto pesa (0..1, para entrar y salir suave). Vacio si no hay gesto.
      */
     final java.util.Map<String, float[]> overlay = new java.util.HashMap<>();
 
@@ -41,7 +44,6 @@ final class NpcAnimator {
     }
 
     private float speed;
-    private boolean triggered;
     private double lastX = Double.NaN, lastZ;
     private int lastTick = -1;
 
@@ -51,13 +53,13 @@ final class NpcAnimator {
             int n = m.bones.size();
             this.a = new float[n * 9];
             this.b = new float[n * 9];
+            this.g = new float[n * 9];
             this.out = new float[n * 9];
             this.mats.clear();
             for (int i = 0; i < n; i++) {
                 this.mats.add(new Matrix4f());
             }
-            this.cur = null;
-            this.prev = null;
+            this.base = this.basePrev = this.gest = null;
         }
         // que tan rapido se mueve (bloques por tick, suavizado)
         if (e.tickCount != this.lastTick) {
@@ -70,21 +72,23 @@ final class NpcAnimator {
             this.lastZ = e.getZ();
             this.lastTick = e.tickCount;
         }
-        String base = base(npc);
-        if (this.cur == null) {
-            play(find(npc, base), now, false);
+        // base: reposar / caminar / correr segun se mueva
+        String kind = base(npc);
+        BBModel.Anim want = find(npc, kind);
+        if (want != this.base) {
+            this.basePrev = this.base;
+            this.basePrevStart = this.baseStart;
+            this.base = want;
+            this.baseStart = now;
+            this.baseBlend = this.basePrev == null ? -100 : now;
         }
         // te vio: al entrar en su radio
         double dist = local == null ? 1e9 : Math.sqrt(local.distanceToSqr(e));
         float r = npc.sceneRadius() * npc.sceneScale();
         if (!this.near && dist < r) {
             this.near = true;
-            if (isKind(this.cur, "idle") && base.equals("idle")) {
-                BBModel.Anim see = find(npc, "seeplayer");
-                if (see != null) {
-                    play(see, now, true);
-                    this.triggered = true;
-                }
+            if (this.gest == null && kind.equals("idle")) {
+                start(find(npc, "seeplayer"), now);
             }
         } else if (this.near && dist > r + 1.5) {
             this.near = false;
@@ -93,32 +97,66 @@ final class NpcAnimator {
             String k = this.pending;
             this.pending = null;
             BBModel.Anim an = m.anims.containsKey(k) ? m.anims.get(k) : find(npc, k);
-            if (an != null) {
-                play(an, now, true);
-                this.triggered = !isBase(an);
+            if (an == null || isBase(an)) {
+                // "idle": se corta el gesto
+                if (this.gest != null && this.gestEnd > now) {
+                    this.gestEnd = now;
+                }
+            } else if (an == this.gest && an.loops() && this.gestEnd > now) {
+                // el mismo gesto en ronda: sigue sin empezar de nuevo
+                this.gestRefresh = now;
+            } else {
+                start(an, now);
             }
         }
-        // las de una vez, al terminar, vuelven a reposar (o a caminar)
-        boolean loopedEnough = this.triggered && this.cur != null && !"once".equals(this.cur.loop)
-                && now - this.curStart >= Math.max(4f, this.cur.length * 2);
-        if (this.cur != null && ("once".equals(this.cur.loop) && now - this.curStart >= this.cur.length || loopedEnough)) {
-            this.triggered = false;
-            play(find(npc, base), now, false);
-        } else if (this.cur == null || isBase(this.cur)) {
-            // reposar / caminar / correr segun se mueva
-            BBModel.Anim want = find(npc, base);
-            if (want != null && want != this.cur) {
-                play(want, now, false);
+        // el gesto termina: los de una vez al final; los de ronda a los 4 s (o dos vueltas) sin refrescar
+        if (this.gest != null && this.gestEnd == Float.MAX_VALUE) {
+            if (!this.gest.loops()) {
+                this.gestEnd = this.gestStart + this.gest.length;
+            } else if (now - this.gestRefresh >= Math.max(4f, this.gest.length * 2)) {
+                this.gestEnd = now + BLEND;
             }
         }
-        m.sample(this.cur, time(this.cur, now - this.curStart), this.b);
-        float f = (now - this.blendStart) / BLEND;
-        if (f < 1 && this.prev != this.cur) {
-            m.sample(this.prev, time(this.prev, now - this.prevStart), this.a);
+        float w = 0;
+        if (this.gest != null) {
+            w = Math.min(1, (now - this.gestStart) / BLEND);
+            if (this.gestEnd != Float.MAX_VALUE) {
+                w = Math.min(w, (this.gestEnd - now) / BLEND);
+            }
+            if (w <= 0 && now > this.gestStart + BLEND) {
+                this.gest = null;
+                w = 0;
+            }
+        }
+        // pose: la base (mezclando si cambio) y el gesto encima, solo en sus huesos
+        m.sample(this.base, time(this.base, now - this.baseStart), this.b);
+        float f = (now - this.baseBlend) / BLEND;
+        if (f < 1 && this.basePrev != null) {
+            m.sample(this.basePrev, time(this.basePrev, now - this.basePrevStart), this.a);
             f = f * f * (3 - 2 * f);
             BBModel.blend(this.a, this.b, f, this.out);
         } else {
             System.arraycopy(this.b, 0, this.out, 0, this.out.length);
+        }
+        this.overlay.clear();
+        if (this.gest != null && w > 0) {
+            float gt = time(this.gest, now - this.gestStart);
+            m.sample(this.gest, gt, this.g);
+            float sw = w * w * (3 - 2 * w);
+            for (int i = 0; i < m.bones.size(); i++) {
+                int o = i * 9;
+                if (this.gest.rotates(i)) {
+                    for (int c = 0; c < 3; c++) {
+                        this.out[o + c] += (this.g[o + c] - this.out[o + c]) * sw;
+                    }
+                    this.overlay.put(m.bones.get(i).name, new float[]{this.g[o], this.g[o + 1], this.g[o + 2], sw});
+                }
+                if (this.gest.moves(i)) {
+                    for (int c = 3; c < 6; c++) {
+                        this.out[o + c] += (this.g[o + c] - this.out[o + c]) * sw;
+                    }
+                }
+            }
         }
         // cabeza hacia el jugador
         float wantYaw = 0, wantPitch = 0;
@@ -138,45 +176,16 @@ final class NpcAnimator {
         this.pitch += (wantPitch - this.pitch) * 0.15f;
         Matrix4f[] arr = this.mats.toArray(new Matrix4f[0]);
         m.matrices(this.out, arr, this.yaw, this.pitch);
-        // el gesto (si hay) para el modelo de EMF
-        this.overlay.clear();
-        BBModel.Anim g = null;
-        float w = 0, gt = 0;
-        if (this.cur != null && !isBase(this.cur)) {
-            g = this.cur;
-            gt = time(g, now - this.curStart);
-            w = Math.min(1, (now - this.curStart) / BLEND);
-            if (!g.loops()) {
-                w = Math.min(w, Math.max(0, (g.length - gt) / BLEND));
-            }
-        } else if (this.prev != null && !isBase(this.prev) && now - this.blendStart < BLEND) {
-            g = this.prev;
-            gt = time(g, now - this.prevStart);
-            w = 1 - (now - this.blendStart) / BLEND;
-        }
-        if (g != null && w > 0) {
-            if (this.ov == null || this.ov.length != this.out.length) {
-                this.ov = new float[this.out.length];
-            }
-            m.sample(g, gt, this.ov);
-            w = w * w * (3 - 2 * w);
-            for (int i = 0; i < m.bones.size(); i++) {
-                if (g.rotates(i)) {
-                    this.overlay.put(m.bones.get(i).name, new float[]{this.ov[i * 9], this.ov[i * 9 + 1], this.ov[i * 9 + 2], w});
-                }
-            }
-        }
     }
 
-    private void play(BBModel.Anim an, float now, boolean restart) {
-        if (an == this.cur && !restart) {
+    private void start(BBModel.Anim an, float now) {
+        if (an == null) {
             return;
         }
-        this.prev = this.cur;
-        this.prevStart = this.curStart;
-        this.cur = an;
-        this.curStart = now;
-        this.blendStart = now;
+        this.gest = an;
+        this.gestStart = now;
+        this.gestRefresh = now;
+        this.gestEnd = Float.MAX_VALUE;
     }
 
     private static float time(BBModel.Anim an, float t) {

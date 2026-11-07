@@ -241,6 +241,34 @@ def animations(bones):
         'head': R((0, 0, 0), (0.35, 8, 0, -6), (0.75, -6, 0, 8), (1.2, -4, 0, 6), (1.8, 0, 0)),
         'body': R((0, 0, 0), (0.75, 0, 0, -4), (1.2, 0, 0, -3), (1.8, 0, 0, 0)),
     }, bones))
+    # --- interacciones de a dos (las hacen los dos: el NPC y el jugador) ---
+    # abrazo: los brazos rodean al otro, cabeza de costado
+    A.append(anim('hug', 2.6, 'once', {
+        'right_arm': R((0, 0, 0, 3), (0.4, -78, 0, -38), (0.8, -74, 0, -42), (1.6, -78, 0, -38), (2.2, -74, 0, -42), (2.6, 0, 0, 3)),
+        'left_arm': R((0, 0, 0, -3), (0.4, -78, 0, 38), (0.8, -74, 0, 42), (1.6, -78, 0, 38), (2.2, -74, 0, 42), (2.6, 0, 0, -3)),
+        'head': R((0, 0, 0), (0.4, 6, 0, 14), (2.2, 6, 0, 14), (2.6, 0, 0, 0)),
+        'body': R((0, 0, 0), (0.4, 6, 0, 0), (1.2, 6, 0, 2), (2.0, 6, 0, -2), (2.6, 0, 0, 0)),
+    }, bones))
+    # beso: se inclina, cabeza ladeada, manos a los hombros del otro
+    A.append(anim('kiss', 2.4, 'once', {
+        'body': R((0, 0, 0), (0.5, 10, 0), (1.9, 10, 0), (2.4, 0, 0)),
+        'head': R((0, 0, 0), (0.5, -4, 0, 16), (1.9, -4, 0, 16), (2.4, 0, 0, 0)),
+        'right_arm': R((0, 0, 0, 3), (0.5, -62, 0, -22), (1.9, -62, 0, -22), (2.4, 0, 0, 3)),
+        'left_arm': R((0, 0, 0, -3), (0.5, -62, 0, 22), (1.9, -62, 0, 22), (2.4, 0, 0, -3)),
+    }, bones))
+    # chocar los cinco
+    A.append(anim('high_five', 1.4, 'once', {
+        'right_arm': R((0, 0, 0, 3), (0.3, -160, 0, -12), (0.45, -145, 0, -12), (0.55, -150, 0, -10), (0.9, -150, 0, -10), (1.4, 0, 0, 3)),
+        'body': R((0, 0, 0), (0.45, 4, 0, 0), (0.6, -2, 0), (1.4, 0, 0)),
+        'head': R((0, 0, 0), (0.3, -10, 0), (0.9, -6, 0), (1.4, 0, 0)),
+    }, bones))
+    # de la mano: el de la izquierda le da la mano izquierda... la mano hacia el costado del otro
+    A.append(anim('hold_left', 2.0, 'loop', {
+        'left_arm': R((0, -10, 0, -14), (1.0, -14, 0, -15), (2.0, -10, 0, -14)),
+    }, bones))
+    A.append(anim('hold_right', 2.0, 'loop', {
+        'right_arm': R((0, -10, 0, 14), (1.0, -14, 0, 15), (2.0, -10, 0, 14)),
+    }, bones))
     return A
 
 def model(slim):

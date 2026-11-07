@@ -11,6 +11,7 @@
     "main": ["com.starlevi.starscenes.StarScenes"],
     "client": ["com.starlevi.starscenes.client.StarScenesClient"]
   },
+  "mixins": ["starscenes.mixins.json"],
   "depends": {
     "fabricloader": ">=0.17.0",
     "minecraft": "~1.21.11",

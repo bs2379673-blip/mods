@@ -52,7 +52,7 @@ public final class Greetings {
     }
 
     private static boolean free(Villager v, long now) {
-        return v.isAlive() && !v.isSleeping() && !v.isTrading() && StarVillagers.identity(v) != null && BUSY.getOrDefault(v.getUUID(), 0L) < now;
+        return v.isAlive() && !com.starlevi.starvillagers.social.Together.busy(v) && !v.isSleeping() && !v.isTrading() && StarVillagers.identity(v) != null && BUSY.getOrDefault(v.getUUID(), 0L) < now;
     }
 
     public static void tick(MinecraftServer server) {

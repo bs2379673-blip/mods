@@ -22,6 +22,8 @@ public final class Mind {
         public String lastGift = "";
         public int hits;
         public long lastSeen = -1;  // dia
+        public long togetherDay = -1;
+        public String togetherDone = ""; // lo que hicieron juntos hoy ("abrazar,mano")
 
         public static final Codec<Bond> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.INT.optionalFieldOf("corazones", 0).forGetter(b -> b.hearts),
@@ -30,8 +32,10 @@ public final class Mind {
                 Codec.INT.optionalFieldOf("regalos_hoy", 0).forGetter(b -> b.giftsToday),
                 Codec.STRING.optionalFieldOf("ultimo_regalo", "").forGetter(b -> b.lastGift),
                 Codec.INT.optionalFieldOf("golpes", 0).forGetter(b -> b.hits),
-                Codec.LONG.optionalFieldOf("visto", -1L).forGetter(b -> b.lastSeen)
-        ).apply(i, (h, c, gd, gt, lg, hi, ls) -> {
+                Codec.LONG.optionalFieldOf("visto", -1L).forGetter(b -> b.lastSeen),
+                Codec.LONG.optionalFieldOf("juntos_dia", -1L).forGetter(b -> b.togetherDay),
+                Codec.STRING.optionalFieldOf("juntos", "").forGetter(b -> b.togetherDone)
+        ).apply(i, (h, c, gd, gt, lg, hi, ls, td, tg) -> {
             Bond b = new Bond();
             b.hearts = h;
             b.lastChat = c;
@@ -40,6 +44,8 @@ public final class Mind {
             b.lastGift = lg;
             b.hits = hi;
             b.lastSeen = ls;
+            b.togetherDay = td;
+            b.togetherDone = tg;
             return b;
         }));
     }

@@ -93,6 +93,11 @@ public final class BBModel {
             return bone < this.keys.length && this.keys[bone][ROT] != null;
         }
 
+        /** Si esta animacion mueve (desplaza) ese hueso. */
+        public boolean moves(int bone) {
+            return bone < this.keys.length && this.keys[bone][POS] != null;
+        }
+
         Anim(String name, float length, String loop, int bones) {
             this.name = name;
             this.length = length;

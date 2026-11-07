@@ -86,6 +86,21 @@ public final class StarScenesAPI {
         }
     }
 
+    /**
+     * Hace que un jugador haga un gesto del modelo humano de StarScenes (wave, hug, kiss, high_five,
+     * hold_left...), encima de su animacion normal. Los de ronda siguen hasta los segundos dados (volver
+     * a mandarlo los alarga); seconds 0 lo corta.
+     */
+    public static void playerGesture(ServerPlayer player, String anim, float seconds) {
+        Net.Gesture msg = new Net.Gesture(player.getId(), anim, Math.max(0, (int) (seconds * 20)));
+        ServerPlayNetworking.send(player, msg);
+        for (ServerPlayer p : PlayerLookup.tracking(player)) {
+            if (p != player) {
+                ServerPlayNetworking.send(p, msg);
+            }
+        }
+    }
+
     /** Abre un dialogo (config/starscenes/dialogos/&lt;id&gt;.json) con este hablante (o null). */
     public static boolean talk(ServerPlayer player, Entity speaker, String dialogue) {
         return Dialogues.open(player, speaker, dialogue);

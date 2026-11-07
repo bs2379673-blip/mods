@@ -114,6 +114,34 @@ public class StarVillagersTest implements FabricClientGameTest {
                         + ", condicion amistad>=10 " + StarScenesAPI.test(p, v, "amistad:>=10") + ", personalidades " + com.starlevi.starvillagers.social.Personality.ALL.size());
             });
             ctx.waitTicks(5);
+            // hacer cosas juntos: abrazo (los dos hacen el gesto) y de la mano (te sigue)
+            server.runOnServer(s -> {
+                ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+                Villager v = s.overworld().getEntitiesOfClass(Villager.class, new AABB(-10, -70, -10, 10, -50, 10)).get(0);
+                StarScenesAPI.run(p, v, java.util.List.of("amistad:90", "juntos:abrazar"));
+                System.out.println("StarVillagers prueba: abrazo, ocupado " + com.starlevi.starvillagers.social.Together.busy(v) + ", distancia " + String.format(java.util.Locale.ROOT, "%.2f", p.distanceTo(v)));
+            });
+            ctx.waitTicks(15);
+            System.out.println("StarVillagers prueba: gesto del jugador " + ctx.computeOnClient(mc -> com.starlevi.starscenes.client.PlayerGestures.active(mc.player.getId())));
+            ctx.waitTicks(50);
+            server.runOnServer(s -> {
+                ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+                Villager v = s.overworld().getEntitiesOfClass(Villager.class, new AABB(-10, -70, -10, 10, -50, 10)).get(0);
+                System.out.println("StarVillagers prueba: despues del abrazo ocupado " + com.starlevi.starvillagers.social.Together.busy(v) + ", sin IA " + v.isNoAi());
+                StarScenesAPI.run(p, v, java.util.List.of("juntos:mano"));
+            });
+            server.runCommand("tp @p 0.5 -59 9 180 10");
+            ctx.waitTicks(30);
+            server.runOnServer(s -> {
+                ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+                for (Villager v : s.overworld().getEntitiesOfClass(Villager.class, new AABB(-20, -70, -20, 20, -50, 20))) {
+                    if (com.starlevi.starvillagers.social.Together.busy(v)) {
+                        System.out.println("StarVillagers prueba: de la mano, distancia " + String.format(java.util.Locale.ROOT, "%.2f", p.distanceTo(v)));
+                        com.starlevi.starvillagers.social.Together.stop(v);
+                    }
+                }
+            });
+            ctx.waitTicks(5);
             // los gestos se ven (tambien con el modelo de EMF)
             for (String g : new String[]{"happy", "shy", "laugh", "disgust"}) {
                 server.runOnServer(s -> {
