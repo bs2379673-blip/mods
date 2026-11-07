@@ -16,8 +16,9 @@ public final class PlayerGestures {
     private static final float BLEND = 0.25f;
 
     private static final class G {
-        BBModel.Anim anim;
+        String name;
         float start, until;
+        boolean sized;
     }
 
     private static final Map<Integer, G> ACTIVE = new HashMap<>();
@@ -45,19 +46,20 @@ public final class PlayerGestures {
             }
             return;
         }
-        BBModel m = human();
+        BBModel m = human(); // (si todavia no esta cargado, se empieza a cargar y el gesto espera)
         BBModel.Anim an = m == null ? null : m.anims.get(anim);
-        if (an == null) {
-            return;
-        }
-        if (g != null && g.anim == an && g.until > t && an.loops()) {
-            g.until = t + ticks / 20f; // el mismo gesto en ronda: se alarga
+        if (g != null && anim.equals(g.name) && g.until > t && (an == null || an.loops())) {
+            g.until = Math.max(g.until, t + ticks / 20f); // el mismo gesto en ronda: se alarga
             return;
         }
         g = new G();
-        g.anim = an;
+        g.name = anim;
         g.start = t;
-        g.until = an.loops() ? t + ticks / 20f : t + Math.min(an.length, ticks / 20f);
+        g.until = t + ticks / 20f;
+        if (an != null && !an.loops()) {
+            g.until = t + Math.min(an.length, ticks / 20f);
+            g.sized = true;
+        }
         ACTIVE.put(entity, g);
     }
 
@@ -71,6 +73,31 @@ public final class PlayerGestures {
 
     /** Lo llama el modelo del jugador al final de su animacion. */
     public static void apply(int entity, HumanoidModel<?> model) {
+        apply(entity, name -> switch (name) {
+            case "head" -> model.head;
+            case "body" -> model.body;
+            case "right_arm" -> model.rightArm;
+            case "left_arm" -> model.leftArm;
+            case "right_leg" -> model.rightLeg;
+            case "left_leg" -> model.leftLeg;
+            default -> null;
+        });
+    }
+
+    /** Si este jugador esta haciendo un gesto ahora (para no tocar nada si no). */
+    public static boolean busy(int entity) {
+        return !ACTIVE.isEmpty() && ACTIVE.containsKey(entity);
+    }
+
+    private static final String[][] LAYERS = {{"head", "headwear", "hat"}, {"body", "jacket"}, {"right_arm", "right_sleeve"}, {"left_arm", "left_sleeve"},
+            {"right_leg", "right_pants"}, {"left_leg", "left_pants"}};
+
+    /**
+     * Pone el gesto en las partes que da get (por nombre: head, body, right_arm...). Lo usan el modelo de
+     * Minecraft y, con EMF, las partes del modelo de tu paquete de animaciones despues de que el paquete
+     * las anima (si no, el paquete las pisa).
+     */
+    public static void apply(int entity, java.util.function.Function<String, ModelPart> get) {
         if (ACTIVE.isEmpty()) {
             return;
         }
@@ -87,6 +114,16 @@ public final class PlayerGestures {
         if (m == null) {
             return;
         }
+        BBModel.Anim an = m.anims.get(g.name);
+        if (an == null) {
+            return;
+        }
+        if (!g.sized) {
+            g.sized = true;
+            if (!an.loops()) {
+                g.until = Math.min(g.until, g.start + an.length);
+            }
+        }
         float w = Math.min(1, Math.min((t - g.start) / BLEND, (g.until - t) / BLEND));
         if (w <= 0) {
             return;
@@ -96,32 +133,25 @@ public final class PlayerGestures {
         if (buf.length < n) {
             buf = new float[n];
         }
-        float at = g.anim.loops() ? (t - g.start) % g.anim.length : Math.min(t - g.start, g.anim.length);
-        m.sample(g.anim, at, buf);
+        float at = an.loops() ? (t - g.start) % an.length : Math.min(t - g.start, an.length);
+        m.sample(an, at, buf);
         float lift = 0;
+        java.util.Set<String> moved = new java.util.HashSet<>();
         for (int i = 0; i < m.bones.size(); i++) {
             String name = m.bones.get(i).name;
             int o = i * 9;
-            if (g.anim.moves(i) && name.equals("player")) {
+            if (an.moves(i) && name.equals("player")) {
                 lift = buf[o + 4] * w;
             }
-            if (!g.anim.rotates(i)) {
+            if (!an.rotates(i)) {
                 continue;
             }
-            ModelPart p = switch (name) {
-                case "head" -> model.head;
-                case "body" -> model.body;
-                case "right_arm" -> model.rightArm;
-                case "left_arm" -> model.leftArm;
-                case "right_leg" -> model.rightLeg;
-                case "left_leg" -> model.leftLeg;
-                default -> null;
-            };
+            ModelPart p = get.apply(name);
             if (p == null) {
                 continue;
             }
             float rx = (float) Math.toRadians(buf[o]), ry = (float) Math.toRadians(buf[o + 1]), rz = (float) Math.toRadians(buf[o + 2]);
-            if (p == model.head) {
+            if (name.equals("head")) {
                 // sigue mirando a donde mira; el gesto se suma
                 rx += p.xRot;
                 ry += p.yRot;
@@ -129,10 +159,33 @@ public final class PlayerGestures {
             p.xRot += (rx - p.xRot) * w;
             p.yRot += (ry - p.yRot) * w;
             p.zRot += (rz - p.zRot) * w;
+            moved.add(name);
         }
         if (lift != 0) {
-            for (ModelPart p : new ModelPart[]{model.head, model.body, model.rightArm, model.leftArm, model.rightLeg, model.leftLeg}) {
-                p.y -= lift;
+            for (String nm : new String[]{"head", "body", "right_arm", "left_arm", "right_leg", "left_leg"}) {
+                ModelPart p = get.apply(nm);
+                if (p != null) {
+                    p.y -= lift;
+                    moved.add(nm);
+                }
+            }
+        }
+        // las capas de afuera (mangas, saco, pantalon) que son piezas aparte siguen a su parte
+        for (String[] l : LAYERS) {
+            if (!moved.contains(l[0])) {
+                continue;
+            }
+            ModelPart base = get.apply(l[0]);
+            for (int k = 1; k < l.length; k++) {
+                ModelPart layer = get.apply(l[k]);
+                if (base != null && layer != null && layer != base && !base.hasChild(l[k])) {
+                    layer.xRot = base.xRot;
+                    layer.yRot = base.yRot;
+                    layer.zRot = base.zRot;
+                    layer.x = base.x;
+                    layer.y = base.y;
+                    layer.z = base.z;
+                }
             }
         }
     }

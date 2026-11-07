@@ -27,6 +27,9 @@ public final class StarScenesClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(Net.OpenMenu.TYPE, (p, ctx) -> Minecraft.getInstance().setScreen(new NpcScreen(p)));
         ClientPlayNetworking.registerGlobalReceiver(Net.Talk.TYPE, (p, ctx) -> TalkScreen.show(p));
         ClientPlayNetworking.registerGlobalReceiver(Net.Say.TYPE, (p, ctx) -> Bubbles.show(p.entity(), p.text(), p.ticks()));
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("entity_model_features")) {
+            com.starlevi.starscenes.client.emf.EmfGestureHook.register();
+        }
         ClientPlayNetworking.registerGlobalReceiver(Net.Gesture.TYPE, (p, ctx) -> PlayerGestures.play(p.entity(), p.anim(), p.ticks()));
         ClientPlayNetworking.registerGlobalReceiver(Net.TalkEnd.TYPE, (p, ctx) -> TalkScreen.end());
         ClientPlayNetworking.registerGlobalReceiver(Net.ShopOpen.TYPE, (p, ctx) -> ShopScreen.show(p));

@@ -169,6 +169,13 @@ public final class BBModel {
     public static BBModel parse(String json) {
         JsonObject root = JsonParser.parseString(json).getAsJsonObject();
         BBModel m = new BBModel();
+        // Blockbench 5 guarda los giros X e Y (y la posicion X) con el signo al reves que Blockbench 4
+        try {
+            String fv = root.has("meta") && root.getAsJsonObject("meta").has("format_version")
+                    ? root.getAsJsonObject("meta").get("format_version").getAsString() : "4";
+            m.bb5 = Integer.parseInt(fv.split("\\.")[0]) >= 5;
+        } catch (Exception ignored) {
+        }
         float resW = 16, resH = 16;
         if (root.has("resolution")) {
             JsonObject r = root.getAsJsonObject("resolution");
@@ -268,6 +275,10 @@ public final class BBModel {
                             JsonArray dps = k.getAsJsonArray("data_points");
                             float[] pre = point(dps.get(0).getAsJsonObject(), def, m.warnings);
                             float[] post = dps.size() > 1 ? point(dps.get(1).getAsJsonObject(), def, m.warnings) : pre;
+                            if (m.bb5 && c != SCALE) {
+                                pre = flip5(pre, c);
+                                post = dps.size() > 1 ? flip5(post, c) : pre;
+                            }
                             String interp = k.has("interpolation") ? k.get("interpolation").getAsString() : "linear";
                             lists.get(c).add(new Key(k.get("time").getAsFloat(), interp.equals("catmullrom"), interp.equals("step"), pre, post));
                         }
@@ -290,6 +301,20 @@ public final class BBModel {
             }
         }
         return m;
+    }
+
+    /** Si el archivo es de Blockbench 5 (signos de giro distintos). */
+    private boolean bb5;
+
+    private static float[] flip5(float[] v, int channel) {
+        float[] o = v.clone();
+        if (channel == ROT) {
+            o[0] = -o[0];
+            o[1] = -o[1];
+        } else if (channel == POS) {
+            o[0] = -o[0];
+        }
+        return o;
     }
 
     /** Datos de los grupos por uuid (Blockbench 5); solo se usa al leer. */
@@ -324,7 +349,11 @@ public final class BBModel {
                 g = info;
             }
             String name = g.has("name") ? g.get("name").getAsString() : "grupo";
-            Bone b = new Bone(name, parent, vec(g, "origin", 0), vec(g, "rotation", 0));
+            float[] grot = vec(g, "rotation", 0);
+            if (this.bb5) {
+                grot = new float[]{-grot[0], -grot[1], grot[2]};
+            }
+            Bone b = new Bone(name, parent, vec(g, "origin", 0), grot);
             int idx = this.bones.size();
             this.bones.add(b);
             if (g.has("uuid")) {
@@ -368,6 +397,9 @@ public final class BBModel {
         }
         float[] origin = vec(e, "origin", 0);
         float[] rot = vec(e, "rotation", 0);
+        if (this.bb5) {
+            rot = new float[]{-rot[0], -rot[1], rot[2]};
+        }
         Matrix4f m = new Matrix4f().translate(origin[0], origin[1], origin[2]).rotateZYX((float) Math.toRadians(rot[2]),
                 (float) Math.toRadians(rot[1]), (float) Math.toRadians(rot[0])).translate(-origin[0], -origin[1], -origin[2]);
         Bone b = this.bones.get(bone);
