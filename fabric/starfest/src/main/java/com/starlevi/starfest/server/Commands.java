@@ -32,6 +32,10 @@ public final class Commands {
 
     private static final SuggestionProvider<CommandSourceStack> SONGS =
             (ctx, b) -> SharedSuggestionProvider.suggest(MusicLibrary.names(), b);
+    private static final SuggestionProvider<CommandSourceStack> SKIES = (ctx, b) -> {
+        SkyLibrary.scan();
+        return SharedSuggestionProvider.suggest(SkyLibrary.names(), b);
+    };
     private static final SuggestionProvider<CommandSourceStack> DANCES =
             (ctx, b) -> SharedSuggestionProvider.suggest(List.of("dance", "happy", "wave", "laugh", "high_five"), b);
 
@@ -61,6 +65,23 @@ public final class Commands {
                             c.getSource().sendSuccess(() -> Component.literal("Musica detenida"), true);
                             return 1;
                         })))
+                .then(literal("cielo")
+                        .then(literal("lista").executes(c -> {
+                            SkyLibrary.scan();
+                            List<String> n = SkyLibrary.names();
+                            c.getSource().sendSuccess(() -> Component.literal("Cielos (" + n.size() + "): " + String.join(", ", n)
+                                    + "  -  carpeta: " + SkyLibrary.folder()), false);
+                            return n.size();
+                        }))
+                        .then(literal("parar").executes(c -> {
+                            ShowServer.stopSky(ZONE);
+                            c.getSource().sendSuccess(() -> Component.literal("Cielo quitado"), true);
+                            return 1;
+                        }))
+                        .then(argument("nombre", StringArgumentType.word()).suggests(SKIES)
+                                .executes(c -> sky(c, 160))
+                                .then(argument("radio", IntegerArgumentType.integer(8, 2048))
+                                        .executes(c -> sky(c, IntegerArgumentType.getInteger(c, "radio"))))))
                 .then(literal("bailarines")
                         .then(literal("agregar").then(argument("quienes", net.minecraft.commands.arguments.EntityArgument.entities())
                                 .executes(c -> addDancers(c, "dance"))
@@ -141,6 +162,19 @@ public final class Commands {
         }
         String what = z.track.name();
         s.sendSuccess(() -> Component.literal("Suena '" + what + "' en un radio de " + radius + " bloques"), true);
+        return 1;
+    }
+
+    private static int sky(CommandContext<CommandSourceStack> c, int radius) {
+        SkyLibrary.scan();
+        String name = StringArgumentType.getString(c, "nombre");
+        if (SkyLibrary.get(name) == null) {
+            c.getSource().sendFailure(Component.literal("No existe el cielo '" + name + "' (mira /starfest cielo lista)"));
+            return 0;
+        }
+        CommandSourceStack s = c.getSource();
+        ShowServer.sky(ZONE, s.getLevel().dimension(), BlockPos.containing(s.getPosition()), radius, name.toLowerCase(java.util.Locale.ROOT));
+        s.sendSuccess(() -> Component.literal("Cielo '" + name + "' en un radio de " + radius + " bloques"), true);
         return 1;
     }
 

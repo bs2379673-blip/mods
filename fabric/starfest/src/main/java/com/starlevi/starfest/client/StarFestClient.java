@@ -19,6 +19,9 @@ public final class StarFestClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(Net.Play.TYPE, (p, ctx) -> Show.play(p));
         ClientPlayNetworking.registerGlobalReceiver(Net.Stop.TYPE, (p, ctx) -> Show.stop(p));
         ClientPlayNetworking.registerGlobalReceiver(Net.Chunk.TYPE, (p, ctx) -> Show.chunk(p));
+        ClientPlayNetworking.registerGlobalReceiver(Net.Sky.TYPE, (p, ctx) -> com.starlevi.starfest.client.sky.SkyClient.sky(p));
+        ClientPlayNetworking.registerGlobalReceiver(Net.SkyStop.TYPE, (p, ctx) -> com.starlevi.starfest.client.sky.SkyClient.stop(p));
+        net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents.BEFORE_ENTITIES.register(com.starlevi.starfest.client.sky.SkyClient::render);
         ClientPlayNetworking.registerGlobalReceiver(Net.Fx.TYPE, (p, ctx) -> {
             if ("fuegos".equals(p.kind())) {
                 Fireworks.volley(p);
@@ -37,6 +40,7 @@ public final class StarFestClient implements ClientModInitializer {
         });
         ClientPlayConnectionEvents.DISCONNECT.register((h, mc) -> mc.execute(() -> {
             com.starlevi.starfest.client.live.ScreenLights.clear();
+            com.starlevi.starfest.client.sky.SkyClient.clear();
             Show.clear();
         }));
     }

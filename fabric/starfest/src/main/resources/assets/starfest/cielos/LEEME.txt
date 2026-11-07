@@ -1,0 +1,45 @@
+CIELOS DE STARFEST  (propiedad de Starlevi)
+===========================================
+Cada cielo es un archivo .json en esta carpeta; sus imagenes (PNG o GIF animado, hasta 8 MB) van en
+"imagenes". Se pueden agregar, cambiar o borrar con el servidor andando: se toman solos en 2 segundos
+y los jugadores que lo estan viendo lo ven cambiar al momento.
+
+  /starfest cielo lista
+  /starfest cielo <nombre> [radio]     (alrededor de donde estas; quien entra a la zona lo ve)
+  /starfest cielo parar
+
+Todo reacciona a la musica que suena en la zona (/starfest musica ...). Sin musica, cada capa queda
+en su "minimo".
+
+CAMPOS DEL CIELO
+  "oscurecer": 0.9          cuanto tapa el cielo normal (0 nada, 1 todo)
+  "arriba", "horizonte", "abajo": "#rrggbb"   colores del fondo
+  "capas": [ ... ]          se dibujan en orden (las de abajo encima de las de arriba)
+
+CAMPOS DE TODAS LAS CAPAS
+  "tipo"        panorama | estrellas | imagen | aurora | espectro | rayos | anillos | tunel | caleidoscopio | destello
+  "reaccion"    nivel | graves | medios | agudos | golpe | bombo | intensidad | nada
+  "minimo"      0..1  brillo sin musica / en los silencios (0.45)
+  "opacidad"    0..1  brillo maximo (1)
+  "color" o "colores": ["#ff00aa", "paleta", "paleta2", ...]
+                "paleta" = colores que cambian con la cancion (cada 8 compases), "paleta2".. "paleta4" los otros
+  "aditivo"     true = luz (suma), false = tapa (1)
+  "solo_fuerte" true = solo en la parte fuerte de la cancion (el "drop")
+  "velocidad"   multiplica las animaciones (1)
+
+POR TIPO
+  panorama       "textura": nebulosa | nubes   o  "archivo": "mi_imagen.png" (360 grados, 2:1)
+                 "giro" grados/s, "inclinacion", "latido" (cuanto sube con la musica)
+  estrellas      "cantidad", "tamano", "giro", "semilla"
+  imagen         "textura": galaxia | brillo | estrella | anillo   o  "archivo": "x.png" / "x.gif"
+                 "azimut" (0 norte, 90 este, 180 sur, 270 oeste), "altura" (0 horizonte, 90 arriba),
+                 "tamano" (grados), "giro", "rotacion", "orbita" (se mueve por el cielo), "latido"
+  aurora         "altura", "alto", "ondas", colores en degrade
+  espectro       ecualizador en anillo: "azimut", "altura", "radio", "largo", "barras", "giro"
+  rayos          "azimut", "altura" (de donde salen), "cantidad", "largo", "ancho", "giro"
+  anillos        salen con cada golpe: "azimut", "altura", "tamano", "duracion", "umbral"
+  tunel          estelas de hiperespacio: "azimut", "altura", "cantidad"
+  caleidoscopio  "textura"/"archivo", "azimut", "altura", "radio", "gajos", "giro"
+  destello       todo el cielo destella cuando la reaccion pasa "umbral"
+
+No usa shaders propios: se ve en cualquier PC y tambien con Iris / paquetes de shaders.
