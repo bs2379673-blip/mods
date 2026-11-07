@@ -14,6 +14,11 @@ public abstract class Expr {
     public interface Scope {
         float get(String name);
 
+        /** Texto de un dato del personaje para nbt(...) ("SelectedItem.id", "equipment.offhand"...); "" si no hay. */
+        default String text(String path) {
+            return "";
+        }
+
         /** Numero al azar estable por personaje (para random(semilla)). */
         default float random(float seed) {
             long h = Double.doubleToLongBits(seed) * 0x9E3779B97F4A7C15L;
@@ -22,6 +27,33 @@ public abstract class Expr {
     }
 
     public abstract float eval(Scope s);
+
+    /** nbt(ruta, "raw:iregex:..." / "iregex:..." / "regex:..." / "raw:texto" / texto). */
+    static Expr nbt(String path, String test) {
+        String t = test;
+        if (t.startsWith("raw:")) {
+            t = t.substring(4);
+        }
+        final java.util.regex.Pattern re;
+        if (t.startsWith("iregex:")) {
+            re = java.util.regex.Pattern.compile(t.substring(7), java.util.regex.Pattern.CASE_INSENSITIVE);
+        } else if (t.startsWith("regex:")) {
+            re = java.util.regex.Pattern.compile(t.substring(6));
+        } else if (t.startsWith("pattern:") || t.startsWith("ipattern:")) {
+            boolean ci = t.startsWith("i");
+            String g = t.substring(ci ? 9 : 8).replace(".", "\\.").replace("*", ".*").replace("?", ".");
+            re = java.util.regex.Pattern.compile(g, ci ? java.util.regex.Pattern.CASE_INSENSITIVE : 0);
+        } else {
+            re = java.util.regex.Pattern.compile(java.util.regex.Pattern.quote(t));
+        }
+        return new Expr() {
+            @Override
+            public float eval(Scope s) {
+                String v = s.text(path);
+                return v != null && !v.isEmpty() && re.matcher(v).matches() ? 1 : 0;
+            }
+        };
+    }
 
     /** Lo que no entendio (funciones desconocidas), para avisar. */
     public static final List<String> UNKNOWN = new ArrayList<>();
@@ -212,6 +244,24 @@ public abstract class Expr {
                 throw new IllegalArgumentException("no entiendo '" + this.s.substring(this.i) + "' en: " + this.s);
             }
             String name = this.s.substring(st, this.i);
+            if (name.equalsIgnoreCase("nbt") && eat("(")) {
+                // nbt(ruta, comparacion): los argumentos son texto (ej. raw:iregex:.*shield.*)
+                int depth = 1, a0 = this.i;
+                while (this.i < this.s.length() && depth > 0) {
+                    char c = this.s.charAt(this.i);
+                    if (c == '(') {
+                        depth++;
+                    } else if (c == ')') {
+                        depth--;
+                    }
+                    this.i++;
+                }
+                String inner = this.s.substring(a0, Math.max(a0, this.i - 1));
+                int comma = inner.indexOf(',');
+                String path = (comma < 0 ? inner : inner.substring(0, comma)).trim();
+                String test = comma < 0 ? "" : inner.substring(comma + 1).trim();
+                return nbt(path, test);
+            }
             if (eat("(")) {
                 List<Expr> args = new ArrayList<>();
                 if (!eat(")")) {

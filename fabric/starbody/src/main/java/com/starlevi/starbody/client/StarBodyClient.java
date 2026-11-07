@@ -99,7 +99,8 @@ public final class StarBodyClient implements ClientModInitializer {
         }
         HairSim sim = SIMS.computeIfAbsent(e, k -> new HairSim());
         sim.update(e, partial, t.motion);
-        fs.setData(HairRender.KEY, new HairRender.Frame(skinId, mesh, sim, s.showHat, s.showJacket));
+        fs.setData(HairRender.KEY, new HairRender.Frame(skinId, mesh, sim, s.showHat, s.showJacket,
+                !e.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).isEmpty()));
     }
 
     /** La skin a usar para el cuerpo (sin el pelo que cuelga), o null para dejar la normal. */

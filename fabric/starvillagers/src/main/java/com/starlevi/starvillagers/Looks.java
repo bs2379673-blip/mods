@@ -210,4 +210,24 @@ public final class Looks {
         float t = 0.3f + r.nextFloat() * 0.4f;
         return Math.max(0, Math.min(1, x * t + y * (1 - t) + (r.nextFloat() - 0.5f) * 0.08f));
     }
+
+    /** El mismo aldeano con el otro genero (cara, pelo, piel y ropa de ese genero; mismos genes). */
+    public static Identity regender(Identity id, boolean female, String profession) {
+        if (id.female() == female) {
+            return id;
+        }
+        Random r = new Random(id.seed() * 7L + (female ? 1 : 2));
+        String g = female ? "female" : "male";
+        String skin = id.skin().replaceAll("/(male|female)/", "/" + g + "/");
+        String face = pick(folder("face/normal/" + g + "/"), r, "face/normal/" + g + "/0.png");
+        String hair = id.hair().startsWith("biblioteca:") ? id.hair() : pick(folder("hair/" + g + "/"), r, "hair/" + g + "/0.png");
+        Identity n = new Identity(id.name(), female, id.melanin(), id.hemoglobin(), id.eumelanin(), id.pheomelanin(), id.height(), skin, face, hair, "",
+                id.voice(), id.seed());
+        return n.withClothes(id.clothes().startsWith("biblioteca:") ? id.clothes() : clothes(n, profession));
+    }
+
+    public static Identity rename(Identity id, String name) {
+        return new Identity(name, id.female(), id.melanin(), id.hemoglobin(), id.eumelanin(), id.pheomelanin(), id.height(), id.skin(), id.face(), id.hair(),
+                id.clothes(), id.voice(), id.seed());
+    }
 }

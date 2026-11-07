@@ -43,8 +43,9 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         float scale = 1;
         /** Globito de texto (o null). */
         String bubble;
-        /** Para las capas de cabeza de otros mods. */
+        /** Para las capas de cabeza de otros mods (y PatPat). */
         Entity entity;
+        Entity self;
         float partial;
         Matrix4f emfHead;
         final ItemStackRenderState main = new ItemStackRenderState(), off = new ItemStackRenderState(), head = new ItemStackRenderState();
@@ -85,6 +86,7 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         s.bubble = Bubbles.get(npc.getId());
         s.entity = com.starlevi.starscenes.api.StarScenesClientAPI.HEAD_LAYERS.isEmpty() ? null : npc;
         s.partial = partial;
+        s.self = npc;
         s.emfHead = null;
         String emfName = npc.sceneEmfModel();
         com.starlevi.starscenes.emf.JemModel jem = emfName == null ? null : com.starlevi.starscenes.emf.EmfModels.get(emfName);
@@ -158,6 +160,7 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
             // como dibuja Minecraft sus modelos: girado, dado vuelta (y para abajo) y a la altura de los pies
             ps.pushPose();
             ps.mulPose(Axis.YP.rotationDegrees(180 - s.yRot));
+            patpat(s, ps);
             ps.scale(s.scale, s.scale, s.scale);
             ps.scale(-1, -1, 1);
             ps.translate(0, -1.501f, 0);
@@ -180,6 +183,7 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
             BBModel m = s.ready.model;
             ps.pushPose();
             ps.mulPose(Axis.YP.rotationDegrees(180 - s.yRot));
+            patpat(s, ps);
             float k = s.scale / 16f;
             ps.scale(k, k, k);
             int light = s.lightCoords;
@@ -209,6 +213,34 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         }
         bubble(s, ps, collector, camera);
         super.submit(s, ps, collector, camera);
+    }
+
+    private static java.lang.invoke.MethodHandle patpat;
+    private static boolean patpatTried;
+
+    /**
+     * PatPat (acariciar con la mano): aplasta un poco al que acaricias y termina la animacion. PatPat lo
+     * hace solo en los dibujos de seres vivos de Minecraft; con el nuestro hay que llamarlo a mano.
+     */
+    private static void patpat(State s, PoseStack ps) {
+        if (!patpatTried) {
+            patpatTried = true;
+            if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("patpat")) {
+                try {
+                    Class<?> c = Class.forName("net.lopymine.patpat.client.render.PatPatClientRenderer");
+                    patpat = java.lang.invoke.MethodHandles.publicLookup().findStatic(c, "scaleEntityIfPatted",
+                            java.lang.invoke.MethodType.methodType(void.class, net.minecraft.world.entity.LivingEntity.class, PoseStack.class, float.class));
+                } catch (Throwable t) {
+                    patpat = null;
+                }
+            }
+        }
+        if (patpat != null && s.self instanceof net.minecraft.world.entity.LivingEntity le) {
+            try {
+                patpat.invoke(le, ps, s.partial);
+            } catch (Throwable ignored) {
+            }
+        }
     }
 
     private static void headLayers(State s, PoseStack ps, SubmitNodeCollector collector, int light) {

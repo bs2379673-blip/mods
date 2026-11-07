@@ -16,12 +16,12 @@
       "animacion": "%anim_saludo%",
       "opciones": [
         {"texto": "Charlemos un rato", "ir": "charla"},
-        {"texto": "Te traje algo", "si": ["en_mano"], "ir": "regalo"},
+        {"texto": "Te traje algo (lo que tengo en la mano)", "ir": "regalo"},
+        {"texto": "¿Qué cosas te gustan?", "ir": "gustos"},
         {"texto": "¿Cómo andás?", "ir": "estado"},
         {"texto": "¿Qué tenés para cambiar?", "si": ["amistad:>=0"], "acciones": ["comerciar"]},
         {"texto": "Hablemos de nosotros...", "ir": "nosotros"},
         {"texto": "Hagamos algo juntos", "si": ["amistad:>=20"], "ir": "juntos"},
-        {"texto": "Contame algo del pueblo", "si": ["amistad:>=0"], "ir": "pueblo"},
         {"texto": "Perdón por lo de antes...", "si": ["amistad:<0"], "ir": "perdon"},
         {"texto": "Nada, ¡chau!", "acciones": ["animar:wave"]}
       ]
@@ -43,6 +43,20 @@
       "opciones": [
         {"texto": "De nada", "ir": "hola"},
         {"texto": "Chau", "acciones": ["animar:wave"]}
+      ]
+    },
+    "gustos": {
+      "texto": ["%gustos%"],
+      "opciones": [
+        {"texto": "¡Lo tengo en cuenta!", "ir": "hola"},
+        {"texto": "Chau", "acciones": ["animar:wave"]}
+      ]
+    },
+    "progreso": {
+      "texto": ["%progreso%"],
+      "animacion": "think",
+      "opciones": [
+        {"texto": "Volver", "ir": "nosotros"}
       ]
     },
     "estado": {
@@ -86,6 +100,7 @@
       "texto": ["¿Sí? ¿Qué pasa?", "Te escucho."],
       "opciones": [
         {"texto": "¿Qué pensás de mí?", "ir": "relacion"},
+        {"texto": "¿Cómo vamos? (amistad)", "ir": "progreso"},
         {"texto": "¿Querés salir conmigo?", "si": ["libre", "amistad:>=80"], "acciones": ["familia:noviazgo"]},
         {"texto": "¿Te querés casar conmigo?", "si": ["novios", "tiene_anillo"], "acciones": ["familia:casamiento"]},
         {"texto": "¿Y si tenemos un bebé?", "si": ["puede_tener_hijo"], "acciones": ["familia:hijo"]},

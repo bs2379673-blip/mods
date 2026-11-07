@@ -9,7 +9,7 @@ import net.minecraft.world.entity.Pose;
  * por caminar, girar, caer, agacharse y mover la cabeza. Barato: 8 valores por personaje.
  */
 public final class HairSim {
-    private static final float[] STIFF = {16, 10, 6.5f}, GAIN = {0.6f, 1f, 1.45f};
+    private static final float[] STIFF = {13, 7.5f, 4.5f}, GAIN = {0.9f, 1.5f, 2.2f};
 
     /** [parte][cara]: angulo, velocidad y la punta (que llega un poco despues). */
     final float[][] angle = new float[2][4], vel = new float[2][4], tip = new float[2][4];
@@ -46,7 +46,12 @@ public final class HairSim {
         this.lastYaw = yaw;
         this.time += dt;
 
-        float g = GAIN[motion], k = STIFF[motion], c = 2 * (float) Math.sqrt(k) * 0.55f;
+        float g = GAIN[motion], k = STIFF[motion], c = 2 * (float) Math.sqrt(k) * 0.32f;
+        // al nadar o volar el cuerpo va acostado: el pelo se va para atras
+        boolean flat = e instanceof net.minecraft.world.entity.LivingEntity le2 && (le2.isVisuallySwimming() || le2.isFallFlying());
+        // al caminar, un rebote a cada paso
+        float speed = (float) Math.sqrt(fwd * fwd + left * left);
+        float bob = (float) Math.abs(Math.sin(this.time * 9.5f)) * Math.min(1, speed / 4f) * 0.16f;
         float pitch = (float) Math.toRadians(e.getXRot());
         boolean crouch = e.hasPose(Pose.CROUCHING);
         float fall = (float) Math.max(0, -dy) * 0.12f, rise = (float) Math.max(0, dy) * 0.05f;
@@ -54,12 +59,15 @@ public final class HairSim {
             for (int side = 0; side < 4; side++) {
                 float t = 0;
                 switch (side) {
-                    case 0 -> t = left * 0.09f - turn * 0.0016f;   // derecha
-                    case 1 -> t = -fwd * 0.09f;                     // frente
-                    case 2 -> t = -left * 0.09f + turn * 0.0016f;  // izquierda
-                    default -> t = fwd * 0.09f;                     // atras
+                    case 0 -> t = left * 0.13f - turn * 0.0026f;   // derecha
+                    case 1 -> t = -fwd * 0.13f;                     // frente
+                    case 2 -> t = -left * 0.13f + turn * 0.0026f;  // izquierda
+                    default -> t = fwd * 0.13f;                     // atras
                 }
-                t += fall - rise;
+                t += fall - rise + bob;
+                if (flat) {
+                    t += side == 3 ? 0.9f : side == 1 ? -0.3f : 0.35f;
+                }
                 if (part == 0) {
                     // la cabeza se inclina y el pelo sigue colgando hacia abajo
                     if (side == 1) {
@@ -71,7 +79,7 @@ public final class HairSim {
                     t += side == 3 ? 0.35f : side == 1 ? -0.35f : 0;
                 }
                 t = t * g + 0.025f * (float) Math.sin(this.time * 1.6f + side * 1.3f + part);
-                t = Math.max(-0.06f, Math.min(1.25f, t));
+                t = Math.max(-0.06f, Math.min(1.55f, t));
                 // resorte con un poco de rebote (en pasitos para que sea estable)
                 float rest = dt;
                 while (rest > 0) {
@@ -81,8 +89,8 @@ public final class HairSim {
                     this.angle[part][side] += this.vel[part][side] * h;
                     rest -= h;
                 }
-                this.angle[part][side] = Math.max(-0.08f, Math.min(1.4f, this.angle[part][side]));
-                this.tip[part][side] += (this.angle[part][side] - this.tip[part][side]) * Math.min(1, dt * 7);
+                this.angle[part][side] = Math.max(-0.12f, Math.min(1.7f, this.angle[part][side]));
+                this.tip[part][side] += (this.angle[part][side] - this.tip[part][side]) * Math.min(1, dt * 5);
             }
         }
     }
@@ -102,7 +110,7 @@ public final class HairSim {
     public float segment(int part, int side, int k, int n, float phase) {
         float f = n <= 1 ? 1 : k / (float) (n - 1);
         float a = this.angle[part][side] + (this.tip[part][side] - this.angle[part][side]) * f;
-        float w = 0.25f + 0.75f * f;
-        return a * w + 0.015f * f * (float) Math.sin(this.time * 2.3f + phase);
+        float w = 0.2f + 0.8f * f;
+        return a * w + 0.03f * f * (float) Math.sin(this.time * 2.3f + phase);
     }
 }

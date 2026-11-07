@@ -10,6 +10,15 @@ import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 
 /** La capa del jugador que dibuja su pelo con fisicas. */
 public class HairLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
+    private static net.minecraft.client.model.geom.ModelPart part(PlayerModel m, String name, net.minecraft.client.model.geom.ModelPart def) {
+        try {
+            net.minecraft.client.model.geom.ModelPart p = m.root().getChild(name);
+            return p != null ? p : def;
+        } catch (Exception e) {
+            return def;
+        }
+    }
+
     public HairLayer(RenderLayerParent<AvatarRenderState, PlayerModel> parent) {
         super(parent);
     }
@@ -20,6 +29,9 @@ public class HairLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
             return;
         }
         HairRender.Frame f = ((FabricRenderState) (Object) s).getData(HairRender.KEY);
-        HairRender.submit(f, ps, collector, light, getParentModel().head, getParentModel().body);
+        // las partes "de verdad" del modelo (si EMF o un paquete de animaciones las reemplaza, se usan las suyas,
+        // asi el pelo sigue a la cabeza al nadar, volar, etc.)
+        PlayerModel m = getParentModel();
+        HairRender.submit(f, ps, collector, light, part(m, "head", m.head), part(m, "body", m.body));
     }
 }

@@ -15,7 +15,7 @@ import net.minecraft.resources.Identifier;
  */
 public final class HairRender {
     /** Lo que se guarda en el estado de dibujo de cada personaje. */
-    public record Frame(Identifier skin, HairMesh mesh, HairSim sim, boolean showHat, boolean showJacket) {
+    public record Frame(Identifier skin, HairMesh mesh, HairSim sim, boolean showHat, boolean showJacket, boolean helmet) {
     }
 
     public static final RenderStateDataKey<Frame> KEY = RenderStateDataKey.create(() -> "starbody:pelo");
@@ -27,7 +27,10 @@ public final class HairRender {
         if (f == null || f.mesh() == null || f.mesh().strips.isEmpty()) {
             return;
         }
-        draw(f, ps, collector, light, head, SkinLayout.Part.HEAD);
+        if (!f.helmet()) {
+            // con casco no se dibuja el pelo de la cabeza (si no, atraviesa el casco)
+            draw(f, ps, collector, light, head, SkinLayout.Part.HEAD);
+        }
         draw(f, ps, collector, light, body, SkinLayout.Part.BODY);
     }
 

@@ -25,6 +25,8 @@ public final class StarVillagersClient implements ClientModInitializer {
                 (msg, ctx) -> ctx.client().setScreen(new FamilyTreeScreen(msg)));
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(com.starlevi.starvillagers.look.Wardrobe.Open.TYPE,
                 (msg, ctx) -> ctx.client().setScreen(new com.starlevi.starvillagers.client.library.LibraryScreen(msg.entity(), msg.name())));
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(com.starlevi.starvillagers.look.Editor.Open.TYPE,
+                (msg, ctx) -> ctx.client().setScreen(new EditorBookScreen(msg)));
         ClientPlayConnectionEvents.DISCONNECT.register((h, mc) -> mc.execute(VillagerTextures::clear));
     }
 }

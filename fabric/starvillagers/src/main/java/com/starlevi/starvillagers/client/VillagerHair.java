@@ -49,6 +49,9 @@ public final class VillagerHair {
             if (id == null) {
                 return;
             }
+            if (!v.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).isEmpty()) {
+                return; // con casco, sin pelo largo
+            }
             HairMesh mesh = mesh(id);
             if (mesh.strips.isEmpty()) {
                 return;

@@ -44,13 +44,15 @@ public final class StarVillagers implements ModInitializer {
 
     /** El anillo de compromiso (para casarse). */
     public static net.minecraft.world.item.Item RING;
+    /** El Libro de aldeanos (la ficha para editarlos). */
+    public static net.minecraft.world.item.Item BOOK;
 
     /**
      * Modelo de EMF que usan los aldeanos si tus paquetes lo traen ("player" = el de jugador de tu
      * paquete de animaciones), o "" para usar siempre el modelo de StarScenes.
      * Se cambia en config/starvillagers.json.
      */
-    public static String emfModel = "player";
+    public static String emfModel = "";
 
     /** Piel lisa (sin las sombras y manchas oscuras de la piel base). Config "piel_lisa". */
     public static boolean smoothSkin = true;
@@ -112,8 +114,16 @@ public final class StarVillagers implements ModInitializer {
         RING = net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.ITEM, ringKey,
                 new net.minecraft.world.item.Item(new net.minecraft.world.item.Item.Properties().setId(ringKey).stacksTo(16)
                         .rarity(net.minecraft.world.item.Rarity.RARE)));
+        var bookKey = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ITEM, id("libro_aldeanos"));
+        BOOK = net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.ITEM, bookKey,
+                new net.minecraft.world.item.Item(new net.minecraft.world.item.Item.Properties().setId(bookKey).stacksTo(1)
+                        .rarity(net.minecraft.world.item.Rarity.UNCOMMON)));
         net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents.modifyEntriesEvent(net.minecraft.world.item.CreativeModeTabs.INGREDIENTS)
-                .register(e -> e.accept(RING));
+                .register(e -> {
+                    e.accept(RING);
+                    e.accept(BOOK);
+                });
+        com.starlevi.starvillagers.look.Editor.init();
         com.starlevi.starvillagers.family.Family.init();
         com.starlevi.starvillagers.look.Wardrobe.init();
         ServerEntityEvents.ENTITY_LOAD.register((e, level) -> {
@@ -123,11 +133,16 @@ public final class StarVillagers implements ModInitializer {
         });
         // tocarlo: se charla (con el dialogo "aldeano"); agachado se comercia directo
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
-            if (!(entity instanceof Villager v) || hand != InteractionHand.MAIN_HAND || player.isShiftKeyDown() || v.isBaby() || v.isSleeping()
+            if (!(entity instanceof Villager v) || hand != InteractionHand.MAIN_HAND || player.isShiftKeyDown() || v.isBaby() && !player.getMainHandItem().is(BOOK) || v.isSleeping()
                     || v.isTrading() || level.isClientSide() || !(player instanceof ServerPlayer sp)) {
                 return InteractionResult.PASS;
             }
             ensure(v);
+            if (sp.getMainHandItem().is(BOOK)) {
+                // con el libro: la ficha del aldeano
+                com.starlevi.starvillagers.look.Editor.open(sp, v);
+                return InteractionResult.SUCCESS;
+            }
             if (!StarScenesAPI.interacted(sp, v) && !StarScenesAPI.talk(sp, v, "aldeano")) {
                 return InteractionResult.PASS;
             }
@@ -161,8 +176,8 @@ public final class StarVillagers implements ModInitializer {
                 Files.writeString(f, """
                         {
                           // Modelo de EMF de tus paquetes de recursos para los aldeanos ("player" = el de jugador,
-                          // con las animaciones de tu paquete). "" = usar siempre el modelo de StarScenes.
-                          "modelo_emf": "player",
+                          // con las animaciones de tu paquete). "" = el modelo de StarScenes con sus animaciones (recomendado).
+                          "modelo_emf": "",
                           // Tono de piel de los aldeanos: "clara" (todos de tez blanca o clara, por el lore del mundo)
                           // o "bioma" (como en MCA: depende del bioma, con gente de otros lados).
                           "piel": "clara",
@@ -205,7 +220,7 @@ public final class StarVillagers implements ModInitializer {
         Path f = FabricLoader.getInstance().getConfigDir().resolve("starscenes").resolve("dialogos").resolve("aldeano.json");
         try {
             // la charla vieja (sin amistad ni regalos) se guarda aparte y se pone la nueva
-            if (Files.exists(f) && !Files.readString(f, StandardCharsets.UTF_8).contains("familia:")) {
+            if (Files.exists(f) && !Files.readString(f, StandardCharsets.UTF_8).contains("%progreso%")) {
                 Files.move(f, f.resolveSibling("aldeano_viejo.json"), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (Exception ignored) {

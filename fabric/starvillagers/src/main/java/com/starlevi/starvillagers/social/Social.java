@@ -125,19 +125,87 @@ public final class Social {
         Mind m = mind(v);
         Personality pe = Personality.get(m.personality);
         Mind.Bond b = m.bond(p.getUUID());
-        String s;
         if (b.hearts < 0) {
-            s = pe.line("charla_enojado", R);
-        } else if (!b.lastGift.isEmpty() && R.nextInt(4) == 0) {
-            s = pe.line("recuerdo_regalo", R).replace("%regalo%", b.lastGift);
-        } else if (b.hits > 0 && b.hearts < 30 && R.nextInt(4) == 0) {
-            s = pe.line("recuerdo_golpe", R);
-        } else if (b.hearts >= 60 && R.nextBoolean()) {
-            s = pe.line("charla_amigo", R);
-        } else {
-            s = pe.line("charla", R);
+            return fill(pe.line("charla_enojado", R), v, p);
         }
-        return fill(s, v, p);
+        // de que habla: se arma una bolsa de temas posibles y se elige uno
+        java.util.List<String> bag = new java.util.ArrayList<>();
+        java.util.function.Consumer<String> add = k -> {
+            String x = pe.line(k, R);
+            if (!x.isEmpty()) {
+                bag.add(x);
+            }
+        };
+        add.accept("charla");
+        add.accept("charla");
+        add.accept("charla_general");
+        add.accept("charla_general");
+        add.accept("charla_oficio_" + StarVillagers.profession(v));
+        add.accept("charla_oficio_" + StarVillagers.profession(v));
+        long t = v.level().getDayTime() % 24000;
+        add.accept(t < 6000 ? "charla_manana" : t < 12000 ? "charla_tarde" : "charla_noche");
+        if (v.level().isRaining()) {
+            add.accept("charla_lluvia");
+            add.accept("charla_lluvia");
+        }
+        add.accept(moodKey(m.mood).replace("humor_", "charla_humor_"));
+        if (!b.lastGift.isEmpty()) {
+            String x = pe.line("recuerdo_regalo", R).replace("%regalo%", b.lastGift);
+            if (!x.isEmpty()) {
+                bag.add(x);
+            }
+        }
+        if (b.hits > 0 && b.hearts < 30) {
+            add.accept("recuerdo_golpe");
+        }
+        if (b.hearts >= 60) {
+            add.accept("charla_amigo");
+            add.accept("charla_amigo");
+        }
+        if (com.starlevi.starvillagers.family.Family.partners(v, p)) {
+            add.accept("charla_pareja");
+            add.accept("charla_pareja");
+        }
+        // chismes: de otro aldeano de cerca
+        java.util.List<Villager> near = v.level().getEntitiesOfClass(Villager.class, v.getBoundingBox().inflate(24), o -> o != v && StarVillagers.identity(o) != null);
+        if (!near.isEmpty()) {
+            String x = pe.line("chisme", R);
+            if (!x.isEmpty()) {
+                bag.add(x.replace("%otro%", StarVillagers.identity(near.get(R.nextInt(near.size()))).name()));
+            }
+        }
+        String pick = bag.isEmpty() ? "..." : bag.get(R.nextInt(bag.size()));
+        return fill(pick, v, p);
+    }
+
+    /** Lo que le gusta (para "¿Qué te gusta?"). */
+    private static String likes(Villager v, ServerPlayer p) {
+        Personality pe = personality(v);
+        java.util.List<String> names = new java.util.ArrayList<>();
+        for (var spec : pe.likes) {
+            names.add(spec.display().getHoverName().getString());
+        }
+        for (var spec : Personality.PROFESSION_LIKES.getOrDefault(StarVillagers.profession(v), java.util.List.of())) {
+            names.add(spec.display().getHoverName().getString());
+        }
+        java.util.Collections.shuffle(names, R);
+        String l = names.isEmpty() ? "las cosas lindas" : String.join(", ", names.subList(0, Math.min(3, names.size())));
+        return fill(pe.line("gustos", R), v, p).replace("%gustos%", l);
+    }
+
+    /** En que anda la amistad y que se desbloquea despues. */
+    private static String progress(Villager v, ServerPlayer p) {
+        int h = mind(v).hearts(p.getUUID());
+        int[] at = {20, 30, 40, 60, 70, 80, 95};
+        String[] what = {"chocar los cinco", "acariciarle la cabeza y sentarse juntos", "darse un abrazo", "tomarse de la mano, cargarlo y ser novios",
+                "que te lleve a upa", "un beso y ser novios", "casarse (con el anillo)"};
+        for (int i = 0; i < at.length; i++) {
+            if (h < at[i]) {
+                return "&7Amistad &f" + Math.max(0, h) + "&7/100 · a los &f" + at[i] + "&7: " + what[i]
+                        + ". &8(Sube charlando una vez por día, con regalos que le gusten y haciendo cosas juntos.)";
+            }
+        }
+        return "&7Amistad &f" + h + "&7/100 · ¡ya desbloqueaste todo!";
     }
 
     private static String giftName;
@@ -247,6 +315,8 @@ public final class Social {
         StarScenesAPI.registerPlaceholder("charla", (p, s) -> s instanceof Villager v ? chat(v, p) : "");
         StarScenesAPI.registerPlaceholder("humor", (p, s) -> s instanceof Villager v ? fill(personality(v).line(moodKey(mind(v).mood), R), v, p) : "");
         StarScenesAPI.registerPlaceholder("relacion", (p, s) -> s instanceof Villager v ? fill(personality(v).line(relation(mind(v).hearts(p.getUUID())), R), v, p) : "");
+        StarScenesAPI.registerPlaceholder("gustos", (p, s) -> s instanceof Villager v ? likes(v, p) : "");
+        StarScenesAPI.registerPlaceholder("progreso", (p, s) -> s instanceof Villager v ? progress(v, p) : "");
         StarScenesAPI.registerPlaceholder("reaccion", (p, s) -> REACTION.getOrDefault(p.getUUID(), ""));
         StarScenesAPI.registerPlaceholder("anim_saludo", (p, s) -> s instanceof Villager v ? greetAnim(v, p) : "");
         StarScenesAPI.registerPlaceholder("anim_charla", (p, s) -> s instanceof Villager v ? anim(personality(v), angryAt(v, p) ? "enojado" : "charla") : "");

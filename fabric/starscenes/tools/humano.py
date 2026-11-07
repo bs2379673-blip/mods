@@ -32,17 +32,17 @@ def cube(name, frm, size, uvo, inflate=0):
     return {'name': name, 'uuid': uid(name), 'type': 'cube', 'box_uv': False, 'from': [x, y, z], 'to': [x + w, y + h, z + d],
             'origin': [0, 0, 0], 'inflate': inflate, 'faces': box_faces(uvo[0], uvo[1], w, h, d)}
 
-def chest_faces(v0, e=0.02):
-    """Pecho: la cara de adelante sale del frente del cuerpo de la skin (filas del pecho)."""
+def chest_faces(v0, u0, e=0.02):
+    """Un pecho (4 px de ancho): la cara de adelante sale del frente del cuerpo de la skin."""
     r = lambda a, b, c, dd: [a + e, b + e, c - e, dd - e]
-    front = r(20, v0 + 3, 28, v0 + 7)
+    front = r(u0, v0 + 3, u0 + 4, v0 + 7)
     return {
         'north': {'uv': front, 'texture': 0},
         'south': {'uv': front, 'texture': 0},
-        'east': {'uv': r(18, v0 + 3, 20, v0 + 7), 'texture': 0},
-        'west': {'uv': r(28, v0 + 3, 30, v0 + 7), 'texture': 0},
-        'up': {'uv': [28 - e, v0 + 3 - e, 20 + e, v0 + 2 + e], 'texture': 0},
-        'down': {'uv': [28 - e, v0 + 7 + e, 20 + e, v0 + 6 - e], 'texture': 0},
+        'east': {'uv': r(u0, v0 + 3, u0 + 1, v0 + 7), 'texture': 0},
+        'west': {'uv': r(u0 + 3, v0 + 3, u0 + 4, v0 + 7), 'texture': 0},
+        'up': {'uv': [u0 + 4 - e, v0 + 3 - e, u0 + e, v0 + 2 + e], 'texture': 0},
+        'down': {'uv': [u0 + 4 - e, v0 + 7 + e, u0 + e, v0 + 6 - e], 'texture': 0},
     }
 
 def build(slim, female=False):
@@ -63,10 +63,12 @@ def build(slim, female=False):
         cube('LeftPants', (-4, 0, -2), (4, 12, 4), (0, 48), 0.25),
     ]
     if female:
-        for nm, v0, inf in (('Chest', 20, 0), ('ChestJacket', 36, 0.25)):
-            c = {'name': nm, 'uuid': uid(nm), 'type': 'cube', 'box_uv': False, 'from': [-4, 17, -4], 'to': [4, 21, -2],
-                 'origin': [0, 0, 0], 'inflate': inf, 'faces': chest_faces(v0)}
-            els.append(c)
+        # dos pechos chicos (como el Female Gender Mod): 4x4 de frente, poca profundidad, un poco para afuera
+        for side, x0, u0, ry in (('R', 0, 20, -7), ('L', -4, 24, 7)):
+            for nm, v0, inf in (('Chest' + side, 20, -0.05), ('ChestJacket' + side, 36, 0.2)):
+                c = {'name': nm, 'uuid': uid(nm), 'type': 'cube', 'box_uv': False, 'from': [x0, 17.5, -3.6], 'to': [x0 + 4, 21.5, -1.9],
+                     'origin': [x0 + 2, 21.5, -2], 'rotation': [0, ry, 0], 'inflate': inf, 'faces': chest_faces(v0, u0)}
+                els.append(c)
     e = {c['name']: c['uuid'] for c in els}
     arm_x = 4 + aw / 2
 
@@ -78,8 +80,8 @@ def build(slim, female=False):
     larm = group('left_arm', [-arm_x, 22, 0], [e['LeftArm'], e['LeftSleeve']])
     kids = [e['Body'], e['Jacket'], rarm, head, larm]
     if female:
-        chest = group('chest', [0, 21, -2], [e['Chest'], e['ChestJacket']])
-        chest['rotation'] = [17, 0, 0]
+        chest = group('chest', [0, 21.5, -2], [e['ChestR'], e['ChestJacketR'], e['ChestL'], e['ChestJacketL']])
+        chest['rotation'] = [12, 0, 0]
         kids.append(chest)
     body = group('body', [0, 12, 0], kids)
     rleg = group('right_leg', [1.9, 12, 0], [e['RightLeg'], e['RightPants']])

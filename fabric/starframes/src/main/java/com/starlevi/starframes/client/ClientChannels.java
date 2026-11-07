@@ -35,6 +35,7 @@ public final class ClientChannels {
         Net.ChannelState state;
         String url = "";
         MRL mrl;
+        long lastLog;
         MediaPlayer player;
         VideoTexture tex;
         Identifier texId;
@@ -221,6 +222,8 @@ public final class ClientChannels {
                     c.player.startPaused();
                     follow(c);
                     version++;
+                    StarFrames.LOGGER.info("StarFrames: reproductor creado para {} (fuentes {}, video {}, audio {})", c.url,
+                            c.mrl.sources() == null ? "?" : c.mrl.sources().size(), c.player.video(), c.player.audio());
                 }
                 case ERROR, BLOCKED -> {
                     if (!c.failed) {
@@ -233,6 +236,13 @@ public final class ClientChannels {
                 }
             }
             return;
+        }
+        // registro de diagnostico cada 5 s (para ver en latest.log que pasa con el video)
+        long nowMs = System.currentTimeMillis();
+        if (nowMs - c.lastLog > 5000) {
+            c.lastLog = nowMs;
+            StarFrames.LOGGER.info("StarFrames: {} estado {} tiempo {}/{} textura {} {}x{} siguiendo {} error {}", c.url, c.player.status(), c.player.time(),
+                    c.player.duration(), c.player.texture(), c.player.width(), c.player.height(), c.player.following(), c.player.exception());
         }
         // el primero que sabe cuanto dura se lo dice al servidor (el reloj lo necesita)
         if (!c.reported && (c.player.duration() > 0 || c.player.live() || c.player.playing() && c.player.duration() == 0 && c.player.texture() != 0)) {

@@ -174,7 +174,19 @@ public final class EmfRig {
     /** Las variables del personaje que leen las formulas. */
     private final class Vars implements Expr.Scope {
         Entity e;
-        float partial, limbSwing, limbSpeed, headYaw, headPitch;
+        float partial, limbSwing, limbSpeed, headYaw, headPitch, frameTime = 1 / 60f;
+
+        @Override
+        public String text(String path) {
+            if (!(this.e instanceof LivingEntity le)) {
+                return "";
+            }
+            String p = path.toLowerCase(Locale.ROOT);
+            net.minecraft.world.item.ItemStack st = p.startsWith("selecteditem") || p.contains("mainhand") ? le.getMainHandItem()
+                    : p.contains("offhand") ? le.getOffhandItem() : p.contains("head") ? le.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD)
+                    : net.minecraft.world.item.ItemStack.EMPTY;
+            return st.isEmpty() ? "" : net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(st.getItem()).toString();
+        }
 
         @Override
         public float get(String name) {
@@ -198,7 +210,7 @@ public final class EmfRig {
                 case "age" -> this.e.tickCount + this.partial;
                 case "head_yaw" -> this.headYaw;
                 case "head_pitch" -> this.headPitch;
-                case "frame_time" -> 1 / 60f;
+                case "frame_time" -> this.frameTime;
                 case "time" -> (this.e.level().getGameTime() % 24000) + this.partial;
                 case "day_time" -> this.e.level().getDayTime() % 24000;
                 case "day_count" -> (float) (this.e.level().getDayTime() / 24000);
@@ -308,6 +320,7 @@ public final class EmfRig {
         }
     }
     private Matrix4f headM;
+    private long lastNanos;
 
     /** La matriz de la cabeza del ultimo cuadro (en pixeles del modelo), o null. */
     public Matrix4f headMatrix() {
@@ -325,9 +338,12 @@ public final class EmfRig {
             if (body == null) {
                 return;
             }
-            this.chest = vanilla("starscenes_chest", 0, 3, -2, "-4,0,-2,8,4,2", 18, 21, 0);
-            this.chest.children.add(vanilla("starscenes_chest_jacket", 0, 0, 0, "-4,0,-2,8,4,2", 18, 37, 0.25f));
-            this.chest.drx = -0.3f;
+            // dos pechos chicos (como el Female Gender Mod)
+            this.chest = vanilla("starscenes_chest", 0, 2.5f, -2, "-4,0,-2,4,4,2", 18, 21, -0.05f);
+            this.chest.children.add(vanilla("starscenes_chest_l", 0, 0, 0, "0,0,-2,4,4,2", 22, 21, -0.05f));
+            this.chest.children.add(vanilla("starscenes_chest_jacket", 0, 0, 0, "-4,0,-2,4,4,2", 18, 37, 0.2f));
+            this.chest.children.add(vanilla("starscenes_chest_jacket_l", 0, 0, 0, "0,0,-2,4,4,2", 22, 37, 0.2f));
+            this.chest.drx = -0.21f;
             body.children.add(this.chest);
         }
         this.chestOn = on;
@@ -350,6 +366,10 @@ public final class EmfRig {
         Vars s = this.scope;
         s.e = e;
         s.partial = partial;
+        // el tiempo real entre cuadros de este personaje (los paquetes suavizan con esto)
+        long nowN = System.nanoTime();
+        s.frameTime = this.lastNanos == 0 ? 1 / 60f : Math.max(0.001f, Math.min(0.25f, (nowN - this.lastNanos) / 1e9f));
+        this.lastNanos = nowN;
         s.headYaw = headYaw;
         s.headPitch = headPitch;
         if (e instanceof LivingEntity le) {
@@ -378,7 +398,7 @@ public final class EmfRig {
         }
         if (this.chest != null) {
             this.chest.visible = this.chestOn;
-            this.chest.rx = -0.3f - this.chestBounce;
+            this.chest.rx = -0.21f - this.chestBounce;
         }
         for (var g : gesture.entrySet()) {
             Node n = this.byName.get(g.getKey());

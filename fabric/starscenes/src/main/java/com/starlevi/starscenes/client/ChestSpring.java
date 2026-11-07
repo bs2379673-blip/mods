@@ -20,7 +20,7 @@ final class ChestSpring {
         this.lastVy = vy;
         // al caminar, un rebote a cada paso
         this.phase += dt * 11f * Math.min(1, walkSpeed * 8);
-        float walk = (float) Math.sin(this.phase) * Math.min(1, walkSpeed * 6) * 0.9f;
+        float walk = (float) Math.sin(this.phase) * Math.min(1, walkSpeed * 6) * 1.4f;
         float force = -acc * 0.012f + walk;
         this.vel += (force - this.off * 90f - this.vel * 9f) * dt;
         this.off += this.vel * dt;
