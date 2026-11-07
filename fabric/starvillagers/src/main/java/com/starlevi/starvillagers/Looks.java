@@ -115,6 +115,19 @@ public final class Looks {
         return names.get(0);
     }
 
+    /** Todos de tez blanca o clara (config "piel": "clara"). */
+    public static boolean lightSkin = true;
+    private static final float LIGHT_MELANIN = 0.24f, LIGHT_HEMOGLOBIN = 0.2f;
+
+    /** Si la piel no entra en lo elegido, la vuelve a sortear (clara); si entra, devuelve la misma. */
+    public static Identity fitSkin(Identity id, Random r) {
+        if (!lightSkin || id.melanin() <= LIGHT_MELANIN && id.hemoglobin() <= LIGHT_HEMOGLOBIN) {
+            return id;
+        }
+        return new Identity(id.name(), id.female(), r.nextFloat() * LIGHT_MELANIN, r.nextFloat() * LIGHT_HEMOGLOBIN * 0.8f, id.eumelanin(),
+                id.pheomelanin(), id.height(), id.skin(), id.face(), id.hair(), id.clothes(), id.voice(), id.seed());
+    }
+
     private static float clamp(float x) {
         return Math.max(0, Math.min(1, x));
     }
@@ -142,6 +155,10 @@ public final class Looks {
         float melanin = clamp((r.nextFloat() - 0.5f) * 0.35f + temp * 0.4f + 0.1f);
         float hemoglobin = clamp(((r.nextFloat() - 0.5f) * 0.35f + temp * 0.4f + 0.1f) * 0.5f);
         float eu = r.nextFloat(), pheo = r.nextFloat();
+        if (lightSkin) {
+            melanin = r.nextFloat() * LIGHT_MELANIN;
+            hemoglobin = r.nextFloat() * LIGHT_HEMOGLOBIN * 0.8f;
+        }
         int skinIdx = (int) Math.min(4, Math.max(0, gene(r) * 5));
         String skin = "skin/" + g + "/" + skinIdx + ".png";
         String face = pick(folder("face/normal/" + g + "/"), r, "face/normal/" + g + "/0.png");
@@ -186,7 +203,7 @@ public final class Looks {
         String idx = parentSkin.replaceAll(".*/(\\d+)\\.png$", "$1");
         String skin = "skin/" + g + "/" + (idx.matches("\\d+") ? idx : "2") + ".png";
         Identity id = new Identity(base.name(), base.female(), mel, hem, eu, ph, base.height(), skin, base.face(), base.hair(), "", base.voice(), base.seed());
-        return id.withClothes(clothes(id, "child"));
+        return fitSkin(id.withClothes(clothes(id, "child")), r);
     }
 
     private static float mix(Random r, float x, float y) {

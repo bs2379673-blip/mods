@@ -84,6 +84,12 @@ public final class StarVillagers implements ModInitializer {
                 v.setCustomName(Component.literal(id.name()));
             }
         } else {
+            // con "piel": "clara", los que nacieron mas oscuros (de antes) se aclaran
+            Identity fixed = Looks.fitSkin(id, RANDOM);
+            if (fixed != id) {
+                ((AttachmentTarget) (Object) v).setAttached(IDENTITY, fixed);
+                id = fixed;
+            }
             String c = Looks.clothes(id, prof);
             if (!c.equals(id.clothes()) && !id.clothes().startsWith("biblioteca:")) {
                 ((AttachmentTarget) (Object) v).setAttached(IDENTITY, id.withClothes(c));
@@ -147,9 +153,20 @@ public final class StarVillagers implements ModInitializer {
                         {
                           // Modelo de EMF de tus paquetes de recursos para los aldeanos ("player" = el de jugador,
                           // con las animaciones de tu paquete). "" = usar siempre el modelo de StarScenes.
-                          "modelo_emf": "player"
+                          "modelo_emf": "player",
+                          // Tono de piel de los aldeanos: "clara" (todos de tez blanca o clara, por el lore del mundo)
+                          // o "bioma" (como en MCA: depende del bioma, con gente de otros lados).
+                          "piel": "clara"
                         }
                         """, StandardCharsets.UTF_8);
+            }
+            String txt = Files.readString(f, StandardCharsets.UTF_8);
+            if (!txt.contains("\"piel\"")) {
+                // archivo de una version anterior: se agrega la opcion
+                int end = txt.lastIndexOf('}');
+                String before = txt.substring(0, end).stripTrailing();
+                txt = before + (before.endsWith("{") ? "" : ",") + "\n  // Tono de piel: \"clara\" (todos de tez clara) o \"bioma\" (como en MCA).\n  \"piel\": \"clara\"\n}\n";
+                Files.writeString(f, txt, StandardCharsets.UTF_8);
             }
             var r = new com.google.gson.stream.JsonReader(new java.io.StringReader(Files.readString(f, StandardCharsets.UTF_8)));
             r.setStrictness(com.google.gson.Strictness.LENIENT);
@@ -157,6 +174,7 @@ public final class StarVillagers implements ModInitializer {
             if (o.has("modelo_emf")) {
                 emfModel = o.get("modelo_emf").getAsString();
             }
+            Looks.lightSkin = !o.has("piel") || !o.get("piel").getAsString().equalsIgnoreCase("bioma");
         } catch (Exception e) {
             LOGGER.warn("StarVillagers: no pude leer starvillagers.json: {}", e.toString());
         }
