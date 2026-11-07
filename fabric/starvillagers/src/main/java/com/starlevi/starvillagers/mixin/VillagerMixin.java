@@ -21,8 +21,6 @@ import java.util.List;
 @Mixin(Villager.class)
 public abstract class VillagerMixin implements SceneActor {
     @org.spongepowered.asm.mixin.Unique
-
-    @org.spongepowered.asm.mixin.Unique
     private Villager starvillagers$self() {
         return (Villager) (Object) this;
     }
