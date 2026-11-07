@@ -14,7 +14,7 @@ permissions:
   contents: write
 
 env:
-  MODS: starscenes starframes starbody starvillagers
+  MODS: starscenes starframes starbody starvillagers starfest
 
 jobs:
   build:

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "starfest",
+  "version": "${version}",
+  "name": "StarFest",
+  "description": "Conciertos y boliches: musica del servidor (sin reiniciar), luces, focos, reflectores, piso LED, cabina de DJ y fuegos artificiales que siguen el ritmo de cualquier cancion. Los NPC de StarScenes y los aldeanos de StarVillagers bailan con la musica. Propiedad de Starlevi. Todos los derechos reservados.",
+  "authors": ["Starlevi"],
+  "license": "All Rights Reserved - Starlevi (ver LICENSE.txt)",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.starlevi.starfest.StarFest"],
+    "client": ["com.starlevi.starfest.client.StarFestClient"]
+  },
+  "mixins": ["starfest.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.17.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "starscenes": "*",
+    "starvillagers": "*"
+  }
+}

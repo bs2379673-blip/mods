@@ -1,0 +1,12 @@
+{
+ "parent": "block/cube",
+ "textures": {
+  "particle": "starfest:block/piso_led",
+  "up": "starfest:block/piso_led",
+  "down": "starfest:block/piso_lado",
+  "north": "starfest:block/piso_lado",
+  "south": "starfest:block/piso_lado",
+  "east": "starfest:block/piso_lado",
+  "west": "starfest:block/piso_lado"
+ }
+}

@@ -1,0 +1,185 @@
+{
+ "parent": "block/block",
+ "textures": {
+  "particle": "starfest:block/metal",
+  "m": "starfest:block/metal",
+  "o": "starfest:block/metal_oscuro",
+  "e": "starfest:block/metal_claro"
+ },
+ "elements": [
+  {
+   "from": [
+    3,
+    0,
+    3
+   ],
+   "to": [
+    13,
+    2,
+    13
+   ],
+   "faces": {
+    "north": {
+     "texture": "#m"
+    },
+    "south": {
+     "texture": "#m"
+    },
+    "east": {
+     "texture": "#m"
+    },
+    "west": {
+     "texture": "#m"
+    },
+    "up": {
+     "texture": "#m"
+    },
+    "down": {
+     "texture": "#m"
+    }
+   }
+  },
+  {
+   "from": [
+    4,
+    2,
+    6.5
+   ],
+   "to": [
+    12,
+    3.5,
+    9.5
+   ],
+   "faces": {
+    "north": {
+     "texture": "#e"
+    },
+    "south": {
+     "texture": "#e"
+    },
+    "east": {
+     "texture": "#e"
+    },
+    "west": {
+     "texture": "#e"
+    },
+    "up": {
+     "texture": "#e"
+    },
+    "down": {
+     "texture": "#e"
+    }
+   }
+  },
+  {
+   "from": [
+    3.8,
+    3.5,
+    6.8
+   ],
+   "to": [
+    4.8,
+    9.5,
+    9.2
+   ],
+   "faces": {
+    "north": {
+     "texture": "#e"
+    },
+    "south": {
+     "texture": "#e"
+    },
+    "east": {
+     "texture": "#e"
+    },
+    "west": {
+     "texture": "#e"
+    },
+    "up": {
+     "texture": "#e"
+    },
+    "down": {
+     "texture": "#e"
+    }
+   }
+  },
+  {
+   "from": [
+    11.2,
+    3.5,
+    6.8
+   ],
+   "to": [
+    12.2,
+    9.5,
+    9.2
+   ],
+   "faces": {
+    "north": {
+     "texture": "#e"
+    },
+    "south": {
+     "texture": "#e"
+    },
+    "east": {
+     "texture": "#e"
+    },
+    "west": {
+     "texture": "#e"
+    },
+    "up": {
+     "texture": "#e"
+    },
+    "down": {
+     "texture": "#e"
+    }
+   }
+  },
+  {
+   "from": [
+    5.3,
+    4.4,
+    5.3
+   ],
+   "to": [
+    10.7,
+    11.6,
+    10.7
+   ],
+   "faces": {
+    "north": {
+     "texture": "#o"
+    },
+    "south": {
+     "texture": "#o"
+    },
+    "east": {
+     "texture": "#o"
+    },
+    "west": {
+     "texture": "#o"
+    },
+    "up": {
+     "texture": "#o"
+    },
+    "down": {
+     "texture": "#o"
+    }
+   }
+  }
+ ],
+ "display": {
+  "gui": {
+   "rotation": [
+    30,
+    225,
+    0
+   ],
+   "scale": [
+    0.8,
+    0.8,
+    0.8
+   ]
+  }
+ }
+}

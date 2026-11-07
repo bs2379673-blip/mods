@@ -550,7 +550,34 @@ public final class Life {
                 return true;
             }
         }
-        return false;
+        return starFest(v);
+    }
+
+    private static java.lang.invoke.MethodHandle festAt;
+    private static boolean festTried;
+
+    /** Musica de StarFest (boliche, escenario) donde esta el aldeano. */
+    private static boolean starFest(Villager v) {
+        if (!festTried) {
+            festTried = true;
+            if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("starfest")) {
+                try {
+                    Class<?> c = Class.forName("com.starlevi.starfest.server.ShowServer");
+                    festAt = java.lang.invoke.MethodHandles.publicLookup().findStatic(c, "playingAt", java.lang.invoke.MethodType.methodType(
+                            Class.forName("com.starlevi.starfest.server.ShowServer$Zone"), net.minecraft.resources.ResourceKey.class, BlockPos.class));
+                } catch (Throwable t) {
+                    festAt = null;
+                }
+            }
+        }
+        if (festAt == null) {
+            return false;
+        }
+        try {
+            return festAt.invoke(v.level().dimension(), v.blockPosition()) != null;
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     /** Un escalon de abajo libre (con aire arriba) cerca, que nadie use. */
