@@ -30,6 +30,10 @@ public class StarFramesTest implements FabricClientGameTest {
         ctx.runOnClient(mc -> {
             mc.options.renderDistance().set(4);
             mc.options.simulationDistance().set(5);
+            // pocos cuadros por segundo: el dibujado por software de la maquina de GitHub le roba
+            // el procesador a la generacion del mundo
+            mc.options.framerateLimit().set(20);
+            mc.options.enableVsync().set(false);
         });
         try (TestSingleplayerContext sp = ctx.worldBuilder().adjustSettings(st -> {
             st.getNormalPresetList().stream().filter(w -> w.preset().is(WorldPresets.FLAT)).findFirst()
