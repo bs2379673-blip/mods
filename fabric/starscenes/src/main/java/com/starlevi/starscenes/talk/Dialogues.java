@@ -165,6 +165,10 @@ public final class Dialogues {
             StarScenesAPI.play(sp, n.anim());
         }
         String name = sp == null ? "" : sp.getDisplayName().getString();
+        String title = sp == null ? "" : Actions.placeholder("titulo", p, sp);
+        if (!title.isEmpty()) {
+            name = name + "  " + title.replace('&', '§');
+        }
         String voice = n.voice() != null ? n.voice() : sp instanceof com.starlevi.starscenes.api.SceneActor a ? a.sceneVoice() : "simple";
         float pitch = sp instanceof com.starlevi.starscenes.api.SceneActor a ? a.sceneVoicePitch() : 1f;
         ServerPlayNetworking.send(p, new Net.Talk(s.speaker, name, Actions.fill(text, p, sp), labels, voice, pitch));

@@ -95,10 +95,25 @@ public class StarVillagersTest implements FabricClientGameTest {
             ctx.waitTicks(70);
             System.out.println("StarVillagers prueba: pantalla " + ctx.computeOnClient(mc -> mc.screen instanceof TalkScreen ? "dialogo" : String.valueOf(mc.screen)));
             ctx.takeScreenshot("s02_charla");
-            server.runOnServer(s -> Dialogues.choose(s.getPlayerList().getPlayers().get(0), 0)); // "¿Que tenes para cambiar?"
+            server.runOnServer(s -> Dialogues.choose(s.getPlayerList().getPlayers().get(0), 2)); // "¿Que tenes para cambiar?"
             ctx.waitTicks(20);
             System.out.println("StarVillagers prueba: comercio " + ctx.computeOnClient(mc -> mc.screen instanceof MerchantScreen ? "abierto" : String.valueOf(mc.screen)));
             ctx.setScreen(() -> null);
+            // amistad, regalos, humor y memoria
+            server.runOnServer(s -> {
+                ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+                Villager v = s.overworld().getEntitiesOfClass(Villager.class, new AABB(-10, -70, -10, 10, -50, 10)).get(0);
+                String before = com.starlevi.starscenes.talk.Actions.fill("%titulo%", p, v);
+                StarScenesAPI.run(p, v, java.util.List.of("charlar"));
+                p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.CAKE));
+                StarScenesAPI.run(p, v, java.util.List.of("regalar"));
+                for (String k : new String[]{"personalidad", "titulo", "reaccion", "saludo", "charla", "humor", "relacion"}) {
+                    System.out.println("StarVillagers prueba: %" + k + "% = " + com.starlevi.starscenes.talk.Actions.fill("%" + k + "%", p, v));
+                }
+                System.out.println("StarVillagers prueba: amistad antes " + before + " / despues " + com.starlevi.starvillagers.social.Social.mind(v).hearts(p.getUUID())
+                        + ", condicion amistad>=10 " + StarScenesAPI.test(p, v, "amistad:>=10") + ", personalidades " + com.starlevi.starvillagers.social.Personality.ALL.size());
+            });
+            ctx.waitTicks(5);
         }
     }
 }

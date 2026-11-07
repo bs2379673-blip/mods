@@ -1,32 +1,62 @@
 // Charla de los aldeanos de StarVillagers (se crea sola; la podés cambiar).
-// %npc% es el nombre del aldeano y %jugador% el tuyo. La acción "comerciar" abre su comercio.
+// Marcadores: %saludo% %charla% %humor% %relacion% %reaccion% %personalidad% (salen de
+// config/starvillagers/personalidades.json), %npc% y %jugador%.
+// Acciones: "comerciar", "charlar" (suma amistad una vez por día), "regalar" (le da lo que tenés en la mano),
+// "amistad:5", "humor:10". Condiciones: "amistad:>=40", "humor:<0", "personalidad:timido", "en_mano".
 {
   "inicio": "hola",
   "nodos": {
     "hola": {
-      "texto": [
-        "¡Hola, &e%jugador%&r! Soy &e%npc%&r.",
-        "Buen día, &e%jugador%&r. ¿Qué andás necesitando?",
-        "¿Qué tal, &e%jugador%&r? Lindo día, ¿no?",
-        "¡Ah, &e%jugador%&r! Justo estaba pensando en vos."
-      ],
+      "texto": ["%saludo%"],
       "opciones": [
-        {"texto": "¿Qué tenés para cambiar?", "acciones": ["comerciar"]},
+        {"texto": "Charlemos un rato", "ir": "charla"},
+        {"texto": "Te traje algo", "si": ["en_mano"], "ir": "regalo"},
         {"texto": "¿Cómo andás?", "ir": "estado"},
-        {"texto": "Contame algo del pueblo", "ir": "pueblo"},
+        {"texto": "¿Qué tenés para cambiar?", "si": ["amistad:>=0"], "acciones": ["comerciar"]},
+        {"texto": "¿Qué pensás de mí?", "ir": "relacion"},
+        {"texto": "Contame algo del pueblo", "si": ["amistad:>=0"], "ir": "pueblo"},
+        {"texto": "Perdón por lo de antes...", "si": ["amistad:<0"], "ir": "perdon"},
         {"texto": "Nada, ¡chau!", "acciones": ["animar:wave"]}
       ]
     },
-    "estado": {
-      "texto": [
-        "Bien, por suerte. Hay mucho trabajo, pero me gusta.",
-        "Un poco cansado, la verdad. Ayer trabajé hasta tarde.",
-        "¡Muy bien! Hoy amaneció hermoso.",
-        "Más o menos... pero charlar con vos ayuda."
-      ],
+    "charla": {
+      "texto": ["%charla%"],
+      "acciones": ["charlar"],
       "opciones": [
-        {"texto": "Me alegro", "ir": "hola"},
+        {"texto": "Contame más", "ir": "charla"},
+        {"texto": "Volver", "ir": "hola"},
         {"texto": "Bueno, nos vemos", "acciones": ["animar:wave"]}
+      ]
+    },
+    "regalo": {
+      "acciones": ["regalar"],
+      "texto": ["%reaccion%"],
+      "animacion": "",
+      "opciones": [
+        {"texto": "De nada", "ir": "hola"},
+        {"texto": "Chau", "acciones": ["animar:wave"]}
+      ]
+    },
+    "estado": {
+      "texto": ["%humor%"],
+      "opciones": [
+        {"texto": "Volver", "ir": "hola"},
+        {"texto": "Bueno, nos vemos", "acciones": ["animar:wave"]}
+      ]
+    },
+    "relacion": {
+      "texto": ["%relacion%"],
+      "opciones": [
+        {"texto": "Volver", "ir": "hola"},
+        {"texto": "Chau", "acciones": ["animar:wave"]}
+      ]
+    },
+    "perdon": {
+      "texto": ["Hmm... bueno. Voy a pensarlo.", "No es tan fácil... pero gracias por decirlo."],
+      "acciones": ["charlar"],
+      "opciones": [
+        {"texto": "Volver", "ir": "hola"},
+        {"texto": "Chau", "acciones": ["animar:wave"]}
       ]
     },
     "pueblo": {

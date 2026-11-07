@@ -72,6 +72,7 @@ public final class StarVillagers implements ModInitializer {
         }
         Identity id = identity(v);
         String prof = profession(v);
+        com.starlevi.starvillagers.social.Social.mind(v);
         if (id == null) {
             id = Looks.random(RANDOM, prof);
             ((AttachmentTarget) (Object) v).setAttached(IDENTITY, id);
@@ -116,6 +117,12 @@ public final class StarVillagers implements ModInitializer {
         StarScenesAPI.registerCondition("aldeana", (p, s, v) -> s instanceof Villager vil && identity(vil) != null && identity(vil).female());
         writeDialogue();
         readConfig();
+        com.starlevi.starvillagers.social.Social.init();
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(s -> {
+            if (s.getTickCount() % 1200 == 0) {
+                com.starlevi.starvillagers.social.Social.moodTick(s);
+            }
+        });
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(com.starlevi.starvillagers.server.Greetings::tick);
     }
 
@@ -145,6 +152,13 @@ public final class StarVillagers implements ModInitializer {
     /** El dialogo de charla de los aldeanos (se crea una vez; despues se puede editar). */
     private static void writeDialogue() {
         Path f = FabricLoader.getInstance().getConfigDir().resolve("starscenes").resolve("dialogos").resolve("aldeano.json");
+        try {
+            // la charla vieja (sin amistad ni regalos) se guarda aparte y se pone la nueva
+            if (Files.exists(f) && !Files.readString(f, StandardCharsets.UTF_8).contains("regalar")) {
+                Files.move(f, f.resolveSibling("aldeano_viejo.json"), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (Exception ignored) {
+        }
         if (Files.exists(f)) {
             return;
         }

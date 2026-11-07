@@ -36,8 +36,38 @@ public final class Actions {
         CONDITIONS.put(type.toLowerCase(Locale.ROOT), c);
     }
 
-    /** Reemplaza %jugador% y %npc%, y los colores con &amp;. */
+    private static final Map<String, StarScenesAPI.Placeholder> PLACEHOLDERS = new HashMap<>();
+
+    public static void registerPlaceholder(String key, StarScenesAPI.Placeholder ph) {
+        PLACEHOLDERS.put(key.toLowerCase(Locale.ROOT), ph);
+    }
+
+    /** Lo que da un %marcador% de otro mod ("" si no hay o no aplica). */
+    public static String placeholder(String key, ServerPlayer p, Entity speaker) {
+        StarScenesAPI.Placeholder ph = PLACEHOLDERS.get(key);
+        if (ph == null) {
+            return "";
+        }
+        try {
+            String v = ph.get(p, speaker);
+            return v == null ? "" : v;
+        } catch (Exception e) {
+            StarScenes.LOGGER.warn("StarScenes: fallo el marcador %{}%: {}", key, e.toString());
+            return "";
+        }
+    }
+
+    /** Reemplaza %jugador%, %npc% y los marcadores de otros mods, y los colores con &amp;. */
     public static String fill(String s, ServerPlayer p, Entity speaker) {
+        // primero los de otros mods (pueden traer %jugador% adentro)
+        for (int pass = 0; pass < 2 && s.indexOf('%') >= 0; pass++) {
+            for (String key : PLACEHOLDERS.keySet()) {
+                String k = "%" + key + "%";
+                if (s.contains(k)) {
+                    s = s.replace(k, placeholder(key, p, speaker));
+                }
+            }
+        }
         String r = s.replace("%jugador%", p.getName().getString()).replace("%player%", p.getName().getString());
         String npc = speaker == null ? "" : speaker.getDisplayName().getString();
         r = r.replace("%npc%", npc);

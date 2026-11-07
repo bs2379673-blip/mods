@@ -98,15 +98,21 @@ public final class Greetings {
             // pasaste al lado
             for (Villager v : level.getEntitiesOfClass(Villager.class, p.getBoundingBox().inflate(4.5))) {
                 String key = v.getUUID() + ":" + p.getUUID();
-                if (!free(v, now) || now - LAST.getOrDefault(key, -100000L) < 2400 || R.nextFloat() > 0.35f || !v.hasLineOfSight(p)) {
+                if (!free(v, now) || now - LAST.getOrDefault(key, -100000L) < 2400 || !v.hasLineOfSight(p)) {
+                    continue;
+                }
+                // las ganas de saludar dependen de la personalidad y de cuanto te quiere
+                int hearts = com.starlevi.starvillagers.social.Social.mind(v).hearts(p.getUUID());
+                int chance = com.starlevi.starvillagers.social.Social.personality(v).greetChance + Math.max(0, hearts) / 3;
+                if (R.nextInt(100) >= chance) {
+                    LAST.put(key, now - 1800); // si no saludo, vuelve a intentar en un rato
                     continue;
                 }
                 LAST.put(key, now);
                 BUSY.put(v.getUUID(), now + 80);
-                long day = level.getDayTime() % 24000;
-                String[] set = R.nextBoolean() ? TO_PLAYER : day < 6000 ? MORNING : day < 12000 ? AFTERNOON : day < 23000 ? NIGHT : MORNING;
-                StarScenesAPI.say(v, pick(set).replace("%jugador%", p.getName().getString()), 3.5f);
-                StarScenesAPI.play(v, "wave");
+                boolean angry = com.starlevi.starvillagers.social.Social.angryAt(v, p);
+                StarScenesAPI.say(v, com.starlevi.starvillagers.social.Social.greeting(v, p), 3.5f);
+                StarScenesAPI.play(v, angry ? "talk" : "wave");
                 LOOKS.add(new Look(v.getUUID(), p.getUUID(), now + 50));
                 break;
             }
@@ -126,9 +132,11 @@ public final class Greetings {
                     long cool = 1800 + R.nextInt(1800);
                     BUSY.put(v.getUUID(), now + cool);
                     BUSY.put(w.getUUID(), now + cool);
-                    StarScenesAPI.say(v, pick(OPEN).replace("%otro%", b.name()), 3);
+                    String open = com.starlevi.starvillagers.social.Social.personality(v).line("saludo_aldeano", R);
+                    String reply = com.starlevi.starvillagers.social.Social.personality(w).line("respuesta_aldeano", R);
+                    StarScenesAPI.say(v, (open.isEmpty() ? pick(OPEN) : open).replace("%otro%", b.name()), 3);
                     StarScenesAPI.play(v, "wave");
-                    REPLIES.add(new Reply(w.getUUID(), v.getUUID(), pick(REPLY).replace("%otro%", a.name()), now + 35));
+                    REPLIES.add(new Reply(w.getUUID(), v.getUUID(), (reply.isEmpty() ? pick(REPLY) : reply).replace("%otro%", a.name()), now + 35));
                     LOOKS.add(new Look(v.getUUID(), w.getUUID(), now + 90));
                     LOOKS.add(new Look(w.getUUID(), v.getUUID(), now + 90));
                     break;

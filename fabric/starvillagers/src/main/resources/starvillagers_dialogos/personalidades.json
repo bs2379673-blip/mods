@@ -1,0 +1,140 @@
+// Personalidades de los aldeanos de StarVillagers (se crea sola; la podés cambiar o agregar más).
+// Cada aldeano nace con una al azar. Si a una le falta un texto, usa el de "_comun".
+// %jugador% = tu nombre, %npc% = el del aldeano, %otro% = el otro aldeano, %item% = lo que regalaste,
+// %regalo% = el último regalo que le gustó. "humor_base" va de -100 a 100 y "ganas_de_saludar" de 0 a 100.
+// "le_gusta" / "no_le_gusta": ítems ("minecraft:cake") o etiquetas ("#minecraft:flowers").
+{
+  "_comun": {
+    "saludo": ["¡Hola, %jugador%!", "Buenas, %jugador%.", "¿Qué tal, %jugador%?"],
+    "saludo_manana": ["¡Buen día, %jugador%!", "¡Buen día! ¿Dormiste bien?"],
+    "saludo_tarde": ["¡Buenas tardes, %jugador%!"],
+    "saludo_noche": ["Buenas noches, %jugador%...", "¡Cuidado afuera de noche!", "Ya es tarde, ¿no?"],
+    "saludo_enojado": ["Ah... sos vos.", "¿Qué querés ahora?", "No me hables.", "Hmpf."],
+    "saludo_reencuentro": ["¡%jugador%! ¡Hace mucho que no te veía!", "¡Volviste! Te extrañaba, %jugador%."],
+    "saludo_aldeano": ["¡Hola, %otro%!", "¡Buenas, %otro%!", "¡Eh, %otro%! ¿Cómo andás?"],
+    "respuesta_aldeano": ["¡Hola, %otro%!", "¡Bien! ¿Y vos, %otro%?", "¡Todo tranqui!"],
+    "charla": ["Hoy fue un día tranquilo.", "¿Viste el cielo hoy? Hermoso.", "El pueblo está creciendo, ¿no?"],
+    "charla_enojado": ["No tengo ganas de charlar con vos.", "Todavía me acuerdo de lo que hiciste."],
+    "recuerdo_regalo": ["Todavía tengo guardado el %regalo% que me diste. ¡Gracias otra vez!", "Me acordé del %regalo% que me regalaste. Qué lindo gesto."],
+    "recuerdo_golpe": ["Me sigue doliendo el golpe de la otra vez...", "La próxima no me pegues, ¿eh?"],
+    "golpe": ["¡Ay! ¿Por qué?", "¡Eh! ¡Eso dolió!", "¡¿Qué te pasa?!", "¡Pará!"],
+
+    "humor_feliz": ["¡Re bien! Hoy es un gran día.", "¡Contentísimo! No sé por qué, pero estoy feliz."],
+    "humor_bien": ["Bien, por suerte. Mucho trabajo, pero me gusta.", "Bastante bien, gracias por preguntar."],
+    "humor_normal": ["Normal, como siempre.", "Ahí ando. Ni bien ni mal."],
+    "humor_triste": ["Un poco bajón, la verdad.", "Más o menos... no es mi mejor día."],
+    "humor_enojado": ["Mal. Muy mal. Mejor no preguntes.", "Estoy de muy mal humor hoy."],
+
+    "relacion_enemigo": ["Sinceramente... no confío en vos.", "Me hiciste daño. No me olvido fácil."],
+    "relacion_desconocido": ["Todavía no te conozco mucho, la verdad.", "Te vi un par de veces por el pueblo."],
+    "relacion_conocido": ["Me caés bien, %jugador%.", "Ya te voy conociendo. Sos buena onda."],
+    "relacion_amigo": ["¡Sos mi amigo, %jugador%!", "Me alegra que estés por acá."],
+    "relacion_buen_amigo": ["Sos de las personas que más quiero en el pueblo.", "Con vos puedo hablar de cualquier cosa."],
+    "relacion_mejor_amigo": ["¡Sos mi mejor amigo, %jugador%! No sé qué haría sin vos.", "Te quiero un montón, %jugador%."],
+
+    "regalo_nada": ["¿Mmm? No tenés nada en la mano."],
+    "regalo_demasiado": ["¡Ya me diste un montón hoy! Guardalo para otro día.", "Gracias, pero ya es mucho por hoy."],
+    "regalo_encanta": ["¡¿Un %item%?! ¡Me encanta! ¡Gracias, %jugador%!", "¡No puede ser! ¡Justo lo que quería!"],
+    "regalo_gusta": ["¡Un %item%! Qué lindo, gracias.", "¡Ay, gracias! Me viene bárbaro."],
+    "regalo_normal": ["Ah... un %item%. Gracias, supongo.", "Bueno, gracias. Lo voy a guardar."],
+    "regalo_no_gusta": ["¿Un %item%? ¡Qué asco!", "Eh... no, gracias. Esto no me gusta nada."],
+
+    "le_gusta": ["minecraft:cake", "minecraft:diamond", "minecraft:emerald", "minecraft:golden_apple", "#minecraft:flowers", "minecraft:cookie", "minecraft:pumpkin_pie"],
+    "no_le_gusta": ["minecraft:rotten_flesh", "minecraft:spider_eye", "minecraft:poisonous_potato", "minecraft:bone", "minecraft:dirt"]
+  },
+
+  "_gustos_por_oficio": {
+    "farmer": ["minecraft:bone_meal", "minecraft:wheat_seeds", "minecraft:carrot"],
+    "fisherman": ["minecraft:cod", "minecraft:salmon", "minecraft:fishing_rod"],
+    "librarian": ["minecraft:book", "minecraft:paper", "minecraft:ink_sac"],
+    "cleric": ["minecraft:glowstone_dust", "minecraft:lapis_lazuli", "minecraft:redstone"],
+    "armorer": ["minecraft:iron_ingot", "minecraft:coal"],
+    "weaponsmith": ["minecraft:iron_ingot", "minecraft:coal"],
+    "toolsmith": ["minecraft:iron_ingot", "minecraft:coal"],
+    "butcher": ["minecraft:beef", "minecraft:porkchop", "minecraft:chicken"],
+    "cartographer": ["minecraft:compass", "minecraft:paper", "minecraft:map"],
+    "fletcher": ["minecraft:stick", "minecraft:feather", "minecraft:flint"],
+    "leatherworker": ["minecraft:leather", "minecraft:rabbit_hide"],
+    "mason": ["minecraft:clay_ball", "minecraft:stone", "minecraft:quartz"],
+    "shepherd": ["#minecraft:wool", "minecraft:shears"],
+    "child": ["minecraft:cookie", "minecraft:sweet_berries", "minecraft:honey_bottle"]
+  },
+
+  "alegre": {
+    "nombre": "Alegre", "humor_base": 35, "ganas_de_saludar": 55,
+    "saludo": ["¡Hola, hola, %jugador%!", "¡%jugador%! ¡Qué lindo verte!", "¡Holaaa!"],
+    "saludo_amigo": ["¡%jugador%! ¡Mi persona favorita!", "¡Siii, vino %jugador%!"],
+    "charla": ["¿Sabías que las flores del borde del pueblo florecen todas juntas? ¡Es lo más lindo que hay!", "¡Hoy me desperté cantando! No sé por qué.", "Me encanta este pueblo. ¡Todos son tan buenos!"],
+    "charla_amigo": ["¡Cuando venís vos, el día se pone mejor!", "¡Tendríamos que hacer un picnic algún día!"],
+    "saludo_aldeano": ["¡%otro%! ¡Qué alegría verte!", "¡Holaaa, %otro%!"],
+    "respuesta_aldeano": ["¡Holaaa! ¡Qué lindo día!", "¡%otro%! ¡Igualmente!"],
+    "le_gusta": ["#minecraft:flowers", "minecraft:cake", "minecraft:sweet_berries"]
+  },
+  "timido": {
+    "nombre": "Tímido", "humor_base": 0, "ganas_de_saludar": 15,
+    "saludo": ["H-hola...", "Ah... hola, %jugador%.", "..."],
+    "saludo_amigo": ["¡Ah, %jugador%! Hola... me alegra verte.", "Hola... te estaba esperando, un poquito."],
+    "charla": ["N-no soy muy bueno charlando... perdón.", "A veces miro las estrellas solo. Es tranquilo.", "Me gusta leer... cuando nadie mira."],
+    "charla_amigo": ["Con vos no me da tanta vergüenza hablar.", "Gracias por tenerme paciencia, %jugador%."],
+    "saludo_aldeano": ["H-hola, %otro%...", "Ah... hola, %otro%."],
+    "respuesta_aldeano": ["Ah... h-hola.", "Hola... sí, bien..."],
+    "regalo_encanta": ["¿P-para mí? ¿Un %item%? ...Gracias. De verdad.", "N-no tenías que... ¡pero me encanta!"],
+    "le_gusta": ["minecraft:book", "minecraft:lantern", "minecraft:cookie"]
+  },
+  "grunon": {
+    "nombre": "Gruñón", "humor_base": -20, "ganas_de_saludar": 12,
+    "saludo": ["Hmpf. Hola.", "¿Qué querés?", "Ah. Vos."],
+    "saludo_amigo": ["Bueno... vos sí me caés bien. Hola.", "Hola, %jugador%. No se lo digas a nadie, pero me alegra verte."],
+    "charla": ["Los chicos del pueblo hacen demasiado ruido.", "En mis tiempos las cosas eran mejores.", "Otra vez llueve. Siempre llueve cuando no quiero."],
+    "charla_amigo": ["Sos de los pocos que no me sacan de quicio.", "Bueno... gracias por venir. Ya está, no lo voy a repetir."],
+    "saludo_aldeano": ["%otro%.", "Hmpf, %otro%."],
+    "respuesta_aldeano": ["Sí, sí, hola.", "¿Qué querés, %otro%?"],
+    "regalo_normal": ["Hmpf. Un %item%. ...Gracias.", "No lo necesitaba, pero bueno."],
+    "le_gusta": ["minecraft:mushroom_stew", "minecraft:iron_ingot"]
+  },
+  "amistoso": {
+    "nombre": "Amistoso", "humor_base": 20, "ganas_de_saludar": 45,
+    "saludo": ["¡Hola, %jugador%! ¿Todo bien?", "¡Buenas! ¿Cómo andás?", "¡Eh, %jugador%!"],
+    "saludo_amigo": ["¡%jugador%, amigo! ¿Cómo va todo?", "¡Che, %jugador%! Justo pensaba en vos."],
+    "charla": ["Si necesitás algo, avisame, ¿eh?", "Ayer ayudé al herrero con unas cosas. ¡Qué buena gente!", "Siempre es lindo charlar con alguien nuevo."],
+    "charla_amigo": ["Somos un buen equipo, vos y yo.", "Contá conmigo para lo que sea, %jugador%."],
+    "le_gusta": ["minecraft:bread", "minecraft:cake", "minecraft:apple"]
+  },
+  "serio": {
+    "nombre": "Serio", "humor_base": 0, "ganas_de_saludar": 25,
+    "saludo": ["Buenas, %jugador%.", "Hola.", "Buen día."],
+    "saludo_amigo": ["Hola, %jugador%. Es bueno verte.", "%jugador%. Llegás justo."],
+    "charla": ["El trabajo bien hecho es lo más importante.", "Hay que estar preparados para lo que venga.", "Prefiero los hechos a las palabras."],
+    "charla_amigo": ["Confío en vos, %jugador%. No es algo que diga seguido.", "Sos alguien de palabra. Eso se valora."],
+    "regalo_encanta": ["Un %item%. Excelente elección. Gracias.", "Esto es muy útil. Te lo agradezco de verdad."],
+    "le_gusta": ["minecraft:iron_ingot", "minecraft:book", "minecraft:clock"]
+  },
+  "coqueto": {
+    "nombre": "Coqueto", "humor_base": 25, "ganas_de_saludar": 50,
+    "saludo": ["¡Hola, %jugador%! Qué bien te ves hoy.", "Mirá quién vino... ¡hola!", "¡Hola, lindura!"],
+    "saludo_amigo": ["¡%jugador%! Justo me estaba arreglando por si venías.", "Ay, %jugador%... siempre llegás en el momento justo."],
+    "charla": ["¿Te gusta mi ropa nueva? Me la hice yo.", "Las flores me quedan bien, ¿no te parece?", "Dicen que soy lo más lindo del pueblo. Yo no digo nada..."],
+    "charla_amigo": ["Con vos el tiempo se pasa volando, %jugador%.", "¿Sabés que sos de mis personas favoritas?"],
+    "regalo_encanta": ["¡Ay, %jugador%! ¿Un %item% para mí? Me derrito.", "¡Sabía que te importaba!"],
+    "le_gusta": ["#minecraft:flowers", "minecraft:diamond", "minecraft:gold_ingot", "minecraft:amethyst_shard"]
+  },
+  "chistoso": {
+    "nombre": "Chistoso", "humor_base": 30, "ganas_de_saludar": 45,
+    "saludo": ["¡Hola, %jugador%! ¿Sabés por qué los zombis no tienen amigos? Porque siempre llegan tarde... ¡a la vida!", "¡Eh, %jugador%! ¡Vos de nuevo! ¡Qué suerte la mía!", "¡Holiii!"],
+    "saludo_amigo": ["¡%jugador%! ¡Mi público favorito!", "¡Llegó %jugador%! ¡Que empiece el show!"],
+    "charla": ["¿Qué le dijo una gallina a otra? Nada, las gallinas no hablan. ¡Ja!", "Intenté hacerle cosquillas al gólem. No se rió.", "¿Viste al creeper? Siempre tan explosivo, el pobre."],
+    "charla_amigo": ["Sos el único que se ríe de mis chistes, %jugador%.", "¡Vos y yo deberíamos hacer un show juntos!"],
+    "saludo_aldeano": ["¡%otro%! ¿Te conté el del creeper?", "¡Eh, %otro%! ¡Tengo uno nuevo!"],
+    "respuesta_aldeano": ["¡Jajaja! ¡Ay, no!", "¡No otra vez, %otro%!"],
+    "le_gusta": ["minecraft:slime_ball", "minecraft:cookie", "minecraft:carved_pumpkin"]
+  },
+  "curioso": {
+    "nombre": "Curioso", "humor_base": 15, "ganas_de_saludar": 40,
+    "saludo": ["¡Hola, %jugador%! ¿De dónde venís?", "¡%jugador%! ¿Qué tenés ahí?", "¡Hola! ¿Viste algo interesante hoy?"],
+    "saludo_amigo": ["¡%jugador%! ¡Contame tus aventuras!", "¡Volviste! ¿Encontraste algo nuevo?"],
+    "charla": ["¿Sabías que abajo de la tierra hay cuevas enormes? Algún día quiero verlas.", "Me pregunto qué hay más allá de las montañas...", "¿Las arañas duermen? Siempre me lo pregunto."],
+    "charla_amigo": ["¡Me encanta escuchar lo que hacés, %jugador%!", "Algún día llevame de aventura, ¿sí?"],
+    "regalo_encanta": ["¡¿Un %item%?! ¡Fascinante! ¿De dónde lo sacaste?", "¡Wow! ¡Lo voy a estudiar toda la noche!"],
+    "le_gusta": ["minecraft:compass", "minecraft:map", "minecraft:spyglass", "minecraft:amethyst_shard", "minecraft:nautilus_shell"]
+  }
+}

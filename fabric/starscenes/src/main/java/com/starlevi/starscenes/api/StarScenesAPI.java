@@ -35,6 +35,20 @@ public final class StarScenesAPI {
         boolean test(ServerPlayer player, Entity speaker, String value);
     }
 
+    /** Un %marcador% para los textos de dialogos (por ejemplo los corazones de amistad). */
+    @FunctionalInterface
+    public interface Placeholder {
+        String get(ServerPlayer player, Entity speaker);
+    }
+
+    /**
+     * Registra un %marcador% para los textos. El marcador especial "titulo" se muestra al lado del
+     * nombre del que habla (por ejemplo, los corazones).
+     */
+    public static void registerPlaceholder(String key, Placeholder placeholder) {
+        com.starlevi.starscenes.talk.Actions.registerPlaceholder(key, placeholder);
+    }
+
     /** Alguien toco un NPC (o una entidad de otro mod que avise con {@link #interacted}). */
     @FunctionalInterface
     public interface Interact {
