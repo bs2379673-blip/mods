@@ -323,6 +323,7 @@ public final class Social {
         StarScenesAPI.registerPlaceholder("anim_humor", (p, s) -> s instanceof Villager v ? anim(personality(v), moodKey(mind(v).mood)) : "");
         StarScenesAPI.registerPlaceholder("anim_relacion", (p, s) -> s instanceof Villager v ? anim(personality(v), relation(mind(v).hearts(p.getUUID()))) : "");
         StarScenesAPI.registerPlaceholder("personalidad", (p, s) -> s instanceof Villager v ? personality(v).name : "");
+        Requests.init(REACTION);
         // acciones
         StarScenesAPI.registerAction("charlar", (p, s, val) -> {
             if (s instanceof Villager v) {

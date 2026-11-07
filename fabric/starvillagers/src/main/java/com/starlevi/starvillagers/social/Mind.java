@@ -24,6 +24,8 @@ public final class Mind {
         public long lastSeen = -1;  // dia
         public long togetherDay = -1;
         public String togetherDone = ""; // lo que hicieron juntos hoy ("abrazar,mano")
+        public String request = "";       // lo que te pidio que le traigas ("minecraft:bread 5"), o ""
+        public long requestDay = -100;     // el dia que te lo pidio (o el ultimo que se lo trajiste)
 
         public static final Codec<Bond> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.INT.optionalFieldOf("corazones", 0).forGetter(b -> b.hearts),
@@ -34,8 +36,10 @@ public final class Mind {
                 Codec.INT.optionalFieldOf("golpes", 0).forGetter(b -> b.hits),
                 Codec.LONG.optionalFieldOf("visto", -1L).forGetter(b -> b.lastSeen),
                 Codec.LONG.optionalFieldOf("juntos_dia", -1L).forGetter(b -> b.togetherDay),
-                Codec.STRING.optionalFieldOf("juntos", "").forGetter(b -> b.togetherDone)
-        ).apply(i, (h, c, gd, gt, lg, hi, ls, td, tg) -> {
+                Codec.STRING.optionalFieldOf("juntos", "").forGetter(b -> b.togetherDone),
+                Codec.STRING.optionalFieldOf("pedido", "").forGetter(b -> b.request),
+                Codec.LONG.optionalFieldOf("pedido_dia", -100L).forGetter(b -> b.requestDay)
+        ).apply(i, (h, c, gd, gt, lg, hi, ls, td, tg, rq, rd) -> {
             Bond b = new Bond();
             b.hearts = h;
             b.lastChat = c;
@@ -46,6 +50,8 @@ public final class Mind {
             b.lastSeen = ls;
             b.togetherDay = td;
             b.togetherDone = tg;
+            b.request = rq;
+            b.requestDay = rd;
             return b;
         }));
     }

@@ -161,6 +161,7 @@ public final class StarVillagers implements ModInitializer {
         readConfig();
         com.starlevi.starvillagers.social.Social.init();
         com.starlevi.starvillagers.social.Together.init();
+        com.starlevi.starvillagers.life.Life.init();
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(s -> {
             if (s.getTickCount() % 1200 == 0) {
                 com.starlevi.starvillagers.social.Social.moodTick(s);
@@ -220,7 +221,7 @@ public final class StarVillagers implements ModInitializer {
         Path f = FabricLoader.getInstance().getConfigDir().resolve("starscenes").resolve("dialogos").resolve("aldeano.json");
         try {
             // la charla vieja (sin amistad ni regalos) se guarda aparte y se pone la nueva
-            if (Files.exists(f) && !Files.readString(f, StandardCharsets.UTF_8).contains("%progreso%")) {
+            if (Files.exists(f) && !Files.readString(f, StandardCharsets.UTF_8).contains("pedido:pedir")) {
                 Files.move(f, f.resolveSibling("aldeano_viejo.json"), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (Exception ignored) {

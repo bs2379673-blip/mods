@@ -15,9 +15,16 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    // EMF solo para compilar el gancho de gestos (si no esta instalado, no se usa)
-    if (file('libs/emf.jar').exists()) {
-        modCompileOnly files('libs/emf.jar', 'libs/etf.jar')
+}
+
+// Moldes minimos de la API de EMF (solo para compilar el gancho de gestos; no van en el jar: en el juego
+// se usan las clases de verdad de EMF, si esta instalado)
+sourceSets {
+    emfstubs {
+        compileClasspath += sourceSets.main.compileClasspath
+    }
+    main {
+        compileClasspath += sourceSets.emfstubs.output
     }
 }
 

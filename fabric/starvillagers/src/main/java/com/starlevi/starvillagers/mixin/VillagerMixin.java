@@ -110,4 +110,10 @@ public abstract class VillagerMixin implements SceneActor {
             com.starlevi.starvillagers.family.Family.born(child, (Villager) (Object) this, o, null);
         }
     }
+
+    @org.spongepowered.asm.mixin.injection.Inject(method = "pickUpItem", at = @org.spongepowered.asm.mixin.injection.At("HEAD"))
+    private void starvillagers$pickup(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.item.ItemEntity item,
+                                      org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        com.starlevi.starvillagers.life.Life.pickedUp((Villager) (Object) this);
+    }
 }

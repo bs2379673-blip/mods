@@ -55,7 +55,7 @@ public final class EmfGestureHook extends EMFAnimationApi.EMFAnimationHook {
             }
             EMFModelPartRoot root = context.animatingModelRoot();
             Map<String, EMFModelPartVanilla> parts = root.getAllVanillaPartsByNameEMF();
-            PlayerGestures.apply(id, name -> (ModelPart) parts.get(name));
+            PlayerGestures.apply(id, name -> (ModelPart) (Object) parts.get(name));
         } catch (Throwable ignored) {
             // un error aca no tiene que apagar las animaciones del paquete
         }

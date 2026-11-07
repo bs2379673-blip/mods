@@ -44,11 +44,6 @@ jobs:
           unzip -p fabric/starframes/libs/watermedia.jar "META-INF/jarjar/waterconfig-*.jar" > fabric/starframes/libs/waterconfig.jar
           ls -la fabric/starframes/libs
           echo "::notice::$(tr '\n' '|' < wm.txt)"
-      - name: Bajar EMF (para que los gestos de StarScenes anden con paquetes de animaciones)
-        run: |
-          python3 fabric/tools/bajar_modrinth.py entity-model-features 1.21.11 fabric/starscenes/libs emf.jar
-          python3 fabric/tools/bajar_modrinth.py entitytexturefeatures 1.21.11 fabric/starscenes/libs etf.jar
-          ls -la fabric/starscenes/libs
       - name: Compilar
         run: |
           set -o pipefail

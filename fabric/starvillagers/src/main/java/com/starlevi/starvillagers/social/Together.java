@@ -26,21 +26,22 @@ import java.util.UUID;
  * de jugador de StarScenes). Se piden desde la charla con la accion "juntos:chocar|abrazar|mano|besar".
  */
 public final class Together {
-    enum Mode { FACE, HAND, SIT, CARRY, CARRIED }
+    enum Mode { FACE, HAND, SIT, CARRY, CARRIED, MOVIE }
 
     /** anim = la del aldeano, playerAnim = la tuya ("" = ninguna). */
     private record Kind(String id, Mode mode, int hearts, int gain, String anim, String playerAnim, double dist, int ticks, ParticleOptions particle) {
     }
 
-    private static final Map<String, Kind> KINDS = Map.of(
-            "chocar", new Kind("chocar", Mode.FACE, 20, 2, "high_five", "high_five", 0.95, 30, ParticleTypes.HAPPY_VILLAGER),
-            "acariciar", new Kind("acariciar", Mode.FACE, 30, 2, "", "pat", 0.75, 36, ParticleTypes.HEART),
-            "sentarse", new Kind("sentarse", Mode.SIT, 30, 3, "sit_ground", "sit_ground", 0, 12000, ParticleTypes.HAPPY_VILLAGER),
-            "abrazar", new Kind("abrazar", Mode.FACE, 40, 4, "hug", "hug", 0.62, 54, ParticleTypes.HEART),
-            "mano", new Kind("mano", Mode.HAND, 60, 3, "hold_left", "hold_right", 0, 6000, ParticleTypes.HEART),
-            "cargar", new Kind("cargar", Mode.CARRY, 60, 3, "carried", "carry", 0, 6000, ParticleTypes.HEART),
-            "que_me_cargue", new Kind("que_me_cargue", Mode.CARRIED, 70, 3, "carry", "carried", 0, 6000, ParticleTypes.HEART),
-            "besar", new Kind("besar", Mode.FACE, 80, 5, "kiss", "kiss", 0.55, 50, ParticleTypes.HEART));
+    private static final Map<String, Kind> KINDS = Map.ofEntries(
+            Map.entry("chocar", new Kind("chocar", Mode.FACE, 20, 2, "high_five", "high_five", 0.95, 30, ParticleTypes.HAPPY_VILLAGER)),
+            Map.entry("acariciar", new Kind("acariciar", Mode.FACE, 30, 2, "", "pat", 0.75, 36, ParticleTypes.HEART)),
+            Map.entry("sentarse", new Kind("sentarse", Mode.SIT, 30, 3, "sit_ground", "sit_ground", 0, 12000, ParticleTypes.HAPPY_VILLAGER)),
+            Map.entry("abrazar", new Kind("abrazar", Mode.FACE, 40, 4, "hug", "hug", 0.62, 54, ParticleTypes.HEART)),
+            Map.entry("mano", new Kind("mano", Mode.HAND, 60, 3, "hold_left", "hold_right", 0, 6000, ParticleTypes.HEART)),
+            Map.entry("cargar", new Kind("cargar", Mode.CARRY, 60, 3, "carried", "carry", 0, 6000, ParticleTypes.HEART)),
+            Map.entry("que_me_cargue", new Kind("que_me_cargue", Mode.CARRIED, 70, 3, "carry", "carried", 0, 6000, ParticleTypes.HEART)),
+            Map.entry("besar", new Kind("besar", Mode.FACE, 80, 5, "kiss", "kiss", 0.55, 50, ParticleTypes.HEART)),
+            Map.entry("peli", new Kind("peli", Mode.MOVIE, 30, 4, "sit_ground", "sit_ground", 0, 24000, ParticleTypes.HAPPY_VILLAGER)));
 
     /** Para los puntos de montura: el aldeano que llevas en brazos, o el que te lleva. */
     public static boolean carrying(net.minecraft.world.entity.Entity vehicle, net.minecraft.world.entity.Entity passenger) {
@@ -57,6 +58,7 @@ public final class Together {
         boolean noAi;
         int refresh;
         Vec3 at;
+        Vec3 screen;
     }
 
     private static final Map<UUID, Job> JOBS = new HashMap<>();
@@ -147,6 +149,25 @@ public final class Together {
                 v.setYHeadRot(p.getYRot());
                 gestures(j, p, true);
             }
+            case MOVIE -> {
+                // una pantalla de StarFrames cerca: se sientan los dos mirandola
+                Vec3 sc = screenNear(p);
+                if (sc == null) {
+                    JOBS.remove(v.getUUID());
+                    v.setNoAi(j.noAi);
+                    StarScenesAPI.say(v, line(v, p, "juntos_peli_sin_pantalla"), 3);
+                    return;
+                }
+                j.screen = sc;
+                Vec3 to = sc.subtract(p.position());
+                float yaw = (float) Math.toDegrees(Math.atan2(-to.x, to.z));
+                Vec3 fwd = Vec3.directionFromRotation(0, yaw);
+                Vec3 at = p.position().add(new Vec3(-fwd.z, 0, fwd.x).scale(0.85));
+                v.snapTo(at.x, p.getY(), at.z, yaw, 0);
+                v.setYBodyRot(yaw);
+                v.setYHeadRot(yaw);
+                gestures(j, p, true);
+            }
             case CARRY -> {
                 v.startRiding(p, true, true);
                 gestures(j, p, true);
@@ -197,6 +218,33 @@ public final class Together {
             StarScenesAPI.play(j.v, j.kind.anim());
             StarScenesAPI.playerGesture(p, j.kind.playerAnim(), 3);
         }
+    }
+
+    /** El centro de la pantalla de StarFrames mas cercana (a menos de 24 bloques), o null. */
+    private static Vec3 screenNear(ServerPlayer p) {
+        net.minecraft.server.level.ServerLevel level = p.level();
+        int cx = p.blockPosition().getX() >> 4, cz = p.blockPosition().getZ() >> 4;
+        Vec3 best = null;
+        double bd = 24 * 24;
+        for (int x = cx - 2; x <= cx + 2; x++) {
+            for (int z = cz - 2; z <= cz + 2; z++) {
+                if (!level.hasChunk(x, z)) {
+                    continue;
+                }
+                for (var be : level.getChunk(x, z).getBlockEntities().values()) {
+                    var key = net.minecraft.core.registries.BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(be.getType());
+                    if (key != null && key.getNamespace().equals("starframes")) {
+                        Vec3 c = Vec3.atCenterOf(be.getBlockPos());
+                        double d = c.distanceToSqr(p.position());
+                        if (d < bd) {
+                            bd = d;
+                            best = c;
+                        }
+                    }
+                }
+            }
+        }
+        return best;
     }
 
     public static void stop(Villager v) {
@@ -251,7 +299,7 @@ public final class Together {
                         follow(j, p, false);
                     }
                 }
-                case SIT -> {
+                case SIT, MOVIE -> {
                     // te levantas al moverte
                     if (p.isShiftKeyDown() || p.position().distanceTo(j.at) > 0.6 || p.isPassenger()) {
                         stop(v);

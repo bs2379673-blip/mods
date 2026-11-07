@@ -7,7 +7,8 @@
 // la mano, cargar y sentarse se terminan agachándote; de upa te bajás como de cualquier montura).
 // "familia:noviazgo|casamiento|hijo|terminar|arbol" (casarse pide el Anillo de compromiso en la mano: diamante arriba y 5 de oro).
 // "vestir" abre la biblioteca de skins de MCA para cambiarle ropa o pelo (admins, creativo o su esposo/a).
-// Condiciones: "puede_vestir", "pareja", "novios", "casados", "libre", "tiene_anillo", "puede_tener_hijo", "amistad:>=40", "humor:<0", "personalidad:timido", "en_mano".
+// "pedido:pedir|entregar" (pedidos chicos, uno por día). "juntos:peli" se sientan a mirar una pantalla de StarFrames.
+// Condiciones: "pedido_libre", "pedido_listo", "pedido_activo", "puede_vestir", "pareja", "novios", "casados", "libre", "tiene_anillo", "puede_tener_hijo", "amistad:>=40", "humor:<0", "personalidad:timido", "en_mano".
 {
   "inicio": "hola",
   "nodos": {
@@ -17,8 +18,8 @@
       "opciones": [
         {"texto": "Charlemos un rato", "ir": "charla"},
         {"texto": "Te traje algo (lo que tengo en la mano)", "ir": "regalo"},
-        {"texto": "¿Qué cosas te gustan?", "ir": "gustos"},
-        {"texto": "¿Cómo andás?", "ir": "estado"},
+        {"texto": "¿Necesitás algo?", "si": ["pedido_libre"], "ir": "pedido"},
+        {"texto": "¡Te traje lo que pediste!", "si": ["pedido_listo"], "ir": "pedido_ok"},
         {"texto": "¿Qué tenés para cambiar?", "si": ["amistad:>=0"], "acciones": ["comerciar"]},
         {"texto": "Hablemos de nosotros...", "ir": "nosotros"},
         {"texto": "Hagamos algo juntos", "si": ["amistad:>=20"], "ir": "juntos"},
@@ -32,6 +33,8 @@
       "acciones": ["charlar"],
       "opciones": [
         {"texto": "Contame más", "ir": "charla"},
+        {"texto": "¿Cómo andás?", "ir": "estado"},
+        {"texto": "¿Qué cosas te gustan?", "ir": "gustos"},
         {"texto": "Volver", "ir": "hola"},
         {"texto": "Bueno, nos vemos", "acciones": ["animar:wave"]}
       ]
@@ -42,6 +45,23 @@
       "animacion": "",
       "opciones": [
         {"texto": "De nada", "ir": "hola"},
+        {"texto": "Chau", "acciones": ["animar:wave"]}
+      ]
+    },
+    "pedido": {
+      "acciones": ["pedido:pedir"],
+      "texto": ["%reaccion%"],
+      "opciones": [
+        {"texto": "¡Dale, te lo consigo!", "ir": "hola"},
+        {"texto": "Chau", "acciones": ["animar:wave"]}
+      ]
+    },
+    "pedido_ok": {
+      "acciones": ["pedido:entregar"],
+      "texto": ["%reaccion%"],
+      "animacion": "",
+      "opciones": [
+        {"texto": "¡De nada!", "ir": "hola"},
         {"texto": "Chau", "acciones": ["animar:wave"]}
       ]
     },
@@ -81,6 +101,7 @@
         {"texto": "¡Chocá esos cinco!", "acciones": ["juntos:chocar"]},
         {"texto": "*Le acariciás la cabeza*", "si": ["amistad:>=30"], "acciones": ["juntos:acariciar"]},
         {"texto": "Sentémonos un rato", "si": ["amistad:>=30"], "acciones": ["juntos:sentarse"]},
+        {"texto": "Miremos una peli (pantalla cerca)", "si": ["amistad:>=30"], "acciones": ["juntos:peli"]},
         {"texto": "¿Un abrazo?", "si": ["amistad:>=40"], "acciones": ["juntos:abrazar"]},
         {"texto": "Más cosas...", "si": ["amistad:>=60"], "ir": "juntos2"},
         {"texto": "Volver", "ir": "hola"}
