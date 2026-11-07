@@ -90,7 +90,9 @@ public final class Social {
         Mind.Bond b = m.bond(p.getUUID());
         long today = day(v);
         String key;
-        if (b.hearts < 0) {
+        if (com.starlevi.starvillagers.family.Family.partners(v, p) && b.hearts >= 0) {
+            key = "saludo_pareja";
+        } else if (b.hearts < 0) {
             key = "saludo_enojado";
         } else if (b.lastSeen >= 0 && today - b.lastSeen >= 5 && b.hearts >= 20) {
             key = "saludo_reencuentro";
@@ -230,7 +232,13 @@ public final class Social {
     public static void init() {
         ServerLifecycleEvents.SERVER_STARTING.register(s -> Personality.load());
         // marcadores para los dialogos
-        StarScenesAPI.registerPlaceholder("titulo", (p, s) -> s instanceof Villager v && StarVillagers.identity(v) != null ? hearts(mind(v).hearts(p.getUUID())) : "");
+        StarScenesAPI.registerPlaceholder("titulo", (p, s) -> {
+            if (!(s instanceof Villager v) || StarVillagers.identity(v) == null) {
+                return "";
+            }
+            String role = com.starlevi.starvillagers.family.Family.role(v, p);
+            return hearts(mind(v).hearts(p.getUUID())) + (role.isEmpty() ? "" : " &d(" + role + ")");
+        });
         StarScenesAPI.registerPlaceholder("saludo", (p, s) -> s instanceof Villager v ? greeting(v, p) : "");
         StarScenesAPI.registerPlaceholder("charla", (p, s) -> s instanceof Villager v ? chat(v, p) : "");
         StarScenesAPI.registerPlaceholder("humor", (p, s) -> s instanceof Villager v ? fill(personality(v).line(moodKey(mind(v).mood), R), v, p) : "");

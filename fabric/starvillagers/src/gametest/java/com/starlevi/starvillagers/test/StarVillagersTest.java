@@ -160,6 +160,43 @@ public class StarVillagersTest implements FabricClientGameTest {
                 }));
                 ctx.waitTicks(40);
             }
+            // cuerpo de mujer y pelo largo con fisicas (StarBody)
+            System.out.println("StarVillagers prueba: cuerpo y pelo " + ctx.computeOnClient(mc -> {
+                StringBuilder b = new StringBuilder();
+                for (var e : mc.level.entitiesForRendering()) {
+                    if (e instanceof Villager v && com.starlevi.starvillagers.StarVillagers.identity(v) != null) {
+                        var id = com.starlevi.starvillagers.StarVillagers.identity(v);
+                        b.append(id.name()).append(id.female() ? "(m" : "(h").append(", modelo ").append(((com.starlevi.starscenes.api.SceneActor) v).sceneModel())
+                                .append(", tiras ").append(com.starlevi.starvillagers.client.VillagerHair.strips(id)).append(") ");
+                    }
+                }
+                return b.toString();
+            }));
+            // familia: noviazgo, casamiento con anillo, un bebe y el arbol
+            server.runOnServer(s -> {
+                ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+                Villager v = s.overworld().getEntitiesOfClass(Villager.class, new AABB(-10, -70, -10, 10, -50, 10), x -> !x.isBaby()).get(0);
+                StarScenesAPI.run(p, v, java.util.List.of("amistad:100", "familia:noviazgo"));
+                p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(com.starlevi.starvillagers.StarVillagers.RING));
+                StarScenesAPI.run(p, v, java.util.List.of("familia:casamiento"));
+                int before = s.overworld().getEntitiesOfClass(Villager.class, new AABB(-20, -70, -20, 20, -50, 20), Villager::isBaby).size();
+                StarScenesAPI.run(p, v, java.util.List.of("familia:hijo"));
+                int after = s.overworld().getEntitiesOfClass(Villager.class, new AABB(-20, -70, -20, 20, -50, 20), Villager::isBaby).size();
+                System.out.println("StarVillagers prueba: familia casados " + StarScenesAPI.test(p, v, "casados") + ", bebes " + before + " -> " + after
+                        + ", arbol " + com.starlevi.starvillagers.family.Family.tree(v.getUUID()).size() + " personas, titulo "
+                        + com.starlevi.starscenes.talk.Actions.fill("%titulo%", p, v));
+                com.starlevi.starvillagers.family.Family.send(p, v.getUUID());
+            });
+            ctx.waitTicks(10);
+            System.out.println("StarVillagers prueba: pantalla del arbol " + ctx.computeOnClient(mc -> mc.screen instanceof com.starlevi.starvillagers.client.FamilyTreeScreen));
+            ctx.setScreen(() -> null);
+            // biblioteca de skins de MCA
+            try {
+                var l = com.starlevi.starvillagers.client.library.Library.list("clothing", "", "likes", 0, 3).get(30, java.util.concurrent.TimeUnit.SECONDS);
+                System.out.println("StarVillagers prueba: biblioteca " + (l == null ? "sin conexion" : l.size() + " skins" + (l.isEmpty() ? "" : ", la primera: " + l.get(0).title())));
+            } catch (Exception e) {
+                System.out.println("StarVillagers prueba: biblioteca fallo " + e);
+            }
         }
     }
 }

@@ -77,4 +77,9 @@ public interface SceneActor {
     default ItemStack sceneItem(int slot) {
         return ItemStack.EMPTY;
     }
+
+    /** Si tiene pecho (cuerpo de mujer); se dibuja tambien con el modelo de EMF, con rebote. */
+    default boolean sceneChest() {
+        return false;
+    }
 }

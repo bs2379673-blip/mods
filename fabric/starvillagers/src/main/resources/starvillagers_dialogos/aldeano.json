@@ -3,8 +3,11 @@
 // config/starvillagers/personalidades.json), %npc% y %jugador%.
 // Acciones: "comerciar", "charlar" (suma amistad una vez por día), "regalar" (le da lo que tenés en la mano),
 // "amistad:5", "humor:10". "animacion" puede usar %anim_saludo% %anim_charla% %anim_humor% %anim_relacion%.
-// "juntos:chocar|abrazar|mano|besar" (necesitan 20/40/60/80 de amistad; la mano se suelta agachándote).
-// Condiciones: "amistad:>=40", "humor:<0", "personalidad:timido", "en_mano".
+// "juntos:chocar|acariciar|sentarse|abrazar|mano|cargar|que_me_cargue|besar" (piden 20/30/30/40/60/60/70/80 de amistad;
+// la mano, cargar y sentarse se terminan agachándote; de upa te bajás como de cualquier montura).
+// "familia:noviazgo|casamiento|hijo|terminar|arbol" (casarse pide el Anillo de compromiso en la mano: diamante arriba y 5 de oro).
+// "vestir" abre la biblioteca de skins de MCA para cambiarle ropa o pelo (admins, creativo o su esposo/a).
+// Condiciones: "puede_vestir", "pareja", "novios", "casados", "libre", "tiene_anillo", "puede_tener_hijo", "amistad:>=40", "humor:<0", "personalidad:timido", "en_mano".
 {
   "inicio": "hola",
   "nodos": {
@@ -16,7 +19,7 @@
         {"texto": "Te traje algo", "si": ["en_mano"], "ir": "regalo"},
         {"texto": "¿Cómo andás?", "ir": "estado"},
         {"texto": "¿Qué tenés para cambiar?", "si": ["amistad:>=0"], "acciones": ["comerciar"]},
-        {"texto": "¿Qué pensás de mí?", "ir": "relacion"},
+        {"texto": "Hablemos de nosotros...", "ir": "nosotros"},
         {"texto": "Hagamos algo juntos", "si": ["amistad:>=20"], "ir": "juntos"},
         {"texto": "Contame algo del pueblo", "si": ["amistad:>=0"], "ir": "pueblo"},
         {"texto": "Perdón por lo de antes...", "si": ["amistad:<0"], "ir": "perdon"},
@@ -62,10 +65,42 @@
       "texto": ["¿Qué tenés ganas de hacer?", "¡Dale! ¿Qué hacemos?"],
       "opciones": [
         {"texto": "¡Chocá esos cinco!", "acciones": ["juntos:chocar"]},
+        {"texto": "*Le acariciás la cabeza*", "si": ["amistad:>=30"], "acciones": ["juntos:acariciar"]},
+        {"texto": "Sentémonos un rato", "si": ["amistad:>=30"], "acciones": ["juntos:sentarse"]},
         {"texto": "¿Un abrazo?", "si": ["amistad:>=40"], "acciones": ["juntos:abrazar"]},
-        {"texto": "¿Me das la mano? Vamos a pasear", "si": ["amistad:>=60"], "acciones": ["juntos:mano"]},
-        {"texto": "Un beso...", "si": ["amistad:>=80"], "acciones": ["juntos:besar"]},
+        {"texto": "Más cosas...", "si": ["amistad:>=60"], "ir": "juntos2"},
         {"texto": "Volver", "ir": "hola"}
+      ]
+    },
+    "juntos2": {
+      "texto": ["¿Algo más especial?", "Mmm... ¿qué se te ocurre?"],
+      "opciones": [
+        {"texto": "¿Me das la mano? Vamos a pasear", "si": ["amistad:>=60"], "acciones": ["juntos:mano"]},
+        {"texto": "¡Te cargo!", "si": ["amistad:>=60"], "acciones": ["juntos:cargar"]},
+        {"texto": "¿Me llevás a upa?", "si": ["amistad:>=70"], "acciones": ["juntos:que_me_cargue"]},
+        {"texto": "Un beso...", "si": ["amistad:>=80"], "acciones": ["juntos:besar"]},
+        {"texto": "Volver", "ir": "juntos"}
+      ]
+    },
+    "nosotros": {
+      "texto": ["¿Sí? ¿Qué pasa?", "Te escucho."],
+      "opciones": [
+        {"texto": "¿Qué pensás de mí?", "ir": "relacion"},
+        {"texto": "¿Querés salir conmigo?", "si": ["libre", "amistad:>=80"], "acciones": ["familia:noviazgo"]},
+        {"texto": "¿Te querés casar conmigo?", "si": ["novios", "tiene_anillo"], "acciones": ["familia:casamiento"]},
+        {"texto": "¿Y si tenemos un bebé?", "si": ["puede_tener_hijo"], "acciones": ["familia:hijo"]},
+        {"texto": "Contame de tu familia", "acciones": ["familia:arbol"]},
+        {"texto": "¿Te cambio la ropa o el pelo?", "si": ["puede_vestir"], "acciones": ["vestir"]},
+        {"texto": "Creo que deberíamos terminar...", "si": ["pareja"], "ir": "terminar"},
+        {"texto": "Volver", "ir": "hola"}
+      ]
+    },
+    "terminar": {
+      "texto": ["¿Q-qué...? ¿Lo decís en serio?", "Esperá... ¿qué?"],
+      "animacion": "sad",
+      "opciones": [
+        {"texto": "Sí... perdón", "acciones": ["familia:terminar"]},
+        {"texto": "No, no, olvidate", "ir": "hola"}
       ]
     },
     "perdon": {

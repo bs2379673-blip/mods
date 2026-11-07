@@ -26,14 +26,28 @@ import java.util.UUID;
  * de jugador de StarScenes). Se piden desde la charla con la accion "juntos:chocar|abrazar|mano|besar".
  */
 public final class Together {
-    private record Kind(String id, int hearts, int gain, String anim, double dist, int ticks, ParticleOptions particle) {
+    enum Mode { FACE, HAND, SIT, CARRY, CARRIED }
+
+    /** anim = la del aldeano, playerAnim = la tuya ("" = ninguna). */
+    private record Kind(String id, Mode mode, int hearts, int gain, String anim, String playerAnim, double dist, int ticks, ParticleOptions particle) {
     }
 
     private static final Map<String, Kind> KINDS = Map.of(
-            "chocar", new Kind("chocar", 20, 2, "high_five", 0.95, 30, ParticleTypes.HAPPY_VILLAGER),
-            "abrazar", new Kind("abrazar", 40, 4, "hug", 0.62, 54, ParticleTypes.HEART),
-            "besar", new Kind("besar", 80, 5, "kiss", 0.55, 50, ParticleTypes.HEART),
-            "mano", new Kind("mano", 60, 3, "hold_left", 0, 6000, ParticleTypes.HEART));
+            "chocar", new Kind("chocar", Mode.FACE, 20, 2, "high_five", "high_five", 0.95, 30, ParticleTypes.HAPPY_VILLAGER),
+            "acariciar", new Kind("acariciar", Mode.FACE, 30, 2, "", "pat", 0.75, 36, ParticleTypes.HEART),
+            "sentarse", new Kind("sentarse", Mode.SIT, 30, 3, "sit_ground", "sit_ground", 0, 12000, ParticleTypes.HAPPY_VILLAGER),
+            "abrazar", new Kind("abrazar", Mode.FACE, 40, 4, "hug", "hug", 0.62, 54, ParticleTypes.HEART),
+            "mano", new Kind("mano", Mode.HAND, 60, 3, "hold_left", "hold_right", 0, 6000, ParticleTypes.HEART),
+            "cargar", new Kind("cargar", Mode.CARRY, 60, 3, "carried", "carry", 0, 6000, ParticleTypes.HEART),
+            "que_me_cargue", new Kind("que_me_cargue", Mode.CARRIED, 70, 3, "carry", "carried", 0, 6000, ParticleTypes.HEART),
+            "besar", new Kind("besar", Mode.FACE, 80, 5, "kiss", "kiss", 0.55, 50, ParticleTypes.HEART));
+
+    /** Para los puntos de montura: el aldeano que llevas en brazos, o el que te lleva. */
+    public static boolean carrying(net.minecraft.world.entity.Entity vehicle, net.minecraft.world.entity.Entity passenger) {
+        // (los aldeanos solo se suben a jugadores, y los jugadores a aldeanos, con esto: vale igual en el cliente)
+        return vehicle instanceof net.minecraft.world.entity.player.Player && passenger instanceof Villager
+                || vehicle instanceof Villager && passenger instanceof net.minecraft.world.entity.player.Player;
+    }
 
     private static final class Job {
         Villager v;
@@ -42,6 +56,7 @@ public final class Together {
         long end;
         boolean noAi;
         int refresh;
+        Vec3 at;
     }
 
     private static final Map<UUID, Job> JOBS = new HashMap<>();
@@ -99,21 +114,46 @@ public final class Together {
         j.kind = k;
         j.end = v.level().getGameTime() + k.ticks();
         j.noAi = v.isNoAi();
+        if (p.isPassenger() || v.isPassenger() || p.isVehicle()) {
+            StarScenesAPI.say(v, line(v, p, "juntos_sin_ganas"), 3);
+            return;
+        }
         JOBS.put(v.getUUID(), j);
         v.getNavigation().stop();
-        v.setNoAi(true);
-        if (k.dist() > 0) {
-            // se pone enfrente tuyo, mirandote
-            Vec3 look = Vec3.directionFromRotation(0, p.getYRot());
-            Vec3 at = p.position().add(look.scale(k.dist()));
-            float yaw = p.getYRot() + 180;
-            v.snapTo(at.x, p.getY(), at.z, yaw, 0);
-            v.setYBodyRot(yaw);
-            v.setYHeadRot(yaw);
-            StarScenesAPI.playerGesture(p, k.anim(), k.ticks() / 20f);
-            StarScenesAPI.play(v, k.anim());
-        } else {
-            follow(j, p, true);
+        v.setNoAi(k.mode() != Mode.CARRIED);
+        j.at = p.position();
+        switch (k.mode()) {
+            case FACE -> {
+                // se pone enfrente tuyo, mirandote
+                Vec3 look = Vec3.directionFromRotation(0, p.getYRot());
+                Vec3 at = p.position().add(look.scale(k.dist()));
+                float yaw = p.getYRot() + 180;
+                v.snapTo(at.x, p.getY(), at.z, yaw, 0);
+                v.setYBodyRot(yaw);
+                v.setYHeadRot(yaw);
+                if (!k.playerAnim().isEmpty()) {
+                    StarScenesAPI.playerGesture(p, k.playerAnim(), k.ticks() / 20f);
+                }
+                StarScenesAPI.play(v, k.anim().isEmpty() ? Social.anim(Social.personality(v), "juntos_" + k.id()) : k.anim());
+            }
+            case HAND -> follow(j, p, true);
+            case SIT -> {
+                // a tu derecha, mirando para el mismo lado
+                Vec3 fwd = Vec3.directionFromRotation(0, p.getYRot());
+                Vec3 at = p.position().add(new Vec3(-fwd.z, 0, fwd.x).scale(0.85));
+                v.snapTo(at.x, p.getY(), at.z, p.getYRot(), 0);
+                v.setYBodyRot(p.getYRot());
+                v.setYHeadRot(p.getYRot());
+                gestures(j, p, true);
+            }
+            case CARRY -> {
+                v.startRiding(p, true, true);
+                gestures(j, p, true);
+            }
+            case CARRIED -> {
+                p.startRiding(v, true, true);
+                gestures(j, p, true);
+            }
         }
         StarScenesAPI.say(v, line(v, p, "juntos_" + k.id()), 3);
         particles(v, k.particle(), k.particle() == ParticleTypes.HEART ? 4 : 6);
@@ -146,10 +186,15 @@ public final class Together {
         v.snapTo(next.x, p.getY(), next.z, yaw, 0);
         v.setYBodyRot(yaw);
         v.setYHeadRot(yaw);
+        gestures(j, p, first);
+    }
+
+    /** Los gestos en ronda se vuelven a mandar cada 2 s (asi siguen mientras dure). */
+    private static void gestures(Job j, ServerPlayer p, boolean first) {
         if (first || --j.refresh <= 0) {
             j.refresh = 40;
-            StarScenesAPI.play(v, "hold_left");
-            StarScenesAPI.playerGesture(p, "hold_right", 3);
+            StarScenesAPI.play(j.v, j.kind.anim());
+            StarScenesAPI.playerGesture(p, j.kind.playerAnim(), 3);
         }
     }
 
@@ -159,15 +204,24 @@ public final class Together {
             return;
         }
         v.setNoAi(j.noAi);
-        if (j.kind.id().equals("mano")) {
+        ServerPlayer p = v.level().getServer() == null ? null : v.level().getServer().getPlayerList().getPlayer(j.player);
+        if (j.kind.mode() == Mode.CARRY && v.isPassenger()) {
+            v.stopRiding();
+            if (p != null) {
+                // lo baja adelante tuyo
+                Vec3 at = p.position().add(Vec3.directionFromRotation(0, p.getYRot()).scale(0.9));
+                v.snapTo(at.x, p.getY(), at.z, p.getYRot() + 180, 0);
+            }
+        }
+        if (j.kind.mode() == Mode.CARRIED && p != null && p.getVehicle() == v) {
+            p.stopRiding();
+        }
+        if (j.kind.mode() != Mode.FACE) {
             StarScenesAPI.play(v, "idle");
-            if (v.level().getServer() != null) {
-                ServerPlayer p = v.level().getServer().getPlayerList().getPlayer(j.player);
-                if (p != null) {
-                    StarScenesAPI.playerGesture(p, "hold_right", 0);
-                    StarScenesAPI.say(v, line(v, p, "juntos_mano_fin"), 3);
-                    StarScenesAPI.play(v, "wave");
-                }
+            if (p != null) {
+                StarScenesAPI.playerGesture(p, j.kind.playerAnim(), 0);
+                StarScenesAPI.say(v, line(v, p, "juntos_" + j.kind.id() + "_fin"), 3);
+                StarScenesAPI.play(v, "wave");
             }
         }
     }
@@ -186,12 +240,44 @@ public final class Together {
                 stop(v);
                 continue;
             }
-            if (j.kind.id().equals("mano")) {
-                // se suelta agachandote, si te alejas mucho (teletransporte) o si te subis a algo
-                if (p.isShiftKeyDown() || p.distanceTo(v) > 8 || p.isPassenger() || v.isSleeping()) {
-                    stop(v);
-                } else {
-                    follow(j, p, false);
+            switch (j.kind.mode()) {
+                case HAND -> {
+                    // se suelta agachandote, si te alejas mucho (teletransporte) o si te subis a algo
+                    if (p.isShiftKeyDown() || p.distanceTo(v) > 8 || p.isPassenger() || v.isSleeping()) {
+                        stop(v);
+                    } else {
+                        follow(j, p, false);
+                    }
+                }
+                case SIT -> {
+                    // te levantas al moverte
+                    if (p.isShiftKeyDown() || p.position().distanceTo(j.at) > 0.6 || p.isPassenger()) {
+                        stop(v);
+                    } else {
+                        gestures(j, p, false);
+                    }
+                }
+                case CARRY -> {
+                    // lo bajas agachandote
+                    if (p.isShiftKeyDown() || v.getVehicle() != p) {
+                        stop(v);
+                    } else {
+                        float yaw = p.getYRot() + 90;
+                        v.setYRot(yaw);
+                        v.setYBodyRot(yaw);
+                        v.setYHeadRot(p.getYRot());
+                        gestures(j, p, false);
+                    }
+                }
+                case CARRIED -> {
+                    // te bajas como de cualquier montura (agachandote)
+                    if (p.getVehicle() != v) {
+                        stop(v);
+                    } else {
+                        gestures(j, p, false);
+                    }
+                }
+                default -> {
                 }
             }
         }

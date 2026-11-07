@@ -293,6 +293,32 @@ public final class EmfRig {
     }
 
     private final Vars scope = new Vars();
+    private Matrix4f headM;
+
+    /** La matriz de la cabeza del ultimo cuadro (en pixeles del modelo), o null. */
+    public Matrix4f headMatrix() {
+        return this.headM;
+    }
+
+    private Node chest;
+    private boolean chestOn;
+    private float chestBounce;
+
+    /** El pecho (cuerpo de mujer) como pieza extra del cuerpo, con su rebote en radianes. */
+    public void chest(boolean on, float bounce) {
+        if (on && this.chest == null) {
+            Node body = this.byName.get("body");
+            if (body == null) {
+                return;
+            }
+            this.chest = vanilla("starscenes_chest", 0, 3, -2, "-4,0,-2,8,4,2", 18, 21, 0);
+            this.chest.children.add(vanilla("starscenes_chest_jacket", 0, 0, 0, "-4,0,-2,8,4,2", 18, 37, 0.25f));
+            this.chest.drx = -0.3f;
+            body.children.add(this.chest);
+        }
+        this.chestOn = on;
+        this.chestBounce = bounce;
+    }
 
     /** Pose de este cuadro: la de Minecraft (caminar, mirar) y despues las formulas del paquete. */
     public List<Draw> pose(Entity e, float partial, float headYaw, float headPitch) {
@@ -335,6 +361,10 @@ public final class EmfRig {
                 }
             }
         }
+        if (this.chest != null) {
+            this.chest.visible = this.chestOn;
+            this.chest.rx = -0.3f - this.chestBounce;
+        }
         for (var g : gesture.entrySet()) {
             Node n = this.byName.get(g.getKey());
             if (n == null || !n.vanilla) {
@@ -353,6 +383,7 @@ public final class EmfRig {
             n.rz += (rz - n.rz) * w;
         }
         List<Draw> out = new ArrayList<>();
+        this.headM = null;
         Matrix4f root = new Matrix4f();
         for (Node r : this.roots) {
             walk(r, root, out);
@@ -365,6 +396,9 @@ public final class EmfRig {
             return;
         }
         Matrix4f m = new Matrix4f(parent).translate(n.x, n.y, n.z).rotateZYX(n.rz, n.ry, n.rx).scale(n.sx, n.sy, n.sz);
+        if (n.vanilla && n.name.equals("head")) {
+            this.headM = m;
+        }
         if (n.boxes && !n.faces.isEmpty()) {
             out.add(new Draw(m, n.faces));
         }

@@ -49,6 +49,11 @@ public record Identity(String name, boolean female, float melanin, float hemoglo
                 this.hair, c, this.voice, this.seed);
     }
 
+    public Identity withHair(String h) {
+        return new Identity(this.name, this.female, this.melanin, this.hemoglobin, this.eumelanin, this.pheomelanin, this.height, this.skin, this.face,
+                h, this.clothes, this.voice, this.seed);
+    }
+
     /** Clave de como se ve (para compartir la textura entre aldeanos iguales). */
     public String looksKey() {
         return this.skin + "|" + this.face + "|" + this.hair + "|" + this.clothes + "|" + Math.round(this.melanin * 31) + "," + Math.round(this.hemoglobin * 31)

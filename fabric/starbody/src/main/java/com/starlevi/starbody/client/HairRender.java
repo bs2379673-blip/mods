@@ -31,6 +31,23 @@ public final class HairRender {
         draw(f, ps, collector, light, body, SkinLayout.Part.BODY);
     }
 
+    /**
+     * Para otros mods (los aldeanos de StarVillagers): las tiras de la cabeza, con ps ya puesto en el
+     * espacio de la cabeza de un jugador, en pixeles.
+     */
+    public static void submitHead(Identifier skin, HairMesh mesh, HairSim sim, PoseStack ps, SubmitNodeCollector collector, int light) {
+        if (mesh == null || mesh.strips.isEmpty() || skin == null) {
+            return;
+        }
+        collector.submitCustomGeometry(ps, RenderTypes.entityCutoutNoCull(skin), (pose, vc) -> {
+            for (HairMesh.Strip s : mesh.strips) {
+                if (s.face().part() == SkinLayout.Part.HEAD) {
+                    strip(pose, vc, s, sim, 0, light);
+                }
+            }
+        });
+    }
+
     private static void draw(Frame f, PoseStack ps, SubmitNodeCollector collector, int light, ModelPart part, SkinLayout.Part which) {
         if (part == null || !part.visible) {
             return;

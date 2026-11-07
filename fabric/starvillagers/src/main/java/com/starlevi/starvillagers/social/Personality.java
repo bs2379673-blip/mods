@@ -25,6 +25,15 @@ public final class Personality {
     public final int baseMood, greetChance;
     public final Map<String, List<String>> lines = new HashMap<>();
     public final List<ItemSpec> likes = new ArrayList<>(), dislikes = new ArrayList<>();
+    final List<List<String>> convos = new ArrayList<>();
+
+    /** Las conversaciones entre aldeanos (de "_comun", o las del mod si tu archivo no tiene). */
+    public static List<List<String>> conversations() {
+        if (common != null && !common.convos.isEmpty()) {
+            return common.convos;
+        }
+        return builtin != null ? builtin.convos : List.of();
+    }
 
     private Personality(String id, JsonObject o) {
         this.id = id;
@@ -32,6 +41,18 @@ public final class Personality {
         this.baseMood = o.has("humor_base") ? o.get("humor_base").getAsInt() : 0;
         this.greetChance = o.has("ganas_de_saludar") ? o.get("ganas_de_saludar").getAsInt() : 35;
         for (var e : o.entrySet()) {
+            if (e.getKey().equals("conversaciones") && e.getValue().isJsonArray()) {
+                for (var c : e.getValue().getAsJsonArray()) {
+                    if (c.isJsonArray()) {
+                        List<String> l = new ArrayList<>();
+                        c.getAsJsonArray().forEach(x -> l.add(x.getAsString()));
+                        if (l.size() >= 2) {
+                            this.convos.add(l);
+                        }
+                    }
+                }
+                continue;
+            }
             if (e.getValue().isJsonArray()) {
                 List<String> l = new ArrayList<>();
                 e.getValue().getAsJsonArray().forEach(x -> l.add(x.getAsString()));

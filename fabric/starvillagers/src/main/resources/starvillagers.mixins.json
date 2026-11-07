@@ -3,6 +3,6 @@
   "minVersion": "0.8",
   "package": "com.starlevi.starvillagers.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["VillagerMixin"],
+  "mixins": ["VillagerMixin", "EntityMixin"],
   "injectors": {"defaultRequire": 1}
 }

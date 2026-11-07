@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [" D ", "G G", " G "],
+  "key": {"D": "minecraft:diamond", "G": "minecraft:gold_ingot"},
+  "result": {"id": "starvillagers:anillo", "count": 1}
+}

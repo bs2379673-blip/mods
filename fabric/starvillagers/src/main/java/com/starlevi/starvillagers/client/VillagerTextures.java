@@ -29,6 +29,39 @@ public final class VillagerTextures {
     private VillagerTextures() {
     }
 
+    /** Si el pelo largo se dibuja con fisicas (StarBody): esos pixeles se sacan de la skin y van en tiras. */
+    public static boolean strips;
+
+    /** Los pixeles de pelo que van en tiras: costados y atras del gorro, desde la tercera fila. */
+    public static boolean stripPixel(int u, int v) {
+        return v >= 10 && v < 16 && (u >= 32 && u < 40 || u >= 48 && u < 64);
+    }
+
+    /** La skin completa (con todo el pelo), para dibujar las tiras de pelo. */
+    public static Identifier full(Villager v) {
+        Identity id = StarVillagers.identity(v);
+        Identifier[] t = id == null ? null : CACHE.get(id.looksKey());
+        return t == null ? null : t.length > 2 && t[2] != null ? t[2] : t[0];
+    }
+
+    /** Que pixeles del pelo de este aldeano van en tiras ({u, v} de 64x64). */
+    public static java.util.List<int[]> hairPixels(Identity id) {
+        java.util.List<int[]> l = new java.util.ArrayList<>();
+        NativeImage hair = png("mca/skins/" + id.hair());
+        if (hair == null || hair.getWidth() < 64) {
+            return l;
+        }
+        int k = hair.getWidth() / 64;
+        for (int v = 10; v < 16; v++) {
+            for (int u = 32; u < 64; u++) {
+                if (stripPixel(u, v) && (hair.getPixel(u * k, v * k) >>> 24) > 40) {
+                    l.add(new int[]{u, v});
+                }
+            }
+        }
+        return l;
+    }
+
     public static Identifier texture(Villager v) {
         Identity id = StarVillagers.identity(v);
         if (id == null) {
@@ -36,6 +69,14 @@ public final class VillagerTextures {
         }
         Identifier[] t = CACHE.get(id.looksKey());
         if (t == null) {
+            // si usa algo de la biblioteca que todavia se esta bajando, espera (sin armar nada)
+            for (String layer : new String[]{id.clothes(), id.hair()}) {
+                int[] lib = com.starlevi.starvillagers.client.library.Library.parse(layer);
+                if (lib != null && com.starlevi.starvillagers.client.library.Library.image(lib[0], lib[1]) == null
+                        && !com.starlevi.starvillagers.client.library.Library.failed(lib[0], lib[1])) {
+                    return null;
+                }
+            }
             t = build(id);
             if (t == null) {
                 return null;
@@ -66,6 +107,12 @@ public final class VillagerTextures {
     private static NativeImage png(String path) {
         if (path == null || path.isEmpty()) {
             return null;
+        }
+        int b = path.indexOf("biblioteca:");
+        if (b >= 0) {
+            // ropa o pelo de la biblioteca de MCA (bajada a config/starvillagers/biblioteca)
+            int[] lib = com.starlevi.starvillagers.client.library.Library.parse(path.substring(b));
+            return lib == null ? null : com.starlevi.starvillagers.client.library.Library.image(lib[0], lib[1]);
         }
         if (PNG.containsKey(path)) {
             return PNG.get(path);
@@ -107,15 +154,28 @@ public final class VillagerTextures {
         int skinColor = palette(skinPalette, id.melanin(), id.hemoglobin());
         int hairColor = palette(hairPalette, id.eumelanin(), id.pheomelanin());
         String blinkFace = id.face().replace(".png", "_blink.png");
+        NativeImage full = strips ? compose(skin, skinColor, png("mca/skins/" + id.face()), png("mca/skins/" + id.clothes()), png("mca/skins/" + id.hair()),
+                hairColor) : null;
         NativeImage open = compose(skin, skinColor, png("mca/skins/" + id.face()), png("mca/skins/" + id.clothes()), png("mca/skins/" + id.hair()),
                 hairColor);
         NativeImage closedFace = png("mca/skins/" + blinkFace);
         NativeImage closed = closedFace == null ? null
                 : compose(skin, skinColor, closedFace, png("mca/skins/" + id.clothes()), png("mca/skins/" + id.hair()), hairColor);
-        Identifier[] out = new Identifier[2];
-        DynamicTexture[] tex = new DynamicTexture[2];
-        NativeImage[] imgs = {open, closed};
-        for (int i = 0; i < 2; i++) {
+        if (strips) {
+            // el pelo que va en tiras no queda pintado en la cabeza (si no, se ve doble)
+            java.util.List<int[]> px = hairPixels(id);
+            for (NativeImage img : new NativeImage[]{open, closed}) {
+                if (img != null) {
+                    for (int[] p : px) {
+                        img.setPixel(p[0], p[1], 0);
+                    }
+                }
+            }
+        }
+        Identifier[] out = new Identifier[3];
+        DynamicTexture[] tex = new DynamicTexture[3];
+        NativeImage[] imgs = {open, closed, full};
+        for (int i = 0; i < 3; i++) {
             if (imgs[i] == null) {
                 continue;
             }

@@ -19,6 +19,9 @@
     "fabric-api": "*",
     "starscenes": "*"
   },
+  "suggests": {
+    "starbody": "*"
+  },
   "breaks": {
     "mca": "*"
   }

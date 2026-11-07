@@ -42,6 +42,9 @@ public final class StarVillagers implements ModInitializer {
 
     private static final Random RANDOM = new Random();
 
+    /** El anillo de compromiso (para casarse). */
+    public static net.minecraft.world.item.Item RING;
+
     /**
      * Modelo de EMF que usan los aldeanos si tus paquetes lo traen ("player" = el de jugador de tu
      * paquete de animaciones), o "" para usar siempre el modelo de StarScenes.
@@ -81,7 +84,7 @@ public final class StarVillagers implements ModInitializer {
             }
         } else {
             String c = Looks.clothes(id, prof);
-            if (!c.equals(id.clothes())) {
+            if (!c.equals(id.clothes()) && !id.clothes().startsWith("biblioteca:")) {
                 ((AttachmentTarget) (Object) v).setAttached(IDENTITY, id.withClothes(c));
             }
         }
@@ -89,6 +92,14 @@ public final class StarVillagers implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        var ringKey = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ITEM, id("anillo"));
+        RING = net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.ITEM, ringKey,
+                new net.minecraft.world.item.Item(new net.minecraft.world.item.Item.Properties().setId(ringKey).stacksTo(16)
+                        .rarity(net.minecraft.world.item.Rarity.RARE)));
+        net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents.modifyEntriesEvent(net.minecraft.world.item.CreativeModeTabs.INGREDIENTS)
+                .register(e -> e.accept(RING));
+        com.starlevi.starvillagers.family.Family.init();
+        com.starlevi.starvillagers.look.Wardrobe.init();
         ServerEntityEvents.ENTITY_LOAD.register((e, level) -> {
             if (e instanceof Villager v) {
                 ensure(v);
@@ -155,7 +166,7 @@ public final class StarVillagers implements ModInitializer {
         Path f = FabricLoader.getInstance().getConfigDir().resolve("starscenes").resolve("dialogos").resolve("aldeano.json");
         try {
             // la charla vieja (sin amistad ni regalos) se guarda aparte y se pone la nueva
-            if (Files.exists(f) && !Files.readString(f, StandardCharsets.UTF_8).contains("juntos:")) {
+            if (Files.exists(f) && !Files.readString(f, StandardCharsets.UTF_8).contains("familia:")) {
                 Files.move(f, f.resolveSibling("aldeano_viejo.json"), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (Exception ignored) {

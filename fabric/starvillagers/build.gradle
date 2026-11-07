@@ -17,6 +17,8 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     // StarScenes es la base (modelos, animaciones, dialogos, voces): se compila antes en el CI
     modImplementation files(fileTree("../starscenes/build/libs") { include "starscenes-fabric-*.jar"; exclude "*-sources.jar" })
+    // StarBody (opcional): el pelo largo de los aldeanos con fisicas
+    modImplementation files(fileTree("../starbody/build/libs") { include "starbody-fabric-*.jar"; exclude "*-sources.jar" })
 }
 
 // Prueba visual: abre el juego con aldeanos y saca una captura (runClientGameTest)
@@ -51,4 +53,10 @@ java {
 tasks.register('copiarClasspath', Copy) {
     from sourceSets.main.compileClasspath
     into layout.buildDirectory.dir('cp')
+}
+
+// En la prueba, que no espere a los servidores de Mojang (si andan lentos, el mundo no termina de cargar)
+tasks.matching { it.name == 'runClientGameTest' }.configureEach {
+    jvmArgs '-Dminecraft.api.session.host=http://127.0.0.1:9', '-Dminecraft.api.services.host=http://127.0.0.1:9',
+            '-Dminecraft.api.auth.host=http://127.0.0.1:9', '-Dminecraft.api.account.host=http://127.0.0.1:9'
 }

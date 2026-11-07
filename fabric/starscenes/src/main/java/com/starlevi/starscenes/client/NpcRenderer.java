@@ -43,6 +43,10 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         float scale = 1;
         /** Globito de texto (o null). */
         String bubble;
+        /** Para las capas de cabeza de otros mods. */
+        Entity entity;
+        float partial;
+        Matrix4f emfHead;
         final ItemStackRenderState main = new ItemStackRenderState(), off = new ItemStackRenderState(), head = new ItemStackRenderState();
     }
 
@@ -79,6 +83,9 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         s.mats = null;
         s.emf = null;
         s.bubble = Bubbles.get(npc.getId());
+        s.entity = com.starlevi.starscenes.api.StarScenesClientAPI.HEAD_LAYERS.isEmpty() ? null : npc;
+        s.partial = partial;
+        s.emfHead = null;
         String emfName = npc.sceneEmfModel();
         com.starlevi.starscenes.emf.JemModel jem = emfName == null ? null : com.starlevi.starscenes.emf.EmfModels.get(emfName);
         if (jem != null) {
@@ -97,8 +104,11 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
                 NpcAnimator an = ANIMATORS.computeIfAbsent(npc, k -> new NpcAnimator());
                 an.update(npc, npc, s.ready.model, (npc.tickCount + partial) / 20f, Minecraft.getInstance().player, s.yRot);
                 gesture = an.overlay;
+                ((com.starlevi.starscenes.emf.EmfRig) r[1]).chest(npc.sceneChest(), an.chestBounce);
             }
             s.emf = ((com.starlevi.starscenes.emf.EmfRig) r[1]).pose(npc, partial, headYaw, headPitch, gesture);
+            Matrix4f hm = ((com.starlevi.starscenes.emf.EmfRig) r[1]).headMatrix();
+            s.emfHead = hm == null ? null : new Matrix4f(hm);
             return;
         }
         if (s.ready != null) {
@@ -155,6 +165,12 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
             int light = s.lightCoords;
             final var draws = s.emf;
             collector.submitCustomGeometry(ps, RenderTypes.entityTranslucent(s.skin), (pose, vc) -> emitEmf(pose, vc, draws, light));
+            if (s.entity != null && s.emfHead != null) {
+                ps.pushPose();
+                ps.mulPose(s.emfHead);
+                headLayers(s, ps, collector, light);
+                ps.popPose();
+            }
             ps.popPose();
             bubble(s, ps, collector, camera);
             super.submit(s, ps, collector, camera);
@@ -176,6 +192,15 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
                 final Matrix4f[] mats = s.mats;
                 collector.submitCustomGeometry(ps, RenderTypes.entityCutoutNoCull(tex), (pose, vc) -> emit(pose, vc, m, mats, tt, light));
             }
+            if (s.entity != null && m.headBone >= 0 && m.headBone < s.mats.length) {
+                // del espacio de Blockbench (arriba +y, cuello a 24 px) al de la cabeza de un jugador
+                ps.pushPose();
+                ps.mulPose(s.mats[m.headBone]);
+                ps.translate(0, 24, 0);
+                ps.scale(-1, -1, 1);
+                headLayers(s, ps, collector, light);
+                ps.popPose();
+            }
             Attach at = ATTACH.computeIfAbsent(m, NpcRenderer::attach);
             item(ps, collector, s, s.main, at.rightBone, at.right, false, light);
             item(ps, collector, s, s.off, at.leftBone, at.left, false, light);
@@ -184,6 +209,16 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         }
         bubble(s, ps, collector, camera);
         super.submit(s, ps, collector, camera);
+    }
+
+    private static void headLayers(State s, PoseStack ps, SubmitNodeCollector collector, int light) {
+        for (var l : com.starlevi.starscenes.api.StarScenesClientAPI.HEAD_LAYERS) {
+            try {
+                l.submit(s.entity, s.partial, ps, collector, light);
+            } catch (Exception e) {
+                // una capa rota no tiene que romper el dibujo
+            }
+        }
     }
 
     /** El globito de texto, arriba de la cabeza (y del nombre, si se ve). */

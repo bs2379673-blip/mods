@@ -135,6 +135,12 @@ public final class Looks {
         return id.withClothes(clothes(id, profession));
     }
 
+    /** Un pelo de su genero, siempre el mismo para esa semilla. */
+    public static String hair(int seed, boolean female) {
+        String g = female ? "female" : "male";
+        return pick(folder("hair/" + g + "/"), new Random(seed), "hair/" + g + "/0.png");
+    }
+
     /** La ropa para ese oficio (si no hay, la de todos los dias). */
     public static String clothes(Identity id, String profession) {
         Random r = new Random(id.seed() * 31L + profession.hashCode());
@@ -146,5 +152,28 @@ public final class Looks {
             l.addAll(folder("clothing/normal/" + g + "/none/"));
         }
         return pick(l, r, "");
+    }
+
+    /** Un bebe de dos padres (el otro puede ser null, por ejemplo un jugador): mezcla sus genes. */
+    public static Identity child(Random r, Identity a, Identity b) {
+        Identity base = random(r, "child");
+        if (a == null) {
+            return base;
+        }
+        Identity o = b != null ? b : random(r, "none");
+        float mel = mix(r, a.melanin(), o.melanin()), hem = mix(r, a.hemoglobin(), o.hemoglobin());
+        float eu = mix(r, a.eumelanin(), o.eumelanin()), ph = mix(r, a.pheomelanin(), o.pheomelanin());
+        String g = base.female() ? "female" : "male";
+        // el tono de piel (0-4) de alguno de los padres
+        String parentSkin = (r.nextBoolean() ? a : o).skin();
+        String idx = parentSkin.replaceAll(".*/(\\d+)\\.png$", "$1");
+        String skin = "skin/" + g + "/" + (idx.matches("\\d+") ? idx : "2") + ".png";
+        Identity id = new Identity(base.name(), base.female(), mel, hem, eu, ph, base.height(), skin, base.face(), base.hair(), "", base.voice(), base.seed());
+        return id.withClothes(clothes(id, "child"));
+    }
+
+    private static float mix(Random r, float x, float y) {
+        float t = 0.3f + r.nextFloat() * 0.4f;
+        return Math.max(0, Math.min(1, x * t + y * (1 - t) + (r.nextFloat() - 0.5f) * 0.08f));
     }
 }

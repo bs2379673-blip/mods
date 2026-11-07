@@ -30,7 +30,14 @@ public abstract class VillagerMixin implements SceneActor {
 
     @Override
     public String sceneModel() {
-        return "humano";
+        Identity id = StarVillagers.identity((Villager) (Object) this);
+        return id != null && id.female() && !((Villager) (Object) this).isBaby() ? "humano_mujer" : "humano";
+    }
+
+    @Override
+    public boolean sceneChest() {
+        Identity id = StarVillagers.identity((Villager) (Object) this);
+        return id != null && id.female() && !((Villager) (Object) this).isBaby();
     }
 
     @Override
@@ -94,6 +101,16 @@ public abstract class VillagerMixin implements SceneActor {
     private void starvillagers$grew(CallbackInfo ci) {
         if (!starvillagers$self().level().isClientSide()) {
             StarVillagers.ensure(starvillagers$self());
+        }
+    }
+
+    @org.spongepowered.asm.mixin.injection.Inject(method = "getBreedOffspring(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/AgeableMob;)Lnet/minecraft/world/entity/npc/villager/Villager;",
+            at = @org.spongepowered.asm.mixin.injection.At("RETURN"))
+    private void starvillagers$baby(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.AgeableMob other,
+                                    org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Villager> cir) {
+        Villager child = cir.getReturnValue();
+        if (child != null && other instanceof Villager o && StarVillagers.identity((Villager) (Object) this) != null) {
+            com.starlevi.starvillagers.family.Family.born(child, (Villager) (Object) this, o, null);
         }
     }
 }

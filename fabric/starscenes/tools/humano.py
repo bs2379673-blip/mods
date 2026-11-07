@@ -32,7 +32,20 @@ def cube(name, frm, size, uvo, inflate=0):
     return {'name': name, 'uuid': uid(name), 'type': 'cube', 'box_uv': False, 'from': [x, y, z], 'to': [x + w, y + h, z + d],
             'origin': [0, 0, 0], 'inflate': inflate, 'faces': box_faces(uvo[0], uvo[1], w, h, d)}
 
-def build(slim):
+def chest_faces(v0, e=0.02):
+    """Pecho: la cara de adelante sale del frente del cuerpo de la skin (filas del pecho)."""
+    r = lambda a, b, c, dd: [a + e, b + e, c - e, dd - e]
+    front = r(20, v0 + 3, 28, v0 + 7)
+    return {
+        'north': {'uv': front, 'texture': 0},
+        'south': {'uv': front, 'texture': 0},
+        'east': {'uv': r(18, v0 + 3, 20, v0 + 7), 'texture': 0},
+        'west': {'uv': r(28, v0 + 3, 30, v0 + 7), 'texture': 0},
+        'up': {'uv': [28 - e, v0 + 3 - e, 20 + e, v0 + 2 + e], 'texture': 0},
+        'down': {'uv': [28 - e, v0 + 7 + e, 20 + e, v0 + 6 - e], 'texture': 0},
+    }
+
+def build(slim, female=False):
     aw = 3 if slim else 4
     els = [
         cube('Head', (-4, 24, -4), (8, 8, 8), (0, 0)),
@@ -49,6 +62,11 @@ def build(slim):
         cube('LeftLeg', (-4, 0, -2), (4, 12, 4), (16, 48)),
         cube('LeftPants', (-4, 0, -2), (4, 12, 4), (0, 48), 0.25),
     ]
+    if female:
+        for nm, v0, inf in (('Chest', 20, 0), ('ChestJacket', 36, 0.25)):
+            c = {'name': nm, 'uuid': uid(nm), 'type': 'cube', 'box_uv': False, 'from': [-4, 17, -4], 'to': [4, 21, -2],
+                 'origin': [0, 0, 0], 'inflate': inf, 'faces': chest_faces(v0)}
+            els.append(c)
     e = {c['name']: c['uuid'] for c in els}
     arm_x = 4 + aw / 2
 
@@ -58,7 +76,12 @@ def build(slim):
     head = group('head', [0, 24, 0], [e['Head'], e['Hat']])
     rarm = group('right_arm', [arm_x, 22, 0], [e['RightArm'], e['RightSleeve']])
     larm = group('left_arm', [-arm_x, 22, 0], [e['LeftArm'], e['LeftSleeve']])
-    body = group('body', [0, 12, 0], [e['Body'], e['Jacket'], rarm, head, larm])
+    kids = [e['Body'], e['Jacket'], rarm, head, larm]
+    if female:
+        chest = group('chest', [0, 21, -2], [e['Chest'], e['ChestJacket']])
+        chest['rotation'] = [17, 0, 0]
+        kids.append(chest)
+    body = group('body', [0, 12, 0], kids)
     rleg = group('right_leg', [1.9, 12, 0], [e['RightLeg'], e['RightPants']])
     lleg = group('left_leg', [-1.9, 12, 0], [e['LeftLeg'], e['LeftPants']])
     player = group('player', [0, 0, 0], [lleg, rleg, body])
@@ -269,11 +292,68 @@ def animations(bones):
     A.append(anim('hold_right', 2.0, 'loop', {
         'right_arm': R((0, -10, 0, 14), (1.0, -14, 0, 15), (2.0, -10, 0, 14)),
     }, bones))
+    # --- mas cosas de a dos ---
+    # cargar a alguien en brazos (el que carga)
+    A.append(anim('carry', 2.0, 'loop', {
+        'right_arm': R((0, -78, 0, -10), (1.0, -76, 0, -10), (2.0, -78, 0, -10)),
+        'left_arm': R((0, -78, 0, 10), (1.0, -76, 0, 10), (2.0, -78, 0, 10)),
+        'body': R((0, -4, 0), (1.0, -5, 0), (2.0, -4, 0)),
+    }, bones))
+    # que te carguen: sentado en los brazos del otro, un brazo al cuello
+    A.append(anim('carried', 3.0, 'loop', {
+        'right_leg': R((0, -85, 0, 6), (1.5, -80, 0, 6), (3.0, -85, 0, 6)),
+        'left_leg': R((0, -85, 0, -6), (1.5, -88, 0, -6), (3.0, -85, 0, -6)),
+        'body': R((0, -10, 0), (1.5, -12, 0), (3.0, -10, 0)),
+        'right_arm': R((0, -140, 0, -25), (1.5, -138, 0, -25), (3.0, -140, 0, -25)),
+        'left_arm': R((0, -40, 0, 10), (1.5, -42, 0, 10), (3.0, -40, 0, 10)),
+        'head': R((0, 4, 0, 10), (1.5, 2, 0, 12), (3.0, 4, 0, 10)),
+    }, bones))
+    # sentarse en el piso (las piernas para adelante, se apoya en las manos)
+    A.append(anim('sit_ground', 4.0, 'loop', {
+        'player': P((0, -10), (4.0, -10)),
+        'right_leg': R((0, -88, 0, 8), (2.0, -86, 0, 10), (4.0, -88, 0, 8)),
+        'left_leg': R((0, -88, 0, -8), (2.0, -86, 0, -10), (4.0, -88, 0, -8)),
+        'body': R((0, -8, 0), (2.0, -6, 0), (4.0, -8, 0)),
+        'right_arm': R((0, 28, 0, 14), (2.0, 26, 0, 14), (4.0, 28, 0, 14)),
+        'left_arm': R((0, 28, 0, -14), (2.0, 26, 0, -14), (4.0, 28, 0, -14)),
+    }, bones))
+    # caricia en la cabeza (el que acaricia)
+    A.append(anim('pat', 1.8, 'once', {
+        'right_arm': R((0, 0, 0, 3), (0.3, -105, 0, -12), (0.55, -95, 0, -12), (0.8, -105, 0, -12), (1.05, -95, 0, -12), (1.3, -105, 0, -12),
+                       (1.8, 0, 0, 3)),
+        'head': R((0, 0, 0), (0.3, 18, 0), (1.3, 18, 0), (1.8, 0, 0)),
+    }, bones))
+    # --- gestos sueltos de la vida diaria ---
+    A.append(anim('stretch', 2.2, 'once', {
+        'right_arm': R((0, 0, 0, 3), (0.5, -170, 0, 15), (1.4, -175, 0, 10), (2.2, 0, 0, 3)),
+        'left_arm': R((0, 0, 0, -3), (0.5, -170, 0, -15), (1.4, -175, 0, -10), (2.2, 0, 0, -3)),
+        'body': R((0, 0, 0), (0.5, -8, 0), (1.4, -10, 0), (2.2, 0, 0)),
+        'head': R((0, 0, 0), (0.5, -18, 0), (1.4, -20, 0), (2.2, 0, 0)),
+        'player': P((0, 0), (0.5, 0.5), (1.4, 0.5), (2.2, 0)),
+    }, bones))
+    A.append(anim('yawn', 2.0, 'once', {
+        'right_arm': R((0, 0, 0, 3), (0.4, -118, 0, -30), (1.4, -118, 0, -30), (2.0, 0, 0, 3)),
+        'head': R((0, 0, 0), (0.4, -16, 0), (1.4, -14, 0), (2.0, 0, 0)),
+        'body': R((0, 0, 0), (0.4, -4, 0), (1.4, -3, 0), (2.0, 0, 0)),
+    }, bones))
+    A.append(anim('scratch_head', 1.8, 'once', {
+        'right_arm': R((0, 0, 0, 3), (0.35, -150, 0, -20), (0.55, -145, 0, -24), (0.75, -150, 0, -20), (0.95, -145, 0, -24), (1.2, -150, 0, -20),
+                       (1.8, 0, 0, 3)),
+        'head': R((0, 0, 0), (0.35, 4, 0, -10), (1.2, 4, 0, -10), (1.8, 0, 0)),
+    }, bones))
+    A.append(anim('look_around', 3.0, 'once', {
+        'head': R((0, 0, 0), (0.6, -4, 45), (1.2, -4, 45), (1.8, -2, -45), (2.4, -2, -45), (3.0, 0, 0)),
+        'body': R((0, 0, 0), (0.6, 0, 10), (1.2, 0, 10), (1.8, 0, -10), (2.4, 0, -10), (3.0, 0, 0)),
+    }, bones))
+    A.append(anim('wipe_brow', 1.6, 'once', {
+        'right_arm': R((0, 0, 0, 3), (0.35, -130, 0, -35), (0.7, -130, 0, -15), (1.0, -125, 0, -30), (1.6, 0, 0, 3)),
+        'head': R((0, 0, 0), (0.35, -6, 0), (1.0, -4, 0), (1.6, 0, 0)),
+    }, bones))
     return A
 
-def model(slim):
-    els, outliner, bones = build(slim)
-    name = 'humano_fino' if slim else 'humano'
+def model(slim, female=False):
+    els, outliner, bones = build(slim, female)
+    name = ('humano_mujer' if female else 'humano') + ('_fino' if slim else '')
     return {
         'meta': {'format_version': '4.10', 'model_format': 'free', 'box_uv': False},
         'name': name, 'model_identifier': name,
@@ -285,8 +365,8 @@ def model(slim):
 
 out = sys.argv[1]
 os.makedirs(out, exist_ok=True)
-for slim in (False, True):
-    m = model(slim)
+for slim, female in ((False, False), (True, False), (False, True), (True, True)):
+    m = model(slim, female)
     with open(os.path.join(out, m['name'] + '.bbmodel'), 'w') as f:
         json.dump(m, f, indent=1)
 print('ok')

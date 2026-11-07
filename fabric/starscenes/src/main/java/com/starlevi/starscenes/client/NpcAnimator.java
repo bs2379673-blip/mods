@@ -43,6 +43,12 @@ final class NpcAnimator {
         this.pending = kind;
     }
 
+    private final ChestSpring chest = new ChestSpring();
+    private int chestBone = -2;
+
+    /** El rebote del pecho de este cuadro (para el modelo de EMF). */
+    float chestBounce;
+
     private float speed;
     private double lastX = Double.NaN, lastZ;
     private int lastTick = -1;
@@ -50,6 +56,7 @@ final class NpcAnimator {
     void update(Entity e, SceneActor npc, BBModel m, float now, Player local, float bodyYaw) {
         if (m != this.model) {
             this.model = m;
+            this.chestBone = -2;
             int n = m.bones.size();
             this.a = new float[n * 9];
             this.b = new float[n * 9];
@@ -157,6 +164,19 @@ final class NpcAnimator {
                     }
                 }
             }
+        }
+        // pecho con rebote (si el modelo tiene el hueso "chest")
+        if (this.chestBone == -2 || this.chestBone >= m.bones.size()) {
+            this.chestBone = -1;
+            for (int i = 0; i < m.bones.size(); i++) {
+                if (m.bones.get(i).name.equals("chest")) {
+                    this.chestBone = i;
+                }
+            }
+        }
+        this.chestBounce = this.chest.update(e, now, this.speed);
+        if (this.chestBone >= 0) {
+            this.out[this.chestBone * 9] += (float) Math.toDegrees(this.chestBounce);
         }
         // cabeza hacia el jugador
         float wantYaw = 0, wantPitch = 0;

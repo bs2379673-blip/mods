@@ -50,3 +50,9 @@ tasks.register('copiarClasspath', Copy) {
     from sourceSets.main.compileClasspath
     into layout.buildDirectory.dir('cp')
 }
+
+// En la prueba, que no espere a los servidores de Mojang (si andan lentos, el mundo no termina de cargar)
+tasks.matching { it.name == 'runClientGameTest' }.configureEach {
+    jvmArgs '-Dminecraft.api.session.host=http://127.0.0.1:9', '-Dminecraft.api.services.host=http://127.0.0.1:9',
+            '-Dminecraft.api.auth.host=http://127.0.0.1:9', '-Dminecraft.api.account.host=http://127.0.0.1:9'
+}

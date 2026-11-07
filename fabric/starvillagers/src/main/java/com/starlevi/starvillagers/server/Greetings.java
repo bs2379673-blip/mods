@@ -40,6 +40,7 @@ public final class Greetings {
 
     private static final Map<String, Long> LAST = new HashMap<>();
     private static final Map<UUID, Long> BUSY = new HashMap<>();
+    private static final Map<UUID, Long> IDLE = new HashMap<>();
     private static final List<Reply> REPLIES = new ArrayList<>();
     private static final List<Look> LOOKS = new ArrayList<>();
     private static final Random R = new Random();
@@ -138,9 +139,60 @@ public final class Greetings {
                     StarScenesAPI.play(v, com.starlevi.starvillagers.social.Social.anim(com.starlevi.starvillagers.social.Social.personality(v), "saludo"));
                     REPLIES.add(new Reply(w.getUUID(), v.getUUID(), (reply.isEmpty() ? pick(REPLY) : reply).replace("%otro%", a.name()), now + 35,
                             com.starlevi.starvillagers.social.Social.anim(com.starlevi.starvillagers.social.Social.personality(w), "respuesta")));
-                    LOOKS.add(new Look(v.getUUID(), w.getUUID(), now + 90));
-                    LOOKS.add(new Look(w.getUUID(), v.getUUID(), now + 90));
+                    long talkUntil = now + 90;
+                    // a veces se quedan charlando un rato (una conversacion de varias lineas)
+                    var convos = com.starlevi.starvillagers.social.Personality.conversations();
+                    if (!convos.isEmpty() && R.nextFloat() < 0.45f) {
+                        List<String> c = convos.get(R.nextInt(convos.size()));
+                        long t = now + 75;
+                        for (int i = 0; i < c.size(); i++) {
+                            boolean first = i % 2 == 0;
+                            Villager who = first ? v : w;
+                            String other = first ? b.name() : a.name();
+                            String text = c.get(i).replace("%otro%", other);
+                            String low = text.toLowerCase(java.util.Locale.ROOT);
+                            String anim = low.contains("jaja") ? "laugh" : low.contains("?") && R.nextBoolean() ? "shrug" : low.contains("...") ? "think" : "talk";
+                            REPLIES.add(new Reply(who.getUUID(), (first ? w : v).getUUID(), text, t, anim));
+                            t += 40 + Math.min(40, text.length());
+                        }
+                        talkUntil = t + 20;
+                        BUSY.put(v.getUUID(), Math.max(now + cool, talkUntil));
+                        BUSY.put(w.getUUID(), Math.max(now + cool, talkUntil));
+                    }
+                    LOOKS.add(new Look(v.getUUID(), w.getUUID(), talkUntil));
+                    LOOKS.add(new Look(w.getUUID(), v.getUUID(), talkUntil));
                     break;
+                }
+            }
+        }
+        // gestos sueltos de la vida diaria (estirarse a la mañana, bostezar a la noche...) y lo que piensan
+        if (now % 100 == 0) {
+            for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+                for (Villager v : p.level().getEntitiesOfClass(Villager.class, p.getBoundingBox().inflate(32))) {
+                    if (!free(v, now) || v.isBaby() || R.nextFloat() > 0.05f || IDLE.getOrDefault(v.getUUID(), 0L) > now) {
+                        continue;
+                    }
+                    IDLE.put(v.getUUID(), now + 900 + R.nextInt(1200));
+                    long t = v.level().getDayTime() % 24000;
+                    String prof = StarVillagers.profession(v);
+                    List<String> opts = new ArrayList<>(List.of("look_around", "scratch_head", "look_around"));
+                    if (t < 2500 || t > 23000) {
+                        opts.addAll(List.of("stretch", "stretch", "yawn"));
+                    } else if (t > 11500 && t < 13500) {
+                        opts.addAll(List.of("yawn", "yawn", "stretch"));
+                    } else if (t > 2000 && t < 9000 && !prof.equals("none") && !prof.equals("nitwit")) {
+                        opts.addAll(List.of("wipe_brow", "wipe_brow"));
+                    }
+                    String g = opts.get(R.nextInt(opts.size()));
+                    StarScenesAPI.play(v, g);
+                    if (R.nextInt(3) == 0) {
+                        var pe = com.starlevi.starvillagers.social.Social.personality(v);
+                        String key = g.equals("yawn") ? "pensamiento_sueno" : g.equals("wipe_brow") ? "pensamiento_trabajo" : "pensamiento";
+                        String th = pe.line(key, R);
+                        if (!th.isEmpty()) {
+                            StarScenesAPI.say(v, "§7§o" + th, 3);
+                        }
+                    }
                 }
             }
         }
@@ -148,6 +200,7 @@ public final class Greetings {
         if (now % 6000 == 0) {
             LAST.values().removeIf(t -> now - t > 24000);
             BUSY.values().removeIf(t -> t < now);
+            IDLE.values().removeIf(t -> t < now);
         }
     }
 }
