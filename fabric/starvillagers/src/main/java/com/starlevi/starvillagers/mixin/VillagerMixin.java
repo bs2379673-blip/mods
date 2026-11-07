@@ -21,7 +21,6 @@ import java.util.List;
 @Mixin(Villager.class)
 public abstract class VillagerMixin implements SceneActor {
     @org.spongepowered.asm.mixin.Unique
-    private static final List<String> STARVILLAGERS$SOURCES = List.of("scenes_quests");
 
     @org.spongepowered.asm.mixin.Unique
     private Villager starvillagers$self() {
@@ -87,7 +86,7 @@ public abstract class VillagerMixin implements SceneActor {
 
     @Override
     public List<String> sceneAnimationSources() {
-        return STARVILLAGERS$SOURCES;
+        return StarVillagers.animSources;
     }
 
     @Inject(method = "setVillagerData", at = @At("TAIL"))

@@ -14,6 +14,7 @@ public final class StarVillagersClient implements ClientModInitializer {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void onInitializeClient() {
         StarVillagers.texture = VillagerTextures::texture;
+        com.starlevi.starscenes.client.ClientScenes.playerSources = StarVillagers.animSources;
         if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("starbody")) {
             VillagerHair.init();
         }

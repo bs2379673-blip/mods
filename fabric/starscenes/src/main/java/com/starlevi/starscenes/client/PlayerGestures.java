@@ -31,7 +31,7 @@ public final class PlayerGestures {
     }
 
     private static BBModel human() {
-        ClientScenes.Ready r = ClientScenes.model("humano");
+        ClientScenes.Ready r = ClientScenes.model("humano", ClientScenes.playerSources);
         return r == null ? null : r.model;
     }
 

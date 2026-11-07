@@ -84,6 +84,7 @@ public final class ClientScenes {
         }
         // lo que cambio se vuelve a armar
         READY.keySet().removeIf(id -> !MODELS.containsKey(id) || !MODELS.get(id).equals(oldM.get(id)));
+        MERGED.clear();
         SKIN_TEX.keySet().removeIf(id -> !SKINS.containsKey(id) || !SKINS.get(id).equals(oldS.get(id)));
         LOADING.clear();
     }
@@ -114,6 +115,9 @@ public final class ClientScenes {
 
     private static final Map<String, Ready> MERGED = new HashMap<>();
 
+    /** Animaciones extra para los gestos de los jugadores (otros mods las ponen, por ejemplo "+aldeanos"). */
+    public static List<String> playerSources = List.of();
+
     /**
      * El modelo con las animaciones de otros modelos sumadas (por nombre de hueso). Las fuentes que
      * no existen se ignoran; las que todavia se estan bajando se suman cuando llegan.
@@ -129,11 +133,18 @@ public final class ClientScenes {
             return r;
         }
         List<BBModel> src = new ArrayList<>();
+        java.util.Set<BBModel> over = new java.util.HashSet<>();
         boolean complete = true;
-        for (String s : sources) {
+        for (String s0 : sources) {
+            // "+nombre": sus animaciones reemplazan a las que se llaman igual
+            boolean plus = s0.startsWith("+");
+            String s = plus ? s0.substring(1) : s0;
             Ready x = model(s);
             if (x != null) {
                 src.add(x.model);
+                if (plus) {
+                    over.add(x.model);
+                }
             } else if (MODELS.containsKey(s)) {
                 complete = false;
             }
@@ -141,7 +152,7 @@ public final class ClientScenes {
         if (!complete) {
             return base;
         }
-        r = new Ready(base.model.withAnimationsFrom(src), base.textures, base.isSkin);
+        r = new Ready(base.model.withAnimationsFrom(src, over), base.textures, base.isSkin);
         MERGED.put(key, r);
         return r;
     }

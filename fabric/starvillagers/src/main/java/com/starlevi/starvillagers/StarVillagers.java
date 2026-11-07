@@ -52,6 +52,12 @@ public final class StarVillagers implements ModInitializer {
      */
     public static String emfModel = "player";
 
+    /**
+     * De donde salen las animaciones de los aldeanos, ademas del modelo humano: config/starscenes/modelos/&lt;nombre&gt;.bbmodel.
+     * Con "+" adelante, sus animaciones reemplazan a las que se llaman igual. Se cambia en config/starvillagers.json.
+     */
+    public static java.util.List<String> animSources = java.util.List.of("+aldeanos", "scenes_quests");
+
     public static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
@@ -156,7 +162,10 @@ public final class StarVillagers implements ModInitializer {
                           "modelo_emf": "player",
                           // Tono de piel de los aldeanos: "clara" (todos de tez blanca o clara, por el lore del mundo)
                           // o "bioma" (como en MCA: depende del bioma, con gente de otros lados).
-                          "piel": "clara"
+                          "piel": "clara",
+                          // Tus animaciones de Blockbench (config/starscenes/modelos/<nombre>.bbmodel), con los huesos del
+                          // modelo humano. Con "+" adelante reemplazan a las del mod que se llamen igual.
+                          "animaciones": ["+aldeanos", "scenes_quests"]
                         }
                         """, StandardCharsets.UTF_8);
             }
@@ -173,6 +182,11 @@ public final class StarVillagers implements ModInitializer {
             var o = com.google.gson.JsonParser.parseReader(r).getAsJsonObject();
             if (o.has("modelo_emf")) {
                 emfModel = o.get("modelo_emf").getAsString();
+            }
+            if (o.has("animaciones") && o.get("animaciones").isJsonArray()) {
+                java.util.List<String> l = new java.util.ArrayList<>();
+                o.getAsJsonArray("animaciones").forEach(x -> l.add(x.getAsString()));
+                animSources = java.util.List.copyOf(l);
             }
             Looks.lightSkin = !o.has("piel") || !o.get("piel").getAsString().equalsIgnoreCase("bioma");
         } catch (Exception e) {

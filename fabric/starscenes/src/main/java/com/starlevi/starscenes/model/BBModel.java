@@ -126,9 +126,14 @@ public final class BBModel {
 
     /**
      * Una copia de este modelo (mismas piezas) que ademas tiene las animaciones de otros modelos con
-     * huesos del mismo nombre. Las de este modelo tienen prioridad.
+     * huesos del mismo nombre. Las de este modelo tienen prioridad, salvo las de las fuentes marcadas en
+     * override (esas reemplazan a las que se llaman igual: asi tus animaciones pisan a las que trae el mod).
      */
     public BBModel withAnimationsFrom(List<BBModel> sources) {
+        return withAnimationsFrom(sources, java.util.Set.of());
+    }
+
+    public BBModel withAnimationsFrom(List<BBModel> sources, java.util.Set<BBModel> override) {
         BBModel c = new BBModel();
         c.bones.addAll(this.bones);
         c.textures.addAll(this.textures);
@@ -144,7 +149,7 @@ public final class BBModel {
                 map[i] = c.boneIndex(src.bones.get(i).name);
             }
             for (Anim a : src.anims.values()) {
-                if (c.anims.containsKey(a.name)) {
+                if (c.anims.containsKey(a.name) && !override.contains(src)) {
                     continue;
                 }
                 Anim n = new Anim(a.name, a.length, a.loop, c.bones.size());
