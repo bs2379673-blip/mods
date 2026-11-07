@@ -30,6 +30,12 @@ public class EditorScreen extends Screen {
     private int brush = 1;
     private boolean saved;
     private int dragging = -1;
+    /** 0 pelo, 1 ojos. */
+    private static int tab;
+    /** En la pestaña de ojos: 0 se elige la fila de los ojos, 1 la de las cejas. */
+    private int pick;
+    private boolean showHat = true;
+    private String status = "";
 
     public EditorScreen() {
         super(Component.literal("StarBody"));
@@ -78,6 +84,19 @@ public class EditorScreen extends Screen {
 
     @Override
     protected void init() {
+        String[] tabs = {"Pelo", "Ojos y cejas"};
+        for (int i = 0; i < 2; i++) {
+            int t = i;
+            addRenderableWidget(new StarButton(px() + pw() / 2 - 80 + i * 82, py() + 5, 78, 16, tabs[i], tab == i ? StarButton.Style.TAB_ON : StarButton.Style.TAB,
+                    () -> {
+                        tab = t;
+                        rebuildWidgets();
+                    }));
+        }
+        if (tab == 1) {
+            initEyes();
+            return;
+        }
         int right = px() + pw() - 10, x = right - 160, y = py() + 30;
         addRenderableWidget(new StarButton(x, y, 78, 18, "✎ Pincel", this.erase ? StarButton.Style.TAB : StarButton.Style.TAB_ON, () -> {
             this.erase = false;
@@ -111,6 +130,124 @@ public class EditorScreen extends Screen {
         y += 24;
         addRenderableWidget(new StarButton(x, y, 78, 18, "Cancelar", StarButton.Style.NORMAL, this::onClose));
         addRenderableWidget(new StarButton(x + 82, y, 78, 18, "Guardar", StarButton.Style.ACCENT, this::save));
+    }
+
+    private void initEyes() {
+        int right = px() + pw() - 10, x = right - 170, y = py() + 40;
+        String[] eyes = {"No", "1 de alto", "2 de alto"};
+        for (int i = 0; i < 3; i++) {
+            int e = i;
+            addRenderableWidget(new StarButton(x + i * 58, y, 54, 18, eyes[i], this.work.eyes == i ? StarButton.Style.TAB_ON : StarButton.Style.TAB, () -> {
+                this.work.eyes = e;
+                this.work.eyeRow = Expressions.clampEye(Math.max(1, e), this.work.eyeRow);
+                touched();
+            }));
+        }
+        y += 34;
+        String[] brows = {"No", "Capa 1", "Capa 2"};
+        for (int i = 0; i < 3; i++) {
+            int b = i;
+            addRenderableWidget(new StarButton(x + i * 58, y, 54, 18, brows[i], this.work.brows == i ? StarButton.Style.TAB_ON : StarButton.Style.TAB, () -> {
+                this.work.brows = b;
+                touched();
+            }));
+        }
+        y += 34;
+        addRenderableWidget(new StarButton(x, y, 84, 18, "Fila de ojos", this.pick == 0 ? StarButton.Style.TAB_ON : StarButton.Style.TAB, () -> {
+            this.pick = 0;
+            rebuildWidgets();
+        }));
+        addRenderableWidget(new StarButton(x + 88, y, 82, 18, "Fila de cejas", this.pick == 1 ? StarButton.Style.TAB_ON : StarButton.Style.TAB, () -> {
+            this.pick = 1;
+            rebuildWidgets();
+        }));
+        y += 24;
+        addRenderableWidget(new StarButton(x, y, 170, 18, this.showHat ? "Ver: con capa de afuera" : "Ver: solo la cara", StarButton.Style.GHOST, () -> {
+            this.showHat = !this.showHat;
+            rebuildWidgets();
+        }));
+        y = py() + ph() - 50;
+        addRenderableWidget(new StarButton(x, y, 170, 18, "⬇ Exportar skin para Just Expressions", StarButton.Style.NORMAL, this::export));
+        y += 24;
+        addRenderableWidget(new StarButton(x, y, 82, 18, "Cancelar", StarButton.Style.NORMAL, this::onClose));
+        addRenderableWidget(new StarButton(x + 88, y, 82, 18, "Guardar", StarButton.Style.ACCENT, this::save));
+    }
+
+    private void touched() {
+        ClientTraits.changed(this.skin);
+        rebuildWidgets();
+    }
+
+    /** Guarda una copia de tu skin con los pixeles extra, lista para subir a tu cuenta. */
+    private void export() {
+        if (this.work.eyes == 0 && this.work.brows == 0) {
+            this.status = "§cElegí primero los ojos o las cejas";
+            return;
+        }
+        var img = ClientTraits.exportFor(this.skinId, this.work);
+        if (img == null) {
+            this.status = "§cNo pude leer tu skin";
+            return;
+        }
+        try (img) {
+            java.nio.file.Path dir = Minecraft.getInstance().gameDirectory.toPath().resolve("starbody").resolve("skins");
+            java.nio.file.Files.createDirectories(dir);
+            String name = Minecraft.getInstance().getUser().getName().replaceAll("[^a-zA-Z0-9_]", "_");
+            java.nio.file.Path f = dir.resolve(name + "_just_expressions.png");
+            img.writeToFile(f);
+            this.status = "§aGuardada en starbody/skins/" + f.getFileName();
+            net.minecraft.util.Util.getPlatform().openPath(dir);
+        } catch (Exception e) {
+            this.status = "§cNo se pudo guardar: " + e.getMessage();
+        }
+    }
+
+    private int faceCell() {
+        return Math.max(6, Math.min((ph() - 70) / 8, (pw() - 210) / 8));
+    }
+
+    private void renderEyes(GuiGraphics g, int mx, int my) {
+        int px = px(), py = py(), pw = pw(), ph = ph(), c = faceCell(), fx = px + 14, fy = py + 34, size = 8 * c;
+        g.drawString(this.font, "✦ StarBody · Ojos y cejas animados", px + 10, py + ph - 14, UI.MUTED, false);
+        g.fill(fx, fy, fx + size, fy + size, 0xFF221E2A);
+        g.blit(RenderPipelines.GUI_TEXTURED, this.skinId, fx, fy, 8, 8, size, size, 8, 8, 64, 64);
+        if (this.showHat) {
+            g.blit(RenderPipelines.GUI_TEXTURED, this.skinId, fx, fy, 40, 8, size, size, 8, 8, 64, 64);
+        }
+        UI.box(g, fx - 1, fy - 1, size + 2, size + 2, 0x00000000, UI.BORDER);
+        int[] cols = {1, 5};
+        if (this.work.eyes > 0) {
+            int r = Expressions.clampEye(this.work.eyes, this.work.eyeRow);
+            for (int col : cols) {
+                g.renderOutline(fx + col * c, fy + r * c, 2 * c, this.work.eyes * c, 0xFFFFC66B);
+            }
+            for (int col : cols) {
+                g.renderOutline(fx + col * c, fy + (r - 1) * c, 2 * c, c, 0x80FFC66B); // parpado
+            }
+        }
+        if (this.work.brows > 0) {
+            int b = Expressions.clampBrow(this.work.browRow);
+            for (int col : cols) {
+                g.renderOutline(fx + col * c, fy + b * c, 2 * c, c, UI.ACCENT);
+            }
+        }
+        // fila bajo el mouse
+        if (mx >= fx && my >= fy && mx < fx + size && my < fy + size) {
+            int row = (my - fy) / c;
+            g.fill(fx, fy + row * c, fx + size, fy + (row + 1) * c, 0x30FFFFFF);
+        }
+        int right = px + pw - 10, x = right - 170;
+        g.drawString(this.font, "Ojos", x, py + 30, UI.MUTED, false);
+        g.drawString(this.font, "Cejas (se mueven con la cara)", x, py + 64, UI.MUTED, false);
+        g.drawString(this.font, "Tocá en la cara para elegir:", x, py + 98, UI.MUTED, false);
+        String[] help = {"Los ojos tienen que estar en las", "columnas 2-3 y 6-7 de la cara (las", "normales). Amarillo: ojos; violeta:",
+                "cejas. Exportá la skin y subila a", "tu cuenta; en ETF activá \"Allow skin", "transparency: All skins\"."};
+        for (int i = 0; i < help.length; i++) {
+            g.drawString(this.font, help[i], x, py + 150 + i * 10, 0xFF7E7290, false);
+        }
+        if (!this.status.isEmpty()) {
+            g.drawString(this.font, this.status, fx, fy + size + 6, UI.TEXT, false);
+        }
     }
 
     private void save() {
@@ -200,6 +337,26 @@ public class EditorScreen extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent e, boolean doubleClick) {
+        if (tab == 1) {
+            int c = faceCell(), fx = px() + 14, fy = py() + 34;
+            if (e.x() >= fx && e.y() >= fy && e.x() < fx + 8 * c && e.y() < fy + 8 * c) {
+                int row = (int) ((e.y() - fy) / c);
+                if (this.pick == 0) {
+                    if (this.work.eyes == 0) {
+                        this.work.eyes = 1;
+                    }
+                    this.work.eyeRow = Expressions.clampEye(this.work.eyes, row);
+                } else {
+                    if (this.work.brows == 0) {
+                        this.work.brows = 1;
+                    }
+                    this.work.browRow = Expressions.clampBrow(row);
+                }
+                touched();
+                return true;
+            }
+            return super.mouseClicked(e, doubleClick);
+        }
         if (pixelAt(e.x(), e.y()) != null) {
             // clic izquierdo pinta (o borra, con la goma); el derecho siempre borra
             this.dragging = e.button() == 1 || this.erase ? 1 : 0;
@@ -230,8 +387,13 @@ public class EditorScreen extends Screen {
     public void render(GuiGraphics g, int mx, int my, float partial) {
         int px = px(), py = py(), pw = pw(), ph = ph(), s = cell(), gx = gx(), gy = gy(), size = 64 * s;
         UI.panel(g, px, py, pw, ph);
-        g.drawString(this.font, "✦ StarBody · Pelo con físicas", px + 10, py + 9, UI.ACCENT, false);
-        String hint = "Pintá el pelo que querés que se mueva";
+        g.drawString(this.font, "✦ StarBody", px + 10, py + 9, UI.ACCENT, false);
+        if (tab == 1) {
+            renderEyes(g, mx, my);
+            super.render(g, mx, my, partial);
+            return;
+        }
+        String hint = "Pintá el pelo que se mueve";
         g.drawString(this.font, hint, px + pw - 10 - this.font.width(hint), py + 9, UI.MUTED, false);
         // fondo a cuadros (para ver lo transparente), la skin y lo que no se puede marcar, oscuro
         for (int by = 0; by < 16; by++) {

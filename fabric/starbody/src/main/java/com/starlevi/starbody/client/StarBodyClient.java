@@ -93,7 +93,7 @@ public final class StarBodyClient implements ClientModInitializer {
         String skin = skinId.toString();
         Traits t = ClientTraits.get(skin);
         HairMesh mesh = t == null || t.empty() ? null : ClientTraits.mesh(skin);
-        if (mesh == null || mesh.strips.isEmpty()) {
+        if (mesh == null) {
             fs.setData(HairRender.KEY, null);
             return;
         }

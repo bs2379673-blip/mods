@@ -92,6 +92,29 @@ public class StarBodyTest implements FabricClientGameTest {
             ctx.waitTicks(5);
             String synced = ctx.computeOnClient(mc -> String.valueOf(ClientTraits.get(StarBodyClient.mySkin().toString()) != null));
             System.out.println("StarBody prueba: rasgos guardados = " + synced);
+            // ojos para Just Expressions: los pixeles extra tienen que ser copia de los ojos de la cara
+            String eyes = ctx.computeOnClient(mc -> {
+                Traits t = new Traits();
+                t.eyes = 1;
+                t.eyeRow = 4;
+                t.brows = 1;
+                t.browRow = 3;
+                var img = ClientTraits.exportFor(StarBodyClient.mySkin(), t);
+                if (img == null) {
+                    return "no se pudo leer la skin";
+                }
+                try (img) {
+                    int[] cols = {1, 2, 5, 6};
+                    for (int i = 0; i < 4; i++) {
+                        if (img.getPixel(4 + i, 3) != img.getPixel(8 + cols[i], 12) || img.getPixel(60 + i, 3) != img.getPixel(8 + cols[i], 11)
+                                || (img.getPixel(4 + i, 2) >>> 24) != 255) {
+                            return "MAL en el pixel " + i;
+                        }
+                    }
+                    return "bien";
+                }
+            });
+            System.out.println("StarBody prueba: ojos para Just Expressions = " + eyes);
         }
     }
 }

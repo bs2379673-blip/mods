@@ -24,7 +24,7 @@ public final class HairRender {
     }
 
     public static void submit(Frame f, PoseStack ps, SubmitNodeCollector collector, int light, ModelPart head, ModelPart body) {
-        if (f == null || f.mesh() == null) {
+        if (f == null || f.mesh() == null || f.mesh().strips.isEmpty()) {
             return;
         }
         draw(f, ps, collector, light, head, SkinLayout.Part.HEAD);

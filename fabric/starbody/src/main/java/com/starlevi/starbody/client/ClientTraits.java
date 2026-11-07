@@ -62,6 +62,7 @@ public final class ClientTraits {
         if (t == null || t.empty()) {
             return null;
         }
+        // (puede no tener tiras: solo ojos)
         return MESH.computeIfAbsent(skin, k -> new HairMesh(t));
     }
 
@@ -78,6 +79,7 @@ public final class ClientTraits {
             HIDDEN.put(skin, null);
             return null;
         }
+        Expressions.apply(img, t);
         for (SkinLayout.Face f : SkinLayout.FACES) {
             for (int u = f.u0(); u < f.u0() + f.width(); u++) {
                 for (int v = f.v0(); v < f.v0() + f.height(); v++) {
@@ -124,6 +126,15 @@ public final class ClientTraits {
             StarBody.LOGGER.warn("StarBody: no pude leer la skin {}: {}", skinId, e.toString());
         }
         return null;
+    }
+
+    /** La skin con los pixeles extra para Just Expressions, para subirla a tu cuenta (null si no se pudo). */
+    public static NativeImage exportFor(Identifier skinId, Traits t) {
+        NativeImage img = read(skinId);
+        if (img != null) {
+            Expressions.apply(img, t);
+        }
+        return img;
     }
 
     public static void clear() {
