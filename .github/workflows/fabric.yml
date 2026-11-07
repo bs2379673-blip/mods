@@ -4,6 +4,11 @@ on:
     branches: [forge-1.20.1]
     paths: ['fabric/**', '.github/workflows/fabric.yml']
   workflow_dispatch:
+    inputs:
+      pruebas:
+        description: 'Correr las pruebas visuales (juego real)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -51,6 +56,8 @@ jobs:
             }
           done
       - name: Pruebas visuales (juego real con capturas)
+        # solo si se piden a mano (las pruebas las hace Starlevi en su juego)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.pruebas }}
         run: |
           sudo apt-get update -qq >/dev/null && sudo apt-get install -y -qq xvfb ffmpeg >/dev/null
           mkdir -p vis
@@ -90,4 +97,5 @@ jobs:
           gh release upload star-fabric-1.21.11 out/*.jar --clobber
           tar czf fabric-cp.tgz cp
           gh release view fabric-ci >/dev/null 2>&1 || gh release create fabric-ci --title "fabric-ci" --notes "classpath para compilar"
-          gh release upload fabric-ci fabric-cp.tgz fabric-vis.tgz --clobber
+          gh release upload fabric-ci fabric-cp.tgz --clobber
+          [ -f fabric-vis.tgz ] && gh release upload fabric-ci fabric-vis.tgz --clobber || true
