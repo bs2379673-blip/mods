@@ -52,6 +52,9 @@ public final class StarVillagers implements ModInitializer {
      */
     public static String emfModel = "player";
 
+    /** Piel lisa (sin las sombras y manchas oscuras de la piel base). Config "piel_lisa". */
+    public static boolean smoothSkin = true;
+
     /**
      * De donde salen las animaciones de los aldeanos, ademas del modelo humano: config/starscenes/modelos/&lt;nombre&gt;.bbmodel.
      * Con "+" adelante, sus animaciones reemplazan a las que se llaman igual. Se cambia en config/starvillagers.json.
@@ -163,6 +166,8 @@ public final class StarVillagers implements ModInitializer {
                           // Tono de piel de los aldeanos: "clara" (todos de tez blanca o clara, por el lore del mundo)
                           // o "bioma" (como en MCA: depende del bioma, con gente de otros lados).
                           "piel": "clara",
+                          // Piel lisa: sin las sombras y manchas oscuras de la piel base (false = como en MCA).
+                          "piel_lisa": true,
                           // Tus animaciones de Blockbench (config/starscenes/modelos/<nombre>.bbmodel), con los huesos del
                           // modelo humano. Con "+" adelante reemplazan a las del mod que se llamen igual.
                           "animaciones": ["+aldeanos", "scenes_quests"]
@@ -188,6 +193,7 @@ public final class StarVillagers implements ModInitializer {
                 o.getAsJsonArray("animaciones").forEach(x -> l.add(x.getAsString()));
                 animSources = java.util.List.copyOf(l);
             }
+            smoothSkin = !o.has("piel_lisa") || o.get("piel_lisa").getAsBoolean();
             Looks.lightSkin = !o.has("piel") || !o.get("piel").getAsString().equalsIgnoreCase("bioma");
         } catch (Exception e) {
             LOGGER.warn("StarVillagers: no pude leer starvillagers.json: {}", e.toString());

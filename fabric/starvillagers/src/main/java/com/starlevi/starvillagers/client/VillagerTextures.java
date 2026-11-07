@@ -188,9 +188,53 @@ public final class VillagerTextures {
         return out;
     }
 
+    private static final Map<NativeImage, NativeImage> SMOOTH = new java.util.IdentityHashMap<>();
+
+    private static NativeImage smoothCached(NativeImage src) {
+        return src == null ? null : SMOOTH.computeIfAbsent(src, VillagerTextures::smooth);
+    }
+
+    /** Piel lisa: baja las sombras y manchas oscuras de la piel base (queda un tono parejo). */
+    private static NativeImage smooth(NativeImage src) {
+        if (src == null) {
+            return null;
+        }
+        int w = src.getWidth(), h = src.getHeight();
+        double sum = 0;
+        int n = 0;
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                int c = src.getPixel(x, y);
+                if ((c >>> 24) > 0) {
+                    sum += ((c >> 16 & 255) + (c >> 8 & 255) + (c & 255)) / 3.0;
+                    n++;
+                }
+            }
+        }
+        if (n == 0) {
+            return src;
+        }
+        float mean = (float) (sum / n), keep = 0.3f;
+        NativeImage out = new NativeImage(w, h, true);
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                int c = src.getPixel(x, y);
+                int a = c >>> 24;
+                if (a == 0) {
+                    out.setPixel(x, y, 0);
+                    continue;
+                }
+                int r = Math.round(mean + ((c >> 16 & 255) - mean) * keep), g = Math.round(mean + ((c >> 8 & 255) - mean) * keep),
+                        b = Math.round(mean + ((c & 255) - mean) * keep);
+                out.setPixel(x, y, a << 24 | Math.max(0, Math.min(255, r)) << 16 | Math.max(0, Math.min(255, g)) << 8 | Math.max(0, Math.min(255, b)));
+            }
+        }
+        return out;
+    }
+
     private static NativeImage compose(NativeImage skin, int skinColor, NativeImage face, NativeImage clothes, NativeImage hair, int hairColor) {
         NativeImage out = new NativeImage(64, 64, true);
-        layer(out, skin, skinColor);
+        layer(out, StarVillagers.smoothSkin ? smoothCached(skin) : skin, skinColor);
         layer(out, face, 0xFFFFFFFF);
         layer(out, clothes, 0xFFFFFFFF);
         layer(out, hair, hairColor);
