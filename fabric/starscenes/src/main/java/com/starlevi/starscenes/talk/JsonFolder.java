@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 /** Lee los .json de una carpeta de config/starscenes (con subcarpetas), aceptando comentarios. */
 final class JsonFolder {
     private static final Map<String, List<String>> EXAMPLES = Map.of("dialogos", List.of("ejemplo.json"), "misiones", List.of("ejemplo_lena.json"),
-            "tiendas", List.of("ejemplo_herrero.json"));
+            "tiendas", List.of("ejemplo_herrero.json"), "escenas", List.of("ejemplo_escena.json"));
 
     private JsonFolder() {
     }

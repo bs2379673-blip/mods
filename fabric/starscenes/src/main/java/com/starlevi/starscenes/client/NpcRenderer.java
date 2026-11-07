@@ -61,6 +61,23 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
     /** El esqueleto de EMF de cada entidad (y de que modelo salio). */
     private static final Map<Entity, Object[]> RIGS = new WeakHashMap<>();
     private final ItemModelResolver items;
+    /** Cuando se animo por ultima vez cada NPC (los lejanos se animan menos veces por segundo). */
+    private static final Map<Entity, Long> LAST_ANIM = new WeakHashMap<>();
+
+    /** Si este cuadro hay que recalcular la pose (cerca siempre; lejos 20 o 8 veces por segundo). */
+    private static boolean animateNow(Entity npc, double distSq) {
+        if (distSq < 32 * 32) {
+            return true;
+        }
+        long now = System.nanoTime();
+        long every = distSq < 64 * 64 ? 50_000_000L : 125_000_000L;
+        Long last = LAST_ANIM.get(npc);
+        if (last != null && now - last < every) {
+            return false;
+        }
+        LAST_ANIM.put(npc, now);
+        return true;
+    }
 
     public NpcRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
@@ -94,12 +111,25 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         if (jem != null) {
             Object[] r = RIGS.get(npc);
             if (r == null || r[0] != jem) {
-                r = new Object[]{jem, new com.starlevi.starscenes.emf.EmfRig(jem)};
+                r = new Object[]{jem, new com.starlevi.starscenes.emf.EmfRig(jem), null};
                 RIGS.put(npc, r);
             }
             float headYaw = 0, headPitch = npc.getXRot(partial);
             if (npc instanceof LivingEntity le) {
                 headYaw = Mth.wrapDegrees(Mth.rotLerp(partial, le.yHeadRotO, le.yHeadRot) - s.yRot);
+            }
+            boolean anim = animateNow(npc, s.distanceToCameraSq);
+            if (!anim && r.length > 2 && r[2] != null) {
+                // lejos: la misma pose del cuadro anterior
+                Object[] c = (Object[]) r[2];
+                s.emf = (java.util.List<com.starlevi.starscenes.emf.EmfRig.Draw>) c[0];
+                s.emfHead = (Matrix4f) c[1];
+                s.emfRight = (Matrix4f) c[2];
+                s.emfLeft = (Matrix4f) c[3];
+                update(s.main, npc.sceneItem(SceneActor.MAIN_HAND), ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, npc);
+                update(s.off, npc.sceneItem(SceneActor.OFF_HAND), ItemDisplayContext.THIRD_PERSON_LEFT_HAND, npc);
+                update(s.head, npc.sceneItem(SceneActor.HEAD), ItemDisplayContext.HEAD, npc);
+                return;
             }
             java.util.Map<String, float[]> gesture = java.util.Map.of();
             if (s.ready != null) {
@@ -115,6 +145,11 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
             Matrix4f ra = ((com.starlevi.starscenes.emf.EmfRig) r[1]).armMatrix(true), la = ((com.starlevi.starscenes.emf.EmfRig) r[1]).armMatrix(false);
             s.emfRight = ra == null ? null : new Matrix4f(ra);
             s.emfLeft = la == null ? null : new Matrix4f(la);
+            if (r.length < 3) {
+                r = new Object[]{r[0], r[1], null};
+                RIGS.put(npc, r);
+            }
+            r[2] = new Object[]{s.emf, s.emfHead, s.emfRight, s.emfLeft};
             update(s.main, npc.sceneItem(SceneActor.MAIN_HAND), ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, npc);
             update(s.off, npc.sceneItem(SceneActor.OFF_HAND), ItemDisplayContext.THIRD_PERSON_LEFT_HAND, npc);
             update(s.head, npc.sceneItem(SceneActor.HEAD), ItemDisplayContext.HEAD, npc);
@@ -122,7 +157,9 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         }
         if (s.ready != null) {
             NpcAnimator an = ANIMATORS.computeIfAbsent(npc, k -> new NpcAnimator());
-            an.update(npc, npc, s.ready.model, (npc.tickCount + partial) / 20f, Minecraft.getInstance().player, s.yRot);
+            if (an.mats.size() != s.ready.model.bones.size() || animateNow(npc, s.distanceToCameraSq)) {
+                an.update(npc, npc, s.ready.model, (npc.tickCount + partial) / 20f, Minecraft.getInstance().player, s.yRot);
+            }
             s.mats = new Matrix4f[an.mats.size()];
             for (int i = 0; i < s.mats.length; i++) {
                 s.mats[i] = new Matrix4f(an.mats.get(i));

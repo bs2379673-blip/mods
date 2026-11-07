@@ -106,6 +106,21 @@ public final class StarScenesAPI {
         return Dialogues.open(player, speaker, dialogue);
     }
 
+    /** Pone una escena (config/starscenes/escenas/&lt;id&gt;.json) para el jugador. */
+    public static boolean playScene(ServerPlayer player, Entity speaker, String id) {
+        return com.starlevi.starscenes.talk.Cutscenes.play(player, speaker, id);
+    }
+
+    /** Pone una escena armada en el momento (mismo formato que los .json de escenas). */
+    public static boolean playScene(ServerPlayer player, Entity speaker, String id, com.google.gson.JsonObject scene) {
+        return com.starlevi.starscenes.talk.Cutscenes.play(player, speaker, id, scene);
+    }
+
+    /** Si el jugador esta viendo una escena. */
+    public static boolean inScene(ServerPlayer player) {
+        return com.starlevi.starscenes.talk.Cutscenes.playing(player);
+    }
+
     /** Registra una accion nueva para dialogos y recompensas, ej. "regalo" o "casarse". */
     public static void registerAction(String type, Action action) {
         Actions.register(type, action);

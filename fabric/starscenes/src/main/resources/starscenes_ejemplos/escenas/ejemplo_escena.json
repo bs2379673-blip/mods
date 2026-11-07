@@ -1,0 +1,23 @@
+// Una escena de ejemplo. Probala con: /starscenes escena ejemplo_escena
+// "relativo": true -> todas las posiciones son desde donde esta parado el jugador al empezar.
+// Cada paso tiene "en" (segundos desde que empieza) y lo que pasa en ese momento.
+{
+  "relativo": true,
+  "bloquear": true,        // el jugador no se puede mover durante la escena
+  "barras": true,          // barras negras de cine arriba y abajo
+  "saltear": true,         // se puede saltear manteniendo Shift
+  "al_terminar": ["aviso:&7Fin de la escena"],
+  "pasos": [
+    {"en": 0, "fundido": "entrada", "duracion": 1.5},
+    {"en": 0, "camara": {"desde": [6, 3, 6], "hasta": [3, 2, 4], "mirar": [0, 1.5, 0], "duracion": 4}},
+    {"en": 0.5, "titulo": "&6Capítulo 1", "subtitulo": "El pueblo despierta", "duracion": 3.5},
+    {"en": 4, "camara": {"orbitar": {"centro": [0, 0, 0], "radio": 4, "altura": 1.8, "desde_angulo": 30, "hasta_angulo": 160}, "duracion": 5}},
+    {"en": 4.5, "texto": "Hace mucho tiempo, en un pueblo tranquilo...", "duracion": 4},
+    {"en": 7, "temblor": 1.5, "duracion": 1},
+    {"en": 7, "sonido": "minecraft:entity.generic.explode", "volumen": 0.6},
+    {"en": 9, "camara": {"seguir": "@jugador", "distancia": [0, 1.7, 3], "duracion": 2}},
+    {"en": 9.5, "gesto_jugador": "wave", "segundos": 2},
+    {"en": 10, "fundido": "negro", "duracion": 1},
+    {"en": 11.2, "fin": true}
+  ]
+}

@@ -3,6 +3,6 @@
   "minVersion": "0.8",
   "package": "com.starlevi.starscenes.mixin",
   "compatibilityLevel": "JAVA_21",
-  "client": ["PlayerModelMixin"],
+  "client": ["PlayerModelMixin", "CameraMixin"],
   "injectors": {"defaultRequire": 1}
 }

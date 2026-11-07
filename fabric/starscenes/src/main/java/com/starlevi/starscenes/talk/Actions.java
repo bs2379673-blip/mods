@@ -237,6 +237,8 @@ public final class Actions {
         register("entregar", (p, s, v) -> Quests.deliver(p, s, v));
         register("abandonar", (p, s, v) -> Quests.abandon(p, v));
         register("tienda", (p, s, v) -> Shops.open(p, s, v));
+        register("escena", (p, s, v) -> Cutscenes.play(p, s, v));
+        register("cortar_escena", (p, s, v) -> Cutscenes.stop(p, false));
 
         registerCondition("tiene", (p, s, v) -> {
             ItemSpec it = ItemSpec.parse(v);

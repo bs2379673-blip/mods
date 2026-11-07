@@ -354,7 +354,56 @@ public final class Net {
         }
     }
 
+    /** Servidor -> cliente: empieza una escena (el json entero; las posiciones se suman al origen). */
+    public record SceneStart(String id, String json, double ox, double oy, double oz) implements CustomPacketPayload {
+        public static final Type<SceneStart> TYPE = new Type<>(Net.id("escena"));
+        public static final StreamCodec<FriendlyByteBuf, SceneStart> CODEC = CustomPacketPayload.codec(SceneStart::write, SceneStart::new);
+
+        SceneStart(FriendlyByteBuf b) {
+            this(b.readUtf(128), b.readUtf(1 << 20), b.readDouble(), b.readDouble(), b.readDouble());
+        }
+
+        void write(FriendlyByteBuf b) {
+            b.writeUtf(this.id, 128);
+            b.writeUtf(this.json, 1 << 20);
+            b.writeDouble(this.ox);
+            b.writeDouble(this.oy);
+            b.writeDouble(this.oz);
+        }
+
+        @Override
+        public Type<SceneStart> type() {
+            return TYPE;
+        }
+    }
+
+    /** Servidor -> cliente: termino la escena. */
+    public record SceneStop() implements CustomPacketPayload {
+        public static final Type<SceneStop> TYPE = new Type<>(id("escena_fin"));
+        public static final StreamCodec<FriendlyByteBuf, SceneStop> CODEC = StreamCodec.unit(new SceneStop());
+
+        @Override
+        public Type<SceneStop> type() {
+            return TYPE;
+        }
+    }
+
+    /** Cliente -> servidor: el jugador quiere saltear la escena. */
+    public record SceneSkip() implements CustomPacketPayload {
+        public static final Type<SceneSkip> TYPE = new Type<>(id("escena_saltear"));
+        public static final StreamCodec<FriendlyByteBuf, SceneSkip> CODEC = StreamCodec.unit(new SceneSkip());
+
+        @Override
+        public Type<SceneSkip> type() {
+            return TYPE;
+        }
+    }
+
     public static void register() {
+        PayloadTypeRegistry.playS2C().register(SceneStart.TYPE, SceneStart.CODEC);
+        PayloadTypeRegistry.playS2C().register(SceneStop.TYPE, SceneStop.CODEC);
+        PayloadTypeRegistry.playC2S().register(SceneSkip.TYPE, SceneSkip.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(SceneSkip.TYPE, (p, ctx) -> com.starlevi.starscenes.talk.Cutscenes.skip(ctx.player()));
         PayloadTypeRegistry.playS2C().register(Index.TYPE, Index.CODEC);
         PayloadTypeRegistry.playS2C().register(Chunk.TYPE, Chunk.CODEC);
         PayloadTypeRegistry.playS2C().register(Play.TYPE, Play.CODEC);

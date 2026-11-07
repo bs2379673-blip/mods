@@ -53,6 +53,7 @@ public final class StarScenes implements ModInitializer {
             Uploads.tick(s);
             Dialogues.tick(s);
             Quests.tick(s);
+            com.starlevi.starscenes.talk.Cutscenes.tick(s);
             PlayerStore.tick(s);
         });
         ServerLivingEntityEvents.AFTER_DEATH.register(Quests::killed);
@@ -63,6 +64,7 @@ public final class StarScenes implements ModInitializer {
             Dialogues.left(handler.getPlayer());
             Shops.close(handler.getPlayer());
             Quests.left(handler.getPlayer());
+            com.starlevi.starscenes.talk.Cutscenes.left(handler.getPlayer());
             PlayerStore.left(handler.getPlayer());
         });
     }
@@ -70,7 +72,7 @@ public final class StarScenes implements ModInitializer {
     /** Lee dialogos, misiones y tiendas; devuelve el resumen (con los errores, si hubo). */
     public static String loadTalk() {
         java.util.List<String> errors = new java.util.ArrayList<>();
-        String msg = Dialogues.load(errors) + ", " + Quests.load(errors) + ", " + Shops.load(errors);
+        String msg = Dialogues.load(errors) + ", " + Quests.load(errors) + ", " + Shops.load(errors) + ", " + com.starlevi.starscenes.talk.Cutscenes.load(errors);
         if (!errors.isEmpty()) {
             msg += "\n§cErrores:§r\n" + String.join("\n", errors);
         }

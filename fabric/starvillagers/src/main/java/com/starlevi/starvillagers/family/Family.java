@@ -52,6 +52,37 @@ public final class Family {
         return FamilyStore.getOrCreate(p.getUUID(), p.getName().getString(), false, true);
     }
 
+    /** La escenita del casamiento: la camara da la vuelta alrededor de los dos, se besan, fuegos artificiales. */
+    private static void wedding(ServerPlayer p, Villager v, String name) {
+        double mx = (v.getX() - p.getX()) / 2, my = (v.getY() - p.getY()) / 2, mz = (v.getZ() - p.getZ()) / 2;
+        float start = (float) Math.toDegrees(Math.atan2(v.getX() - p.getX(), v.getZ() - p.getZ())) + 90;
+        String c = "[" + mx + "," + my + "," + mz + "]";
+        String json = "{\"relativo\":true,\"bloquear\":true,\"barras\":true,\"saltear\":true,\"pasos\":["
+                + "{\"en\":0,\"fundido\":\"entrada\",\"duracion\":1},"
+                + "{\"en\":0,\"musica\":\"minecraft:music_disc.cat\",\"volumen\":0.7},"
+                + "{\"en\":0,\"camara\":{\"orbitar\":{\"centro\":" + c + ",\"radio\":3.6,\"altura\":1.6,\"desde_angulo\":" + start
+                + ",\"hasta_angulo\":" + (start + 200) + "},\"duracion\":9}},"
+                + "{\"en\":0.2,\"npc\":\"@npc\",\"mirar\":\"@jugador\"},"
+                + "{\"en\":0.8,\"titulo\":\"&d♥ ¡Vivan los novios! ♥\",\"subtitulo\":\"" + esc(p.getName().getString()) + " y " + esc(name) + "\",\"duracion\":4},"
+                + "{\"en\":2.5,\"npc\":\"@npc\",\"animacion\":\"kiss\"},"
+                + "{\"en\":2.5,\"gesto_jugador\":\"kiss\",\"segundos\":2.4},"
+                + "{\"en\":4.5,\"comando\":\"summon firework_rocket ~2 ~1 ~2 {LifeTime:30,FireworksItem:{id:firework_rocket,count:1,components:{fireworks:{explosions:[{shape:large_ball,colors:[I;16738740,16777215]}]}}}}\"},"
+                + "{\"en\":5.2,\"comando\":\"summon firework_rocket ~-2 ~1 ~-1 {LifeTime:30,FireworksItem:{id:firework_rocket,count:1,components:{fireworks:{explosions:[{shape:star,colors:[I;16777045,16738740]}]}}}}\"},"
+                + "{\"en\":5.5,\"texto\":\"" + esc(name) + ": ¡Te amo!\",\"duracion\":2.5},"
+                + "{\"en\":6,\"npc\":\"@npc\",\"animacion\":\"happy\"},"
+                + "{\"en\":8,\"fundido\":\"negro\",\"duracion\":1},"
+                + "{\"en\":9.3,\"fin\":true}]}";
+        try {
+            StarScenesAPI.playScene(p, v, "casamiento", com.google.gson.JsonParser.parseString(json).getAsJsonObject());
+        } catch (Exception e) {
+            // sin escena no pasa nada: igual quedaron casados
+        }
+    }
+
+    private static String esc(String s) {
+        return s.replace("\\", "").replace("\"", "'");
+    }
+
     public static boolean partners(Villager v, ServerPlayer p) {
         FamilyStore.Person pv = person(v);
         return p.getUUID().equals(pv.partner) || p.getUUID().equals(pv.spouse);
@@ -154,6 +185,7 @@ public final class Family {
                     p.level().getServer().getPlayerList().broadcastSystemMessage(
                             Component.literal("§d♥ " + p.getName().getString() + " y " + pv.name + " se casaron. ¡Felicidades! ♥"), false);
                 }
+                wedding(p, v, pv.name);
             }
             case "hijo" -> {
                 StarScenesAPI.run(p, v, List.of("cerrar"));

@@ -97,6 +97,21 @@ public final class Commands {
         root.then(literal("mision").then(argument("que", StringArgumentType.word()).suggests(QUEST_OPS)
                 .then(argument("id", StringArgumentType.word()).suggests(QUESTS).executes(Commands::quest))));
         root.then(literal("animar").then(argument("animacion", StringArgumentType.word()).executes(Commands::play)));
+        SuggestionProvider<CommandSourceStack> scenes = (c, b) -> SharedSuggestionProvider.suggest(com.starlevi.starscenes.talk.Cutscenes.ids(), b);
+        root.then(literal("escena").then(argument("id", StringArgumentType.word()).suggests(scenes).executes(c -> {
+            ServerPlayer p = c.getSource().getPlayerOrException();
+            return com.starlevi.starscenes.talk.Cutscenes.play(p, Edits.nearest(p, RANGE), StringArgumentType.getString(c, "id")) ? 1 : 0;
+        }).then(argument("jugadores", net.minecraft.commands.arguments.EntityArgument.players()).executes(c -> {
+            int n = 0;
+            for (ServerPlayer p : net.minecraft.commands.arguments.EntityArgument.getPlayers(c, "jugadores")) {
+                n += com.starlevi.starscenes.talk.Cutscenes.play(p, null, StringArgumentType.getString(c, "id")) ? 1 : 0;
+            }
+            return n;
+        }))));
+        root.then(literal("cortar_escena").executes(c -> {
+            com.starlevi.starscenes.talk.Cutscenes.stop(c.getSource().getPlayerOrException(), false);
+            return 1;
+        }));
         d.register(root);
         d.register(literal("scenes").requires(net.minecraft.commands.Commands.hasPermission(net.minecraft.commands.Commands.LEVEL_GAMEMASTERS))
                 .redirect(d.getRoot().getChild("starscenes")));

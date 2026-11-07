@@ -35,8 +35,10 @@ public final class StarScenesClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(Net.ShopOpen.TYPE, (p, ctx) -> ShopScreen.show(p));
         ClientPlayNetworking.registerGlobalReceiver(Net.QuestHud.TYPE, (p, ctx) -> QuestHud.lines = p.lines());
         QuestHud.register();
+        Cinematic.register();
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             ClientScenes.disconnect();
+            Cinematic.stop();
             Bubbles.clear();
             PlayerGestures.clear();
             QuestHud.lines = java.util.List.of();
