@@ -26,6 +26,11 @@ public class StarFramesTest implements FabricClientGameTest {
     public void runTest(ClientGameTestContext ctx) {
         String dir = System.getenv("STARFRAMES_PRUEBA");
         String video = dir + "/video.mp4", image = dir + "/imagen.png";
+        // poca distancia: el mundo carga rapido en la maquina de GitHub
+        ctx.runOnClient(mc -> {
+            mc.options.renderDistance().set(4);
+            mc.options.simulationDistance().set(5);
+        });
         try (TestSingleplayerContext sp = ctx.worldBuilder().adjustSettings(st -> {
             st.getNormalPresetList().stream().filter(w -> w.preset().is(WorldPresets.FLAT)).findFirst()
                     .or(() -> st.getAltPresetList().stream().filter(w -> w.preset().is(WorldPresets.FLAT)).findFirst())
