@@ -40,12 +40,12 @@ public class RemoteMenu extends Screen {
         }
         y += 26;
         int vol = st == null ? 80 : st.volume();
-        addRenderableWidget(Button.builder(Component.literal("🔉 -"), w -> send("volumen", String.valueOf(Math.max(0, vol - 10)))).bounds(x, y, 50, 20).build());
-        addRenderableWidget(Button.builder(Component.literal("🔊 +"), w -> send("volumen", String.valueOf(Math.min(100, vol + 10)))).bounds(x + 54, y, 50, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("🔉 -"), w -> send("volumen", String.valueOf(Math.max(0, vol - 10)))).bounds(x, y, 30, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("🔊 +"), w -> send("volumen", String.valueOf(Math.min(100, vol + 10)))).bounds(x + 34, y, 30, 20).build());
         addRenderableWidget(Button.builder(Component.literal((st != null && st.loopOne() ? "§a" : "") + "Repetir este"), w -> send("repetir_uno", ""))
-                .bounds(x + 130, y, 92, 20).build());
+                .bounds(x + 140, y, 88, 20).build());
         addRenderableWidget(Button.builder(Component.literal((st != null && st.loopList() ? "§a" : "") + "Repetir lista"), w -> send("repetir_lista", ""))
-                .bounds(x + 226, y, 94, 20).build());
+                .bounds(x + 232, y, 88, 20).build());
         y += 34;
         // lista
         List<String> list = st == null ? List.of() : st.list();
@@ -78,6 +78,10 @@ public class RemoteMenu extends Screen {
 
     private static String shorten(String url) {
         String u = url.replaceFirst("^https?://(www\\.)?", "");
+        if (!url.matches("^[a-zA-Z]+://.*")) {
+            // archivo de la compu: solo el nombre
+            u = u.substring(Math.max(u.lastIndexOf('/'), u.lastIndexOf('\\')) + 1);
+        }
         return u.length() > 34 ? u.substring(0, 33) + "…" : u;
     }
 
@@ -107,7 +111,7 @@ public class RemoteMenu extends Screen {
         String time = t == null ? "" : clock(t[0]) + (t[1] > 0 ? " / " + clock(t[1]) : "");
         g.drawString(this.font, ClientChannels.status(this.channel) + "  " + time, x, 28, 0xFFB0B0B0);
         if (st != null) {
-            g.drawString(this.font, "Volumen " + st.volume() + "%", x + 108, 66 + 6, 0xFF8A8098);
+            g.drawString(this.font, "Volumen " + st.volume() + "%", x + 70, 66 + 6, 0xFF8A8098);
             if (st.list().isEmpty()) {
                 g.drawString(this.font, "La lista está vacía: agregá un link abajo", x, 100 + 6, 0xFF808080);
             }

@@ -53,7 +53,7 @@ public class ScreenMenu extends Screen {
         }
         addRenderableWidget(this.url);
         addRenderableWidget(Button.builder(Component.literal("▶ Reproducir"), b -> send("url", this.url.getValue())).bounds(x + 240, y, 80, 20).build());
-        y += 30;
+        y += 36;
         // canal: las pantallas con el mismo nombre muestran lo mismo
         this.channel = new EditBox(this.font, x, y, 156, 20, Component.literal("Canal"));
         this.channel.setMaxLength(32);
@@ -103,7 +103,7 @@ public class ScreenMenu extends Screen {
         if (s == null) {
             return;
         }
-        int x = this.width / 2 - 160, y = 30 + 30 + 34;
+        int x = this.width / 2 - 160, y = 30 + 36 + 34;
         g.drawCenteredString(this.font, "✦ Pantalla ✦", this.width / 2, 12, 0xFFE9B8FF);
         String[] names = {"Ancho (bloques)", "Alto (bloques)", "Corrida a la derecha", "Corrida hacia arriba", "Se escucha hasta (bloques)"};
         float[] vals = {s.width(), s.height(), s.offsetX(), s.offsetY(), s.range()};
@@ -113,7 +113,7 @@ public class ScreenMenu extends Screen {
                     0xFFFFFFFF);
         }
         g.drawString(this.font, s.bright() ? "Brilla sola" : "Toma la luz del lugar", x, y + 5 * 24 + 32, 0xFF8A8098);
-        g.drawString(this.font, "Estado: " + ClientChannels.status(s.channel()), x, 30 + 23, 0xFF8A8098);
+        g.drawString(this.font, "Estado: " + ClientChannels.status(s.channel()), x, 30 + 24, 0xFF8A8098);
     }
 
     @Override

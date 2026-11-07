@@ -135,6 +135,7 @@ public class NpcScreen extends Screen {
         g.drawCenteredString(this.font, n.model(), x + 260, y + 6, 0xFFFFFFFF);
         y += 24;
         g.drawString(this.font, "Skin: §f" + (n.skin().isEmpty() ? "la del modelo" : n.skin()), x, y + 6, 0xFFB0B0B0);
+        g.drawCenteredString(this.font, n.skin().isEmpty() ? "-" : n.skin(), x + 260, y + 6, 0xFFFFFFFF);
         y += 24;
         g.drawString(this.font, "Estilo de animaciones: §f" + (n.style() == 0 ? "al azar" : n.style()), x, y + 6, 0xFFB0B0B0);
         g.drawCenteredString(this.font, String.valueOf(n.style()), x + 260, y + 6, 0xFFFFFFFF);
