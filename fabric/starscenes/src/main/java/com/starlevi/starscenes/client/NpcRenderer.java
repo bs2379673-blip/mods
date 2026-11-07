@@ -47,7 +47,7 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         Entity entity;
         Entity self;
         float partial;
-        Matrix4f emfHead;
+        Matrix4f emfHead, emfRight, emfLeft;
         final ItemStackRenderState main = new ItemStackRenderState(), off = new ItemStackRenderState(), head = new ItemStackRenderState();
     }
 
@@ -88,6 +88,7 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         s.partial = partial;
         s.self = npc;
         s.emfHead = null;
+        s.emfRight = s.emfLeft = null;
         String emfName = npc.sceneEmfModel();
         com.starlevi.starscenes.emf.JemModel jem = emfName == null ? null : com.starlevi.starscenes.emf.EmfModels.get(emfName);
         if (jem != null) {
@@ -111,6 +112,12 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
             s.emf = ((com.starlevi.starscenes.emf.EmfRig) r[1]).pose(npc, partial, headYaw, headPitch, gesture);
             Matrix4f hm = ((com.starlevi.starscenes.emf.EmfRig) r[1]).headMatrix();
             s.emfHead = hm == null ? null : new Matrix4f(hm);
+            Matrix4f ra = ((com.starlevi.starscenes.emf.EmfRig) r[1]).armMatrix(true), la = ((com.starlevi.starscenes.emf.EmfRig) r[1]).armMatrix(false);
+            s.emfRight = ra == null ? null : new Matrix4f(ra);
+            s.emfLeft = la == null ? null : new Matrix4f(la);
+            update(s.main, npc.sceneItem(SceneActor.MAIN_HAND), ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, npc);
+            update(s.off, npc.sceneItem(SceneActor.OFF_HAND), ItemDisplayContext.THIRD_PERSON_LEFT_HAND, npc);
+            update(s.head, npc.sceneItem(SceneActor.HEAD), ItemDisplayContext.HEAD, npc);
             return;
         }
         if (s.ready != null) {
@@ -172,6 +179,19 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
                 ps.pushPose();
                 ps.mulPose(s.emfHead);
                 headLayers(s, ps, collector, light);
+                ps.popPose();
+            }
+            emfItem(ps, collector, s, s.main, s.emfRight, false, light);
+            emfItem(ps, collector, s, s.off, s.emfLeft, true, light);
+            if (s.emfHead != null && !s.head.isEmpty()) {
+                // como el gorro de Minecraft: en la cabeza, un poco mas grande
+                ps.pushPose();
+                ps.mulPose(s.emfHead);
+                ps.scale(16, 16, 16);
+                ps.translate(0, -0.25f, 0);
+                ps.mulPose(Axis.YP.rotationDegrees(180));
+                ps.scale(0.625f, -0.625f, -0.625f);
+                s.head.submit(ps, collector, light, OverlayTexture.NO_OVERLAY, s.outlineColor);
                 ps.popPose();
             }
             ps.popPose();
@@ -310,6 +330,21 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
                 }
             }
         }
+    }
+
+    /** Un item en la mano del modelo de EMF, igual que lo pone Minecraft en la mano de un jugador. */
+    private static void emfItem(PoseStack ps, SubmitNodeCollector collector, State s, ItemStackRenderState st, Matrix4f arm, boolean left, int light) {
+        if (st.isEmpty() || arm == null) {
+            return;
+        }
+        ps.pushPose();
+        ps.mulPose(arm);
+        ps.scale(16, 16, 16);
+        ps.mulPose(Axis.XP.rotationDegrees(-90));
+        ps.mulPose(Axis.YP.rotationDegrees(180));
+        ps.translate((left ? -1 : 1) / 16f, 0.125f, -0.625f);
+        st.submit(ps, collector, light, OverlayTexture.NO_OVERLAY, s.outlineColor);
+        ps.popPose();
     }
 
     private void item(PoseStack ps, SubmitNodeCollector collector, State s, ItemStackRenderState st, int bone, float[] at, boolean head, int light) {

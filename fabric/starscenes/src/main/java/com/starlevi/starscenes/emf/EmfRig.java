@@ -319,7 +319,12 @@ public final class EmfRig {
             b.sz = a.sz;
         }
     }
-    private Matrix4f headM;
+    private Matrix4f headM, rightArmM, leftArmM;
+
+    /** Donde quedaron los brazos en este cuadro (para poner los items en las manos). */
+    public Matrix4f armMatrix(boolean right) {
+        return right ? this.rightArmM : this.leftArmM;
+    }
     private long lastNanos;
 
     /** La matriz de la cabeza del ultimo cuadro (en pixeles del modelo), o null. */
@@ -420,6 +425,7 @@ public final class EmfRig {
         follow();
         List<Draw> out = new ArrayList<>();
         this.headM = null;
+        this.rightArmM = this.leftArmM = null;
         Matrix4f root = new Matrix4f();
         for (Node r : this.roots) {
             walk(r, root, out);
@@ -432,8 +438,14 @@ public final class EmfRig {
             return;
         }
         Matrix4f m = new Matrix4f(parent).translate(n.x, n.y, n.z).rotateZYX(n.rz, n.ry, n.rx).scale(n.sx, n.sy, n.sz);
-        if (n.vanilla && n.name.equals("head")) {
-            this.headM = m;
+        if (n.vanilla) {
+            switch (n.name) {
+                case "head" -> this.headM = m;
+                case "right_arm" -> this.rightArmM = m;
+                case "left_arm" -> this.leftArmM = m;
+                default -> {
+                }
+            }
         }
         if (n.boxes && !n.faces.isEmpty()) {
             out.add(new Draw(m, n.faces));

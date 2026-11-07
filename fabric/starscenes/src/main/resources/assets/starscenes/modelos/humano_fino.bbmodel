@@ -11784,6 +11784,1983 @@
      ]
     }
    }
+  },
+  {
+   "uuid": "3eff290b-3584-5d22-8abf-c2de6f91600f",
+   "name": "lean_wall",
+   "loop": "loop",
+   "length": 6.0,
+   "snapping": 24,
+   "animators": {
+    "8f05a2db-5c55-5cbc-af40-299c945fce28": {
+     "name": "body",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -6,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 3.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -7,
+         "y": 0,
+         "z": 1
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 6.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -6,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    },
+    "ca76d07c-ba90-54d7-b13f-2fd87da312c9": {
+     "name": "head",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -2,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -2,
+         "y": 18,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 3.5,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 12,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 4.5,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -2,
+         "y": -16,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 6.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -2,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    },
+    "5f0e0827-9ed0-53ab-8d6b-46abc267668e": {
+     "name": "right_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -62,
+         "y": 0,
+         "z": -38
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 3.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -60,
+         "y": 0,
+         "z": -38
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 6.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -62,
+         "y": 0,
+         "z": -38
+        }
+       ]
+      }
+     ]
+    },
+    "1ed41863-8160-5216-9e52-6ddad7ec175d": {
+     "name": "left_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -58,
+         "y": 0,
+         "z": 40
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 3.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -56,
+         "y": 0,
+         "z": 40
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 6.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -58,
+         "y": 0,
+         "z": 40
+        }
+       ]
+      }
+     ]
+    },
+    "45be12c3-8211-5fd2-b749-fe43ec4a8a9e": {
+     "name": "right_leg",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -32,
+         "y": 0,
+         "z": 4
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 6.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -32,
+         "y": 0,
+         "z": 4
+        }
+       ]
+      }
+     ]
+    },
+    "c0d2548d-5cac-5ec5-8943-9d2e5a129082": {
+     "name": "left_leg",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 4,
+         "y": 0,
+         "z": -2
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 6.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 4,
+         "y": 0,
+         "z": -2
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "uuid": "418dc156-9457-5fd4-9bb2-5c97ed6abedd",
+   "name": "ring_bell",
+   "loop": "once",
+   "length": 2.0,
+   "snapping": 24,
+   "animators": {
+    "5f0e0827-9ed0-53ab-8d6b-46abc267668e": {
+     "name": "right_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 3
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.25,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -150,
+         "y": 0,
+         "z": -10
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.45,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -95,
+         "y": 0,
+         "z": -8
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.7,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -150,
+         "y": 0,
+         "z": -10
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.9,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -95,
+         "y": 0,
+         "z": -8
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.15,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -150,
+         "y": 0,
+         "z": -10
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.35,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -95,
+         "y": 0,
+         "z": -8
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 3
+        }
+       ]
+      }
+     ]
+    },
+    "ca76d07c-ba90-54d7-b13f-2fd87da312c9": {
+     "name": "head",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.25,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -20,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.35,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -18,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    },
+    "8f05a2db-5c55-5cbc-af40-299c945fce28": {
+     "name": "body",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.45,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 4,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.9,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 4,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.35,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 4,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "uuid": "7bb7fad7-0bf0-5ffc-9b2d-3e1e85491f30",
+   "name": "eat",
+   "loop": "once",
+   "length": 2.4,
+   "snapping": 24,
+   "animators": {
+    "5f0e0827-9ed0-53ab-8d6b-46abc267668e": {
+     "name": "right_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 3
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.35,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -105,
+         "y": 0,
+         "z": -30
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.55,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -95,
+         "y": 0,
+         "z": -26
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.75,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -105,
+         "y": 0,
+         "z": -30
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.95,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -95,
+         "y": 0,
+         "z": -26
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.15,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -105,
+         "y": 0,
+         "z": -30
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.6,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -60,
+         "y": 0,
+         "z": -18
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -100,
+         "y": 0,
+         "z": -28
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.4,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 3
+        }
+       ]
+      }
+     ]
+    },
+    "ca76d07c-ba90-54d7-b13f-2fd87da312c9": {
+     "name": "head",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.35,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 6,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.55,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 10,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.75,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 6,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.95,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 10,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.15,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 6,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.6,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 14,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 6,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.4,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "uuid": "c7e25626-132b-5f19-a476-d0d6609a7780",
+   "name": "sunbathe",
+   "loop": "loop",
+   "length": 5.0,
+   "snapping": 24,
+   "animators": {
+    "ca76d07c-ba90-54d7-b13f-2fd87da312c9": {
+     "name": "head",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -32,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.5,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -36,
+         "y": 4,
+         "z": 3
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 5.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -32,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    },
+    "8f05a2db-5c55-5cbc-af40-299c945fce28": {
+     "name": "body",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -6,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.5,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -8,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 5.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -6,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    },
+    "5f0e0827-9ed0-53ab-8d6b-46abc267668e": {
+     "name": "right_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 22,
+         "y": 0,
+         "z": 12
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.5,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 24,
+         "y": 0,
+         "z": 14
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 5.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 22,
+         "y": 0,
+         "z": 12
+        }
+       ]
+      }
+     ]
+    },
+    "1ed41863-8160-5216-9e52-6ddad7ec175d": {
+     "name": "left_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 22,
+         "y": 0,
+         "z": -12
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.5,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 24,
+         "y": 0,
+         "z": -14
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 5.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 22,
+         "y": 0,
+         "z": -12
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "uuid": "3bf62810-9b86-5341-a129-a7f1e709e249",
+   "name": "warm_hands",
+   "loop": "loop",
+   "length": 1.6,
+   "snapping": 24,
+   "animators": {
+    "5f0e0827-9ed0-53ab-8d6b-46abc267668e": {
+     "name": "right_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -62,
+         "y": 8,
+         "z": -14
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.4,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -64,
+         "y": -6,
+         "z": -10
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.8,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -62,
+         "y": 8,
+         "z": -14
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.2,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -64,
+         "y": -6,
+         "z": -10
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.6,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -62,
+         "y": 8,
+         "z": -14
+        }
+       ]
+      }
+     ]
+    },
+    "1ed41863-8160-5216-9e52-6ddad7ec175d": {
+     "name": "left_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -62,
+         "y": -8,
+         "z": 14
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.4,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -64,
+         "y": 6,
+         "z": 10
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.8,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -62,
+         "y": -8,
+         "z": 14
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.2,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -64,
+         "y": 6,
+         "z": 10
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.6,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -62,
+         "y": -8,
+         "z": 14
+        }
+       ]
+      }
+     ]
+    },
+    "8f05a2db-5c55-5cbc-af40-299c945fce28": {
+     "name": "body",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 10,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.8,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 11,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.6,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 10,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    },
+    "ca76d07c-ba90-54d7-b13f-2fd87da312c9": {
+     "name": "head",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 14,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.6,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 14,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "uuid": "980226eb-177c-5c52-84c8-7ae4ce57d6d4",
+   "name": "sleepy",
+   "loop": "once",
+   "length": 3.2,
+   "snapping": 24,
+   "animators": {
+    "ca76d07c-ba90-54d7-b13f-2fd87da312c9": {
+     "name": "head",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.8,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 30,
+         "y": 0,
+         "z": 6
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 4,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.9,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 32,
+         "y": 0,
+         "z": -6
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.2,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 2,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 3.2,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    },
+    "8f05a2db-5c55-5cbc-af40-299c945fce28": {
+     "name": "body",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.8,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 6,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.9,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 6,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.2,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 3.2,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    },
+    "5f0e0827-9ed0-53ab-8d6b-46abc267668e": {
+     "name": "right_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 3
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.8,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 6,
+         "y": 0,
+         "z": 2
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.9,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 6,
+         "y": 0,
+         "z": 2
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 3.2,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 3
+        }
+       ]
+      }
+     ]
+    },
+    "1ed41863-8160-5216-9e52-6ddad7ec175d": {
+     "name": "left_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": -3
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.8,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 6,
+         "y": 0,
+         "z": -2
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.9,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 6,
+         "y": 0,
+         "z": -2
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 3.2,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": -3
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "uuid": "a7eb1a82-e4e5-5c7e-929a-308ad33b748f",
+   "name": "sweep",
+   "loop": "loop",
+   "length": 1.4,
+   "snapping": 24,
+   "animators": {
+    "5f0e0827-9ed0-53ab-8d6b-46abc267668e": {
+     "name": "right_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -40,
+         "y": 25,
+         "z": -10
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.7,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -40,
+         "y": -25,
+         "z": -6
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.4,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -40,
+         "y": 25,
+         "z": -10
+        }
+       ]
+      }
+     ]
+    },
+    "1ed41863-8160-5216-9e52-6ddad7ec175d": {
+     "name": "left_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -55,
+         "y": 25,
+         "z": 12
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.7,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -55,
+         "y": -25,
+         "z": 16
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.4,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -55,
+         "y": 25,
+         "z": 12
+        }
+       ]
+      }
+     ]
+    },
+    "8f05a2db-5c55-5cbc-af40-299c945fce28": {
+     "name": "body",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 14,
+         "y": 12,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.7,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 14,
+         "y": -12,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.4,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 14,
+         "y": 12,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    },
+    "ca76d07c-ba90-54d7-b13f-2fd87da312c9": {
+     "name": "head",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 22,
+         "y": 6,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.7,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 22,
+         "y": -6,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.4,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 22,
+         "y": 6,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "uuid": "4b818f78-e84d-5e8e-997b-0cf1c0fe66f7",
+   "name": "wave_far",
+   "loop": "once",
+   "length": 2.0,
+   "snapping": 24,
+   "animators": {
+    "5f0e0827-9ed0-53ab-8d6b-46abc267668e": {
+     "name": "right_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 3
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.3,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -175,
+         "y": 0,
+         "z": 20
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.55,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -175,
+         "y": 0,
+         "z": -10
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.8,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -175,
+         "y": 0,
+         "z": 20
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.05,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -175,
+         "y": 0,
+         "z": -10
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.3,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -175,
+         "y": 0,
+         "z": 20
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 3
+        }
+       ]
+      }
+     ]
+    },
+    "ca76d07c-ba90-54d7-b13f-2fd87da312c9": {
+     "name": "head",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.3,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -8,
+         "y": 0,
+         "z": -4
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.3,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -8,
+         "y": 0,
+         "z": -4
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    },
+    "8f05a2db-5c55-5cbc-af40-299c945fce28": {
+     "name": "body",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 0.3,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -2,
+         "y": 0,
+         "z": -4
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.3,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -2,
+         "y": 0,
+         "z": -4
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    },
+    "ba472521-7191-58ff-bc21-3eb1407f333e": {
+     "name": "player",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "position",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "position",
+       "time": 0.3,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0.4,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "position",
+       "time": 1.3,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0.4,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "position",
+       "time": 2.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "uuid": "eafa15d6-c994-5654-811a-95723f2cec99",
+   "name": "hands_hips",
+   "loop": "loop",
+   "length": 3.0,
+   "snapping": 24,
+   "animators": {
+    "5f0e0827-9ed0-53ab-8d6b-46abc267668e": {
+     "name": "right_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 8,
+         "y": 0,
+         "z": 42
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.5,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 6,
+         "y": 0,
+         "z": 44
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 3.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 8,
+         "y": 0,
+         "z": 42
+        }
+       ]
+      }
+     ]
+    },
+    "1ed41863-8160-5216-9e52-6ddad7ec175d": {
+     "name": "left_arm",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 8,
+         "y": 0,
+         "z": -42
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.5,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 6,
+         "y": 0,
+         "z": -44
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 3.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 8,
+         "y": 0,
+         "z": -42
+        }
+       ]
+      }
+     ]
+    },
+    "ca76d07c-ba90-54d7-b13f-2fd87da312c9": {
+     "name": "head",
+     "type": "bone",
+     "keyframes": [
+      {
+       "channel": "rotation",
+       "time": 0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 1.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 4,
+         "y": 8,
+         "z": 2
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 2.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": -2,
+         "y": -6,
+         "z": 0
+        }
+       ]
+      },
+      {
+       "channel": "rotation",
+       "time": 3.0,
+       "interpolation": "catmullrom",
+       "data_points": [
+        {
+         "x": 0,
+         "y": 0,
+         "z": 0
+        }
+       ]
+      }
+     ]
+    }
+   }
   }
  ]
 }
