@@ -151,6 +151,25 @@ public final class Edits {
                 }
                 return held.isEmpty() ? "Sacado el ítem de " + v : "Ítem en " + v + ": " + held.getHoverName().getString();
             }
+            case "dialogo": {
+                String id = v.isEmpty() || v.equals("-") ? "" : SceneLibrary.cleanId(v);
+                if (!id.isEmpty() && !com.starlevi.starscenes.talk.Dialogues.exists(id)) {
+                    return "No existe el diálogo " + v + " (están en config/starscenes/dialogos)";
+                }
+                npc.setDialogue(id);
+                return id.isEmpty() ? "Sin diálogo" : "Diálogo: " + id;
+            }
+            case "animar": {
+                com.starlevi.starscenes.api.StarScenesAPI.play(npc, v);
+                return null;
+            }
+            case "probar": {
+                if (npc.dialogue().isEmpty()) {
+                    return "No tiene diálogo";
+                }
+                com.starlevi.starscenes.talk.Dialogues.open(p, npc, npc.dialogue());
+                return null;
+            }
             case "quitar": {
                 npc.discard();
                 return "NPC quitado";

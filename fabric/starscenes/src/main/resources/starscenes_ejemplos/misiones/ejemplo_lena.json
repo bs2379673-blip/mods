@@ -1,0 +1,17 @@
+// Ejemplo de misión. Objetivos posibles:
+//   {"tipo": "traer", "item": "minecraft:bread", "cantidad": 5}     (también "#minecraft:logs" = cualquier tronco)
+//   {"tipo": "matar", "entidad": "minecraft:zombie", "cantidad": 3}
+//   {"tipo": "hablar", "npc": "Nombre del NPC"}   (o "dialogo": "id del diálogo")
+//   {"tipo": "ir", "x": 100, "y": 64, "z": -20, "radio": 5}
+//   {"tipo": "marca", "marca": "algo"}             (se cumple cuando un diálogo pone esa marca)
+// Cualquiera puede llevar "texto" para mostrarlo distinto en pantalla.
+// Las recompensas son acciones, como en los diálogos.
+{
+  "nombre": "Leña para la fragua",
+  "descripcion": "El herrero necesita troncos para su fragua.",
+  "objetivos": [
+    {"tipo": "traer", "item": "#minecraft:logs", "cantidad": 16, "texto": "Juntar troncos"}
+  ],
+  "recompensas": ["dar:minecraft:emerald 5", "xp:30", "marca:ayudo_herrero"],
+  "repetible": false
+}

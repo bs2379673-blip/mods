@@ -5,6 +5,11 @@ import com.starlevi.starscenes.net.Net;
 import com.starlevi.starscenes.server.Commands;
 import com.starlevi.starscenes.server.SceneLibrary;
 import com.starlevi.starscenes.server.Uploads;
+import com.starlevi.starscenes.talk.Dialogues;
+import com.starlevi.starscenes.talk.PlayerStore;
+import com.starlevi.starscenes.talk.Quests;
+import com.starlevi.starscenes.talk.Shops;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -38,9 +43,37 @@ public final class StarScenes implements ModInitializer {
     public void onInitialize() {
         Net.register();
         CommandRegistrationCallback.EVENT.register((d, ctx, env) -> Commands.register(d));
-        ServerLifecycleEvents.SERVER_STARTING.register(s -> SceneLibrary.scan());
-        ServerTickEvents.END_SERVER_TICK.register(Uploads::tick);
+        ServerLifecycleEvents.SERVER_STARTING.register(s -> {
+            SceneLibrary.scan();
+            PlayerStore.start(s);
+            LOGGER.info("StarScenes: {}", loadTalk());
+        });
+        ServerLifecycleEvents.SERVER_STOPPED.register(s -> PlayerStore.stop());
+        ServerTickEvents.END_SERVER_TICK.register(s -> {
+            Uploads.tick(s);
+            Dialogues.tick(s);
+            Quests.tick(s);
+            PlayerStore.tick(s);
+        });
+        ServerLivingEntityEvents.AFTER_DEATH.register(Quests::killed);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> sender.sendPacket(SceneLibrary.index()));
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> Uploads.left(handler.getPlayer()));
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> Quests.dirty(handler.getPlayer()));
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            Uploads.left(handler.getPlayer());
+            Dialogues.left(handler.getPlayer());
+            Shops.close(handler.getPlayer());
+            Quests.left(handler.getPlayer());
+            PlayerStore.left(handler.getPlayer());
+        });
+    }
+
+    /** Lee dialogos, misiones y tiendas; devuelve el resumen (con los errores, si hubo). */
+    public static String loadTalk() {
+        java.util.List<String> errors = new java.util.ArrayList<>();
+        String msg = Dialogues.load(errors) + ", " + Quests.load(errors) + ", " + Shops.load(errors);
+        if (!errors.isEmpty()) {
+            msg += "\n§cErrores:§r\n" + String.join("\n", errors);
+        }
+        return msg;
     }
 }

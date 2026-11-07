@@ -1,0 +1,11 @@
+// Ejemplo de tienda. Cada oferta: "precio" (uno o varios items), "da" (el item que te llevás),
+// y opcional: "texto", "limite" (compras por jugador), "si" (condiciones) y "acciones".
+{
+  "nombre": "Herrería",
+  "ofertas": [
+    {"precio": "minecraft:emerald 1", "da": "minecraft:bread 4"},
+    {"precio": ["minecraft:emerald 3", "minecraft:iron_ingot 2"], "da": "minecraft:iron_sword"},
+    {"precio": "minecraft:emerald 6", "da": "minecraft:shield"},
+    {"precio": "minecraft:emerald 10", "da": "minecraft:diamond", "texto": "&bDiamante especial", "limite": 1, "si": ["marca:ayudo_herrero"]}
+  ]
+}

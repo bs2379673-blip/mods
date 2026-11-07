@@ -78,6 +78,19 @@ public final class Commands {
                 .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("mano", "otra_mano", "cabeza"), b))
                 .executes(c -> edit(c, "item", StringArgumentType.getString(c, "lugar")))));
         root.then(move(literal("mover")));
+        root.then(literal("dialogo").then(argument("id", StringArgumentType.word()).suggests(DIALOGUES)
+                .executes(c -> edit(c, "dialogo", StringArgumentType.getString(c, "id")))));
+        root.then(literal("hablar").then(argument("id", StringArgumentType.word()).suggests(DIALOGUES).executes(c -> {
+            ServerPlayer p = c.getSource().getPlayerOrException();
+            return com.starlevi.starscenes.talk.Dialogues.open(p, Edits.nearest(p, RANGE), StringArgumentType.getString(c, "id")) ? 1 : 0;
+        })));
+        root.then(literal("tienda").then(argument("id", StringArgumentType.word()).suggests(SHOPS).executes(c -> {
+            ServerPlayer p = c.getSource().getPlayerOrException();
+            com.starlevi.starscenes.talk.Shops.open(p, null, StringArgumentType.getString(c, "id"));
+            return 1;
+        })));
+        root.then(literal("mision").then(argument("que", StringArgumentType.word()).suggests(QUEST_OPS)
+                .then(argument("id", StringArgumentType.word()).suggests(QUESTS).executes(Commands::quest))));
         root.then(literal("animar").then(argument("animacion", StringArgumentType.word()).executes(Commands::play)));
         d.register(root);
         d.register(literal("scenes").requires(net.minecraft.commands.Commands.hasPermission(net.minecraft.commands.Commands.LEVEL_GAMEMASTERS))
@@ -150,8 +163,37 @@ public final class Commands {
         return 1;
     }
 
+    private static final SuggestionProvider<CommandSourceStack> DIALOGUES = (c, b) -> SharedSuggestionProvider.suggest(
+            com.starlevi.starscenes.talk.Dialogues.ids(), b);
+    private static final SuggestionProvider<CommandSourceStack> SHOPS = (c, b) -> SharedSuggestionProvider.suggest(
+            com.starlevi.starscenes.talk.Shops.ids(), b);
+    private static final SuggestionProvider<CommandSourceStack> QUESTS = (c, b) -> SharedSuggestionProvider.suggest(
+            com.starlevi.starscenes.talk.Quests.ids(), b);
+    private static final SuggestionProvider<CommandSourceStack> QUEST_OPS = (c, b) -> SharedSuggestionProvider.suggest(
+            java.util.List.of("empezar", "entregar", "abandonar", "reiniciar", "estado"), b);
+
+    private static int quest(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        ServerPlayer p = c.getSource().getPlayerOrException();
+        String op = StringArgumentType.getString(c, "que"), id = StringArgumentType.getString(c, "id");
+        switch (op) {
+            case "empezar" -> com.starlevi.starscenes.talk.Quests.start(p, id);
+            case "entregar" -> com.starlevi.starscenes.talk.Quests.deliver(p, null, id);
+            case "abandonar" -> com.starlevi.starscenes.talk.Quests.abandon(p, id);
+            case "reiniciar" -> {
+                com.starlevi.starscenes.talk.PlayerStore.Data d = com.starlevi.starscenes.talk.PlayerStore.of(p);
+                d.quests.remove(id);
+                d.done.remove(id);
+                com.starlevi.starscenes.talk.PlayerStore.changed(p);
+            }
+            default -> {
+            }
+        }
+        c.getSource().sendSuccess(() -> Component.literal("Misión " + id + ": " + com.starlevi.starscenes.talk.Quests.state(p, id)), false);
+        return 1;
+    }
+
     private static int reload(CommandContext<CommandSourceStack> c) {
-        String msg = SceneLibrary.scan();
+        String msg = SceneLibrary.scan() + "; " + com.starlevi.starscenes.StarScenes.loadTalk();
         Net.Index idx = SceneLibrary.index();
         for (ServerPlayer p : c.getSource().getServer().getPlayerList().getPlayers()) {
             ServerPlayNetworking.send(p, idx);
@@ -167,7 +209,7 @@ public final class Commands {
             c.getSource().sendFailure(Component.literal("No hay ningún NPC cerca"));
             return 0;
         }
-        ServerPlayNetworking.send(p, new Net.OpenMenu(npc.getId()));
+        ServerPlayNetworking.send(p, Net.OpenMenu.of(npc));
         return 1;
     }
 

@@ -1,0 +1,46 @@
+// Ejemplo de diálogo de StarScenes (se crea solo la primera vez; podés borrarlo o copiarlo).
+// Ponéselo a un NPC: agachate + clic derecho > pestaña "Charla", o con /scenes dialogo ejemplo
+//
+// Cada nodo tiene:
+//   "texto": lo que dice el NPC (si ponés varios, elige uno al azar). %jugador% = tu nombre, &e = colores
+//   "animacion": la que hace mientras habla (por defecto "talk", si el modelo la tiene)
+//   "acciones": lo que pasa al llegar al nodo
+//   "opciones": las respuestas; cada una con "texto", "ir" (a qué nodo), "si" (condiciones) y "acciones"
+//   "si" / "sino" en un nodo: si no se cumplen las condiciones, salta al nodo "sino"
+{
+  "inicio": "hola",
+  "nodos": {
+    "hola": {
+      "texto": ["¡Hola, &e%jugador%&r! ¿Qué te trae por la herrería?", "Ah, &e%jugador%&r. ¿Necesitás algo?"],
+      "animacion": "talk",
+      "opciones": [
+        {"texto": "¿Tenés algún trabajo para mí?", "ir": "trabajo", "si": ["mision_nueva:ejemplo_lena"]},
+        {"texto": "Te traje la leña", "ir": "entrega", "si": ["mision_lista:ejemplo_lena"]},
+        {"texto": "Todavía estoy juntando la leña", "ir": "falta", "si": ["mision_activa:ejemplo_lena", "!mision_lista:ejemplo_lena"]},
+        {"texto": "Mostrame qué vendés", "acciones": ["tienda:ejemplo_herrero"]},
+        {"texto": "Nada, gracias. ¡Chau!", "acciones": ["animar:wave"]}
+      ]
+    },
+    "trabajo": {
+      "texto": "Me vendrían bien &e16 troncos&r para la fragua. ¿Me ayudás? Te pago bien.",
+      "opciones": [
+        {"texto": "Dale, contá conmigo", "acciones": ["mision:ejemplo_lena"], "ir": "gracias"},
+        {"texto": "Ahora no puedo", "ir": "hola"}
+      ]
+    },
+    "gracias": {
+      "texto": "¡Genial! Te espero acá. Cualquier tronco sirve."
+    },
+    "falta": {
+      "texto": "No hay apuro, pero la fragua no se calienta sola..."
+    },
+    "entrega": {
+      "texto": "¡Perfecto! Justo lo que necesitaba. Tomá, te lo ganaste.",
+      "acciones": ["entregar:ejemplo_lena", "sonido:minecraft:entity.villager.celebrate"],
+      "opciones": [
+        {"texto": "¿Tenés algo especial para vender?", "acciones": ["tienda:ejemplo_herrero"]},
+        {"texto": "¡Gracias!"}
+      ]
+    }
+  }
+}

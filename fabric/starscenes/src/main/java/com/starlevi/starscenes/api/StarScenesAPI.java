@@ -1,0 +1,113 @@
+package com.starlevi.starscenes.api;
+
+import com.starlevi.starscenes.net.Net;
+import com.starlevi.starscenes.talk.Actions;
+import com.starlevi.starscenes.talk.Dialogues;
+import com.starlevi.starscenes.talk.PlayerStore;
+import com.starlevi.starscenes.talk.Quests;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+
+/**
+ * Lo que StarScenes ofrece a otros mods (por ejemplo el de aldeanos): animar entidades, abrir
+ * dialogos, registrar acciones y condiciones nuevas para los dialogos y las misiones, guardar datos
+ * por jugador y escuchar cuando alguien toca a un NPC.
+ * <p>
+ * Todo se llama del lado del servidor.
+ */
+public final class StarScenesAPI {
+    private StarScenesAPI() {
+    }
+
+    /** Una accion de dialogo o recompensa: "tipo:valor". El hablante puede ser null. */
+    @FunctionalInterface
+    public interface Action {
+        void run(ServerPlayer player, Entity speaker, String value);
+    }
+
+    /** Una condicion para mostrar una opcion de dialogo: "tipo:valor" ("!tipo:valor" la niega). */
+    @FunctionalInterface
+    public interface Condition {
+        boolean test(ServerPlayer player, Entity speaker, String value);
+    }
+
+    /** Alguien toco un NPC (o una entidad de otro mod que avise con {@link #interacted}). */
+    @FunctionalInterface
+    public interface Interact {
+        /** true si ya lo manejaste (no se abre el dialogo ni se anima). */
+        boolean onInteract(ServerPlayer player, Entity npc);
+    }
+
+    public static final Event<Interact> INTERACT = EventFactory.createArrayBacked(Interact.class, ls -> (p, e) -> {
+        for (Interact l : ls) {
+            if (l.onInteract(p, e)) {
+                return true;
+            }
+        }
+        return false;
+    });
+
+    /** Avisa que un jugador toco esta entidad; true si algun mod lo manejo. */
+    public static boolean interacted(ServerPlayer player, Entity npc) {
+        return INTERACT.invoker().onInteract(player, npc);
+    }
+
+    /** Hace que todos los que ven la entidad la animen ("interact", "talk", "wave" o el nombre exacto). */
+    public static void play(Entity actor, String animation) {
+        Net.Play msg = new Net.Play(actor.getId(), animation);
+        for (ServerPlayer p : PlayerLookup.tracking(actor)) {
+            ServerPlayNetworking.send(p, msg);
+        }
+    }
+
+    /** Abre un dialogo (config/starscenes/dialogos/&lt;id&gt;.json) con este hablante (o null). */
+    public static boolean talk(ServerPlayer player, Entity speaker, String dialogue) {
+        return Dialogues.open(player, speaker, dialogue);
+    }
+
+    /** Registra una accion nueva para dialogos y recompensas, ej. "regalo" o "casarse". */
+    public static void registerAction(String type, Action action) {
+        Actions.register(type, action);
+    }
+
+    /** Registra una condicion nueva, ej. "amistad" para "amistad:>=50". */
+    public static void registerCondition(String type, Condition condition) {
+        Actions.registerCondition(type, condition);
+    }
+
+    /** Corre una lista de acciones como las de los dialogos ("dar:minecraft:bread 3", "mision:leña"...). */
+    public static void run(ServerPlayer player, Entity speaker, java.util.List<String> actions) {
+        Actions.runAll(player, speaker, actions);
+    }
+
+    /** Prueba una condicion como las de los dialogos. */
+    public static boolean test(ServerPlayer player, Entity speaker, String condition) {
+        return Actions.test(player, speaker, condition);
+    }
+
+    /** Marcas y numeros que se guardan por jugador (y se pueden usar desde los dialogos). */
+    public static boolean flag(ServerPlayer player, String name) {
+        return PlayerStore.of(player).flags.contains(name);
+    }
+
+    public static void setFlag(ServerPlayer player, String name, boolean on) {
+        PlayerStore.setFlag(player, name, on);
+    }
+
+    public static int number(ServerPlayer player, String name) {
+        return PlayerStore.of(player).vars.getOrDefault(name, 0);
+    }
+
+    public static void setNumber(ServerPlayer player, String name, int value) {
+        PlayerStore.setVar(player, name, value);
+    }
+
+    /** Estado de una mision para este jugador: "nueva", "activa", "lista", "hecha" o "no existe". */
+    public static String quest(ServerPlayer player, String quest) {
+        return Quests.state(player, quest);
+    }
+}

@@ -119,7 +119,65 @@ public class StarScenesTest implements FabricClientGameTest {
             }
             ctx.takeScreenshot(opened ? "s11_menu_clic" : "s11_menu_comando");
             ctx.setScreen(() -> null);
+            String[] tabs = {"s12_menu_animaciones", "s13_menu_charla", "s14_menu_posicion"};
+            for (int i = 0; i < tabs.length; i++) {
+                int t = i + 1;
+                ctx.runOnClient(mc -> com.starlevi.starscenes.client.NpcScreen.nextTab(t));
+                server.runCommand("execute as @p at @p run starscenes menu");
+                ctx.waitTicks(15);
+                ctx.takeScreenshot(tabs[i]);
+                ctx.setScreen(() -> null);
+            }
+            ctx.runOnClient(mc -> com.starlevi.starscenes.client.NpcScreen.nextTab(0));
+
+            // ---- dialogo, mision y tienda (los ejemplos que se crean solos)
+            server.runCommand("starscenes recargar");
+            server.runCommand("execute as @p at @p run starscenes dialogo ejemplo");
+            server.runCommand("execute as @p at @p run starscenes nombre &6Herrero");
+            ctx.waitTicks(5);
+            server.runCommand("execute as @p at @p run starscenes hablar ejemplo");
+            ctx.waitTicks(12);
+            ctx.takeScreenshot("s15_dialogo_escribiendo");
+            ctx.waitTicks(60);
+            ctx.takeScreenshot("s16_dialogo_opciones");
+            choose(ctx, 0); // ¿Tenes trabajo?
+            ctx.waitTicks(80);
+            ctx.takeScreenshot("s17_dialogo_trabajo");
+            choose(ctx, 0); // Dale
+            ctx.waitTicks(60);
+            choose(ctx, 0); // (seguir)
+            ctx.waitTicks(10);
+            ctx.setScreen(() -> null);
+            ctx.waitTicks(25);
+            ctx.takeScreenshot("s18_mision_en_pantalla");
+            server.runCommand("give @p minecraft:oak_log 10");
+            server.runCommand("give @p minecraft:birch_log 6");
+            server.runCommand("give @p minecraft:iron_ingot 2");
+            ctx.waitTicks(30);
+            ctx.takeScreenshot("s19_mision_lista");
+            server.runCommand("execute as @p at @p run starscenes hablar ejemplo");
+            ctx.waitTicks(80);
+            ctx.takeScreenshot("s20_dialogo_entregar");
+            choose(ctx, 0); // Te traje la leña
+            ctx.waitTicks(90);
+            ctx.takeScreenshot("s21_dialogo_entregada");
+            server.runCommand("give @p minecraft:emerald 10");
+            choose(ctx, 0); // ¿Algo especial? -> tienda
+            ctx.waitTicks(20);
+            ctx.takeScreenshot("s22_tienda");
+            ctx.runOnClient(mc -> net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(
+                    new com.starlevi.starscenes.net.Net.Buy("ejemplo_herrero", 3)));
+            ctx.waitTicks(20);
+            ctx.takeScreenshot("s23_tienda_comprado");
+            String state = ctx.computeOnClient(mc -> mc.player.getInventory().countItem(net.minecraft.world.item.Items.DIAMOND) + " diamante(s), "
+                    + mc.player.getInventory().countItem(net.minecraft.world.item.Items.EMERALD) + " esmeralda(s)");
+            System.out.println("StarScenes prueba: " + state);
+            ctx.setScreen(() -> null);
         }
+    }
+
+    private static void choose(ClientGameTestContext ctx, int i) {
+        ctx.runOnClient(mc -> net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(new com.starlevi.starscenes.net.Net.Choose(i)));
     }
 
     // ------------------------------------------------------------------ modelo de prueba

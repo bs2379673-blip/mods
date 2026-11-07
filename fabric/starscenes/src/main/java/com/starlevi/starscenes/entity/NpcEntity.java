@@ -1,6 +1,9 @@
 package com.starlevi.starscenes.entity;
 
+import com.starlevi.starscenes.api.SceneActor;
+import com.starlevi.starscenes.api.StarScenesAPI;
 import com.starlevi.starscenes.net.Net;
+import com.starlevi.starscenes.talk.Dialogues;
 import com.starlevi.starscenes.server.SceneLibrary;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -29,7 +32,7 @@ import net.minecraft.world.level.storage.ValueOutput;
  * Un NPC de StarScenes: no se mueve solo, no recibe daño y no empuja. Lo que hace (reposar, mirarte,
  * reaccionar al verte, su animacion al tocarlo) lo dibuja cada cliente con su modelo de Blockbench.
  */
-public class NpcEntity extends Entity {
+public class NpcEntity extends Entity implements SceneActor {
     public static final EntityDataAccessor<String> MODEL = SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.STRING);
     public static final EntityDataAccessor<String> SKIN = SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.STRING);
     /** Variante de animaciones (idle1/seeplayer1/interact1...); 0 = sin numero o la primera que haya. */
@@ -46,8 +49,8 @@ public class NpcEntity extends Entity {
     public static final EntityDataAccessor<ItemStack> OFF = SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.ITEM_STACK);
     public static final EntityDataAccessor<ItemStack> HEAD = SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.ITEM_STACK);
 
-    /** Lo que guarda el cliente para animarlo (no se usa en el servidor). */
-    public Object clientState;
+    /** Dialogo que abre al tocarlo ("" = solo hace su animacion). Solo lo sabe el servidor. */
+    private String dialogue = "";
 
     public NpcEntity(EntityType<? extends NpcEntity> type, Level level) {
         super(type, level);
@@ -93,6 +96,49 @@ public class NpcEntity extends Entity {
 
     public float radius() {
         return this.entityData.get(RADIUS);
+    }
+
+    public String dialogue() {
+        return this.dialogue;
+    }
+
+    public void setDialogue(String id) {
+        this.dialogue = id == null ? "" : id;
+    }
+
+    @Override
+    public String sceneModel() {
+        return model();
+    }
+
+    @Override
+    public String sceneSkin() {
+        return skin();
+    }
+
+    @Override
+    public int sceneStyle() {
+        return style();
+    }
+
+    @Override
+    public float sceneScale() {
+        return scale();
+    }
+
+    @Override
+    public boolean sceneLooks() {
+        return look();
+    }
+
+    @Override
+    public float sceneRadius() {
+        return radius();
+    }
+
+    @Override
+    public ItemStack sceneItem(int slot) {
+        return item(slot == MAIN_HAND ? MAIN : slot == OFF_HAND ? OFF : HEAD);
     }
 
     public ItemStack item(EntityDataAccessor<ItemStack> slot) {
@@ -166,14 +212,17 @@ public class NpcEntity extends Entity {
         if (player instanceof ServerPlayer sp) {
             if (sp.isShiftKeyDown() && sp.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
                 // admin agachado: el menu para editarlo
-                ServerPlayNetworking.send(sp, new Net.OpenMenu(this.getId()));
-            } else {
+                ServerPlayNetworking.send(sp, Net.OpenMenu.of(this));
+            } else if (!StarScenesAPI.interacted(sp, this)) {
                 Net.Play msg = new Net.Play(this.getId(), "interact");
                 for (ServerPlayer p : PlayerLookup.tracking(this)) {
                     ServerPlayNetworking.send(p, msg);
                 }
                 if (!PlayerLookup.tracking(this).contains(sp)) {
                     ServerPlayNetworking.send(sp, msg);
+                }
+                if (!this.dialogue.isEmpty() && !Dialogues.talking(sp)) {
+                    Dialogues.open(sp, this, this.dialogue);
                 }
             }
         }
@@ -194,6 +243,7 @@ public class NpcEntity extends Entity {
         this.entityData.set(MAIN, in.read("item_mano", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
         this.entityData.set(OFF, in.read("item_otra_mano", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
         this.entityData.set(HEAD, in.read("item_cabeza", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
+        this.dialogue = in.getStringOr("dialogo", "");
     }
 
     @Override
@@ -210,5 +260,6 @@ public class NpcEntity extends Entity {
         out.store("item_mano", ItemStack.OPTIONAL_CODEC, item(MAIN));
         out.store("item_otra_mano", ItemStack.OPTIONAL_CODEC, item(OFF));
         out.store("item_cabeza", ItemStack.OPTIONAL_CODEC, item(HEAD));
+        out.putString("dialogo", this.dialogue);
     }
 }

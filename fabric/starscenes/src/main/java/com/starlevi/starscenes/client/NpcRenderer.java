@@ -3,7 +3,7 @@ package com.starlevi.starscenes.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import com.starlevi.starscenes.entity.NpcEntity;
+import com.starlevi.starscenes.api.SceneActor;
 import com.starlevi.starscenes.model.BBModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -15,6 +15,9 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -25,8 +28,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-/** Dibuja los NPCs con su modelo de Blockbench, su skin, sus items y su nombre. */
-public class NpcRenderer extends EntityRenderer<NpcEntity, NpcRenderer.State> {
+/**
+ * Dibuja cualquier actor de StarScenes (sus NPCs o entidades de otros mods) con su modelo de
+ * Blockbench, su skin, sus items y su nombre.
+ */
+public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T, NpcRenderer.State> {
     public static class State extends EntityRenderState {
         ClientScenes.Ready ready;
         Identifier skin;
@@ -41,6 +47,8 @@ public class NpcRenderer extends EntityRenderer<NpcEntity, NpcRenderer.State> {
     }
 
     private static final Map<BBModel, Attach> ATTACH = new WeakHashMap<>();
+    /** El animador de cada entidad en este cliente. */
+    private static final Map<Entity, NpcAnimator> ANIMATORS = new WeakHashMap<>();
     private final ItemModelResolver items;
 
     public NpcRenderer(EntityRendererProvider.Context ctx) {
@@ -55,43 +63,41 @@ public class NpcRenderer extends EntityRenderer<NpcEntity, NpcRenderer.State> {
     }
 
     @Override
-    public void extractRenderState(NpcEntity npc, State s, float partial) {
+    public void extractRenderState(T npc, State s, float partial) {
         super.extractRenderState(npc, s, partial);
-        s.yRot = npc.getYRot(partial);
-        s.scale = npc.scale();
-        s.ready = ClientScenes.model(npc.model());
-        s.skin = ClientScenes.skin(npc.skin());
+        s.yRot = npc instanceof LivingEntity le ? Mth.rotLerp(partial, le.yBodyRotO, le.yBodyRot) : npc.getYRot(partial);
+        s.scale = npc.sceneScale();
+        s.ready = ClientScenes.model(npc.sceneModel());
+        s.skin = ClientScenes.skin(npc.sceneSkin());
         s.mats = null;
         if (s.ready != null) {
-            if (!(npc.clientState instanceof NpcAnimator)) {
-                npc.clientState = new NpcAnimator();
-            }
-            NpcAnimator an = (NpcAnimator) npc.clientState;
-            an.update(npc, s.ready.model, (npc.tickCount + partial) / 20f, Minecraft.getInstance().player, s.yRot);
+            NpcAnimator an = ANIMATORS.computeIfAbsent(npc, k -> new NpcAnimator());
+            an.update(npc, npc, s.ready.model, (npc.tickCount + partial) / 20f, Minecraft.getInstance().player, s.yRot);
             s.mats = new Matrix4f[an.mats.size()];
             for (int i = 0; i < s.mats.length; i++) {
                 s.mats[i] = new Matrix4f(an.mats.get(i));
             }
         }
-        update(s.main, npc.item(NpcEntity.MAIN), ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, npc);
-        update(s.off, npc.item(NpcEntity.OFF), ItemDisplayContext.THIRD_PERSON_LEFT_HAND, npc);
-        update(s.head, npc.item(NpcEntity.HEAD), ItemDisplayContext.HEAD, npc);
+        update(s.main, npc.sceneItem(SceneActor.MAIN_HAND), ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, npc);
+        update(s.off, npc.sceneItem(SceneActor.OFF_HAND), ItemDisplayContext.THIRD_PERSON_LEFT_HAND, npc);
+        update(s.head, npc.sceneItem(SceneActor.HEAD), ItemDisplayContext.HEAD, npc);
     }
 
-    private void update(ItemStackRenderState st, ItemStack stack, ItemDisplayContext ctx, NpcEntity npc) {
+    private void update(ItemStackRenderState st, ItemStack stack, ItemDisplayContext ctx, T npc) {
         if (stack.isEmpty()) {
             st.clear();
+        } else if (npc instanceof LivingEntity le) {
+            this.items.updateForLiving(st, stack, ctx, le);
         } else {
             this.items.updateForNonLiving(st, stack, ctx, npc);
         }
     }
 
     /** Lo que el animador del cliente tiene que hacer por un mensaje del servidor. */
-    public static void trigger(NpcEntity npc, String kind) {
-        if (!(npc.clientState instanceof NpcAnimator)) {
-            npc.clientState = new NpcAnimator();
+    public static void trigger(Entity npc, String kind) {
+        if (npc instanceof SceneActor) {
+            ANIMATORS.computeIfAbsent(npc, k -> new NpcAnimator()).trigger(kind);
         }
-        ((NpcAnimator) npc.clientState).trigger(kind);
     }
 
     @Override
