@@ -52,6 +52,13 @@ public final class SkyRenderer {
 
     private static final RenderPipeline COLOR = pipe("cielo_color", false, false), COLOR_ADD = pipe("cielo_color_suma", false, true),
             TEX = pipe("cielo_textura", true, false), TEX_ADD = pipe("cielo_textura_suma", true, true);
+    static {
+        com.starlevi.starfest.client.IrisCompat.assign(COLOR, "SKY_BASIC");
+        com.starlevi.starfest.client.IrisCompat.assign(COLOR_ADD, "SKY_BASIC");
+        com.starlevi.starfest.client.IrisCompat.assign(TEX, "SKY_TEXTURED");
+        com.starlevi.starfest.client.IrisCompat.assign(TEX_ADD, "SKY_TEXTURED");
+    }
+
     private static final RenderType COLOR_T = RenderType.create("starfest_cielo_color", RenderSetup.builder(COLOR).bufferSize(1 << 18).createRenderSetup());
     private static final RenderType COLOR_ADD_T = RenderType.create("starfest_cielo_color_suma", RenderSetup.builder(COLOR_ADD).bufferSize(1 << 18).createRenderSetup());
     private static final Map<Identifier, RenderType[]> TEXTURED = new HashMap<>();

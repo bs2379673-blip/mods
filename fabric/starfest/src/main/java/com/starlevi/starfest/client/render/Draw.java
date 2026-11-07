@@ -31,8 +31,20 @@ public final class Draw {
             .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
             .build();
     /** Luz aditiva. */
-    public static final RenderType LIGHT = RenderType.create("starfest_light",
+    private static final RenderType LIGHT = RenderType.create("starfest_light",
             RenderSetup.builder(LIGHT_PIPELINE).setOutputTarget(OutputTarget.WEATHER_TARGET).sortOnUpload().bufferSize(1 << 16).createRenderSetup());
+
+    static {
+        com.starlevi.starfest.client.IrisCompat.assign(LIGHT_PIPELINE, "BASIC");
+    }
+
+    /**
+     * La luz: sin shaders, la nuestra (sin profundidad); con un paquete de shaders, la de los rayos del juego,
+     * que todos los paquetes saben dibujar.
+     */
+    public static RenderType light() {
+        return com.starlevi.starfest.client.IrisCompat.shaders() ? net.minecraft.client.renderer.rendertype.RenderTypes.lightning() : LIGHT;
+    }
 
     private Draw() {
     }

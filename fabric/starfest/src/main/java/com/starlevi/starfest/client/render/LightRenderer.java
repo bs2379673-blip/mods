@@ -102,7 +102,7 @@ public final class LightRenderer implements BlockEntityRenderer<ShowBlockEntity,
         ps.translate(0, (hl + 0.25f) / 16, 0);
         boolean playing = s.playing;
         boolean search = this.searchlight;
-        collector.submitCustomGeometry(ps, Draw.LIGHT, (pose, vc) -> {
+        collector.submitCustomGeometry(ps, Draw.light(), (pose, vc) -> {
             Draw.glowDisc(pose, vc, 0, lens, Palette.r(c), Palette.g(c), Palette.b(c), playing ? 0.35f + 0.65f * bright : 0.12f);
             if (playing && bright > 0.02f) {
                 if (search) {

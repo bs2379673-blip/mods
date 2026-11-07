@@ -43,7 +43,7 @@ public final class FloorRenderer implements BlockEntityRenderer<ShowBlockEntity,
         }
         float r = s.rgb[0], g = s.rgb[1], b = s.rgb[2], a = s.alpha;
         float in = 0.07f;
-        collector.submitCustomGeometry(ps, Draw.LIGHT, (pose, vc) -> {
+        collector.submitCustomGeometry(ps, Draw.light(), (pose, vc) -> {
             Draw.glowRect(pose, vc, in, in, 1 - in, 1 - in, 1.003f, r, g, b, a);
             // un brillo mas suave en el borde, para que la baldosa no parezca un sticker
             Draw.glowRect(pose, vc, 0.02f, 0.02f, 0.98f, 0.98f, 1.002f, r, g, b, a * 0.25f);

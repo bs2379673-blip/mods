@@ -56,7 +56,7 @@ public final class BoothRenderer implements BlockEntityRenderer<ShowBlockEntity,
             Draw.disc(pose, vc, 4, 13.6f, 9, 3.2f, spin, light);
             Draw.disc(pose, vc, 12, 13.6f, 9, 3.2f, -spin * 0.97f, light);
         });
-        collector.submitCustomGeometry(ps, Draw.LIGHT, (pose, glow) -> {
+        collector.submitCustomGeometry(ps, Draw.light(), (pose, glow) -> {
             // vumetros (3 columnas de 6 luces)
             float[] vals = {b.bass(), b.mid(), b.high()};
             for (int col = 0; col < 3; col++) {

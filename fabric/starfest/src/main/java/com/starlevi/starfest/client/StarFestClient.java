@@ -33,6 +33,14 @@ public final class StarFestClient implements ClientModInitializer {
         BlockEntityRenderers.register(Registry.typeFor(ShowBlock.Kind.PISO), ctx -> new FloorRenderer());
         BlockEntityRenderers.register(Registry.typeFor(ShowBlock.Kind.CABINA), ctx -> new BoothRenderer());
         com.starlevi.starfest.client.live.ScreenLights.init();
+        // que Iris sepa desde el principio como dibujar nuestras luces y cielos
+        for (String c : new String[]{"com.starlevi.starfest.client.render.Draw", "com.starlevi.starfest.client.sky.SkyRenderer"}) {
+            try {
+                Class.forName(c, true, StarFestClient.class.getClassLoader());
+            } catch (Throwable t) {
+                com.starlevi.starfest.StarFest.LOGGER.warn("StarFest: {}: {}", c, t.toString());
+            }
+        }
         ClientTickEvents.END_CLIENT_TICK.register(mc -> {
             com.starlevi.starfest.client.live.ScreenLights.tick();
             Show.tick();
