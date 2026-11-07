@@ -162,7 +162,10 @@ public final class Dialogues {
             labels.add(Actions.fill(o.text(), p, sp));
         }
         if (sp != null && n.anim() != null && !n.anim().isEmpty()) {
-            StarScenesAPI.play(sp, n.anim());
+            String anim = n.anim().contains("%") ? Actions.fill(n.anim(), p, sp).replace("§", "") : n.anim();
+            if (!anim.isBlank()) {
+                StarScenesAPI.play(sp, anim.trim());
+            }
         }
         String name = sp == null ? "" : sp.getDisplayName().getString();
         String title = sp == null ? "" : Actions.placeholder("titulo", p, sp);

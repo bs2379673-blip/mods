@@ -118,6 +118,10 @@ public final class Personality {
     public static void load() {
         Path f = FabricLoader.getInstance().getConfigDir().resolve("starvillagers").resolve("personalidades.json");
         try {
+            if (Files.exists(f) && !Files.readString(f, StandardCharsets.UTF_8).contains("animacion_")) {
+                // la version sin gestos se guarda aparte
+                Files.move(f, f.resolveSibling("personalidades_viejo.json"), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            }
             if (!Files.exists(f)) {
                 Files.createDirectories(f.getParent());
                 try (var in = Personality.class.getResourceAsStream("/starvillagers_dialogos/personalidades.json")) {

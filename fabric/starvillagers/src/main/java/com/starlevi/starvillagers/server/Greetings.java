@@ -32,7 +32,7 @@ public final class Greetings {
     private static final String[] REPLY = {"¡Hola, %otro%!", "¡Bien! ¿Y vos, %otro%?", "¡Todo tranqui!", "¡Hola, hola!", "¡Sí, qué día!",
             "¿Ah, sí? ¿Para qué?"};
 
-    private record Reply(UUID who, UUID to, String text, long at) {
+    private record Reply(UUID who, UUID to, String text, long at, String anim) {
     }
 
     private record Look(UUID who, UUID at, long until) {
@@ -68,7 +68,7 @@ public final class Greetings {
                 Entity e = level.getEntity(r.who());
                 if (e instanceof Villager v && v.isAlive()) {
                     StarScenesAPI.say(v, r.text(), 3);
-                    StarScenesAPI.play(v, "wave");
+                    StarScenesAPI.play(v, r.anim());
                 }
             }
         }
@@ -110,9 +110,9 @@ public final class Greetings {
                 }
                 LAST.put(key, now);
                 BUSY.put(v.getUUID(), now + 80);
-                boolean angry = com.starlevi.starvillagers.social.Social.angryAt(v, p);
+                String anim = com.starlevi.starvillagers.social.Social.greetAnim(v, p);
                 StarScenesAPI.say(v, com.starlevi.starvillagers.social.Social.greeting(v, p), 3.5f);
-                StarScenesAPI.play(v, angry ? "talk" : "wave");
+                StarScenesAPI.play(v, anim);
                 LOOKS.add(new Look(v.getUUID(), p.getUUID(), now + 50));
                 break;
             }
@@ -135,8 +135,9 @@ public final class Greetings {
                     String open = com.starlevi.starvillagers.social.Social.personality(v).line("saludo_aldeano", R);
                     String reply = com.starlevi.starvillagers.social.Social.personality(w).line("respuesta_aldeano", R);
                     StarScenesAPI.say(v, (open.isEmpty() ? pick(OPEN) : open).replace("%otro%", b.name()), 3);
-                    StarScenesAPI.play(v, "wave");
-                    REPLIES.add(new Reply(w.getUUID(), v.getUUID(), (reply.isEmpty() ? pick(REPLY) : reply).replace("%otro%", a.name()), now + 35));
+                    StarScenesAPI.play(v, com.starlevi.starvillagers.social.Social.anim(com.starlevi.starvillagers.social.Social.personality(v), "saludo"));
+                    REPLIES.add(new Reply(w.getUUID(), v.getUUID(), (reply.isEmpty() ? pick(REPLY) : reply).replace("%otro%", a.name()), now + 35,
+                            com.starlevi.starvillagers.social.Social.anim(com.starlevi.starvillagers.social.Social.personality(w), "respuesta")));
                     LOOKS.add(new Look(v.getUUID(), w.getUUID(), now + 90));
                     LOOKS.add(new Look(w.getUUID(), v.getUUID(), now + 90));
                     break;

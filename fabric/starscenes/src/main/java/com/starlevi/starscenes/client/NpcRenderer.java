@@ -91,7 +91,14 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
             if (npc instanceof LivingEntity le) {
                 headYaw = Mth.wrapDegrees(Mth.rotLerp(partial, le.yHeadRotO, le.yHeadRot) - s.yRot);
             }
-            s.emf = ((com.starlevi.starscenes.emf.EmfRig) r[1]).pose(npc, partial, headYaw, headPitch);
+            java.util.Map<String, float[]> gesture = java.util.Map.of();
+            if (s.ready != null) {
+                // los gestos (saludar, reir...) salen del modelo de StarScenes y se ponen encima del de EMF
+                NpcAnimator an = ANIMATORS.computeIfAbsent(npc, k -> new NpcAnimator());
+                an.update(npc, npc, s.ready.model, (npc.tickCount + partial) / 20f, Minecraft.getInstance().player, s.yRot);
+                gesture = an.overlay;
+            }
+            s.emf = ((com.starlevi.starscenes.emf.EmfRig) r[1]).pose(npc, partial, headYaw, headPitch, gesture);
             return;
         }
         if (s.ready != null) {
@@ -115,6 +122,17 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         } else {
             this.items.updateForNonLiving(st, stack, ctx, npc);
         }
+    }
+
+    /** Para pruebas: los huesos que mueve el gesto de ahora en ese actor (con su peso). */
+    public static String gestureDebug(Entity npc) {
+        NpcAnimator an = ANIMATORS.get(npc);
+        if (an == null) {
+            return "sin animador";
+        }
+        StringBuilder b = new StringBuilder();
+        an.overlay.forEach((k, v) -> b.append(k).append(String.format(java.util.Locale.ROOT, "(%.0f,%.0f,%.0f x%.2f) ", v[0], v[1], v[2], v[3])));
+        return b.length() == 0 ? "ninguno" : b.toString().trim();
     }
 
     /** Lo que el animador del cliente tiene que hacer por un mensaje del servidor. */

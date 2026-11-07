@@ -2,6 +2,8 @@
 // Cada aldeano nace con una al azar. Si a una le falta un texto, usa el de "_comun".
 // %jugador% = tu nombre, %npc% = el del aldeano, %otro% = el otro aldeano, %item% = lo que regalaste,
 // %regalo% = el último regalo que le gustó. "humor_base" va de -100 a 100 y "ganas_de_saludar" de 0 a 100.
+// "animacion_...": gestos de StarScenes (wave, happy, receive, disgust, angry, hurt, shy, laugh, think, sad,
+// shrug, nod, bow, blow_kiss, talk, interact); si hay varios, elige uno al azar.
 // "le_gusta" / "no_le_gusta": ítems ("minecraft:cake") o etiquetas ("#minecraft:flowers").
 {
   "_comun": {
@@ -39,6 +41,14 @@
     "regalo_normal": ["Ah... un %item%. Gracias, supongo.", "Bueno, gracias. Lo voy a guardar."],
     "regalo_no_gusta": ["¿Un %item%? ¡Qué asco!", "Eh... no, gracias. Esto no me gusta nada."],
 
+    "animacion_saludo": ["wave"], "animacion_respuesta": ["wave"], "animacion_charla": ["talk"], "animacion_enojado": ["angry"],
+    "animacion_golpe": ["hurt"], "animacion_encanta": ["happy"], "animacion_gusta": ["receive"], "animacion_normal": ["nod"],
+    "animacion_no_gusta": ["disgust"], "animacion_nada": ["shrug"], "animacion_demasiado": ["shrug"],
+    "animacion_humor_feliz": ["happy"], "animacion_humor_bien": ["nod"], "animacion_humor_normal": ["shrug"], "animacion_humor_triste": ["sad"],
+    "animacion_humor_enojado": ["angry"],
+    "animacion_relacion_enemigo": ["angry"], "animacion_relacion_desconocido": ["shrug"], "animacion_relacion_conocido": ["nod"],
+    "animacion_relacion_amigo": ["happy"], "animacion_relacion_buen_amigo": ["happy"], "animacion_relacion_mejor_amigo": ["happy"],
+
     "le_gusta": ["minecraft:cake", "minecraft:diamond", "minecraft:emerald", "minecraft:golden_apple", "#minecraft:flowers", "minecraft:cookie", "minecraft:pumpkin_pie"],
     "no_le_gusta": ["minecraft:rotten_flesh", "minecraft:spider_eye", "minecraft:poisonous_potato", "minecraft:bone", "minecraft:dirt"]
   },
@@ -62,6 +72,7 @@
 
   "alegre": {
     "nombre": "Alegre", "humor_base": 35, "ganas_de_saludar": 55,
+    "animacion_saludo": ["wave", "happy"], "animacion_respuesta": ["happy", "wave"],
     "saludo": ["¡Hola, hola, %jugador%!", "¡%jugador%! ¡Qué lindo verte!", "¡Holaaa!"],
     "saludo_amigo": ["¡%jugador%! ¡Mi persona favorita!", "¡Siii, vino %jugador%!"],
     "charla": ["¿Sabías que las flores del borde del pueblo florecen todas juntas? ¡Es lo más lindo que hay!", "¡Hoy me desperté cantando! No sé por qué.", "Me encanta este pueblo. ¡Todos son tan buenos!"],
@@ -72,6 +83,7 @@
   },
   "timido": {
     "nombre": "Tímido", "humor_base": 0, "ganas_de_saludar": 15,
+    "animacion_saludo": ["shy"], "animacion_respuesta": ["shy"], "animacion_charla": ["shy", "talk"], "animacion_encanta": ["shy", "receive"], "animacion_relacion_amigo": ["shy"],
     "saludo": ["H-hola...", "Ah... hola, %jugador%.", "..."],
     "saludo_amigo": ["¡Ah, %jugador%! Hola... me alegra verte.", "Hola... te estaba esperando, un poquito."],
     "charla": ["N-no soy muy bueno charlando... perdón.", "A veces miro las estrellas solo. Es tranquilo.", "Me gusta leer... cuando nadie mira."],
@@ -83,6 +95,7 @@
   },
   "grunon": {
     "nombre": "Gruñón", "humor_base": -20, "ganas_de_saludar": 12,
+    "animacion_saludo": ["nod"], "animacion_respuesta": ["nod"], "animacion_normal": ["shrug"], "animacion_humor_normal": ["nod"], "animacion_encanta": ["receive"],
     "saludo": ["Hmpf. Hola.", "¿Qué querés?", "Ah. Vos."],
     "saludo_amigo": ["Bueno... vos sí me caés bien. Hola.", "Hola, %jugador%. No se lo digas a nadie, pero me alegra verte."],
     "charla": ["Los chicos del pueblo hacen demasiado ruido.", "En mis tiempos las cosas eran mejores.", "Otra vez llueve. Siempre llueve cuando no quiero."],
@@ -94,6 +107,7 @@
   },
   "amistoso": {
     "nombre": "Amistoso", "humor_base": 20, "ganas_de_saludar": 45,
+    "animacion_saludo": ["wave"],
     "saludo": ["¡Hola, %jugador%! ¿Todo bien?", "¡Buenas! ¿Cómo andás?", "¡Eh, %jugador%!"],
     "saludo_amigo": ["¡%jugador%, amigo! ¿Cómo va todo?", "¡Che, %jugador%! Justo pensaba en vos."],
     "charla": ["Si necesitás algo, avisame, ¿eh?", "Ayer ayudé al herrero con unas cosas. ¡Qué buena gente!", "Siempre es lindo charlar con alguien nuevo."],
@@ -102,6 +116,7 @@
   },
   "serio": {
     "nombre": "Serio", "humor_base": 0, "ganas_de_saludar": 25,
+    "animacion_saludo": ["bow", "nod"], "animacion_respuesta": ["nod"], "animacion_encanta": ["bow"], "animacion_charla": ["talk", "think"],
     "saludo": ["Buenas, %jugador%.", "Hola.", "Buen día."],
     "saludo_amigo": ["Hola, %jugador%. Es bueno verte.", "%jugador%. Llegás justo."],
     "charla": ["El trabajo bien hecho es lo más importante.", "Hay que estar preparados para lo que venga.", "Prefiero los hechos a las palabras."],
@@ -111,6 +126,7 @@
   },
   "coqueto": {
     "nombre": "Coqueto", "humor_base": 25, "ganas_de_saludar": 50,
+    "animacion_saludo": ["blow_kiss", "wave"], "animacion_respuesta": ["blow_kiss"], "animacion_encanta": ["blow_kiss", "happy"], "animacion_relacion_amigo": ["blow_kiss"], "animacion_relacion_buen_amigo": ["blow_kiss"], "animacion_relacion_mejor_amigo": ["blow_kiss"],
     "saludo": ["¡Hola, %jugador%! Qué bien te ves hoy.", "Mirá quién vino... ¡hola!", "¡Hola, lindura!"],
     "saludo_amigo": ["¡%jugador%! Justo me estaba arreglando por si venías.", "Ay, %jugador%... siempre llegás en el momento justo."],
     "charla": ["¿Te gusta mi ropa nueva? Me la hice yo.", "Las flores me quedan bien, ¿no te parece?", "Dicen que soy lo más lindo del pueblo. Yo no digo nada..."],
@@ -120,6 +136,7 @@
   },
   "chistoso": {
     "nombre": "Chistoso", "humor_base": 30, "ganas_de_saludar": 45,
+    "animacion_saludo": ["wave", "laugh"], "animacion_respuesta": ["laugh"], "animacion_charla": ["laugh", "talk"], "animacion_normal": ["laugh"],
     "saludo": ["¡Hola, %jugador%! ¿Sabés por qué los zombis no tienen amigos? Porque siempre llegan tarde... ¡a la vida!", "¡Eh, %jugador%! ¡Vos de nuevo! ¡Qué suerte la mía!", "¡Holiii!"],
     "saludo_amigo": ["¡%jugador%! ¡Mi público favorito!", "¡Llegó %jugador%! ¡Que empiece el show!"],
     "charla": ["¿Qué le dijo una gallina a otra? Nada, las gallinas no hablan. ¡Ja!", "Intenté hacerle cosquillas al gólem. No se rió.", "¿Viste al creeper? Siempre tan explosivo, el pobre."],
@@ -130,6 +147,7 @@
   },
   "curioso": {
     "nombre": "Curioso", "humor_base": 15, "ganas_de_saludar": 40,
+    "animacion_saludo": ["wave"], "animacion_charla": ["think", "talk"], "animacion_gusta": ["think", "receive"],
     "saludo": ["¡Hola, %jugador%! ¿De dónde venís?", "¡%jugador%! ¿Qué tenés ahí?", "¡Hola! ¿Viste algo interesante hoy?"],
     "saludo_amigo": ["¡%jugador%! ¡Contame tus aventuras!", "¡Volviste! ¿Encontraste algo nuevo?"],
     "charla": ["¿Sabías que abajo de la tierra hay cuevas enormes? Algún día quiero verlas.", "Me pregunto qué hay más allá de las montañas...", "¿Las arañas duermen? Siempre me lo pregunto."],

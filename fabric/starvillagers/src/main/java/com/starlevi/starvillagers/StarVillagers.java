@@ -154,7 +154,7 @@ public final class StarVillagers implements ModInitializer {
         Path f = FabricLoader.getInstance().getConfigDir().resolve("starscenes").resolve("dialogos").resolve("aldeano.json");
         try {
             // la charla vieja (sin amistad ni regalos) se guarda aparte y se pone la nueva
-            if (Files.exists(f) && !Files.readString(f, StandardCharsets.UTF_8).contains("regalar")) {
+            if (Files.exists(f) && !Files.readString(f, StandardCharsets.UTF_8).contains("anim_")) {
                 Files.move(f, f.resolveSibling("aldeano_viejo.json"), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (Exception ignored) {

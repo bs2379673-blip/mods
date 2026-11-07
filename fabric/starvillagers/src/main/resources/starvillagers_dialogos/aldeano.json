@@ -2,12 +2,14 @@
 // Marcadores: %saludo% %charla% %humor% %relacion% %reaccion% %personalidad% (salen de
 // config/starvillagers/personalidades.json), %npc% y %jugador%.
 // Acciones: "comerciar", "charlar" (suma amistad una vez por día), "regalar" (le da lo que tenés en la mano),
-// "amistad:5", "humor:10". Condiciones: "amistad:>=40", "humor:<0", "personalidad:timido", "en_mano".
+// "amistad:5", "humor:10". "animacion" puede usar %anim_saludo% %anim_charla% %anim_humor% %anim_relacion%.
+// Condiciones: "amistad:>=40", "humor:<0", "personalidad:timido", "en_mano".
 {
   "inicio": "hola",
   "nodos": {
     "hola": {
       "texto": ["%saludo%"],
+      "animacion": "%anim_saludo%",
       "opciones": [
         {"texto": "Charlemos un rato", "ir": "charla"},
         {"texto": "Te traje algo", "si": ["en_mano"], "ir": "regalo"},
@@ -21,6 +23,7 @@
     },
     "charla": {
       "texto": ["%charla%"],
+      "animacion": "%anim_charla%",
       "acciones": ["charlar"],
       "opciones": [
         {"texto": "Contame más", "ir": "charla"},
@@ -39,6 +42,7 @@
     },
     "estado": {
       "texto": ["%humor%"],
+      "animacion": "%anim_humor%",
       "opciones": [
         {"texto": "Volver", "ir": "hola"},
         {"texto": "Bueno, nos vemos", "acciones": ["animar:wave"]}
@@ -46,6 +50,7 @@
     },
     "relacion": {
       "texto": ["%relacion%"],
+      "animacion": "%anim_relacion%",
       "opciones": [
         {"texto": "Volver", "ir": "hola"},
         {"texto": "Chau", "acciones": ["animar:wave"]}
@@ -53,6 +58,7 @@
     },
     "perdon": {
       "texto": ["Hmm... bueno. Voy a pensarlo.", "No es tan fácil... pero gracias por decirlo."],
+      "animacion": "think",
       "acciones": ["charlar"],
       "opciones": [
         {"texto": "Volver", "ir": "hola"},

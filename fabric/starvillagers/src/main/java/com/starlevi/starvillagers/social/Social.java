@@ -177,12 +177,24 @@ public final class Social {
                 }
                 key = taste == 2 ? "regalo_encanta" : taste == 1 ? "regalo_gusta" : taste == 0 ? "regalo_normal" : "regalo_no_gusta";
                 particles(v, taste == 2 ? ParticleTypes.HEART : taste >= 0 ? ParticleTypes.HAPPY_VILLAGER : ParticleTypes.ANGRY_VILLAGER, taste == 2 ? 5 : 6);
-                StarScenesAPI.play(v, taste >= 1 ? "wave" : "talk");
             }
         }
         touch(v, m);
+        StarScenesAPI.play(v, anim(pe, key.replace("regalo_", "")));
         String item = st.isEmpty() ? "" : st.getHoverName().getString();
         REACTION.put(p.getUUID(), fill(pe.line(key, R), v, p).replace("%item%", item));
+    }
+
+    /** El gesto de esta personalidad para algo ("saludo", "encanta", "humor_feliz"...). */
+    public static String anim(Personality pe, String what) {
+        String a = pe.line("animacion_" + what, R);
+        return a.isEmpty() ? "talk" : a;
+    }
+
+    /** Con que gesto te saluda (enojado si le caes mal). */
+    public static String greetAnim(Villager v, ServerPlayer p) {
+        Personality pe = personality(v);
+        return anim(pe, angryAt(v, p) ? "enojado" : "saludo");
     }
 
     private static int compare(String expr, int have) {
@@ -224,6 +236,10 @@ public final class Social {
         StarScenesAPI.registerPlaceholder("humor", (p, s) -> s instanceof Villager v ? fill(personality(v).line(moodKey(mind(v).mood), R), v, p) : "");
         StarScenesAPI.registerPlaceholder("relacion", (p, s) -> s instanceof Villager v ? fill(personality(v).line(relation(mind(v).hearts(p.getUUID())), R), v, p) : "");
         StarScenesAPI.registerPlaceholder("reaccion", (p, s) -> REACTION.getOrDefault(p.getUUID(), ""));
+        StarScenesAPI.registerPlaceholder("anim_saludo", (p, s) -> s instanceof Villager v ? greetAnim(v, p) : "");
+        StarScenesAPI.registerPlaceholder("anim_charla", (p, s) -> s instanceof Villager v ? anim(personality(v), angryAt(v, p) ? "enojado" : "charla") : "");
+        StarScenesAPI.registerPlaceholder("anim_humor", (p, s) -> s instanceof Villager v ? anim(personality(v), moodKey(mind(v).mood)) : "");
+        StarScenesAPI.registerPlaceholder("anim_relacion", (p, s) -> s instanceof Villager v ? anim(personality(v), relation(mind(v).hearts(p.getUUID()))) : "");
         StarScenesAPI.registerPlaceholder("personalidad", (p, s) -> s instanceof Villager v ? personality(v).name : "");
         // acciones
         StarScenesAPI.registerAction("charlar", (p, s, val) -> {
@@ -279,6 +295,7 @@ public final class Social {
                 if (v.isAlive()) {
                     StarScenesAPI.say(v, fill(Personality.get(m.personality).line("golpe", R), v, p), 2.5f);
                     particles(v, ParticleTypes.ANGRY_VILLAGER, 4);
+                    StarScenesAPI.play(v, anim(Personality.get(m.personality), "golpe"));
                 }
             }
         });

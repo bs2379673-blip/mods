@@ -114,6 +114,24 @@ public class StarVillagersTest implements FabricClientGameTest {
                         + ", condicion amistad>=10 " + StarScenesAPI.test(p, v, "amistad:>=10") + ", personalidades " + com.starlevi.starvillagers.social.Personality.ALL.size());
             });
             ctx.waitTicks(5);
+            // los gestos se ven (tambien con el modelo de EMF)
+            for (String g : new String[]{"happy", "shy", "laugh", "disgust"}) {
+                server.runOnServer(s -> {
+                    for (Villager v : s.overworld().getEntitiesOfClass(Villager.class, new AABB(-2, -70, -10, -1, -50, 10))) {
+                        StarScenesAPI.play(v, g);
+                    }
+                });
+                ctx.waitTicks(12);
+                System.out.println("StarVillagers prueba: gesto " + g + " -> " + ctx.computeOnClient(mc -> {
+                    for (var e : mc.level.entitiesForRendering()) {
+                        if (e instanceof Villager v && v.getX() > -2 && v.getX() < -1) {
+                            return com.starlevi.starscenes.client.NpcRenderer.gestureDebug(v);
+                        }
+                    }
+                    return "no encontre al aldeano";
+                }));
+                ctx.waitTicks(40);
+            }
         }
     }
 }

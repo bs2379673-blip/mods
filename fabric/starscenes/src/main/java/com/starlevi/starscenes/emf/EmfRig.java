@@ -296,6 +296,14 @@ public final class EmfRig {
 
     /** Pose de este cuadro: la de Minecraft (caminar, mirar) y despues las formulas del paquete. */
     public List<Draw> pose(Entity e, float partial, float headYaw, float headPitch) {
+        return pose(e, partial, headYaw, headPitch, java.util.Map.of());
+    }
+
+    /**
+     * Igual, y encima un gesto de StarScenes (saludar, reir...): hueso -> {giro x, y, z en grados, peso}.
+     * Solo toca las partes de Minecraft (head, body, brazos, piernas); el resto sigue con el paquete.
+     */
+    public List<Draw> pose(Entity e, float partial, float headYaw, float headPitch, java.util.Map<String, float[]> gesture) {
         for (Node n : this.all) {
             n.reset();
         }
@@ -326,6 +334,23 @@ public final class EmfRig {
                     write(n, l.channel(), v);
                 }
             }
+        }
+        for (var g : gesture.entrySet()) {
+            Node n = this.byName.get(g.getKey());
+            if (n == null || !n.vanilla) {
+                continue;
+            }
+            float[] v = g.getValue();
+            float w = v[3];
+            float rx = (float) Math.toRadians(v[0]), ry = (float) Math.toRadians(v[1]), rz = (float) Math.toRadians(v[2]);
+            if (g.getKey().equals("head")) {
+                // la cabeza sigue mirando a donde mira, el gesto se suma
+                rx += n.rx;
+                ry += n.ry;
+            }
+            n.rx += (rx - n.rx) * w;
+            n.ry += (ry - n.ry) * w;
+            n.rz += (rz - n.rz) * w;
         }
         List<Draw> out = new ArrayList<>();
         Matrix4f root = new Matrix4f();

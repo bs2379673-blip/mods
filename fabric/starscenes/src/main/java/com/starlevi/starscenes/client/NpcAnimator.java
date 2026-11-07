@@ -28,6 +28,12 @@ final class NpcAnimator {
     private float[] a, b, out;
     final List<Matrix4f> mats = new ArrayList<>();
     private String pending;
+    private float[] ov;
+    /**
+     * Para el modelo de EMF: los huesos que mueve el gesto de ahora (saludar, reir...), con su giro en
+     * grados (como en Blockbench) y cuanto pesa (0..1, para entrar y salir suave). Vacio si no hay gesto.
+     */
+    final java.util.Map<String, float[]> overlay = new java.util.HashMap<>();
 
     /** Pide una animacion ("interact", "seeplayer", "idle" o un nombre exacto); se hace en el proximo cuadro. */
     void trigger(String kind) {
@@ -132,6 +138,34 @@ final class NpcAnimator {
         this.pitch += (wantPitch - this.pitch) * 0.15f;
         Matrix4f[] arr = this.mats.toArray(new Matrix4f[0]);
         m.matrices(this.out, arr, this.yaw, this.pitch);
+        // el gesto (si hay) para el modelo de EMF
+        this.overlay.clear();
+        BBModel.Anim g = null;
+        float w = 0, gt = 0;
+        if (this.cur != null && !isBase(this.cur)) {
+            g = this.cur;
+            gt = time(g, now - this.curStart);
+            w = Math.min(1, (now - this.curStart) / BLEND);
+            if (!g.loops()) {
+                w = Math.min(w, Math.max(0, (g.length - gt) / BLEND));
+            }
+        } else if (this.prev != null && !isBase(this.prev) && now - this.blendStart < BLEND) {
+            g = this.prev;
+            gt = time(g, now - this.prevStart);
+            w = 1 - (now - this.blendStart) / BLEND;
+        }
+        if (g != null && w > 0) {
+            if (this.ov == null || this.ov.length != this.out.length) {
+                this.ov = new float[this.out.length];
+            }
+            m.sample(g, gt, this.ov);
+            w = w * w * (3 - 2 * w);
+            for (int i = 0; i < m.bones.size(); i++) {
+                if (g.rotates(i)) {
+                    this.overlay.put(m.bones.get(i).name, new float[]{this.ov[i * 9], this.ov[i * 9 + 1], this.ov[i * 9 + 2], w});
+                }
+            }
+        }
     }
 
     private void play(BBModel.Anim an, float now, boolean restart) {

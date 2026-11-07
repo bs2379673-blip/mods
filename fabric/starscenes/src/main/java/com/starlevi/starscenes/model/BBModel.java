@@ -88,6 +88,11 @@ public final class BBModel {
         /** [hueso][canal] -> cuadros clave (null si ese hueso no se mueve en ese canal). */
         final Key[][][] keys;
 
+        /** Si esta animacion mueve (rota) ese hueso. */
+        public boolean rotates(int bone) {
+            return bone < this.keys.length && this.keys[bone][ROT] != null;
+        }
+
         Anim(String name, float length, String loop, int bones) {
             this.name = name;
             this.length = length;
