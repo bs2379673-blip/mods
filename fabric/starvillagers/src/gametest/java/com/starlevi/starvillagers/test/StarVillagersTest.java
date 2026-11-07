@@ -115,9 +115,11 @@ public class StarVillagersTest implements FabricClientGameTest {
             });
             ctx.waitTicks(5);
             // hacer cosas juntos: abrazo (los dos hacen el gesto) y de la mano (te sigue)
+            final java.util.concurrent.atomic.AtomicReference<java.util.UUID> who = new java.util.concurrent.atomic.AtomicReference<>();
             server.runOnServer(s -> {
                 ServerPlayer p = s.getPlayerList().getPlayers().get(0);
                 Villager v = s.overworld().getEntitiesOfClass(Villager.class, new AABB(-10, -70, -10, 10, -50, 10)).get(0);
+                who.set(v.getUUID());
                 StarScenesAPI.run(p, v, java.util.List.of("amistad:90", "juntos:abrazar"));
                 System.out.println("StarVillagers prueba: abrazo, ocupado " + com.starlevi.starvillagers.social.Together.busy(v) + ", distancia " + String.format(java.util.Locale.ROOT, "%.2f", p.distanceTo(v)));
             });
@@ -126,7 +128,7 @@ public class StarVillagersTest implements FabricClientGameTest {
             ctx.waitTicks(50);
             server.runOnServer(s -> {
                 ServerPlayer p = s.getPlayerList().getPlayers().get(0);
-                Villager v = s.overworld().getEntitiesOfClass(Villager.class, new AABB(-10, -70, -10, 10, -50, 10)).get(0);
+                Villager v = (Villager) s.overworld().getEntity(who.get());
                 System.out.println("StarVillagers prueba: despues del abrazo ocupado " + com.starlevi.starvillagers.social.Together.busy(v) + ", sin IA " + v.isNoAi());
                 StarScenesAPI.run(p, v, java.util.List.of("juntos:mano"));
             });

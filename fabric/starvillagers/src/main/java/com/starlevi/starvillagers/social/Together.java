@@ -91,6 +91,7 @@ public final class Together {
         StarScenesAPI.run(p, v, List.of("cerrar"));
         Mind m = Social.mind(v);
         int hearts = m.hearts(p.getUUID());
+        StarVillagers.LOGGER.debug("StarVillagers: juntos:{} con {} (amistad {}, humor {})", k.id(), v.getName().getString(), hearts, m.mood);
         if (hearts < k.hearts()) {
             StarScenesAPI.say(v, line(v, p, "juntos_no"), 3);
             StarScenesAPI.play(v, Social.anim(Social.personality(v), "juntos_no"));
@@ -203,6 +204,7 @@ public final class Together {
         if (j == null) {
             return;
         }
+        StarVillagers.LOGGER.debug("StarVillagers: termino juntos:{} con {}", j.kind.id(), v.getName().getString());
         v.setNoAi(j.noAi);
         ServerPlayer p = v.level().getServer() == null ? null : v.level().getServer().getPlayerList().getPlayer(j.player);
         if (j.kind.mode() == Mode.CARRY && v.isPassenger()) {

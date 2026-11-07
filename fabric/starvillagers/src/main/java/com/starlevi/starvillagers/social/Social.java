@@ -140,6 +140,8 @@ public final class Social {
         return fill(s, v, p);
     }
 
+    private static String giftName;
+
     private static void giveGift(ServerPlayer p, Villager v) {
         Mind m = mind(v);
         Personality pe = Personality.get(m.personality);
@@ -155,6 +157,7 @@ public final class Social {
                 b.giftsToday = 0;
             }
             String name = st.getHoverName().getString();
+            giftName = name;
             if (b.giftsToday >= 3) {
                 key = "regalo_demasiado";
             } else {
@@ -183,7 +186,8 @@ public final class Social {
         }
         touch(v, m);
         StarScenesAPI.play(v, anim(pe, key.replace("regalo_", "")));
-        String item = st.isEmpty() ? "" : st.getHoverName().getString();
+        String item = st.isEmpty() && giftName == null ? "" : giftName != null ? giftName : st.getHoverName().getString();
+        giftName = null;
         REACTION.put(p.getUUID(), fill(pe.line(key, R), v, p).replace("%item%", item));
     }
 
