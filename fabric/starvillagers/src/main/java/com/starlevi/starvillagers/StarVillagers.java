@@ -77,7 +77,8 @@ public final class StarVillagers implements ModInitializer {
         String prof = profession(v);
         com.starlevi.starvillagers.social.Social.mind(v);
         if (id == null) {
-            id = Looks.random(RANDOM, prof);
+            float temp = v.level().getBiome(v.blockPosition()).value().getBaseTemperature();
+            id = Looks.random(RANDOM, prof, temp);
             ((AttachmentTarget) (Object) v).setAttached(IDENTITY, id);
             if (!v.hasCustomName()) {
                 v.setCustomName(Component.literal(id.name()));

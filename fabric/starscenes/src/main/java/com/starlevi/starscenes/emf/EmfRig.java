@@ -60,28 +60,25 @@ public final class EmfRig {
     public EmfRig(JemModel m) {
         this.lines = m.lines;
         // esqueleto de jugador (como el de Minecraft), con nombres de OptiFine
+        // (como en OptiFine: las capas de afuera son piezas aparte, en el mismo lugar que su parte, y
+        // siguen a su parte; los paquetes copian el giro del brazo a la manga, por eso no van adentro)
         Node head = vanilla("head", 0, 0, 0, "-4,-8,-4,8,8,8", 0, 0, 0);
         Node hat = vanilla("headwear", 0, 0, 0, "-4,-8,-4,8,8,8", 32, 0, 0.5f);
-        head.children.add(hat);
         Node body = vanilla("body", 0, 0, 0, "-4,0,-2,8,12,4", 16, 16, 0);
-        body.children.add(vanilla("jacket", 0, 0, 0, "-4,0,-2,8,12,4", 16, 32, 0.25f));
+        Node jacket = vanilla("jacket", 0, 0, 0, "-4,0,-2,8,12,4", 16, 32, 0.25f);
         Node ra = vanilla("right_arm", -5, 2, 0, "-3,-2,-2,4,12,4", 40, 16, 0);
-        ra.children.add(vanilla("right_sleeve", 0, 0, 0, "-3,-2,-2,4,12,4", 40, 32, 0.25f));
+        Node rs = vanilla("right_sleeve", -5, 2, 0, "-3,-2,-2,4,12,4", 40, 32, 0.25f);
         Node la = vanilla("left_arm", 5, 2, 0, "-1,-2,-2,4,12,4", 32, 48, 0);
-        la.children.add(vanilla("left_sleeve", 0, 0, 0, "-1,-2,-2,4,12,4", 48, 48, 0.25f));
+        Node ls = vanilla("left_sleeve", 5, 2, 0, "-1,-2,-2,4,12,4", 48, 48, 0.25f);
         Node rl = vanilla("right_leg", -1.9f, 12, 0, "-2,0,-2,4,12,4", 0, 16, 0);
-        rl.children.add(vanilla("right_pants", 0, 0, 0, "-2,0,-2,4,12,4", 0, 32, 0.25f));
+        Node rp = vanilla("right_pants", -1.9f, 12, 0, "-2,0,-2,4,12,4", 0, 32, 0.25f);
         Node ll = vanilla("left_leg", 1.9f, 12, 0, "-2,0,-2,4,12,4", 16, 48, 0);
-        ll.children.add(vanilla("left_pants", 0, 0, 0, "-2,0,-2,4,12,4", 0, 48, 0.25f));
+        Node lp = vanilla("left_pants", 1.9f, 12, 0, "-2,0,-2,4,12,4", 0, 48, 0.25f);
         Node cape = vanilla("cape", 0, 0, 2, null, 0, 0, 0), ear = vanilla("ear", 0, 0, 0, null, 0, 0, 0);
-        this.roots.add(head);
-        this.roots.add(body);
-        this.roots.add(ra);
-        this.roots.add(la);
-        this.roots.add(rl);
-        this.roots.add(ll);
-        this.roots.add(cape);
-        this.roots.add(ear);
+        for (Node n : new Node[]{head, hat, body, jacket, ra, rs, la, ls, rl, rp, ll, lp, cape, ear}) {
+            this.roots.add(n);
+        }
+        this.layers = new Node[][]{{head, hat}, {body, jacket}, {ra, rs}, {la, ls}, {rl, rp}, {ll, lp}};
         for (Node r : new ArrayList<>(this.roots)) {
             index(r);
         }
@@ -293,6 +290,23 @@ public final class EmfRig {
     }
 
     private final Vars scope = new Vars();
+    /** {parte, capa de afuera}: la capa sigue a su parte. */
+    private Node[][] layers = new Node[0][];
+
+    private void follow() {
+        for (Node[] l : this.layers) {
+            Node a = l[0], b = l[1];
+            b.x = a.x;
+            b.y = a.y;
+            b.z = a.z;
+            b.rx = a.rx;
+            b.ry = a.ry;
+            b.rz = a.rz;
+            b.sx = a.sx;
+            b.sy = a.sy;
+            b.sz = a.sz;
+        }
+    }
     private Matrix4f headM;
 
     /** La matriz de la cabeza del ultimo cuadro (en pixeles del modelo), o null. */
@@ -345,6 +359,7 @@ public final class EmfRig {
             s.limbSwing = s.limbSpeed = 0;
         }
         vanillaPose(e, s);
+        follow();
         for (JemModel.Line l : this.lines) {
             float v;
             try {
@@ -382,6 +397,7 @@ public final class EmfRig {
             n.ry += (ry - n.ry) * w;
             n.rz += (rz - n.rz) * w;
         }
+        follow();
         List<Draw> out = new ArrayList<>();
         this.headM = null;
         Matrix4f root = new Matrix4f();

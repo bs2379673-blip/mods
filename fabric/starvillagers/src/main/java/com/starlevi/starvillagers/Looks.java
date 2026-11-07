@@ -115,16 +115,33 @@ public final class Looks {
         return names.get(0);
     }
 
+    private static float clamp(float x) {
+        return Math.max(0, Math.min(1, x));
+    }
+
     /** Un genes al azar, que tiende al medio (como la gente). */
     private static float gene(Random r) {
         return Math.max(0, Math.min(1, (r.nextFloat() + r.nextFloat() + r.nextFloat()) / 3f));
     }
 
-    /** Un aldeano nuevo al azar (oficio: "farmer", "none", "child"...). */
+    /** Un aldeano nuevo al azar (oficio: "farmer", "none", "child"...), como en un bioma templado. */
     public static Identity random(Random r, String profession) {
+        return random(r, profession, 0.8f);
+    }
+
+    /**
+     * Un aldeano nuevo al azar. temp = la temperatura del bioma (como en MCA: en los frios la piel es
+     * mas clara y en los calurosos mas oscura; y de vez en cuando llega alguien de otro lado).
+     */
+    public static Identity random(Random r, String profession, float temp) {
         boolean female = r.nextBoolean();
         String g = female ? "female" : "male";
-        float melanin = gene(r), hemoglobin = gene(r), eu = gene(r), pheo = gene(r);
+        if (r.nextFloat() < 0.15f) {
+            temp = r.nextFloat() * 2 - 0.5f;
+        }
+        float melanin = clamp((r.nextFloat() - 0.5f) * 0.35f + temp * 0.4f + 0.1f);
+        float hemoglobin = clamp(((r.nextFloat() - 0.5f) * 0.35f + temp * 0.4f + 0.1f) * 0.5f);
+        float eu = r.nextFloat(), pheo = r.nextFloat();
         int skinIdx = (int) Math.min(4, Math.max(0, gene(r) * 5));
         String skin = "skin/" + g + "/" + skinIdx + ".png";
         String face = pick(folder("face/normal/" + g + "/"), r, "face/normal/" + g + "/0.png");
