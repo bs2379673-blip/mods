@@ -34,6 +34,7 @@ public final class SkinLayout {
         }
     }
 
+    private static final String[] SIDES = {"derecha", "frente", "izquierda", "atrás"};
     public static final List<Face> FACES = new ArrayList<>();
 
     static {
@@ -42,8 +43,6 @@ public final class SkinLayout {
         box(Part.BODY, false, 16, 16, -4, 0, -2, 8, 12, 4, 0, "Torso");
         box(Part.BODY, true, 16, 32, -4, 0, -2, 8, 12, 4, 0.25f, "Chaqueta (capa de afuera)");
     }
-
-    private static final String[] SIDES = {"derecha", "frente", "izquierda", "atrás"};
 
     private static void box(Part part, boolean outer, int U, int V, float ox, float oy, float oz, int w, int h, int d, float g, String label) {
         float minX = ox - g, maxX = ox + w + g, minZ = oz - g, maxZ = oz + d + g, minY = oy - g, maxY = oy + h + g;
