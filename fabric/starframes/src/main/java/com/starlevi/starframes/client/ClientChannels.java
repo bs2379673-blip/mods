@@ -204,13 +204,18 @@ public final class ClientChannels {
             switch (c.mrl.status()) {
                 case LOADED -> {
                     Minecraft mc = Minecraft.getInstance();
+                    final String chId = id;
                     c.player = PlayerAPI.player(c.mrl, 0, () -> PlayerAPI.glEngine(renderThread, mc), () -> {
                         try {
-                            return PlayerAPI.alEngine(true);
+                            SFXEngine e = PlayerAPI.alEngine(true);
+                            AudioTap.engine(e, chId);
+                            return e;
                         } catch (Throwable t) {
                             StarFrames.LOGGER.warn("StarFrames: sin sonido posicional ({}), sonido comun", t.toString());
                             try {
-                                return (SFXEngine) PlayerAPI.alEngine();
+                                SFXEngine e = (SFXEngine) PlayerAPI.alEngine();
+                                AudioTap.engine(e, chId);
+                                return e;
                             } catch (Throwable t2) {
                                 // sin sistema de sonido: el video se ve igual, mudo
                                 StarFrames.LOGGER.warn("StarFrames: sin sonido ({}), solo imagen", t2.toString());

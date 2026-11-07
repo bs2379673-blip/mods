@@ -29,10 +29,15 @@ public final class StarFestClient implements ClientModInitializer {
         BlockEntityRenderers.register(Registry.typeFor(ShowBlock.Kind.REFLECTOR), ctx -> new LightRenderer(true));
         BlockEntityRenderers.register(Registry.typeFor(ShowBlock.Kind.PISO), ctx -> new FloorRenderer());
         BlockEntityRenderers.register(Registry.typeFor(ShowBlock.Kind.CABINA), ctx -> new BoothRenderer());
+        com.starlevi.starfest.client.live.ScreenLights.init();
         ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+            com.starlevi.starfest.client.live.ScreenLights.tick();
             Show.tick();
             Fireworks.tick();
         });
-        ClientPlayConnectionEvents.DISCONNECT.register((h, mc) -> mc.execute(Show::clear));
+        ClientPlayConnectionEvents.DISCONNECT.register((h, mc) -> mc.execute(() -> {
+            com.starlevi.starfest.client.live.ScreenLights.clear();
+            Show.clear();
+        }));
     }
 }

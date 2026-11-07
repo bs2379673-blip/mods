@@ -11,6 +11,7 @@
     "main": ["com.starlevi.starframes.StarFrames"],
     "client": ["com.starlevi.starframes.client.StarFramesClient"]
   },
+  "mixins": ["starframes.mixins.json"],
   "depends": {
     "fabricloader": ">=0.17.0",
     "minecraft": "~1.21.11",
