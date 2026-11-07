@@ -72,7 +72,7 @@ public final class ClientChannels {
             return "";
         }
         if (c.failed) {
-            return "no se pudo abrir el link";
+            return "no se pudo abrir: " + reason(c);
         }
         if (c.player == null) {
             return c.mrl == null ? "" : "cargando…";
@@ -151,6 +151,29 @@ public final class ClientChannels {
             ensure(e.getKey(), c);
             speakers(c, screens);
         }
+    }
+
+    /** Por que fallo, en palabras simples. */
+    private static String reason(CC c) {
+        Throwable t = c.mrl == null ? null : c.mrl.exception();
+        String m = t == null ? "" : String.valueOf(t.getMessage()) + (t.getCause() == null ? "" : " " + t.getCause().getMessage());
+        String low = m.toLowerCase(java.util.Locale.ROOT);
+        if (low.contains("not a bot") || low.contains("sign in") || low.contains("po_token")) {
+            return "YouTube pidió verificar (probá otro video o más tarde)";
+        }
+        if (low.contains("http 4") || low.contains("403") || low.contains("400")) {
+            return "la página no deja descargarlo (probá el link directo)";
+        }
+        if (low.contains("http 5")) {
+            return "la página no responde";
+        }
+        if (low.contains("unknownhost") || low.contains("unresolved") || low.contains("connect")) {
+            return "sin conexión a esa página";
+        }
+        if (c.player == null && c.mrl != null && c.mrl.status() == org.watermedia.api.player.MRL.Status.LOADED) {
+            return "no se pudo crear el reproductor";
+        }
+        return m.isBlank() ? "link no válido" : (m.length() > 60 ? m.substring(0, 60) + "…" : m);
     }
 
     private static void ensure(String id, CC c) {
