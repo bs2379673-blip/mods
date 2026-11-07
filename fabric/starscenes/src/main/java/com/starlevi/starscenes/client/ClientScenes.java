@@ -112,7 +112,76 @@ public final class ClientScenes {
         return t;
     }
 
+    private static final Map<String, Ready> MERGED = new HashMap<>();
+
+    /**
+     * El modelo con las animaciones de otros modelos sumadas (por nombre de hueso). Las fuentes que
+     * no existen se ignoran; las que todavia se estan bajando se suman cuando llegan.
+     */
+    public static Ready model(String id, List<String> sources) {
+        Ready base = model(id);
+        if (base == null || sources == null || sources.isEmpty()) {
+            return base;
+        }
+        String key = id + "+" + String.join(",", sources);
+        Ready r = MERGED.get(key);
+        if (r != null) {
+            return r;
+        }
+        List<BBModel> src = new ArrayList<>();
+        boolean complete = true;
+        for (String s : sources) {
+            Ready x = model(s);
+            if (x != null) {
+                src.add(x.model);
+            } else if (MODELS.containsKey(s)) {
+                complete = false;
+            }
+        }
+        if (!complete) {
+            return base;
+        }
+        r = new Ready(base.model.withAnimationsFrom(src), base.textures, base.isSkin);
+        MERGED.put(key, r);
+        return r;
+    }
+
+    /** Los modelos que trae el mod (assets/starscenes/modelos/*.bbmodel), como el humano de los aldeanos. */
+    private static boolean loadBuiltin(String id) {
+        if (!LOADING.add("b:" + id)) {
+            return false;
+        }
+        try {
+            var res = Minecraft.getInstance().getResourceManager().getResource(Identifier.fromNamespaceAndPath(StarScenes.MOD_ID, "modelos/" + id + ".bbmodel"));
+            if (res.isEmpty()) {
+                return false;
+            }
+            String json;
+            try (var in = res.get().open()) {
+                json = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            }
+            BBModel m = BBModel.parse(json);
+            Identifier[] tex = new Identifier[m.textures.size()];
+            boolean[] skin = new boolean[tex.length];
+            for (int t = 0; t < tex.length; t++) {
+                skin[t] = true;
+                if (m.textures.get(t).png != null) {
+                    tex[t] = register("modelo/" + id + "_" + t, m.textures.get(t).png);
+                }
+            }
+            READY.put(id, new Ready(m, tex, skin));
+            return true;
+        } catch (Exception e) {
+            StarScenes.LOGGER.warn("StarScenes: no pude leer el modelo base {}: {}", id, e.toString());
+            return false;
+        }
+    }
+
     private static void loadModel(String id) {
+        if (!MODELS.containsKey(id)) {
+            loadBuiltin(id);
+            return;
+        }
         Net.FileRef f = MODELS.get(id);
         if (f == null || !LOADING.add("m:" + id)) {
             return;
@@ -229,5 +298,6 @@ public final class ClientScenes {
     public static void disconnect() {
         DOWNLOADS.clear();
         LOADING.clear();
+        MERGED.clear();
     }
 }

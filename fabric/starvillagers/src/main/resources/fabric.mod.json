@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "starvillagers",
+  "version": "${version}",
+  "name": "StarVillagers",
+  "description": "Los aldeanos pasan a ser personas: nombre, genes, skin por capas, animaciones y charla con los diálogos de StarScenes. Propiedad de Starlevi. Texturas de Minecraft Comes Alive (GPL-3.0).",
+  "authors": ["Starlevi"],
+  "license": "All Rights Reserved - Starlevi (texturas de MCA: GPL-3.0)",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.starlevi.starvillagers.StarVillagers"],
+    "client": ["com.starlevi.starvillagers.client.StarVillagersClient"]
+  },
+  "mixins": ["starvillagers.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.17.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*",
+    "starscenes": "*"
+  },
+  "breaks": {
+    "mca": "*"
+  }
+}

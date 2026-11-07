@@ -114,6 +114,41 @@ public final class BBModel {
     private BBModel() {
     }
 
+    /**
+     * Una copia de este modelo (mismas piezas) que ademas tiene las animaciones de otros modelos con
+     * huesos del mismo nombre. Las de este modelo tienen prioridad.
+     */
+    public BBModel withAnimationsFrom(List<BBModel> sources) {
+        BBModel c = new BBModel();
+        c.bones.addAll(this.bones);
+        c.textures.addAll(this.textures);
+        c.anims.putAll(this.anims);
+        c.hitWidth = this.hitWidth;
+        c.hitHeight = this.hitHeight;
+        c.tagY = this.tagY;
+        c.maxY = this.maxY;
+        c.headBone = this.headBone;
+        for (BBModel src : sources) {
+            int[] map = new int[src.bones.size()];
+            for (int i = 0; i < map.length; i++) {
+                map[i] = c.boneIndex(src.bones.get(i).name);
+            }
+            for (Anim a : src.anims.values()) {
+                if (c.anims.containsKey(a.name)) {
+                    continue;
+                }
+                Anim n = new Anim(a.name, a.length, a.loop, c.bones.size());
+                for (int i = 0; i < map.length; i++) {
+                    if (map[i] > 0 && i < a.keys.length) {
+                        n.keys[map[i]] = a.keys[i];
+                    }
+                }
+                c.anims.put(a.name, n);
+            }
+        }
+        return c;
+    }
+
     // ------------------------------------------------------------------ lectura
 
     public static BBModel parse(String json) {

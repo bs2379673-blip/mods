@@ -67,8 +67,9 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         super.extractRenderState(npc, s, partial);
         s.yRot = npc instanceof LivingEntity le ? Mth.rotLerp(partial, le.yBodyRotO, le.yBodyRot) : npc.getYRot(partial);
         s.scale = npc.sceneScale();
-        s.ready = ClientScenes.model(npc.sceneModel());
-        s.skin = ClientScenes.skin(npc.sceneSkin());
+        s.ready = ClientScenes.model(npc.sceneModel(), npc.sceneAnimationSources());
+        Identifier own = npc.sceneTexture();
+        s.skin = own != null ? own : ClientScenes.skin(npc.sceneSkin());
         s.mats = null;
         if (s.ready != null) {
             NpcAnimator an = ANIMATORS.computeIfAbsent(npc, k -> new NpcAnimator());

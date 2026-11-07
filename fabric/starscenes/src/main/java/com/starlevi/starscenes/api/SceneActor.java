@@ -52,6 +52,19 @@ public interface SceneActor {
         return 1f;
     }
 
+    /**
+     * Textura para dibujarlo en lugar de la skin (por ejemplo la que arma un mod de aldeanos con
+     * piel, cara, ropa y pelo), o null para usar sceneSkin. Solo se pide en el cliente.
+     */
+    default net.minecraft.resources.Identifier sceneTexture() {
+        return null;
+    }
+
+    /** Otros modelos de los que tomar animaciones (por nombre de hueso), ej. ["scenes_quests"]. */
+    default java.util.List<String> sceneAnimationSources() {
+        return java.util.List.of();
+    }
+
     /** Item en la mano derecha, la izquierda o la cabeza. */
     default ItemStack sceneItem(int slot) {
         return ItemStack.EMPTY;

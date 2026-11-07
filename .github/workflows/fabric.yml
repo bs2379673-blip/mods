@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 env:
-  MODS: starscenes starframes starbody
+  MODS: starscenes starframes starbody starvillagers
 
 jobs:
   build:
@@ -44,6 +44,7 @@ jobs:
           set -o pipefail
           for m in $MODS; do
             echo "== $m"
+            [ -x fabric/$m/ci/bajar_mca.sh ] && fabric/$m/ci/bajar_mca.sh
             (cd fabric/$m && gradle build copiarClasspath --no-daemon --stacktrace -Ploader_version=${{ steps.v.outputs.loader }} -Pfabric_version=${{ steps.v.outputs.fabric }} 2>&1 | tee build.log) || {
               grep -E "error:|What went wrong|FAILED|Execution failed|Could not|Caused by|warning: \[" -A3 fabric/$m/build.log | head -80 | while IFS= read -r l; do echo "::error::$m: ${l}"; done
               exit 1
@@ -64,7 +65,7 @@ jobs:
               echo "::notice::$m: el mundo tardo en cargar, otra vez"
             done
             echo "::notice::$m prueba: $([ $ok = 1 ] && echo bien || echo FALLO)"
-            grep -E "StarScenes|StarFrames|StarBody|Mixin|mixin|WaterMedia|WATERMeDIA|ERROR|Exception|Test failed|AssertionError|unknown soundEvent|Missing sound" fabric/$m/gametest.log | grep -vE "^\s*at |narrator|flite|OpenAL device|Realms|Anisotropic|cursor shape|GL ERROR|@ Render|ALSA" | head -40 | while IFS= read -r l; do echo "::notice::$m: ${l:0:300}"; done
+            grep -E "StarScenes|StarFrames|StarBody|StarVillagers|Mixin|mixin|WaterMedia|WATERMeDIA|ERROR|Exception|Test failed|AssertionError|unknown soundEvent|Missing sound" fabric/$m/gametest.log | grep -vE "^\s*at |narrator|flite|OpenAL device|Realms|Anisotropic|cursor shape|GL ERROR|@ Render|ALSA" | head -40 | while IFS= read -r l; do echo "::notice::$m: ${l:0:300}"; done
             mkdir -p vis/$m
             cp fabric/$m/gametest.log vis/$m/ 2>/dev/null
             find fabric/$m -name "*s[0-9][0-9]_*.png" -exec cp {} vis/$m/ \;

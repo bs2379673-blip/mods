@@ -1,0 +1,45 @@
+// Charla de los aldeanos de StarVillagers (se crea sola; la podés cambiar).
+// %npc% es el nombre del aldeano y %jugador% el tuyo. La acción "comerciar" abre su comercio.
+{
+  "inicio": "hola",
+  "nodos": {
+    "hola": {
+      "texto": [
+        "¡Hola, &e%jugador%&r! Soy &e%npc%&r.",
+        "Buen día, &e%jugador%&r. ¿Qué andás necesitando?",
+        "¿Qué tal, &e%jugador%&r? Lindo día, ¿no?",
+        "¡Ah, &e%jugador%&r! Justo estaba pensando en vos."
+      ],
+      "opciones": [
+        {"texto": "¿Qué tenés para cambiar?", "acciones": ["comerciar"]},
+        {"texto": "¿Cómo andás?", "ir": "estado"},
+        {"texto": "Contame algo del pueblo", "ir": "pueblo"},
+        {"texto": "Nada, ¡chau!", "acciones": ["animar:wave"]}
+      ]
+    },
+    "estado": {
+      "texto": [
+        "Bien, por suerte. Hay mucho trabajo, pero me gusta.",
+        "Un poco cansado, la verdad. Ayer trabajé hasta tarde.",
+        "¡Muy bien! Hoy amaneció hermoso.",
+        "Más o menos... pero charlar con vos ayuda."
+      ],
+      "opciones": [
+        {"texto": "Me alegro", "ir": "hola"},
+        {"texto": "Bueno, nos vemos", "acciones": ["animar:wave"]}
+      ]
+    },
+    "pueblo": {
+      "texto": [
+        "Dicen que de noche andan zombis por las afueras. Yo no salgo.",
+        "El herrero tiene las mejores herramientas, pero cobra caro.",
+        "Hace poco llegó gente nueva al pueblo. Se ven simpáticos.",
+        "Si ves un gólem de hierro, saludalo. Nos cuida a todos."
+      ],
+      "opciones": [
+        {"texto": "Interesante", "ir": "hola"},
+        {"texto": "Gracias, chau", "acciones": ["animar:wave"]}
+      ]
+    }
+  }
+}
