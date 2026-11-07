@@ -49,10 +49,10 @@ public class ScreenRenderer implements BlockEntityRenderer<ScreenBlockEntity, Sc
         s.bright = be.bright();
         s.video = null;
         if (!be.channel().isEmpty()) {
-            VideoTexture t = ClientChannels.texture(be.channel());
+            int[] t = ClientChannels.texture(be.channel());
             if (t != null) {
                 s.video = ClientChannels.textureId(be.channel());
-                s.videoAspect = t.width / (float) Math.max(1, t.height);
+                s.videoAspect = t[0] / (float) Math.max(1, t[1]);
             }
         }
     }
@@ -89,7 +89,7 @@ public class ScreenRenderer implements BlockEntityRenderer<ScreenBlockEntity, Sc
             }
             final float a = vx0, b = vy0, c = vx1, d = vy1;
             ps.translate(0, 0, 0.002f);
-            collector.submitCustomGeometry(ps, RenderTypes.entityCutoutNoCull(s.video), (pose, vc) -> quad(pose, vc, a, b, c, d, 0, 1, 1, 0, light, 0xFFFFFFFF));
+            collector.submitCustomGeometry(ps, RenderTypes.entitySolid(s.video), (pose, vc) -> quad(pose, vc, a, b, c, d, 0, 1, 1, 0, light, 0xFFFFFFFF));
         }
         ps.popPose();
     }

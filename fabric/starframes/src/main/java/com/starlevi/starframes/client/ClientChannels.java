@@ -36,6 +36,9 @@ public final class ClientChannels {
         String url = "";
         MRL mrl;
         long lastLog;
+        int lastScreens;
+        net.minecraft.client.renderer.texture.DynamicTexture copy;
+        int copyW, copyH;
         MediaPlayer player;
         VideoTexture tex;
         Identifier texId;
@@ -149,6 +152,7 @@ public final class ClientChannels {
                 release(c);
                 continue;
             }
+            c.lastScreens = screens.size();
             ensure(e.getKey(), c);
             speakers(c, screens);
         }
@@ -241,8 +245,9 @@ public final class ClientChannels {
         long nowMs = System.currentTimeMillis();
         if (nowMs - c.lastLog > 5000) {
             c.lastLog = nowMs;
-            StarFrames.LOGGER.info("StarFrames: {} estado {} tiempo {}/{} textura {} {}x{} siguiendo {} error {}", c.url, c.player.status(), c.player.time(),
-                    c.player.duration(), c.player.texture(), c.player.width(), c.player.height(), c.player.following(), c.player.exception());
+            StarFrames.LOGGER.info("StarFrames: {} estado {} tiempo {}/{} textura {} {}x{} copia {} volumen {} espacial {} parlantes {} pantallas cerca {}",
+                    c.url, c.player.status(), c.player.time(), c.player.duration(), c.player.texture(), c.player.width(), c.player.height(),
+                    copyWorks, c.player.volume(), c.player.spatial(), c.sinks.size(), c.lastScreens);
         }
         // el primero que sabe cuanto dura se lo dice al servidor (el reloj lo necesita)
         if (!c.reported && (c.player.duration() > 0 || c.player.live() || c.player.playing() && c.player.duration() == 0 && c.player.texture() != 0)) {
@@ -301,8 +306,15 @@ public final class ClientChannels {
         return new double[]{x, p.getY() + s.offsetY() + s.height() / 2, z};
     }
 
-    /** La textura de lo que suena en el canal (para dibujar), o null; y lo marca como visto. */
-    static VideoTexture texture(String id) {
+    /** Si copiar el video a una textura propia anda en esta compu (si no, se usa la de WaterMedia directo). */
+    private static boolean copyWorks = true;
+
+    /**
+     * El tamaño del video que suena en el canal (para dibujar), o null; y lo marca como visto. Cada cuadro
+     * se copia (en la placa de video, sin pasar por la memoria) a una textura de Minecraft, asi la ven
+     * igual Sodium, Iris y los shaders.
+     */
+    static int[] texture(String id) {
         CC c = MAP.get(id);
         if (c == null) {
             return null;
@@ -316,14 +328,40 @@ public final class ClientChannels {
         if (t == 0 || w <= 0 || h <= 0) {
             return null;
         }
-        if (c.tex == null || c.tex.glId != (int) t || c.tex.width != w || c.tex.height != h) {
-            if (c.texId == null) {
-                c.texId = Identifier.fromNamespaceAndPath(StarFrames.MOD_ID, "video/" + id.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_\\-]", "_") + "_" + texSeq++);
+        if (c.texId == null) {
+            c.texId = Identifier.fromNamespaceAndPath(StarFrames.MOD_ID, "video/" + id.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_\\-]", "_") + "_" + texSeq++);
+        }
+        if (copyWorks) {
+            if (c.copy == null || c.copyW != w || c.copyH != h) {
+                if (c.copy != null) {
+                    c.copy.close();
+                }
+                c.copy = new net.minecraft.client.renderer.texture.DynamicTexture(() -> "starframes_video", w, h, false);
+                c.copyW = w;
+                c.copyH = h;
+                Minecraft.getInstance().getTextureManager().register(c.texId, c.copy);
             }
+            int dst = ((com.mojang.blaze3d.opengl.GlTexture) c.copy.getTexture()).glId();
+            while (org.lwjgl.opengl.GL11.glGetError() != 0) {
+                // limpiar errores viejos
+            }
+            org.lwjgl.opengl.GL43.glCopyImageSubData((int) t, org.lwjgl.opengl.GL11.GL_TEXTURE_2D, 0, 0, 0, 0, dst, org.lwjgl.opengl.GL11.GL_TEXTURE_2D,
+                    0, 0, 0, 0, w, h, 1);
+            int err = org.lwjgl.opengl.GL11.glGetError();
+            if (err != 0) {
+                StarFrames.LOGGER.warn("StarFrames: no pude copiar el cuadro del video (error GL {}); uso la textura de WaterMedia directo", err);
+                copyWorks = false;
+                Minecraft.getInstance().getTextureManager().release(c.texId);
+                c.copy = null;
+            } else {
+                return new int[]{w, h};
+            }
+        }
+        if (c.tex == null || c.tex.glId != (int) t || c.tex.width != w || c.tex.height != h) {
             c.tex = new VideoTexture((int) t, w, h);
             Minecraft.getInstance().getTextureManager().register(c.texId, c.tex);
         }
-        return c.tex;
+        return new int[]{w, h};
     }
 
     static Identifier textureId(String id) {
@@ -350,6 +388,7 @@ public final class ClientChannels {
             c.texId = null;
         }
         c.tex = null;
+        c.copy = null;
     }
 
     public static void disconnect() {

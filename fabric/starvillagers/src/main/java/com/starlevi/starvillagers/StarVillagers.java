@@ -61,7 +61,7 @@ public final class StarVillagers implements ModInitializer {
      * De donde salen las animaciones de los aldeanos, ademas del modelo humano: config/starscenes/modelos/&lt;nombre&gt;.bbmodel.
      * Con "+" adelante, sus animaciones reemplazan a las que se llaman igual. Se cambia en config/starvillagers.json.
      */
-    public static java.util.List<String> animSources = java.util.List.of("+aldeanos", "scenes_quests");
+    public static java.util.List<String> animSources = java.util.List.of("+aldeanos");
 
     public static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath(MOD_ID, path);
@@ -185,7 +185,7 @@ public final class StarVillagers implements ModInitializer {
                           "piel_lisa": true,
                           // Tus animaciones de Blockbench (config/starscenes/modelos/<nombre>.bbmodel), con los huesos del
                           // modelo humano. Con "+" adelante reemplazan a las del mod que se llamen igual.
-                          "animaciones": ["+aldeanos", "scenes_quests"]
+                          "animaciones": ["+aldeanos"]
                         }
                         """, StandardCharsets.UTF_8);
             }

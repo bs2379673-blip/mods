@@ -217,6 +217,14 @@ public final class BBModel {
         Map<String, Integer> boneByUuid = new HashMap<>();
         Bone top = new Bone("_raiz", -1, new float[3], new float[3]);
         m.bones.add(top);
+        // Blockbench 5: los datos de cada grupo (nombre, pivote, giro) estan aparte, en "groups"
+        if (root.has("groups") && root.get("groups").isJsonArray()) {
+            for (JsonElement ge : root.getAsJsonArray("groups")) {
+                if (ge.isJsonObject() && ge.getAsJsonObject().has("uuid")) {
+                    m.groupInfo.put(ge.getAsJsonObject().get("uuid").getAsString(), ge.getAsJsonObject());
+                }
+            }
+        }
         if (root.has("outliner")) {
             m.readGroups(root.getAsJsonArray("outliner"), 0, elements, boneByUuid, texUv, texByUuid);
         } else {
@@ -284,6 +292,9 @@ public final class BBModel {
         return m;
     }
 
+    /** Datos de los grupos por uuid (Blockbench 5); solo se usa al leer. */
+    private final transient Map<String, JsonObject> groupInfo = new java.util.HashMap<>();
+
     public int boneIndex(String name) {
         for (int i = 0; i < this.bones.size(); i++) {
             if (this.bones.get(i).name.equals(name)) {
@@ -304,6 +315,14 @@ public final class BBModel {
                 continue;
             }
             JsonObject g = c.getAsJsonObject();
+            if (!g.has("name") && g.has("uuid") && this.groupInfo.containsKey(g.get("uuid").getAsString())) {
+                // formato nuevo: se juntan los datos del grupo con sus hijos
+                JsonObject info = this.groupInfo.get(g.get("uuid").getAsString()).deepCopy();
+                if (g.has("children")) {
+                    info.add("children", g.get("children"));
+                }
+                g = info;
+            }
             String name = g.has("name") ? g.get("name").getAsString() : "grupo";
             Bone b = new Bone(name, parent, vec(g, "origin", 0), vec(g, "rotation", 0));
             int idx = this.bones.size();

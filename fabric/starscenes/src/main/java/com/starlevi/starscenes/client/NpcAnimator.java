@@ -269,6 +269,14 @@ final class NpcAnimator {
             return null;
         }
         int style = npc.sceneStyle();
+        if (style == 0) {
+            // si hay una que se llama justo asi, esa (las numeradas son variantes de otros modelos)
+            for (BBModel.Anim an : list) {
+                if (an.name.equalsIgnoreCase(kind)) {
+                    return an;
+                }
+            }
+        }
         for (BBModel.Anim an : list) {
             if (an.name.toLowerCase(Locale.ROOT).replaceAll("[^0-9]", "").equals(String.valueOf(style))) {
                 return an;
