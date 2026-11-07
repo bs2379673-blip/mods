@@ -60,6 +60,14 @@ public interface SceneActor {
         return null;
     }
 
+    /**
+     * Modelo de EMF de los paquetes de recursos activos para dibujarlo ("player" = el modelo de
+     * jugador de tu paquete de animaciones), o null. Si ningun paquete lo trae, se usa sceneModel.
+     */
+    default String sceneEmfModel() {
+        return null;
+    }
+
     /** Otros modelos de los que tomar animaciones (por nombre de hueso), ej. ["scenes_quests"]. */
     default java.util.List<String> sceneAnimationSources() {
         return java.util.List.of();

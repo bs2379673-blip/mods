@@ -74,6 +74,11 @@ public abstract class VillagerMixin implements SceneActor {
     }
 
     @Override
+    public String sceneEmfModel() {
+        return StarVillagers.emfModel == null || StarVillagers.emfModel.isEmpty() ? null : StarVillagers.emfModel;
+    }
+
+    @Override
     public List<String> sceneAnimationSources() {
         return STARVILLAGERS$SOURCES;
     }

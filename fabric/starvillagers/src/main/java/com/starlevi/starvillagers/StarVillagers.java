@@ -42,6 +42,13 @@ public final class StarVillagers implements ModInitializer {
 
     private static final Random RANDOM = new Random();
 
+    /**
+     * Modelo de EMF que usan los aldeanos si tus paquetes lo traen ("player" = el de jugador de tu
+     * paquete de animaciones), o "" para usar siempre el modelo de StarScenes.
+     * Se cambia en config/starvillagers.json.
+     */
+    public static String emfModel = "player";
+
     public static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
@@ -108,6 +115,30 @@ public final class StarVillagers implements ModInitializer {
         });
         StarScenesAPI.registerCondition("aldeana", (p, s, v) -> s instanceof Villager vil && identity(vil) != null && identity(vil).female());
         writeDialogue();
+        readConfig();
+    }
+
+    private static void readConfig() {
+        Path f = FabricLoader.getInstance().getConfigDir().resolve("starvillagers.json");
+        try {
+            if (!Files.exists(f)) {
+                Files.writeString(f, """
+                        {
+                          // Modelo de EMF de tus paquetes de recursos para los aldeanos ("player" = el de jugador,
+                          // con las animaciones de tu paquete). "" = usar siempre el modelo de StarScenes.
+                          "modelo_emf": "player"
+                        }
+                        """, StandardCharsets.UTF_8);
+            }
+            var r = new com.google.gson.stream.JsonReader(new java.io.StringReader(Files.readString(f, StandardCharsets.UTF_8)));
+            r.setStrictness(com.google.gson.Strictness.LENIENT);
+            var o = com.google.gson.JsonParser.parseReader(r).getAsJsonObject();
+            if (o.has("modelo_emf")) {
+                emfModel = o.get("modelo_emf").getAsString();
+            }
+        } catch (Exception e) {
+            LOGGER.warn("StarVillagers: no pude leer starvillagers.json: {}", e.toString());
+        }
     }
 
     /** El dialogo de charla de los aldeanos (se crea una vez; despues se puede editar). */
@@ -125,7 +156,4 @@ public final class StarVillagers implements ModInitializer {
             LOGGER.warn("StarVillagers: no pude crear el dialogo de los aldeanos: {}", e.toString());
         }
     }
-
-    @SuppressWarnings("unused")
-    private static final java.nio.charset.Charset UTF8 = StandardCharsets.UTF_8;
 }

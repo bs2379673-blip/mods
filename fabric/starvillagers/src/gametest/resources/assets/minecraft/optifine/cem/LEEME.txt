@@ -1,0 +1,2 @@
+player.jem es de Fresh Moves (https://github.com/IthanMendoza/Fresh-Moves), licencia CC0 1.0.
+Solo se usa en la prueba automatica, para comprobar que StarScenes entiende los modelos de EMF.

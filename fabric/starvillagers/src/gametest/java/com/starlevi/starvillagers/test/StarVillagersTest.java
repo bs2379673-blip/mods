@@ -59,8 +59,12 @@ public class StarVillagersTest implements FabricClientGameTest {
                             + ", ropa " + id.clothes() + ", pelo " + id.hair()));
                 }
             });
-            String client = ctx.computeOnClient(mc -> "modelo humano " + (ClientScenes.model("humano") != null ? "cargado" : "NO") + ", texturas armadas "
-                    + VillagerTextures.count());
+            String client = ctx.computeOnClient(mc -> {
+                var jem = com.starlevi.starscenes.emf.EmfModels.get("player");
+                return "modelo humano " + (ClientScenes.model("humano") != null ? "cargado" : "NO") + ", texturas armadas " + VillagerTextures.count()
+                        + ", modelo de EMF " + (jem == null ? "NO" : jem.parts.size() + " piezas y " + jem.lines.size() + " formulas")
+                        + ", funciones desconocidas " + com.starlevi.starscenes.emf.Expr.UNKNOWN;
+            });
             System.out.println("StarVillagers prueba: " + client);
             ctx.runOnClient(mc -> mc.options.hideGui = true);
             ctx.waitTicks(5);

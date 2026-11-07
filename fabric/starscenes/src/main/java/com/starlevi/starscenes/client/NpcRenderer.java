@@ -37,6 +37,8 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         ClientScenes.Ready ready;
         Identifier skin;
         Matrix4f[] mats;
+        /** Si se dibuja con un modelo de EMF: que caras y con que matriz. */
+        java.util.List<com.starlevi.starscenes.emf.EmfRig.Draw> emf;
         float yRot;
         float scale = 1;
         final ItemStackRenderState main = new ItemStackRenderState(), off = new ItemStackRenderState(), head = new ItemStackRenderState();
@@ -49,6 +51,8 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
     private static final Map<BBModel, Attach> ATTACH = new WeakHashMap<>();
     /** El animador de cada entidad en este cliente. */
     private static final Map<Entity, NpcAnimator> ANIMATORS = new WeakHashMap<>();
+    /** El esqueleto de EMF de cada entidad (y de que modelo salio). */
+    private static final Map<Entity, Object[]> RIGS = new WeakHashMap<>();
     private final ItemModelResolver items;
 
     public NpcRenderer(EntityRendererProvider.Context ctx) {
@@ -71,6 +75,22 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
         Identifier own = npc.sceneTexture();
         s.skin = own != null ? own : ClientScenes.skin(npc.sceneSkin());
         s.mats = null;
+        s.emf = null;
+        String emfName = npc.sceneEmfModel();
+        com.starlevi.starscenes.emf.JemModel jem = emfName == null ? null : com.starlevi.starscenes.emf.EmfModels.get(emfName);
+        if (jem != null) {
+            Object[] r = RIGS.get(npc);
+            if (r == null || r[0] != jem) {
+                r = new Object[]{jem, new com.starlevi.starscenes.emf.EmfRig(jem)};
+                RIGS.put(npc, r);
+            }
+            float headYaw = 0, headPitch = npc.getXRot(partial);
+            if (npc instanceof LivingEntity le) {
+                headYaw = Mth.wrapDegrees(Mth.rotLerp(partial, le.yHeadRotO, le.yHeadRot) - s.yRot);
+            }
+            s.emf = ((com.starlevi.starscenes.emf.EmfRig) r[1]).pose(npc, partial, headYaw, headPitch);
+            return;
+        }
         if (s.ready != null) {
             NpcAnimator an = ANIMATORS.computeIfAbsent(npc, k -> new NpcAnimator());
             an.update(npc, npc, s.ready.model, (npc.tickCount + partial) / 20f, Minecraft.getInstance().player, s.yRot);
@@ -103,6 +123,21 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
 
     @Override
     public void submit(State s, PoseStack ps, SubmitNodeCollector collector, CameraRenderState camera) {
+        if (s.emf != null && s.skin != null && !s.isInvisible) {
+            // como dibuja Minecraft sus modelos: girado, dado vuelta (y para abajo) y a la altura de los pies
+            ps.pushPose();
+            ps.mulPose(Axis.YP.rotationDegrees(180 - s.yRot));
+            ps.scale(s.scale, s.scale, s.scale);
+            ps.scale(-1, -1, 1);
+            ps.translate(0, -1.501f, 0);
+            ps.scale(1 / 16f, 1 / 16f, 1 / 16f);
+            int light = s.lightCoords;
+            final var draws = s.emf;
+            collector.submitCustomGeometry(ps, RenderTypes.entityTranslucent(s.skin), (pose, vc) -> emitEmf(pose, vc, draws, light));
+            ps.popPose();
+            super.submit(s, ps, collector, camera);
+            return;
+        }
         if (s.ready != null && s.mats != null && !s.isInvisible) {
             BBModel m = s.ready.model;
             ps.pushPose();
@@ -126,6 +161,27 @@ public class NpcRenderer<T extends Entity & SceneActor> extends EntityRenderer<T
             ps.popPose();
         }
         super.submit(s, ps, collector, camera);
+    }
+
+    private static void emitEmf(PoseStack.Pose pose, VertexConsumer vc, java.util.List<com.starlevi.starscenes.emf.EmfRig.Draw> draws, int light) {
+        Matrix4f full = new Matrix4f();
+        Matrix3f nrm = new Matrix3f();
+        for (com.starlevi.starscenes.emf.EmfRig.Draw d : draws) {
+            full.set(pose.pose()).mul(d.matrix());
+            nrm.set(pose.normal()).mul(new Matrix3f(d.matrix()));
+            for (com.starlevi.starscenes.emf.JemModel.Face q : d.faces()) {
+                float nx = nrm.m00() * q.nx + nrm.m10() * q.ny + nrm.m20() * q.nz;
+                float ny = nrm.m01() * q.nx + nrm.m11() * q.ny + nrm.m21() * q.nz;
+                float nz = nrm.m02() * q.nx + nrm.m12() * q.ny + nrm.m22() * q.nz;
+                float l = (float) Math.sqrt(nx * nx + ny * ny + nz * nz) + 1e-6f;
+                for (int v = 0; v < 4; v++) {
+                    float x = q.xyz[v * 3], y = q.xyz[v * 3 + 1], z = q.xyz[v * 3 + 2];
+                    vc.addVertex(full.m00() * x + full.m10() * y + full.m20() * z + full.m30(), full.m01() * x + full.m11() * y + full.m21() * z + full.m31(),
+                            full.m02() * x + full.m12() * y + full.m22() * z + full.m32(), -1, q.uv[v * 2], q.uv[v * 2 + 1], OverlayTexture.NO_OVERLAY, light,
+                            nx / l, ny / l, nz / l);
+                }
+            }
+        }
     }
 
     private static void emit(PoseStack.Pose pose, VertexConsumer vc, BBModel m, Matrix4f[] mats, int tex, int light) {
