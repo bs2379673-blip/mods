@@ -158,18 +158,25 @@ public class NpcScreen extends Screen {
                     this.dialogue = l.get(i);
                     send("dialogo", this.dialogue.isEmpty() ? "-" : this.dialogue);
                 });
+                y += 24;
+                picker(x, y, right, "Voz", () -> npcOr().sceneVoice(), d -> {
+                    List<String> l = com.starlevi.starscenes.talk.Voices.ALL;
+                    String nv = l.get(Math.floorMod(l.indexOf(npcOr().sceneVoice()) + d, l.size()));
+                    send("voz", nv);
+                    VoicePlayer.sample(nv, npcOr().sceneVoicePitch());
+                });
                 y += 22;
-                addRenderableWidget(new StarButton(right - 120, y, 120, 16, "▶ Probar diálogo", StarButton.Style.ACCENT, () -> {
-                    onClose();
-                    send("probar", "");
-                }));
-                y += 28;
+                stepper(x, y, right, "Tono de voz", () -> String.format(Locale.ROOT, "%.2f", npcOr().sceneVoicePitch()), d -> {
+                    float t = Math.max(0.5f, Math.min(2f, npcOr().sceneVoicePitch() + d * 0.05f));
+                    send("tono", String.format(Locale.ROOT, "%.2f", t));
+                    VoicePlayer.sample(npcOr().sceneVoice(), t);
+                });
+                y += 26;
                 toggle(x, y, right, "Mira a los jugadores", () -> npcOr().look(), v -> send("mirar", String.valueOf(v)));
                 y += 24;
                 stepper(x, y, right, "Te ve a (bloques)", () -> String.format(Locale.ROOT, "%.1f", npcOr().radius()),
                         d -> send("radio", String.valueOf(Math.max(0.5f, npcOr().radius() + d))));
-                y += 26;
-                this.rows.add(new Row("§7Los diálogos están en config/starscenes/dialogos", y, () -> "", 0));
+
             }
             case MOVE -> {
                 // cruz de direcciones
@@ -203,6 +210,12 @@ public class NpcScreen extends Screen {
             send("quitar", "");
             onClose();
         }));
+        if (this.tab == Tab.TALK) {
+            addRenderableWidget(new StarButton(px + pw / 2 - 55, py + ph - 26, 110, 18, "▶ Probar diálogo", StarButton.Style.NORMAL, () -> {
+                onClose();
+                send("probar", "");
+            }));
+        }
         addRenderableWidget(new StarButton(px + pw - 84, py + ph - 26, 74, 18, "Listo", StarButton.Style.ACCENT, this::onClose));
     }
 

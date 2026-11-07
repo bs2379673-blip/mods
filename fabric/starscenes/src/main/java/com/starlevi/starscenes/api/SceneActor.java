@@ -39,6 +39,19 @@ public interface SceneActor {
         return 5f;
     }
 
+    /**
+     * Voz de los dialogos (soniditos al escribirse el texto): "masculina", "femenina", "grave",
+     * "aguda", "simple", "robot" o "ninguna".
+     */
+    default String sceneVoice() {
+        return "simple";
+    }
+
+    /** Tono de la voz (1 = normal; 0.8 mas grave, 1.2 mas aguda). */
+    default float sceneVoicePitch() {
+        return 1f;
+    }
+
     /** Item en la mano derecha, la izquierda o la cabeza. */
     default ItemStack sceneItem(int slot) {
         return ItemStack.EMPTY;

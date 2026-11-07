@@ -139,6 +139,7 @@ public class StarScenesTest implements FabricClientGameTest {
             server.runCommand("starscenes recargar");
             server.runCommand("execute as @p at @p run starscenes dialogo ejemplo");
             server.runCommand("execute as @p at @p run starscenes nombre &6Herrero");
+            server.runCommand("execute as @p at @p run starscenes voz femenina");
             ctx.waitTicks(5);
             server.runCommand("execute as @p at @p run starscenes hablar ejemplo");
             ctx.waitTicks(12);

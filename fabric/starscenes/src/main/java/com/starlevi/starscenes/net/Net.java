@@ -171,12 +171,12 @@ public final class Net {
     }
 
     /** Servidor -> cliente: lo que dice un NPC y las respuestas posibles (hablante -1 = sin NPC). */
-    public record Talk(int speaker, String name, String text, List<String> options) implements CustomPacketPayload {
+    public record Talk(int speaker, String name, String text, List<String> options, String voice, float pitch) implements CustomPacketPayload {
         public static final Type<Talk> TYPE = new Type<>(id("dialogo"));
         public static final StreamCodec<FriendlyByteBuf, Talk> CODEC = CustomPacketPayload.codec(Talk::write, Talk::new);
 
         Talk(FriendlyByteBuf b) {
-            this(b.readVarInt(), b.readUtf(256), b.readUtf(8192), b.readList(x -> x.readUtf(1024)));
+            this(b.readVarInt(), b.readUtf(256), b.readUtf(8192), b.readList(x -> x.readUtf(1024)), b.readUtf(32), b.readFloat());
         }
 
         void write(FriendlyByteBuf b) {
@@ -184,6 +184,8 @@ public final class Net {
             b.writeUtf(this.name, 256);
             b.writeUtf(this.text, 8192);
             b.writeCollection(this.options, (x, o) -> x.writeUtf(o, 1024));
+            b.writeUtf(this.voice, 32);
+            b.writeFloat(this.pitch);
         }
 
         @Override

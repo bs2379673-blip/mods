@@ -31,7 +31,8 @@ public class TalkScreen extends Screen {
     private List<String> pages = List.of();
     private int page;
     private long pageStart, opened;
-    private int shownChars = -1, lastBlip;
+    private int shownChars = -1, lastVoiced;
+    private final VoicePlayer voice = new VoicePlayer();
     private boolean answered;
 
     private TalkScreen(Net.Talk t) {
@@ -45,6 +46,7 @@ public class TalkScreen extends Screen {
         this.page = 0;
         this.pageStart = System.currentTimeMillis();
         this.shownChars = -1;
+        this.lastVoiced = 0;
         this.answered = false;
         this.pages = List.of();
     }
@@ -192,6 +194,7 @@ public class TalkScreen extends Screen {
             this.page++;
             this.pageStart = System.currentTimeMillis();
             this.shownChars = -1;
+            this.lastVoiced = 0;
             click();
         } else if (this.talk.options().isEmpty()) {
             click();
@@ -279,9 +282,15 @@ public class TalkScreen extends Screen {
         for (int i = 0; i < shown.length; i++) {
             g.drawString(this.font, shown[i], bx + 16, by + 16 + i * 11, 0xFFF4EEFB, true);
         }
-        if (typing() && n / 2 != this.lastBlip) {
-            this.lastBlip = n / 2;
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_HAT.value(), 1.7f, 0.12f));
+        // la voz: un sonidito por letra nueva
+        if (typing() && n > this.lastVoiced) {
+            String plain = pageText().replaceAll("§.", "");
+            int at = Math.min(n, plain.length()) - 1;
+            if (at >= 0) {
+                boolean rising = lastPage() && plain.trim().endsWith("?") && at >= plain.length() - 6;
+                this.voice.letter(plain.charAt(at), this.talk.voice(), this.talk.pitch(), rising);
+            }
+            this.lastVoiced = n;
         }
 
         // indicador para seguir (late) o el contador de paginas

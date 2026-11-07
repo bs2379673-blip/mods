@@ -47,6 +47,8 @@ public class NpcEntity extends Entity implements SceneActor {
     public static final EntityDataAccessor<Float> TAG_Y = SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<ItemStack> MAIN = SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.ITEM_STACK);
     public static final EntityDataAccessor<ItemStack> OFF = SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.ITEM_STACK);
+    public static final EntityDataAccessor<String> VOICE = SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.STRING);
+    public static final EntityDataAccessor<Float> VOICE_PITCH = SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<ItemStack> HEAD = SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.ITEM_STACK);
 
     /** Dialogo que abre al tocarlo ("" = solo hace su animacion). Solo lo sabe el servidor. */
@@ -72,6 +74,8 @@ public class NpcEntity extends Entity implements SceneActor {
         b.define(MAIN, ItemStack.EMPTY);
         b.define(OFF, ItemStack.EMPTY);
         b.define(HEAD, ItemStack.EMPTY);
+        b.define(VOICE, "simple");
+        b.define(VOICE_PITCH, 1f);
     }
 
     public String model() {
@@ -134,6 +138,16 @@ public class NpcEntity extends Entity implements SceneActor {
     @Override
     public float sceneRadius() {
         return radius();
+    }
+
+    @Override
+    public String sceneVoice() {
+        return this.entityData.get(VOICE);
+    }
+
+    @Override
+    public float sceneVoicePitch() {
+        return this.entityData.get(VOICE_PITCH);
     }
 
     @Override
@@ -244,6 +258,8 @@ public class NpcEntity extends Entity implements SceneActor {
         this.entityData.set(OFF, in.read("item_otra_mano", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
         this.entityData.set(HEAD, in.read("item_cabeza", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
         this.dialogue = in.getStringOr("dialogo", "");
+        this.entityData.set(VOICE, in.getStringOr("voz", "simple"));
+        this.entityData.set(VOICE_PITCH, in.getFloatOr("tono", 1f));
     }
 
     @Override
@@ -261,5 +277,7 @@ public class NpcEntity extends Entity implements SceneActor {
         out.store("item_otra_mano", ItemStack.OPTIONAL_CODEC, item(OFF));
         out.store("item_cabeza", ItemStack.OPTIONAL_CODEC, item(HEAD));
         out.putString("dialogo", this.dialogue);
+        out.putString("voz", sceneVoice());
+        out.putFloat("tono", sceneVoicePitch());
     }
 }

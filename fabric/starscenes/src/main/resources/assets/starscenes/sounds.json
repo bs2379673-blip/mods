@@ -1,0 +1,58 @@
+{
+  "voz.a": {
+    "sounds": [
+      {
+        "name": "starscenes:voz/a",
+        "stream": false
+      }
+    ]
+  },
+  "voz.e": {
+    "sounds": [
+      {
+        "name": "starscenes:voz/e",
+        "stream": false
+      }
+    ]
+  },
+  "voz.i": {
+    "sounds": [
+      {
+        "name": "starscenes:voz/i",
+        "stream": false
+      }
+    ]
+  },
+  "voz.o": {
+    "sounds": [
+      {
+        "name": "starscenes:voz/o",
+        "stream": false
+      }
+    ]
+  },
+  "voz.u": {
+    "sounds": [
+      {
+        "name": "starscenes:voz/u",
+        "stream": false
+      }
+    ]
+  },
+  "voz.blip": {
+    "sounds": [
+      {
+        "name": "starscenes:voz/blip",
+        "stream": false
+      }
+    ]
+  },
+  "voz.robot": {
+    "sounds": [
+      {
+        "name": "starscenes:voz/robot",
+        "stream": false
+      }
+    ]
+  }
+}

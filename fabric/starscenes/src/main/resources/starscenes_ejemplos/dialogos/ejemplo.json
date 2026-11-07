@@ -4,6 +4,8 @@
 // Cada nodo tiene:
 //   "texto": lo que dice el NPC (si ponés varios, elige uno al azar). %jugador% = tu nombre, &e = colores
 //   "animacion": la que hace mientras habla (por defecto "talk", si el modelo la tiene)
+//   "voz": cambia la voz solo en ese nodo (simple, masculina, femenina, grave, aguda, robot, ninguna).
+//          La voz y el tono de cada NPC se eligen en su menú, pestaña "Charla".
 //   "acciones": lo que pasa al llegar al nodo
 //   "opciones": las respuestas; cada una con "texto", "ir" (a qué nodo), "si" (condiciones) y "acciones"
 //   "si" / "sino" en un nodo: si no se cumplen las condiciones, salta al nodo "sino"

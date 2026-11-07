@@ -26,7 +26,7 @@ public final class Dialogues {
     public record Option(String text, String next, List<String> conditions, List<String> actions) {
     }
 
-    public record Node(List<String> texts, String anim, List<String> conditions, String otherwise, List<String> actions, List<Option> options) {
+    public record Node(List<String> texts, String anim, String voice, List<String> conditions, String otherwise, List<String> actions, List<Option> options) {
     }
 
     public record Dialogue(String id, String start, Map<String, Node> nodes) {
@@ -88,7 +88,8 @@ public final class Dialogues {
                             JsonFolder.list(op, "acciones")));
                 }
             }
-            nodes.put(e.getKey(), new Node(JsonFolder.list(n, "texto"), JsonFolder.str(n, "animacion", "talk"), JsonFolder.list(n, "si"),
+            nodes.put(e.getKey(), new Node(JsonFolder.list(n, "texto"), JsonFolder.str(n, "animacion", "talk"), JsonFolder.str(n, "voz", null),
+                    JsonFolder.list(n, "si"),
                     JsonFolder.str(n, "sino", null), JsonFolder.list(n, "acciones"), opts));
         }
         String start = JsonFolder.str(o, "inicio", nodes.isEmpty() ? "" : nodes.keySet().iterator().next());
@@ -164,7 +165,9 @@ public final class Dialogues {
             StarScenesAPI.play(sp, n.anim());
         }
         String name = sp == null ? "" : sp.getDisplayName().getString();
-        ServerPlayNetworking.send(p, new Net.Talk(s.speaker, name, Actions.fill(text, p, sp), labels));
+        String voice = n.voice() != null ? n.voice() : sp instanceof com.starlevi.starscenes.api.SceneActor a ? a.sceneVoice() : "simple";
+        float pitch = sp instanceof com.starlevi.starscenes.api.SceneActor a ? a.sceneVoicePitch() : 1f;
+        ServerPlayNetworking.send(p, new Net.Talk(s.speaker, name, Actions.fill(text, p, sp), labels, voice, pitch));
     }
 
     /** El jugador eligio una opcion (o -1: se fue). */

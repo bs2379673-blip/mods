@@ -159,6 +159,19 @@ public final class Edits {
                 npc.setDialogue(id);
                 return id.isEmpty() ? "Sin diálogo" : "Diálogo: " + id;
             }
+            case "voz": {
+                String vz = v.toLowerCase(Locale.ROOT);
+                if (!com.starlevi.starscenes.talk.Voices.ALL.contains(vz)) {
+                    return "Voces: " + String.join(", ", com.starlevi.starscenes.talk.Voices.ALL);
+                }
+                npc.set(NpcEntity.VOICE, vz);
+                return "Voz: " + vz;
+            }
+            case "tono": {
+                float t = Math.max(0.5f, Math.min(2f, parseFloat(v, 1)));
+                npc.set(NpcEntity.VOICE_PITCH, t);
+                return String.format(Locale.ROOT, "Tono de voz: %.2f", t);
+            }
             case "animar": {
                 com.starlevi.starscenes.api.StarScenesAPI.play(npc, v);
                 return null;

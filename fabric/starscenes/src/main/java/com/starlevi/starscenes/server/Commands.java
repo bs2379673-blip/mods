@@ -78,6 +78,11 @@ public final class Commands {
                 .suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("mano", "otra_mano", "cabeza"), b))
                 .executes(c -> edit(c, "item", StringArgumentType.getString(c, "lugar")))));
         root.then(move(literal("mover")));
+        root.then(literal("voz").then(argument("voz", StringArgumentType.word())
+                .suggests((c, b) -> SharedSuggestionProvider.suggest(com.starlevi.starscenes.talk.Voices.ALL, b))
+                .executes(c -> edit(c, "voz", StringArgumentType.getString(c, "voz")))));
+        root.then(literal("tono").then(argument("tono", FloatArgumentType.floatArg(0.5f, 2f))
+                .executes(c -> edit(c, "tono", String.valueOf(FloatArgumentType.getFloat(c, "tono"))))));
         root.then(literal("dialogo").then(argument("id", StringArgumentType.word()).suggests(DIALOGUES)
                 .executes(c -> edit(c, "dialogo", StringArgumentType.getString(c, "id")))));
         root.then(literal("hablar").then(argument("id", StringArgumentType.word()).suggests(DIALOGUES).executes(c -> {
@@ -120,6 +125,8 @@ public final class Commands {
         float yaw = p.getYRot() + 180;
         npc.snapTo(p.getX(), p.getY(), p.getZ(), yaw, 0);
         npc.setModel(id);
+        // cada personaje con su propio tono de voz, para que no suenen todos igual
+        npc.set(NpcEntity.VOICE_PITCH, Math.round((0.9f + p.getRandom().nextFloat() * 0.22f) * 100) / 100f);
         if (!skin.isEmpty()) {
             Edits.apply(p, npc, "skin", skin);
         }
