@@ -51,6 +51,40 @@ public final class HairRender {
         });
     }
 
+    /** Igual que submit, pero la cabeza se toma de donde de verdad se dibuja (sigue a EMF y paquetes). */
+    public static void submitFollowing(Frame f, PoseStack ps, SubmitNodeCollector collector, int light, ModelPart root, ModelPart head, ModelPart body) {
+        if (f == null || f.mesh() == null || f.mesh().strips.isEmpty()) {
+            return;
+        }
+        if (!f.helmet()) {
+            HeadFinder.Head h = HeadFinder.find(root);
+            if (h == null) {
+                draw(f, ps, collector, light, head, SkinLayout.Part.HEAD);
+            } else {
+                boolean any = false;
+                for (HairMesh.Strip s : f.mesh().strips) {
+                    if (s.face().part() == SkinLayout.Part.HEAD && visible(f, s)) {
+                        any = true;
+                        break;
+                    }
+                }
+                if (any) {
+                    ps.pushPose();
+                    h.apply(ps);
+                    collector.submitCustomGeometry(ps, RenderTypes.entityCutoutNoCull(f.skin()), (pose, vc) -> {
+                        for (HairMesh.Strip s : f.mesh().strips) {
+                            if (s.face().part() == SkinLayout.Part.HEAD && visible(f, s)) {
+                                strip(pose, vc, s, f.sim(), 0, light);
+                            }
+                        }
+                    });
+                    ps.popPose();
+                }
+            }
+        }
+        draw(f, ps, collector, light, body, SkinLayout.Part.BODY);
+    }
+
     private static void draw(Frame f, PoseStack ps, SubmitNodeCollector collector, int light, ModelPart part, SkinLayout.Part which) {
         if (part == null || !part.visible) {
             return;

@@ -32,6 +32,6 @@ public class HairLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
         // las partes "de verdad" del modelo (si EMF o un paquete de animaciones las reemplaza, se usan las suyas,
         // asi el pelo sigue a la cabeza al nadar, volar, etc.)
         PlayerModel m = getParentModel();
-        HairRender.submit(f, ps, collector, light, part(m, "head", m.head), part(m, "body", m.body));
+        HairRender.submitFollowing(f, ps, collector, light, m.root(), part(m, "head", m.head), part(m, "body", m.body));
     }
 }
