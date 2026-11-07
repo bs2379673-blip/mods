@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "starbody",
+  "version": "${version}",
+  "name": "StarBody",
+  "description": "Editor de rasgos sobre la skin: marcás el pelo en tu skin y se mueve con físicas suaves. Funciona con el Female Gender Mod. Propiedad de Starlevi. Todos los derechos reservados.",
+  "authors": ["Starlevi"],
+  "license": "All Rights Reserved - Starlevi (ver LICENSE.txt)",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.starlevi.starbody.StarBody"],
+    "client": ["com.starlevi.starbody.client.StarBodyClient"]
+  },
+  "mixins": ["starbody.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.17.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

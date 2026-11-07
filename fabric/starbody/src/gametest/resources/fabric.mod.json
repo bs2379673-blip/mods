@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "starbody-test",
+  "version": "1.0.0",
+  "name": "StarBody (pruebas)",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-client-gametest": ["com.starlevi.starbody.test.StarBodyTest"]
+  },
+  "depends": {"starbody": "*"}
+}
