@@ -40,7 +40,7 @@ import java.util.zip.ZipFile;
 public final class PackConverter {
     public static final int TARGET = 15;
     /** Cambiar cuando cambia la conversion, para que se rehagan los packs ya convertidos. */
-    public static final String VERSION = "1";
+    public static final String VERSION = "2";
 
     /** Busca un archivo del juego base (1.20.1), p. ej. "assets/minecraft/textures/gui/icons.png". */
     public interface Vanilla {
@@ -133,6 +133,7 @@ public final class PackConverter {
                     + "|^assets/[^/]+/textures/entity/equipment/.*"
                     + "|^assets/[^/]+/textures/trims/entity/.*"
                     + "|^assets/minecraft/atlases/items\\.json$"
+                    + "|^assets/[^/]+/polytone/.*"
                     + "|.*/(short_grass|iron_chain|turtle_scute|elytra_broken|temperate_(cow|pig|chicken)|sheep_wool)\\.(png|json)$");
 
     /** Dice si el pack trae cosas que 1.20.1 no entiende. */
@@ -344,6 +345,7 @@ public final class PackConverter {
             log.accept("StarPackPort: fallo la conversion de items: " + e);
         }
         fixModels();
+        polytone();
         // lo que 1.20.1 no lee
         files.keySet().removeIf(k -> k.matches("^assets/[^/]+/(items|equipment)/.*") || k.startsWith("assets/minecraft/textures/gui/sprites/"));
         writeMeta();
@@ -586,6 +588,52 @@ public final class PackConverter {
         if (n > 0) {
             report.add("modelos con giros de 1.21.11 traducidos: " + n);
         }
+    }
+
+    /**
+     * Polytone en Forge 1.20.1 solo deja cambiar el "render_type" de un bloque mientras arranca el juego;
+     * si se cambian los packs ya adentro tira error y Minecraft desactiva TODOS los packs. Se saca esa clave.
+     */
+    void polytone() {
+        int n = 0;
+        for (String k : new ArrayList<>(files.keySet())) {
+            if (!k.endsWith(".json") || !k.matches("^assets/[^/]+/polytone/.*")) {
+                continue;
+            }
+            byte[] raw = files.get(k);
+            if (raw == null || !new String(raw, StandardCharsets.UTF_8).contains("render_type")) {
+                continue;
+            }
+            try {
+                JsonElement e = JsonParser.parseString(new String(raw, StandardCharsets.UTF_8));
+                if (stripKey(e, "render_type")) {
+                    putJson(k, e);
+                    n++;
+                }
+            } catch (RuntimeException ignored) {
+            }
+        }
+        if (n > 0) {
+            report.add("Polytone: render_type quitado en " + n + " archivos (evita que se desactiven todos los packs)");
+        }
+    }
+
+    private static boolean stripKey(JsonElement e, String key) {
+        boolean ch = false;
+        if (e.isJsonObject()) {
+            JsonObject o = e.getAsJsonObject();
+            if (o.remove(key) != null) {
+                ch = true;
+            }
+            for (Map.Entry<String, JsonElement> en : o.entrySet()) {
+                ch |= stripKey(en.getValue(), key);
+            }
+        } else if (e.isJsonArray()) {
+            for (JsonElement x : e.getAsJsonArray()) {
+                ch |= stripKey(x, key);
+            }
+        }
+        return ch;
     }
 
     void writeMeta() {
