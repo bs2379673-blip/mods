@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.cache.model.GeoBone;
-import software.bernie.geckolib.util.RenderUtil;
 import com.leon.saintsdragons.client.renderer.vfx.AtroxiiaQuakeTailRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -28,51 +27,30 @@ public class AtroxiiaRenderer extends DragonGeoEntityRenderer<Atroxiia> {
 
     public AtroxiiaRenderer(EntityRendererProvider.Context context) {
         super(context, new AtroxiiaModel());
-        this.addRenderLayer(new DragonEquipmentLayer<>(
+        this.withRenderLayer(new DragonEquipmentLayer<>(
                 this,
                 Atroxiia::hasSaddle,
                 SaintsDragonsCommon.rl("textures/entity/atroxiia/atroxiia_saddle_layer.png")
         ));
-        this.addRenderLayer(new DragonEquipmentLayer<>(
+        this.withRenderLayer(new DragonEquipmentLayer<>(
                 this,
                 Atroxiia::hasAtroxiiaChest,
                 SaintsDragonsCommon.rl("textures/entity/atroxiia/atroxiia_chest_layer.png")
         ));
-        this.addRenderLayer(new AtroxiiaNightEmissiveLayer(this));
+        this.withRenderLayer(new AtroxiiaNightEmissiveLayer(this));
     }
 
     @Override
-    public void render(Atroxiia entity, float yaw, float partialTick, PoseStack poses,
-                       MultiBufferSource buffers, int packedLight) {
-        tailTipPosition = null;
-        try {
-            super.render(entity, yaw, partialTick, poses, buffers, packedLight);
-        } finally {
-            tailTipPosition = null;
-        }
+    protected java.util.Set<String> extraSampledBones(Atroxiia entity) {
+        return java.util.Set.of("tailtip");
     }
 
     @Override
-    public void renderRecursively(PoseStack poses, Atroxiia entity, GeoBone bone, RenderType type,
-                                  MultiBufferSource buffers, VertexConsumer buffer, boolean isReRender,
-                                  float partialTick, int light, int overlay, float red, float green, float blue, float alpha) {
-        super.renderRecursively(poses, entity, bone, type, buffers, buffer, isReRender,
-                partialTick, light, overlay, red, green, blue, alpha);
-        if (isReRender || !bone.getName().equals("tailtip")) return;
-        poses.pushPose();
-        try {
-            RenderUtil.translateMatrixToBone(poses, bone);
-            RenderUtil.translateToPivotPoint(poses, bone);
-            RenderUtil.rotateMatrixAroundBone(poses, bone);
-            RenderUtil.scaleMatrixForBone(poses, bone);
-            var matrix = RenderUtil.invertAndMultiplyMatrices(poses.last().pose(), this.entityRenderTranslations);
-            var point = matrix.transformPosition(new Vector3f());
-            tailTipPosition = new Vec3(point.x + Mth.lerp(partialTick, entity.xOld, entity.getX()),
-                    point.y + Mth.lerp(partialTick, entity.yOld, entity.getY()),
-                    point.z + Mth.lerp(partialTick, entity.zOld, entity.getZ()));
-        } finally {
-            poses.popPose();
-        }
+    protected void onDragonBone(Atroxiia entity, GeoBone bone, PoseStack poses) {
+        if (!bone.name().equals("tailtip")) return;
+        float partialTick = partialOf(null);
+        var point = relativeAtPivot(poses).transformPosition(new Vector3f());
+        tailTipPosition = new Vec3(point.x + entity.getX(), point.y + entity.getY(), point.z + entity.getZ());
     }
 
     @Override

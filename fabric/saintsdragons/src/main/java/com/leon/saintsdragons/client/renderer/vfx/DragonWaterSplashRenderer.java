@@ -16,7 +16,7 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class DragonWaterSplashRenderer extends EntityRenderer<DragonWaterSplashEntity> {
+public class DragonWaterSplashRenderer extends com.leon.saintsdragons.client.compat.render.LegacyEntityRenderer<DragonWaterSplashEntity> {
     private static final Identifier[] TEXTURES = {
             SaintsDragonsCommon.rl("textures/particle/shared/water/watersplash/watersplash0.png"),
             SaintsDragonsCommon.rl("textures/particle/shared/water/watersplash/watersplash1.png"),

@@ -3,9 +3,8 @@ package com.leon.saintsdragons.client.model.volitans;
 import com.leon.saintsdragons.common.SaintsDragonsCommon;
 import com.leon.saintsdragons.server.entity.effect.volitans.ArrowOfVenomEntity;
 import net.minecraft.resources.Identifier;
-import software.bernie.geckolib.model.GeoModel;
 
-public class ArrowOfVenomModel extends GeoModel<ArrowOfVenomEntity> {
+public class ArrowOfVenomModel extends com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<ArrowOfVenomEntity> {
     private static final Identifier MODEL =
             SaintsDragonsCommon.rl("geo/objects/volitans/arrow_of_venom.geo.json");
     private static final Identifier TEXTURE =
@@ -14,17 +13,17 @@ public class ArrowOfVenomModel extends GeoModel<ArrowOfVenomEntity> {
             SaintsDragonsCommon.rl("animations/objects/volitans/arrow_of_venom.animation.json");
 
     @Override
-    public Identifier getModelResource(ArrowOfVenomEntity animatable) {
+    public Identifier getLegacyModelResource(ArrowOfVenomEntity animatable) {
         return MODEL;
     }
 
     @Override
-    public Identifier getTextureResource(ArrowOfVenomEntity animatable) {
+    public Identifier getLegacyTextureResource(ArrowOfVenomEntity animatable) {
         return TEXTURE;
     }
 
     @Override
-    public Identifier getAnimationResource(ArrowOfVenomEntity animatable) {
+    public Identifier getLegacyAnimationResource(ArrowOfVenomEntity animatable) {
         return ANIMATION;
     }
 }

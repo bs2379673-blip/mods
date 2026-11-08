@@ -19,7 +19,7 @@ import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
  * Emissive overlay for Ignivorus that pulses while the dragon is breathing fire
  * or charging a fireball. Mirrors the Raevyx beam glow behavior.
  */
-public class IgnivorusGlowLayer extends GeoRenderLayer<Ignivorus> {
+public class IgnivorusGlowLayer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoRenderLayer<Ignivorus> {
     private static final Identifier GLOW_TEXTURE =
             SaintsDragonsCommon.rl("textures/entity/ignivorus/ignivorus_glow.png");
     private static final Identifier FEMALE_GLOW_TEXTURE =
@@ -27,7 +27,7 @@ public class IgnivorusGlowLayer extends GeoRenderLayer<Ignivorus> {
     private static final Identifier CRIMSON_GLOW_TEXTURE =
             SaintsDragonsCommon.rl("textures/entity/ignivorus/crimson_ignivorus_glow.png");
 
-    public IgnivorusGlowLayer(GeoRenderer<Ignivorus> renderer) {
+    public IgnivorusGlowLayer(com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<Ignivorus> renderer) {
         super(renderer);
     }
 

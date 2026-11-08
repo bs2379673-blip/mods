@@ -12,7 +12,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-public class VisualFallingBlockRenderer extends EntityRenderer<VisualFallingBlockEntity> {
+public class VisualFallingBlockRenderer extends com.leon.saintsdragons.client.compat.render.LegacyEntityRenderer<VisualFallingBlockEntity> {
 
     private final BlockRenderDispatcher blockRenderer;
 

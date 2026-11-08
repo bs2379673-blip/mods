@@ -10,7 +10,7 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class ArrowOfVenomRenderer extends GeoEntityRenderer<ArrowOfVenomEntity> {
+public class ArrowOfVenomRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<ArrowOfVenomEntity> {
     public ArrowOfVenomRenderer(EntityRendererProvider.Context context) {
         super(context, new ArrowOfVenomModel());
         this.shadowRadius = 0.15F;

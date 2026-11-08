@@ -14,13 +14,13 @@ import software.bernie.geckolib.cache.model.BakedGeoModel;
 import software.bernie.geckolib.renderer.base.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
-public abstract class NightEmissiveLayer<T extends DragonEntity> extends GeoRenderLayer<T> {
+public abstract class NightEmissiveLayer<T extends DragonEntity> extends com.leon.saintsdragons.client.compat.geo.LegacyGeoRenderLayer<T> {
     private static final long DUSK_START = 12000L;
     private static final long NIGHT_FULL = 13000L;
     private static final long NIGHT_FADE = 22500L;
     private static final long DAWN_END = 23500L;
 
-    protected NightEmissiveLayer(GeoRenderer<T> renderer) {
+    protected NightEmissiveLayer(com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<T> renderer) {
         super(renderer);
     }
 

@@ -32,7 +32,7 @@ import net.minecraft.util.Mth;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class RaevyxLightningBeamLayer extends GeoRenderLayer<Raevyx> {
+public class RaevyxLightningBeamLayer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoRenderLayer<Raevyx> {
     private static final float BEAM_SHAKE_INTENSITY = 0.01F;
     private static final double FIRST_PERSON_START_OFFSET = 1.0D;
     private static final double ORIGIN_STAR_FORWARD_OFFSET = 2.0D;

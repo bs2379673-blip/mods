@@ -5,11 +5,10 @@ import com.leon.saintsdragons.server.entity.draconianswarm.Latcher;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.animation.state.AnimationTest;
-import software.bernie.geckolib.model.GeoModel;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 import com.leon.saintsdragons.util.compat.EntityModelData;
 
-public class LatcherModel extends GeoModel<Latcher> {
+public class LatcherModel extends com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<Latcher> {
     private static final Identifier MODEL =
             SaintsDragonsCommon.rl("geo/entity/draconian_swarm/latcher/latcher.geo.json");
     private static final Identifier TEXTURE =
@@ -18,22 +17,22 @@ public class LatcherModel extends GeoModel<Latcher> {
             SaintsDragonsCommon.rl("animations/entity/draconian_swarm/latcher/latcher.animation.json");
 
     @Override
-    public Identifier getModelResource(Latcher animatable) {
+    public Identifier getLegacyModelResource(Latcher animatable) {
         return MODEL;
     }
 
     @Override
-    public Identifier getTextureResource(Latcher animatable) {
+    public Identifier getLegacyTextureResource(Latcher animatable) {
         return TEXTURE;
     }
 
     @Override
-    public Identifier getAnimationResource(Latcher animatable) {
+    public Identifier getLegacyAnimationResource(Latcher animatable) {
         return ANIMATIONS;
     }
 
     @Override
-    public void setCustomAnimations(Latcher entity, long instanceId, AnimationTest<Latcher> animationState) {
+    public void setCustomAnimations(Latcher entity, long instanceId, LegacyAnimState<Latcher> animationState) {
         super.setCustomAnimations(entity, instanceId, animationState);
 
         if (!entity.isAlive()) {

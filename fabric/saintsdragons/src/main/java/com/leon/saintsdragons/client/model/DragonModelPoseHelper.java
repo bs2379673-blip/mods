@@ -3,8 +3,7 @@ package com.leon.saintsdragons.client.model;
 import com.leon.saintsdragons.server.entity.base.DragonEntity;
 import com.leon.saintsdragons.server.entity.component.DragonBreathPose;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.cache.model.GeoBone;
-import software.bernie.geckolib.model.GeoModel;
+import com.leon.saintsdragons.client.compat.geo.GeoBone;
 import com.leon.saintsdragons.util.compat.EntityModelData;
 
 import java.util.Optional;
@@ -25,11 +24,11 @@ public final class DragonModelPoseHelper {
         }
     }
 
-    public static Optional<GeoBone> bone(GeoModel<?> model, String boneName) {
+    public static Optional<GeoBone> bone(com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<?> model, String boneName) {
         return model.getBone(boneName);
     }
 
-    public static DragonBreathPose.Editor poseEditor(GeoModel<?> model) {
+    public static DragonBreathPose.Editor poseEditor(com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<?> model) {
         return new DragonBreathPose.Editor() {
             @Override
             public String parent(String name) {
@@ -54,25 +53,25 @@ public final class DragonModelPoseHelper {
         };
     }
 
-    public static void addRotationX(GeoModel<?> model, String boneName, float rotation) {
+    public static void addRotationX(com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<?> model, String boneName, float rotation) {
         bone(model, boneName).ifPresent(bone -> bone.setRotX(bone.getRotX() + rotation));
     }
 
-    public static void addRotationY(GeoModel<?> model, String boneName, float rotation) {
+    public static void addRotationY(com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<?> model, String boneName, float rotation) {
         bone(model, boneName).ifPresent(bone -> bone.setRotY(bone.getRotY() + rotation));
     }
 
-    public static void addRotationZ(GeoModel<?> model, String boneName, float rotation) {
+    public static void addRotationZ(com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<?> model, String boneName, float rotation) {
         bone(model, boneName).ifPresent(bone -> bone.setRotZ(bone.getRotZ() + rotation));
     }
 
-    public static void applyWeightedRotationY(GeoModel<?> model, WeightedBoneChain chain, float baseRotation) {
+    public static void applyWeightedRotationY(com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<?> model, WeightedBoneChain chain, float baseRotation) {
         for (int i = 0; i < chain.boneNames().length; i++) {
             addRotationY(model, chain.boneNames()[i], baseRotation * chain.weights()[i]);
         }
     }
 
-    public static void applyWeightedNeckFollow(GeoModel<?> model, DragonEntity entity, WeightedBoneChain chain,
+    public static void applyWeightedNeckFollow(com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<?> model, DragonEntity entity, WeightedBoneChain chain,
                                                float pitchRad, float yawRad) {
         if (entity.isStayOrSitMuted()) {
             return;
@@ -94,12 +93,12 @@ public final class DragonModelPoseHelper {
         return lookYawRad + structuralYawRad;
     }
 
-    public static void applyGroundNeckTurn(GeoModel<?> model, DragonEntity entity, float partialTick,
+    public static void applyGroundNeckTurn(com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<?> model, DragonEntity entity, float partialTick,
                                            WeightedBoneChain chain, double clampDegrees) {
         applyGroundNeckTurn(model, entity, partialTick, chain, clampDegrees, 1.0F);
     }
 
-    public static void applyGroundNeckTurn(GeoModel<?> model, DragonEntity entity, float partialTick,
+    public static void applyGroundNeckTurn(com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<?> model, DragonEntity entity, float partialTick,
                                            WeightedBoneChain chain, double clampDegrees, float weight) {
         double velocity = entity.getYawVelocity().get(partialTick);
         velocity = Mth.clamp(velocity, -clampDegrees, clampDegrees);
@@ -107,7 +106,7 @@ public final class DragonModelPoseHelper {
         applyWeightedRotationY(model, chain, turnRad * weight);
     }
 
-    public static void applyTailDrag(GeoModel<?> model, DragonEntity entity, float partialTick,
+    public static void applyTailDrag(com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<?> model, DragonEntity entity, float partialTick,
                                      WeightedBoneChain chain, double clampDegrees) {
         double velocity = entity.getYawVelocity().get(partialTick);
         velocity = Mth.clamp(velocity, -clampDegrees, clampDegrees);
@@ -116,7 +115,7 @@ public final class DragonModelPoseHelper {
         applyWeightedRotationY(model, chain, velocityRad);
     }
 
-    public static void applyBodyYawDeviation(GeoModel<?> model, DragonEntity entity, String boneName,
+    public static void applyBodyYawDeviation(com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<?> model, DragonEntity entity, String boneName,
                                              float partialTick, float multiplier, boolean fromInitialSnapshot) {
         bone(model, boneName).ifPresent(bone -> {
             float deviationRad = (float) (entity.getBodyRotDeviation().get(partialTick) * Mth.DEG_TO_RAD * multiplier);

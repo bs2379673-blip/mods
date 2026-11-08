@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class LatcherRenderer extends GeoEntityRenderer<Latcher> {
+public class LatcherRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<Latcher> {
     public LatcherRenderer(EntityRendererProvider.Context context) {
         super(context, new LatcherModel());
         this.shadowRadius = 0.45F;

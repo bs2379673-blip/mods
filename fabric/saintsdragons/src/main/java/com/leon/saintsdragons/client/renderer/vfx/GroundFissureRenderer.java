@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * The fissure entity is a gameplay controller only; its visual is a particle.
  */
-public final class GroundFissureRenderer extends EntityRenderer<GroundFissureEntity> {
+public final class GroundFissureRenderer extends com.leon.saintsdragons.client.compat.render.LegacyEntityRenderer<GroundFissureEntity> {
     public GroundFissureRenderer(EntityRendererProvider.Context context) {
         super(context);
         this.shadowRadius = 0.0F;

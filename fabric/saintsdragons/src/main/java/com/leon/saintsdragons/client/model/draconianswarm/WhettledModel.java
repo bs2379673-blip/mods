@@ -4,10 +4,9 @@ import com.leon.saintsdragons.common.SaintsDragonsCommon;
 import com.leon.saintsdragons.server.entity.draconianswarm.Whettled;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.animation.state.AnimationTest;
-import software.bernie.geckolib.model.GeoModel;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 
-public class WhettledModel extends GeoModel<Whettled> {
+public class WhettledModel extends com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<Whettled> {
     private static final Identifier MODEL = SaintsDragonsCommon.rl("geo/entity/draconian_swarm/whettled/whettled.geo.json");
     private static final Identifier TEXTURE =
             SaintsDragonsCommon.rl("textures/entity/draconian_swarm/whettled/whettled.png");
@@ -15,22 +14,22 @@ public class WhettledModel extends GeoModel<Whettled> {
             SaintsDragonsCommon.rl("animations/entity/draconian_swarm/whettled/whettled.animation.json");
 
     @Override
-    public Identifier getModelResource(Whettled animatable) {
+    public Identifier getLegacyModelResource(Whettled animatable) {
         return MODEL;
     }
 
     @Override
-    public Identifier getTextureResource(Whettled animatable) {
+    public Identifier getLegacyTextureResource(Whettled animatable) {
         return TEXTURE;
     }
 
     @Override
-    public Identifier getAnimationResource(Whettled animatable) {
+    public Identifier getLegacyAnimationResource(Whettled animatable) {
         return ANIMATIONS;
     }
 
     @Override
-    public void setCustomAnimations(Whettled entity, long instanceId, AnimationTest<Whettled> animationState) {
+    public void setCustomAnimations(Whettled entity, long instanceId, LegacyAnimState<Whettled> animationState) {
         super.setCustomAnimations(entity, instanceId, animationState);
         if (!entity.isAlive()) {
             return;

@@ -9,13 +9,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.animation.state.AnimationTest;
-import software.bernie.geckolib.model.GeoModel;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class DragonlordArmorModel extends GeoModel<DragonlordArmorItem> {
+public class DragonlordArmorModel extends com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<DragonlordArmorItem> {
     private static final float DEG_TO_RAD = Mth.DEG_TO_RAD;
     private static final Identifier MODEL = SaintsDragonsCommon.rl("geo/armor/dragonlord_armor.geo.json");
     private static final Identifier TEXTURE = SaintsDragonsCommon.rl("textures/armor/dragonlord_armor.png");
@@ -24,7 +23,7 @@ public class DragonlordArmorModel extends GeoModel<DragonlordArmorItem> {
 
     @Override
     public void setCustomAnimations(DragonlordArmorItem animatable, long instanceId,
-                                    AnimationTest<DragonlordArmorItem> animationState) {
+                                    LegacyAnimState<DragonlordArmorItem> animationState) {
         super.setCustomAnimations(animatable, instanceId, animationState);
 
         Entity wearer = animationState.getData(com.leon.saintsdragons.util.compat.SDTickets.ENTITY);
@@ -87,17 +86,17 @@ public class DragonlordArmorModel extends GeoModel<DragonlordArmorItem> {
     }
 
     @Override
-    public Identifier getModelResource(DragonlordArmorItem animatable) {
+    public Identifier getLegacyModelResource(DragonlordArmorItem animatable) {
         return MODEL;
     }
 
     @Override
-    public Identifier getTextureResource(DragonlordArmorItem animatable) {
+    public Identifier getLegacyTextureResource(DragonlordArmorItem animatable) {
         return TEXTURE;
     }
 
     @Override
-    public Identifier getAnimationResource(DragonlordArmorItem animatable) {
+    public Identifier getLegacyAnimationResource(DragonlordArmorItem animatable) {
         return ANIMATION;
     }
 

@@ -6,9 +6,9 @@ import com.leon.saintsdragons.client.model.DragonModelPoseHelper.WeightedBoneCha
 import com.leon.saintsdragons.client.ui.DraconicCodexScreen;
 import com.leon.saintsdragons.server.entity.dragons.nulljaw.Nulljaw;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.cache.model.GeoBone;
+import com.leon.saintsdragons.client.compat.geo.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.animation.state.AnimationTest;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 import com.leon.saintsdragons.util.compat.EntityModelData;
 
 public final class NulljawModel extends DragonGeoModel<Nulljaw> {
@@ -26,7 +26,7 @@ public final class NulljawModel extends DragonGeoModel<Nulljaw> {
     }
 
     @Override
-    public void setCustomAnimations(Nulljaw entity, long instanceId, AnimationTest<Nulljaw> animationState) {
+    public void setCustomAnimations(Nulljaw entity, long instanceId, LegacyAnimState<Nulljaw> animationState) {
         super.setCustomAnimations(entity, instanceId, animationState);
 
         if (DraconicCodexScreen.RENDERING_IN_GUI.get()) {

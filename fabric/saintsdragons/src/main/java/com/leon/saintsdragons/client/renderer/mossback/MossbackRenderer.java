@@ -7,7 +7,7 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class MossbackRenderer extends GeoEntityRenderer<Mossback> {
+public class MossbackRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<Mossback> {
     public MossbackRenderer(EntityRendererProvider.Context context) {
         super(context, new MossbackModel());
         this.shadowRadius = 0.3F;
@@ -20,6 +20,6 @@ public class MossbackRenderer extends GeoEntityRenderer<Mossback> {
 
     @Override
     public @NotNull Identifier getTextureLocation(@NotNull Mossback entity) {
-        return getGeoModel().getTextureResource(entity);
+        return getGeoModel().getLegacyTextureResource(entity);
     }
 }

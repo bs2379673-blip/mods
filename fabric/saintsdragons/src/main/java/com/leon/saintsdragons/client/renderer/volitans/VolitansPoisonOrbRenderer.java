@@ -11,7 +11,7 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class VolitansPoisonOrbRenderer extends GeoEntityRenderer<VolitansPoisonOrbEntity> {
+public class VolitansPoisonOrbRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<VolitansPoisonOrbEntity> {
     public VolitansPoisonOrbRenderer(EntityRendererProvider.Context context) {
         super(context, new VolitansPoisonOrbModel());
         shadowRadius = 0;

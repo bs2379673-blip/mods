@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class StegonautAmethystPillarRenderer extends GeoEntityRenderer<StegonautAmethystPillarEntity> {
+public class StegonautAmethystPillarRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<StegonautAmethystPillarEntity> {
     public StegonautAmethystPillarRenderer(EntityRendererProvider.Context context) {
         super(context, new StegonautAmethystPillarModel());
         this.shadowRadius = 0.5F;

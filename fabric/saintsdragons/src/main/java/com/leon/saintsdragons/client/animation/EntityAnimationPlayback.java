@@ -41,7 +41,7 @@ public final class EntityAnimationPlayback {
     private static <T extends LivingEntity & TickingGeoEntity> void tickEntity(T entity, GeoEntityRenderer<?> untypedRenderer) {
         GeoEntityRenderer<T> renderer = (GeoEntityRenderer<T>) untypedRenderer;
         var model = renderer.getGeoModel();
-        var animations = GeckoLibCache.getBakedAnimations().get(model.getAnimationResource(entity));
+        var animations = GeckoLibCache.getBakedAnimations().get(model.getLegacyAnimationResource(entity));
         if (animations == null) {
             return; // resources have not finished loading yet
         }

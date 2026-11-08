@@ -26,7 +26,7 @@ import software.bernie.geckolib.util.RenderUtil;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-public class VolitansBurrowMoundRenderer extends GeoEntityRenderer<VolitansBurrowMoundEntity> {
+public class VolitansBurrowMoundRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<VolitansBurrowMoundEntity> {
     private static final Identifier TEXTURE = SaintsDragonsCommon.rl("textures/objects/volitans/burrow_mound.png");
     private static final float MODEL_FORWARD_YAW_OFFSET = 0.0F;
     private final Deque<Boolean> blockMaterialStack = new ArrayDeque<>();

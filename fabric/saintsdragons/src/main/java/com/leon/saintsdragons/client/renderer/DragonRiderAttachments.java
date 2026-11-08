@@ -1,7 +1,6 @@
 package com.leon.saintsdragons.client.renderer;
 
 import com.leon.saintsdragons.server.entity.base.RideableDragonBase;
-import com.leon.saintsdragons.client.model.DragonBonePose;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
@@ -11,15 +10,16 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import software.bernie.geckolib.cache.model.BakedGeoModel;
-import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/** Render-thread attachment poses. Won't have any camera matrices or strong entity references are retained (I think) */
+/**
+ * Render-thread attachment poses.
+ * Port 1.21.11 (GeckoLib 5): las animaciones solo se evaluan al dibujar, asi que el asiento de cada
+ * jinete es el del ultimo cuadro en que se dibujo el dragon (un cuadro de atraso, no se nota).
+ */
 public final class DragonRiderAttachments {
     private static final Map<UUID, FramePose> POSES = new HashMap<>();
     private static Object activeLevel;
@@ -33,8 +33,7 @@ public final class DragonRiderAttachments {
             activeLevel = level;
         }
         frame++;
-        // we keep buffers for mounts used last frame, but release unloaded/hidden mounts promptly
-        POSES.values().removeIf(pose -> pose.lastUsedFrame < frame - 1);
+        POSES.values().removeIf(pose -> pose.lastUsedFrame < frame - 40);
     }
 
     public static void clear() {
@@ -53,61 +52,26 @@ public final class DragonRiderAttachments {
         if (!usesPoseCache(dragon) || !RiderConfig.getSpec(dragon).seats().containsKey(seat)) {
             return null;
         }
-        // Shadow passes must not invalidate or overwrite the main view's frame/partial-tick pose.
-        if (ShaderPassCompatibility.isIrisShadowPass()) {
-            FramePose shadowPose = current(dragon, partialTick);
-            return shadowPose == null ? null : shadowPose.seats.get(seat);
+        FramePose pose = POSES.get(dragon.getUUID());
+        if (pose == null || pose.entityId != dragon.getId()) {
+            return null;
         }
-        FramePose pose = entry(dragon, partialTick);
-        SeatPose attachment = pose.seats.get(seat);
-        if (attachment != null || pose.preparing || pose.prepared) {
-            return attachment;
-        }
-        pose.preparing = true;
-        try {
-            var renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(dragon);
-            if (renderer instanceof DragonGeoEntityRenderer<?> dragonRenderer) {
-                prepare(dragonRenderer, dragon, partialTick);
-            }
-            pose.prepared = true;
-        } finally {
-            pose.preparing = false;
-        }
+        pose.lastUsedFrame = frame;
         return pose.seats.get(seat);
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T extends RideableDragonBase> void prepare(DragonGeoEntityRenderer<T> renderer,
-                                                               RideableDragonBase dragon, float partialTick) {
-        renderer.prepareRiderAttachments((T) dragon, partialTick);
-    }
-
-    public static boolean hasAnimation(RideableDragonBase dragon, float partialTick, BakedGeoModel model) {
-        FramePose pose = current(dragon, partialTick);
-        return pose != null && pose.animationReady && pose.model == model;
-    }
-
-    public static void restoreAnimation(RideableDragonBase dragon, float partialTick) {
-        entry(dragon, partialTick).animation.restore();
-    }
-
-    public static void captureAnimation(RideableDragonBase dragon, float partialTick, BakedGeoModel model,
-                                         Collection<? extends CoreGeoBone> bones) {
-        FramePose pose = entry(dragon, partialTick);
-        pose.model = model;
-        pose.animation.capture(bones);
-        pose.animationReady = true;
-    }
-
+    /** boneTransform: el hueso del asiento relativo a la posicion del dragon (en bloques, ya girado con el). */
     public static void storeSeat(RideableDragonBase dragon, int seat, float partialTick, Matrix4f boneTransform) {
         if (!usesPoseCache(dragon) || !boneTransform.isFinite()
                 || Math.abs(boneTransform.determinant3x3()) < 1.0E-8F) {
             return;
         }
-        FramePose pose = entry(dragon, partialTick);
-        if (pose.seats.containsKey(seat)) {
+        if (ShaderPassCompatibility.isIrisShadowPass()) {
             return;
         }
+        FramePose pose = POSES.computeIfAbsent(dragon.getUUID(), ignored -> new FramePose());
+        pose.entityId = dragon.getId();
+        pose.lastUsedFrame = frame;
         // Bone translation includes model scale; the rider keeps their own size.
         Matrix4f riderTransform = new Matrix4f(boneTransform).normalize3x3();
         riderTransform.translate(RiderConfig.getSeatOffset(dragon, seat));
@@ -127,7 +91,7 @@ public final class DragonRiderAttachments {
         Vec3 delta = interpolatedPosition(dragon, partialTick)
                 .subtract(interpolatedPosition(rider, partialTick)).subtract(renderOffset);
         poses.translate(delta.x, delta.y, delta.z);
-        poses.mulPoseMatrix(seat.riderTransform);
+        poses.mulPose(seat.riderTransform);
         poses.last().normal().mul(new Matrix3f(seat.riderTransform).invert().transpose());
         return true;
     }
@@ -137,29 +101,6 @@ public final class DragonRiderAttachments {
         return new Vec3(Mth.lerp(partialTick, entity.xOld, entity.getX()),
                 Mth.lerp(partialTick, entity.yOld, entity.getY()),
                 Mth.lerp(partialTick, entity.zOld, entity.getZ()));
-    }
-
-    @Nullable
-    private static FramePose current(RideableDragonBase dragon, float partialTick) {
-        FramePose pose = POSES.get(dragon.getUUID());
-        return pose != null && pose.frame == frame && pose.tick == dragon.tickCount
-                && pose.partialTick == partialTick && pose.entityId == dragon.getId() ? pose : null;
-    }
-
-    private static FramePose entry(RideableDragonBase dragon, float partialTick) {
-        FramePose pose = POSES.computeIfAbsent(dragon.getUUID(), ignored -> new FramePose());
-        if (pose.frame != frame || pose.tick != dragon.tickCount || pose.partialTick != partialTick
-                || pose.entityId != dragon.getId()) {
-            pose.frame = frame;
-            pose.tick = dragon.tickCount;
-            pose.partialTick = partialTick;
-            pose.entityId = dragon.getId();
-            pose.animationReady = false;
-            pose.prepared = false;
-            pose.seats.clear();
-        }
-        pose.lastUsedFrame = frame;
-        return pose;
     }
 
     public static final class SeatPose {
@@ -196,16 +137,8 @@ public final class DragonRiderAttachments {
     }
 
     private static final class FramePose {
-        private long frame = -1;
         private long lastUsedFrame;
-        private int tick;
         private int entityId;
-        private float partialTick;
-        private boolean preparing;
-        private boolean prepared;
-        private boolean animationReady;
-        private BakedGeoModel model;
-        private final DragonBonePose animation = new DragonBonePose();
         private final Map<Integer, SeatPose> seats = new HashMap<>();
     }
 }

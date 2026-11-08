@@ -17,7 +17,7 @@ import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 /**
  * Emissive glow layer for Raevyx beam glow.
  */
-public class RaevyxGlowLayer extends GeoRenderLayer<Raevyx> {
+public class RaevyxGlowLayer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoRenderLayer<Raevyx> {
     private static final Identifier GLOW_TEXTURE =
             SaintsDragonsCommon.rl("textures/entity/raevyx/raevyx_glow.png");
     private static final Identifier FEMALE_GLOW_TEXTURE =
@@ -27,7 +27,7 @@ public class RaevyxGlowLayer extends GeoRenderLayer<Raevyx> {
     private static final Identifier NIGHT_GOLD_FEMALE_GLOW_TEXTURE =
             SaintsDragonsCommon.rl("textures/entity/raevyx/raevyx_night_gold_female_glow.png");
 
-    public RaevyxGlowLayer(GeoRenderer<Raevyx> renderer) {
+    public RaevyxGlowLayer(com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<Raevyx> renderer) {
         super(renderer);
     }
 

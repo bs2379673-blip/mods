@@ -16,7 +16,7 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 
-public class IgnivorusFlameRenderer extends EntityRenderer<IgnivorusFlameEntity> {
+public class IgnivorusFlameRenderer extends com.leon.saintsdragons.client.compat.render.LegacyEntityRenderer<IgnivorusFlameEntity> {
 
     private static final int TOTAL_FRAMES = 5;
     private static final float FLAME_RENDER_SCALE = 0.65F;
@@ -49,7 +49,7 @@ public class IgnivorusFlameRenderer extends EntityRenderer<IgnivorusFlameEntity>
         float alpha = 1.0F;
         poseStack.pushPose();
         poseStack.scale(scale, scale, scale);
-        poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+        poseStack.mulPose(this.entityRenderDispatcher.camera.rotation());
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix4f = pose.pose();
         Matrix3f matrix3f = pose.normal();

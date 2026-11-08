@@ -8,9 +8,9 @@ import com.leon.saintsdragons.common.SaintsDragonsCommon;
 import com.leon.saintsdragons.server.entity.dragons.volitans.Volitans;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.cache.model.GeoBone;
+import com.leon.saintsdragons.client.compat.geo.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.animation.state.AnimationTest;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 import com.leon.saintsdragons.util.compat.EntityModelData;
 
 public class VolitansModel extends DragonGeoModel<Volitans> {
@@ -43,7 +43,7 @@ public class VolitansModel extends DragonGeoModel<Volitans> {
     }
 
     @Override
-    public void setCustomAnimations(Volitans entity, long instanceId, AnimationTest<Volitans> animationState) {
+    public void setCustomAnimations(Volitans entity, long instanceId, LegacyAnimState<Volitans> animationState) {
         super.setCustomAnimations(entity, instanceId, animationState);
 
         if (DraconicCodexScreen.RENDERING_IN_GUI.get()) {
@@ -80,7 +80,7 @@ public class VolitansModel extends DragonGeoModel<Volitans> {
         DragonModelPoseHelper.applyBodyYawDeviation(this, entity, "root", partialTick, -1.0f, true);
     }
 
-    private void applyBankingRoll(Volitans entity, AnimationTest<Volitans> state) {
+    private void applyBankingRoll(Volitans entity, LegacyAnimState<Volitans> state) {
         var bodyOpt = getBone("body");
         if (bodyOpt.isEmpty()) {
             return;
@@ -94,7 +94,7 @@ public class VolitansModel extends DragonGeoModel<Volitans> {
         body.setRotZ(snap.getRotZ() + bankAngleRad + barrelRollRad);
     }
 
-    private void applyFlightPitch(Volitans entity, AnimationTest<Volitans> state) {
+    private void applyFlightPitch(Volitans entity, LegacyAnimState<Volitans> state) {
         var rootOpt = getBone("root");
         if (rootOpt.isEmpty()) {
             return;

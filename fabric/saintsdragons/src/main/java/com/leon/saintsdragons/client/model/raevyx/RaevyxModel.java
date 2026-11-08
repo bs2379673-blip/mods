@@ -8,8 +8,8 @@ import com.leon.saintsdragons.common.SaintsDragonsCommon;
 import com.leon.saintsdragons.server.entity.dragons.raevyx.Raevyx;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.cache.model.GeoBone;
-import software.bernie.geckolib.animation.state.AnimationTest;
+import com.leon.saintsdragons.client.compat.geo.GeoBone;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 import software.bernie.geckolib.constant.DataTickets;
 import com.leon.saintsdragons.util.compat.EntityModelData;
 public class RaevyxModel extends DragonGeoModel<Raevyx> {
@@ -50,7 +50,7 @@ public class RaevyxModel extends DragonGeoModel<Raevyx> {
     }
 
     @Override
-    public void setCustomAnimations(Raevyx entity, long instanceId, AnimationTest<Raevyx> animationState) {
+    public void setCustomAnimations(Raevyx entity, long instanceId, LegacyAnimState<Raevyx> animationState) {
 
         super.setCustomAnimations(entity, instanceId, animationState);
         if (DraconicCodexScreen.RENDERING_IN_GUI.get()) {
@@ -86,7 +86,7 @@ public class RaevyxModel extends DragonGeoModel<Raevyx> {
         DragonModelPoseHelper.applyBodyYawDeviation(this, entity, "root", partialTick, -1.0f, true);
     }
 
-    private void applyBankingRoll(Raevyx entity, AnimationTest<Raevyx> state) {
+    private void applyBankingRoll(Raevyx entity, LegacyAnimState<Raevyx> state) {
         var bodyOpt = getBone("body");
         if (bodyOpt.isEmpty()) return;
 
@@ -113,7 +113,7 @@ public class RaevyxModel extends DragonGeoModel<Raevyx> {
         }
     }
 
-    private void applyFlightPitch(Raevyx entity, AnimationTest<Raevyx> state) {
+    private void applyFlightPitch(Raevyx entity, LegacyAnimState<Raevyx> state) {
         var rootOpt = getBone("root");
         if (rootOpt.isEmpty()) return;
 

@@ -8,7 +8,7 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class MoopRenderer extends GeoEntityRenderer<Moop> {
+public class MoopRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<Moop> {
     public MoopRenderer(EntityRendererProvider.Context context) {
         super(context, new MoopModel());
         this.shadowRadius = 0.25F;

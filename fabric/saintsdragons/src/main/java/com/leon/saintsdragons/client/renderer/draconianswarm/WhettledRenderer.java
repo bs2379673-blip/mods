@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class WhettledRenderer extends GeoEntityRenderer<Whettled> {
+public class WhettledRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<Whettled> {
     public WhettledRenderer(EntityRendererProvider.Context context) {
         super(context, new WhettledModel());
         this.shadowRadius = 0.55F;

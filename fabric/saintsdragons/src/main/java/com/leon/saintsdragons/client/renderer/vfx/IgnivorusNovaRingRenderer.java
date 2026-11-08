@@ -15,7 +15,7 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class IgnivorusNovaRingRenderer extends EntityRenderer<IgnivorusSkyfallRingEntity> {
+public class IgnivorusNovaRingRenderer extends com.leon.saintsdragons.client.compat.render.LegacyEntityRenderer<IgnivorusSkyfallRingEntity> {
 
     private static final int TOTAL_FRAMES = 8;
     private static final Identifier[] TEXTURES = new Identifier[TOTAL_FRAMES];

@@ -24,8 +24,16 @@ public final class RenderPassContext {
         }
     }
 
+    /** Port 1.21.11: con GeckoLib 5 cada dibujo de un dragon es "el principal" salvo en la pasada de sombras. */
+    public static boolean isExtractionAllowedNow() {
+        return !ShaderPassCompatibility.isIrisShadowPass();
+    }
+
     public static boolean isExtractionAllowed(int dragonId) {
         Deque<Integer> stack = EXTRACTION_STACK.get();
+        if (stack.isEmpty()) {
+            return isExtractionAllowedNow();
+        }
         return !stack.isEmpty()
                 && stack.peek() == dragonId
                 && !ShaderPassCompatibility.isIrisShadowPass();

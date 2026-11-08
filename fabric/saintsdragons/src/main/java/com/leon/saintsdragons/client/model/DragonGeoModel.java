@@ -8,10 +8,9 @@ import com.leon.saintsdragons.client.renderer.DragonRiderAttachments;
 import com.leon.saintsdragons.client.renderer.ShaderPassCompatibility;
 import net.minecraft.resources.Identifier;
 import software.bernie.geckolib.cache.model.BakedGeoModel;
-import software.bernie.geckolib.animation.state.AnimationTest;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 
-public abstract class DragonGeoModel<T extends DragonEntity> extends DefaultedEntityGeoModel<T> {
+public abstract class DragonGeoModel<T extends DragonEntity> extends com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<T> {
     protected final Identifier model;
     protected final Identifier babyModel;
     protected final Identifier animation;
@@ -21,44 +20,6 @@ public abstract class DragonGeoModel<T extends DragonEntity> extends DefaultedEn
     protected final Identifier babyMaleTexture;
     protected final Identifier babyFemaleTexture;
 
-    private final DragonBonePose displacedPose = new DragonBonePose();
-    private boolean hasDisplacedPose;
-    private BakedGeoModel attachmentModel;
-
-    @Override
-    public BakedGeoModel getBakedModel(Identifier resource) {
-        attachmentModel = super.getBakedModel(resource);
-        return attachmentModel;
-    }
-
-    @Override
-    public void handleAnimations(T entity, long instanceId, AnimationTest<T> state) {
-        RideableDragonBase dragon = entity instanceof RideableDragonBase rideable ? rideable : null;
-        boolean cacheable = dragon != null && DragonRiderAttachments.usesPoseCache(dragon);
-        var baked = attachmentModel;
-        if (cacheable && DragonRiderAttachments.hasAnimation(dragon, state.getPartialTick(), baked)) {
-            // GeckoLib tracks the last evaluated instance internally. Restore its original bones
-            // before the next real evaluation, even when several dragons share this model.
-            if (!hasDisplacedPose) {
-                displacedPose.capture(getAnimationProcessor().getRegisteredBones());
-                hasDisplacedPose = true;
-            }
-            DragonRiderAttachments.restoreAnimation(dragon, state.getPartialTick());
-            return;
-        }
-        if (hasDisplacedPose) {
-            displacedPose.restore();
-            displacedPose.resetChanges();
-            hasDisplacedPose = false;
-        }
-        var manager = entity.getAnimatableInstanceCache().getManagerForId(instanceId);
-        EntityAnimationPlayback.ageLastPose(manager, entity.getTick(entity));
-        super.handleAnimations(entity, instanceId, state);
-        if (cacheable && !ShaderPassCompatibility.isIrisShadowPass()) {
-            DragonRiderAttachments.captureAnimation(dragon, state.getPartialTick(), baked,
-                    getAnimationProcessor().getRegisteredBones());
-        }
-    }
 
     protected DragonGeoModel(String dragonId) {
         this(dragonId, true);
@@ -125,12 +86,12 @@ public abstract class DragonGeoModel<T extends DragonEntity> extends DefaultedEn
     }
 
     @Override
-    public Identifier getModelResource(T entity) {
+    public Identifier getLegacyModelResource(T entity) {
         return entity != null && entity.isBaby() ? babyModel : model;
     }
 
     @Override
-    public Identifier getTextureResource(T entity) {
+    public Identifier getLegacyTextureResource(T entity) {
         if (entity == null) {
             return maleTexture;
         }
@@ -141,7 +102,7 @@ public abstract class DragonGeoModel<T extends DragonEntity> extends DefaultedEn
     }
 
     @Override
-    public Identifier getAnimationResource(T entity) {
+    public Identifier getLegacyAnimationResource(T entity) {
         return entity != null && entity.isBaby() ? babyAnimation : animation;
     }
 

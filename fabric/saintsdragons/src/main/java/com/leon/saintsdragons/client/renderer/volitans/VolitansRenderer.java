@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import software.bernie.geckolib.cache.model.GeoBone;
-import software.bernie.geckolib.util.RenderUtil;
 import com.leon.saintsdragons.client.model.volitans.VolitansModel;
 import com.leon.saintsdragons.client.renderer.DragonGeoEntityRenderer;
 import com.leon.saintsdragons.client.renderer.RenderPassContext;
@@ -42,40 +41,20 @@ public class VolitansRenderer extends DragonGeoEntityRenderer<Volitans> {
 
     public VolitansRenderer(EntityRendererProvider.Context context) {
         super(context, new VolitansModel());
-        this.addRenderLayer(new VolitansNightEmissiveLayer(this));
+        this.withRenderLayer(new VolitansNightEmissiveLayer(this));
     }
 
     @Override
-    public void render(Volitans entity, float yaw, float partialTick, PoseStack poses,
-                       MultiBufferSource buffers, int packedLight) {
-        renderedMouthOffset = null;
-        try {
-            super.render(entity, yaw, partialTick, poses, buffers, packedLight);
-        } finally {
-            renderedMouthOffset = null;
-        }
+    protected java.util.Set<String> extraSampledBones(Volitans entity) {
+        return java.util.Set.of(BREATH_BONE);
     }
 
     @Override
-    public void renderRecursively(PoseStack poses, Volitans entity, GeoBone bone, RenderType type,
-                                  MultiBufferSource buffers, VertexConsumer buffer, boolean isReRender,
-                                  float partialTick, int light, int overlay, float red, float green, float blue, float alpha) {
-        super.renderRecursively(poses, entity, bone, type, buffers, buffer, isReRender,
-                partialTick, light, overlay, red, green, blue, alpha);
-        if (isReRender || !BREATH_BONE.equals(bone.getName())
+    protected void onDragonBone(Volitans entity, GeoBone bone, PoseStack poses) {
+        if (!BREATH_BONE.equals(bone.name())
                 || !RenderPassContext.isExtractionAllowed(entity.getId())) return;
-        poses.pushPose();
-        try {
-            RenderUtil.translateMatrixToBone(poses, bone);
-            RenderUtil.translateToPivotPoint(poses, bone);
-            RenderUtil.rotateMatrixAroundBone(poses, bone);
-            RenderUtil.scaleMatrixForBone(poses, bone);
-            var matrix = RenderUtil.invertAndMultiplyMatrices(poses.last().pose(), this.entityRenderTranslations);
-            var point = matrix.transformPosition(new Vector3f());
-            renderedMouthOffset = new Vec3(point.x, point.y, point.z);
-        } finally {
-            poses.popPose();
-        }
+        var point = relativeAtPivot(poses).transformPosition(new Vector3f());
+        renderedMouthOffset = new Vec3(point.x, point.y, point.z);
     }
 
     @Override

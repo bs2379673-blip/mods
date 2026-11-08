@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
  * we don't need to render anything here - just prevent the null renderer crash.
  */
 @Environment(EnvType.CLIENT)
-public class RaevyxLightningChainRenderer extends EntityRenderer<RaevyxLightningChainEntity> {
+public class RaevyxLightningChainRenderer extends com.leon.saintsdragons.client.compat.render.LegacyEntityRenderer<RaevyxLightningChainEntity> {
 
     public RaevyxLightningChainRenderer(EntityRendererProvider.Context context) {
         super(context);

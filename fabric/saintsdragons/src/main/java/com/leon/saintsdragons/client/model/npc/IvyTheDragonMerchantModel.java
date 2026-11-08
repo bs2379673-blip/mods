@@ -5,19 +5,18 @@ import com.leon.saintsdragons.common.SaintsDragonsCommon;
 import com.leon.saintsdragons.server.entity.dragons.cindervane.Cindervane;
 import com.leon.saintsdragons.server.entity.npc.IvyTheDragonMerchant;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.cache.model.GeoBone;
+import com.leon.saintsdragons.client.compat.geo.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.animation.state.AnimationTest;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 import com.leon.saintsdragons.util.compat.EntityModelData;
 
-public class IvyTheDragonMerchantModel extends DefaultedEntityGeoModel<IvyTheDragonMerchant> {
+public class IvyTheDragonMerchantModel extends com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<IvyTheDragonMerchant> {
     public IvyTheDragonMerchantModel() {
         super(SaintsDragonsCommon.rl("ivy_oleander/ivy_oleander"));
     }
 
     @Override
-    public void setCustomAnimations(IvyTheDragonMerchant entity, long instanceId, AnimationTest<IvyTheDragonMerchant> animationState) {
+    public void setCustomAnimations(IvyTheDragonMerchant entity, long instanceId, LegacyAnimState<IvyTheDragonMerchant> animationState) {
         super.setCustomAnimations(entity, instanceId, animationState);
 
         EntityModelData modelData = animationState.getData(com.leon.saintsdragons.util.compat.SDTickets.ENTITY_MODEL_DATA);

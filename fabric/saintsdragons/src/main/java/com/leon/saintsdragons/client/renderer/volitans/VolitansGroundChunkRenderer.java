@@ -20,7 +20,7 @@ import software.bernie.geckolib.cache.model.GeoVertex;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.util.RenderUtil;
 
-public class VolitansGroundChunkRenderer extends GeoEntityRenderer<VolitansGroundChunkEntity> {
+public class VolitansGroundChunkRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<VolitansGroundChunkEntity> {
     private static final Identifier DIRT_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "textures/block/dirt.png");
     private static final float MODEL_FORWARD_YAW_OFFSET = 0.0F;
     private MultiBufferSource currentBufferSource;

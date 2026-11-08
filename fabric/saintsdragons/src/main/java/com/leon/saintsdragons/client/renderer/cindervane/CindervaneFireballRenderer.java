@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.cache.model.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class CindervaneFireballRenderer extends GeoEntityRenderer<CindervaneFireballEntity> {
+public class CindervaneFireballRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<CindervaneFireballEntity> {
     private static final float FRAME_TICKS = 2.0F;
     private static final int FRAME_COUNT = 2;
     private static final Identifier[] FIRE = frames("shared/fire/fire/fire", 17);
@@ -45,7 +45,7 @@ public class CindervaneFireballRenderer extends GeoEntityRenderer<CindervaneFire
         poses.pushPose();
         poses.translate(0.0, entity.getBbHeight() * 0.5, 0.0);
         poses.translate(tail.x, tail.y, tail.z);
-        poses.mulPose(this.entityRenderDispatcher.cameraOrientation());
+        poses.mulPose(this.entityRenderDispatcher.camera.rotation());
         layer(poses, buffers, FIRE, age, 0.5F, 0.62F, -0.40F, -0.12F, 0.0F, 0.48F, 0.08F, 0.85F);
         float specProgress = (age % (SPEC.length * 0.5F)) / (SPEC.length * 0.5F);
         float specFade = Math.min(1.0F, Math.max(0.0F, (specProgress - 0.5F) * 2.0F));
@@ -78,7 +78,7 @@ public class CindervaneFireballRenderer extends GeoEntityRenderer<CindervaneFire
             poses.translate(Math.cos(angle) * horizontal * radius,
                     entity.getBbHeight() * 0.5 + height * radius + progress * 0.15,
                     Math.sin(angle) * horizontal * radius);
-            poses.mulPose(this.entityRenderDispatcher.cameraOrientation());
+            poses.mulPose(this.entityRenderDispatcher.camera.rotation());
             if (ember) {
                 poses.mulPose(Axis.ZP.rotation((float) angle + progress * 0.8F));
                 poses.scale(0.5F, 1.0F, 1.0F);

@@ -8,9 +8,9 @@ import com.leon.saintsdragons.common.SaintsDragonsCommon;
 import com.leon.saintsdragons.server.entity.dragons.cindervane.Cindervane;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.cache.model.GeoBone;
+import com.leon.saintsdragons.client.compat.geo.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.animation.state.AnimationTest;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 import com.leon.saintsdragons.util.compat.EntityModelData;
 
 public class CindervaneModel extends DragonGeoModel<Cindervane> {
@@ -36,7 +36,7 @@ public class CindervaneModel extends DragonGeoModel<Cindervane> {
     }
 
     @Override
-    public void setCustomAnimations(Cindervane entity, long instanceId, AnimationTest<Cindervane> animationState) {
+    public void setCustomAnimations(Cindervane entity, long instanceId, LegacyAnimState<Cindervane> animationState) {
         super.setCustomAnimations(entity, instanceId, animationState);
 
         if (DraconicCodexScreen.RENDERING_IN_GUI.get()) {
@@ -83,7 +83,7 @@ public class CindervaneModel extends DragonGeoModel<Cindervane> {
         DragonModelPoseHelper.applyBodyYawDeviation(this, entity, "root", partialTick, -1.0f, true);
     }
 
-    private void applyBankingRoll(Cindervane entity, AnimationTest<Cindervane> state) {
+    private void applyBankingRoll(Cindervane entity, LegacyAnimState<Cindervane> state) {
         var bodyOpt = getBone("body");
         if (bodyOpt.isEmpty()) {
             return;
@@ -113,7 +113,7 @@ public class CindervaneModel extends DragonGeoModel<Cindervane> {
         }
     }
 
-    private void applyFlightPitch(Cindervane entity, AnimationTest<Cindervane> state) {
+    private void applyFlightPitch(Cindervane entity, LegacyAnimState<Cindervane> state) {
         var rootOpt = getBone("root");
         if (rootOpt.isEmpty()) {
             return;

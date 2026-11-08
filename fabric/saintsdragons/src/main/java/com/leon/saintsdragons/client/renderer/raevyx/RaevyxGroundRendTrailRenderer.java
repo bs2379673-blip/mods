@@ -25,7 +25,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 @Environment(EnvType.CLIENT)
-public class RaevyxGroundRendTrailRenderer extends EntityRenderer<LightningVisualEntity> {
+public class RaevyxGroundRendTrailRenderer extends com.leon.saintsdragons.client.compat.render.LegacyEntityRenderer<LightningVisualEntity> {
     private static final float WIDTH_MULTIPLIER = 1.40F;
     private static final int SLASH_FRAME_COUNT = 14;
     private static final float SLASH_TICKS_PER_FRAME = 1.0F;

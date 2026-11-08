@@ -3,9 +3,8 @@ package com.leon.saintsdragons.client.model.volitans;
 import com.leon.saintsdragons.common.SaintsDragonsCommon;
 import com.leon.saintsdragons.server.entity.effect.volitans.VolitansSpineEntity;
 import net.minecraft.resources.Identifier;
-import software.bernie.geckolib.model.GeoModel;
 
-public class VolitansSpineModel extends GeoModel<VolitansSpineEntity> {
+public class VolitansSpineModel extends com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<VolitansSpineEntity> {
     private static final Identifier MODEL =
             SaintsDragonsCommon.rl("geo/objects/volitans/volitans_spine.geo.json");
     private static final Identifier TEXTURE =
@@ -14,17 +13,17 @@ public class VolitansSpineModel extends GeoModel<VolitansSpineEntity> {
             SaintsDragonsCommon.rl("animations/objects/volitans/volitans_spine.animation.json");
 
     @Override
-    public Identifier getModelResource(VolitansSpineEntity animatable) {
+    public Identifier getLegacyModelResource(VolitansSpineEntity animatable) {
         return MODEL;
     }
 
     @Override
-    public Identifier getTextureResource(VolitansSpineEntity animatable) {
+    public Identifier getLegacyTextureResource(VolitansSpineEntity animatable) {
         return TEXTURE;
     }
 
     @Override
-    public Identifier getAnimationResource(VolitansSpineEntity animatable) {
+    public Identifier getLegacyAnimationResource(VolitansSpineEntity animatable) {
         return ANIMATION;
     }
 }

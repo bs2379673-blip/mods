@@ -7,7 +7,7 @@ import com.leon.saintsdragons.client.ui.DraconicCodexScreen;
 import com.leon.saintsdragons.server.entity.dragons.stegonaut.Stegonaut;
 import net.minecraft.util.Mth;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.animation.state.AnimationTest;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 import com.leon.saintsdragons.util.compat.EntityModelData;
 
 public class StegonautModel extends DragonGeoModel<Stegonaut> {
@@ -29,7 +29,7 @@ public class StegonautModel extends DragonGeoModel<Stegonaut> {
     }
 
     @Override
-    public void setCustomAnimations(Stegonaut entity, long instanceId, AnimationTest<Stegonaut> animationState) {
+    public void setCustomAnimations(Stegonaut entity, long instanceId, LegacyAnimState<Stegonaut> animationState) {
         super.setCustomAnimations(entity, instanceId, animationState);
 
         if (DraconicCodexScreen.RENDERING_IN_GUI.get()) {

@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.cache.model.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class IgnivorusFireballRenderer extends GeoEntityRenderer<IgnivorusFireballEntity> {
+public class IgnivorusFireballRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<IgnivorusFireballEntity> {
     private static final float FRAME_TICKS = 2.0F;
     private static final int FRAME_COUNT = 2;
     private static final Identifier STAR = SaintsDragonsCommon.rl("textures/particle/shared/stars/star.png");

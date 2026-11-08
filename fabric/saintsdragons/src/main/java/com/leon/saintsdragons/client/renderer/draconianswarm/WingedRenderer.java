@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class WingedRenderer extends GeoEntityRenderer<Winged> {
+public class WingedRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<Winged> {
     public WingedRenderer(EntityRendererProvider.Context context) {
         super(context, new WingedModel());
         this.shadowRadius = 0.35F;

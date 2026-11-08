@@ -10,7 +10,7 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class VolitansSpineRenderer extends GeoEntityRenderer<VolitansSpineEntity> {
+public class VolitansSpineRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<VolitansSpineEntity> {
     public VolitansSpineRenderer(EntityRendererProvider.Context context) {
         super(context, new VolitansSpineModel());
         this.shadowRadius = 0.15F;

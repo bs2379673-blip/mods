@@ -22,7 +22,6 @@ import com.leon.saintsdragons.client.renderer.vfx.RaevyxSummonStormRenderer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import software.bernie.geckolib.cache.model.GeoBone;
-import software.bernie.geckolib.util.RenderUtil;
 import org.joml.Matrix4f;
 import java.util.Map;
 import java.util.HashMap;
@@ -39,44 +38,40 @@ public class RaevyxRenderer extends DragonGeoEntityRenderer<Raevyx> {
 
     public RaevyxRenderer(EntityRendererProvider.Context context) {
         super(context, new RaevyxModel());
-        this.addRenderLayer(new RaevyxNightEmissiveLayer(this));
-        this.addRenderLayer(new RaevyxGlowLayer(this));
-        this.addRenderLayer(new RaevyxLightningBeamLayer());
+        this.withRenderLayer(new RaevyxNightEmissiveLayer(this));
+        this.withRenderLayer(new RaevyxGlowLayer(this));
+        this.withRenderLayer(new RaevyxLightningBeamLayer());
     }
 
     @Override
-    public void render(Raevyx entity, float entityYaw, float partialTick, PoseStack poses,
-                       MultiBufferSource buffers, int packedLight) {
-        stormTransforms.clear();
-        try {
-            super.render(entity, entityYaw, partialTick, poses, buffers, packedLight);
-        } finally {
-            stormTransforms.clear();
+    protected java.util.Set<String> extraSampledBones(Raevyx entity) {
+        if (!entity.isStormAuraActive()) {
+            return java.util.Set.of();
+        }
+        java.util.Set<String> names = new java.util.HashSet<>();
+        if (this.lastBakedModel != null) {
+            for (software.bernie.geckolib.cache.model.GeoBone b : this.lastBakedModel.topLevelBones()) {
+                collect(b, names);
+            }
+        }
+        return names;
+    }
+
+    private static void collect(software.bernie.geckolib.cache.model.GeoBone b, java.util.Set<String> out) {
+        if (RaevyxStormAuraParticles.samplesBone(b.name()) || RaevyxStormLightningRenderer.samplesBone(b.name())) {
+            out.add(b.name());
+        }
+        for (software.bernie.geckolib.cache.model.GeoBone c : b.children()) {
+            collect(c, out);
         }
     }
 
     @Override
-    public void renderRecursively(PoseStack poses, Raevyx entity, GeoBone bone, RenderType renderType,
-                                  MultiBufferSource buffers, VertexConsumer buffer, boolean isReRender,
-                                  float partialTick, int packedLight, int packedOverlay,
-                                  float red, float green, float blue, float alpha) {
-        super.renderRecursively(poses, entity, bone, renderType, buffers, buffer, isReRender,
-                partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-        if (isReRender || !entity.isStormAuraActive()
-                || !(RaevyxStormAuraParticles.samplesBone(bone.getName())
-                || RaevyxStormLightningRenderer.samplesBone(bone.getName()))) return;
-        poses.pushPose();
-        try {
-            RenderUtil.translateMatrixToBone(poses, bone);
-            RenderUtil.translateToPivotPoint(poses, bone);
-            RenderUtil.rotateMatrixAroundBone(poses, bone);
-            RenderUtil.scaleMatrixForBone(poses, bone);
-            RenderUtil.translateAwayFromPivotPoint(poses, bone);
-            stormTransforms.put(bone.getName(), RenderUtil.invertAndMultiplyMatrices(
-                    poses.last().pose(), this.entityRenderTranslations));
-        } finally {
-            poses.popPose();
-        }
+    protected void onDragonBone(Raevyx entity, GeoBone bone, PoseStack poses) {
+        if (!entity.isStormAuraActive()
+                || !(RaevyxStormAuraParticles.samplesBone(bone.name())
+                || RaevyxStormLightningRenderer.samplesBone(bone.name()))) return;
+        stormTransforms.put(bone.name(), relativeFull(bone, poses));
     }
 
     @Override

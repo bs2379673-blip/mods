@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class IvyTheDragonMerchantRenderer extends GeoEntityRenderer<IvyTheDragonMerchant> {
+public class IvyTheDragonMerchantRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<IvyTheDragonMerchant> {
     private static final double CHATTER_RENDER_DISTANCE_SQR = 256.0D;
     private static final float CHATTER_Y_OFFSET = 0.15F;
     private static final long CHATTER_TYPE_INTERVAL_MS = 42L;
@@ -46,7 +46,7 @@ public class IvyTheDragonMerchantRenderer extends GeoEntityRenderer<IvyTheDragon
 
     public IvyTheDragonMerchantRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new IvyTheDragonMerchantModel());
-        this.addRenderLayer(new IvyHeldItemLayer(this));
+        this.withRenderLayer(new IvyHeldItemLayer(this));
         this.shadowRadius = 0.6f;
     }
 
@@ -132,7 +132,7 @@ public class IvyTheDragonMerchantRenderer extends GeoEntityRenderer<IvyTheDragon
         poseStack.pushPose();
         translateSeatLabel(entity, partialTick, poseStack, y);
         poseStack.translate(0.0F, y, 0.0F);
-        poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+        poseStack.mulPose(this.entityRenderDispatcher.camera.rotation());
         poseStack.scale(-0.025F, -0.025F, 0.025F);
         float x = -font.width(visibleChatter) / 2.0F;
         font.drawInBatch(visibleChatter, x, 0.0F, 0xFFFFFFFF, false, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);

@@ -6,11 +6,10 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import software.bernie.geckolib.cache.model.BakedGeoModel;
-import software.bernie.geckolib.cache.model.GeoBone;
+import com.leon.saintsdragons.client.compat.geo.GeoBone;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animatable.manager.AnimatableManager;
-import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoObjectRenderer;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
@@ -82,19 +81,19 @@ final class CodexStaticPortraitRenderer extends GeoObjectRenderer<CodexStaticPor
         }
     }
 
-    private static final class PortraitModel extends GeoModel<Portrait> {
+    private static final class PortraitModel extends com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<Portrait> {
         @Override
-        public Identifier getModelResource(Portrait portrait) {
+        public Identifier getLegacyModelResource(Portrait portrait) {
             return portrait.model();
         }
 
         @Override
-        public Identifier getTextureResource(Portrait portrait) {
+        public Identifier getLegacyTextureResource(Portrait portrait) {
             return portrait.texture();
         }
 
         @Override
-        public Identifier getAnimationResource(Portrait portrait) {
+        public Identifier getLegacyAnimationResource(Portrait portrait) {
             return portrait.model();
         }
     }

@@ -5,9 +5,9 @@ import com.leon.saintsdragons.client.model.DragonModelPoseHelper;
 import com.leon.saintsdragons.client.ui.DraconicCodexScreen;
 import com.leon.saintsdragons.server.entity.dragons.atroxiia.Atroxiia;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.cache.model.GeoBone;
+import com.leon.saintsdragons.client.compat.geo.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.animation.state.AnimationTest;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 import com.leon.saintsdragons.util.compat.EntityModelData;
 
 public class AtroxiiaModel extends DragonGeoModel<Atroxiia> {
@@ -26,7 +26,7 @@ public class AtroxiiaModel extends DragonGeoModel<Atroxiia> {
     }
 
     @Override
-    public void setCustomAnimations(Atroxiia entity, long instanceId, AnimationTest<Atroxiia> animationState) {
+    public void setCustomAnimations(Atroxiia entity, long instanceId, LegacyAnimState<Atroxiia> animationState) {
         super.setCustomAnimations(entity, instanceId, animationState);
 
         if (DraconicCodexScreen.RENDERING_IN_GUI.get()) {

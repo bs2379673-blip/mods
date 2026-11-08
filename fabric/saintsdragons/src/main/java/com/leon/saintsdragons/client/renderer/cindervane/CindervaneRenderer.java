@@ -21,7 +21,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import software.bernie.geckolib.cache.model.GeoBone;
-import software.bernie.geckolib.util.RenderUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,17 +41,17 @@ public class CindervaneRenderer extends DragonGeoEntityRenderer<Cindervane> {
 
     public CindervaneRenderer(EntityRendererProvider.Context context) {
         super(context, new CindervaneModel());
-        this.addRenderLayer(new DragonEquipmentLayer<>(
+        this.withRenderLayer(new DragonEquipmentLayer<>(
                 this,
                 Cindervane::hasSaddle,
                 SaintsDragonsCommon.rl("textures/entity/cindervane/cindervane_saddle_layer.png")
         ));
-        this.addRenderLayer(new DragonEquipmentLayer<>(
+        this.withRenderLayer(new DragonEquipmentLayer<>(
                 this,
                 Cindervane::hasCindervaneChest,
                 SaintsDragonsCommon.rl("textures/entity/cindervane/cindervane_chest_layer.png")
         ));
-        this.addRenderLayer(new CindervaneNightEmissiveLayer(this));
+        this.withRenderLayer(new CindervaneNightEmissiveLayer(this));
     }
 
     @Override
@@ -74,36 +73,30 @@ public class CindervaneRenderer extends DragonGeoEntityRenderer<Cindervane> {
     }
 
     @Override
-    public void render(Cindervane entity, float entityYaw, float partialTick, PoseStack poses,
-                       MultiBufferSource buffers, int packedLight) {
-        fireBodyTransforms.clear();
-        try {
-            super.render(entity, entityYaw, partialTick, poses, buffers, packedLight);
-        } finally {
-            fireBodyTransforms.clear();
+    protected java.util.Set<String> extraSampledBones(Cindervane entity) {
+        if (!entity.isBreathingFire() || this.lastBakedModel == null) {
+            return java.util.Set.of();
+        }
+        java.util.Set<String> names = new java.util.HashSet<>();
+        for (software.bernie.geckolib.cache.model.GeoBone b : this.lastBakedModel.topLevelBones()) {
+            collect(b, names);
+        }
+        return names;
+    }
+
+    private static void collect(software.bernie.geckolib.cache.model.GeoBone b, java.util.Set<String> out) {
+        if (CindervaneFireBodyParticles.samplesBone(b.name())) {
+            out.add(b.name());
+        }
+        for (software.bernie.geckolib.cache.model.GeoBone c : b.children()) {
+            collect(c, out);
         }
     }
 
     @Override
-    public void renderRecursively(PoseStack poses, Cindervane entity, GeoBone bone, RenderType renderType,
-                                  MultiBufferSource buffers, VertexConsumer buffer, boolean isReRender,
-                                  float partialTick, int packedLight, int packedOverlay,
-                                  float red, float green, float blue, float alpha) {
-        super.renderRecursively(poses, entity, bone, renderType, buffers, buffer, isReRender,
-                partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-        if (isReRender || !entity.isBreathingFire() || !CindervaneFireBodyParticles.samplesBone(bone.getName())) return;
-        poses.pushPose();
-        try {
-            RenderUtil.translateMatrixToBone(poses, bone);
-            RenderUtil.translateToPivotPoint(poses, bone);
-            RenderUtil.rotateMatrixAroundBone(poses, bone);
-            RenderUtil.scaleMatrixForBone(poses, bone);
-            RenderUtil.translateAwayFromPivotPoint(poses, bone);
-            fireBodyTransforms.put(bone.getName(), RenderUtil.invertAndMultiplyMatrices(
-                    poses.last().pose(), this.entityRenderTranslations));
-        } finally {
-            poses.popPose();
-        }
+    protected void onDragonBone(Cindervane entity, GeoBone bone, PoseStack poses) {
+        if (!entity.isBreathingFire() || !CindervaneFireBodyParticles.samplesBone(bone.name())) return;
+        fireBodyTransforms.put(bone.name(), relativeFull(bone, poses));
     }
 
     @Override

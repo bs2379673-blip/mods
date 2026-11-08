@@ -8,7 +8,7 @@ import com.leon.saintsdragons.server.entity.dragons.ignivorus.Ignivorus;
 import com.leon.saintsdragons.server.entity.part.IgnivorusPoseOffsets;
 import net.minecraft.resources.Identifier;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.animation.state.AnimationTest;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 import com.leon.saintsdragons.util.compat.EntityModelData;
 
 public class IgnivorusModel extends DragonGeoModel<Ignivorus> {
@@ -31,7 +31,7 @@ public class IgnivorusModel extends DragonGeoModel<Ignivorus> {
     }
 
     @Override
-    public void setCustomAnimations(Ignivorus entity, long instanceId, AnimationTest<Ignivorus> animationState) {
+    public void setCustomAnimations(Ignivorus entity, long instanceId, LegacyAnimState<Ignivorus> animationState) {
         super.setCustomAnimations(entity, instanceId, animationState);
 
         if (DraconicCodexScreen.RENDERING_IN_GUI.get()) {

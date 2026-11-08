@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.Identifier;
 
-public class FabricDragonPartRenderer extends EntityRenderer<FabricDragonPart> {
+public class FabricDragonPartRenderer extends com.leon.saintsdragons.client.compat.render.LegacyEntityRenderer<FabricDragonPart> {
     private static final Identifier EMPTY_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "textures/misc/white.png");
 
     public FabricDragonPartRenderer(EntityRendererProvider.Context context) {

@@ -14,11 +14,11 @@ import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
 import java.util.function.Predicate;
 
-public final class DragonEquipmentLayer<T extends DragonEntity> extends GeoRenderLayer<T> {
+public final class DragonEquipmentLayer<T extends DragonEntity> extends com.leon.saintsdragons.client.compat.geo.LegacyGeoRenderLayer<T> {
     private final Predicate<T> visible;
     private final Identifier texture;
 
-    public DragonEquipmentLayer(GeoRenderer<T> renderer, Predicate<T> visible, Identifier texture) {
+    public DragonEquipmentLayer(com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<T> renderer, Predicate<T> visible, Identifier texture) {
         super(renderer);
         this.visible = visible;
         this.texture = texture;

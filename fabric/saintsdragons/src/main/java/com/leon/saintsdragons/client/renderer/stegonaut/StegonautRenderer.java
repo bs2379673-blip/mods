@@ -15,12 +15,12 @@ public class StegonautRenderer extends DragonGeoEntityRenderer<Stegonaut> {
     
     public StegonautRenderer(EntityRendererProvider.Context context) {
         super(context, new StegonautModel());
-        this.addRenderLayer(new DragonEquipmentLayer<>(
+        this.withRenderLayer(new DragonEquipmentLayer<>(
                 this,
                 Stegonaut::hasSaddle,
                 SaintsDragonsCommon.rl("textures/entity/stegonaut/stegonaut_saddle_layer.png")
         ));
-        this.addRenderLayer(new DragonEquipmentLayer<>(
+        this.withRenderLayer(new DragonEquipmentLayer<>(
                 this,
                 Stegonaut::hasStegonautChest,
                 SaintsDragonsCommon.rl("textures/entity/stegonaut/stegonaut_chest_layer.png")

@@ -8,9 +8,9 @@ import com.leon.saintsdragons.common.SaintsDragonsCommon;
 import com.leon.saintsdragons.server.entity.dragons.varasuchus.Varasuchus;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import software.bernie.geckolib.cache.model.GeoBone;
+import com.leon.saintsdragons.client.compat.geo.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.animation.state.AnimationTest;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 import com.leon.saintsdragons.util.compat.EntityModelData;
 
 public class VarasuchusModel extends DragonGeoModel<Varasuchus> {
@@ -44,7 +44,7 @@ public class VarasuchusModel extends DragonGeoModel<Varasuchus> {
     }
 
     @Override
-    public void setCustomAnimations(Varasuchus entity, long instanceId, AnimationTest<Varasuchus> animationState) {
+    public void setCustomAnimations(Varasuchus entity, long instanceId, LegacyAnimState<Varasuchus> animationState) {
         super.setCustomAnimations(entity, instanceId, animationState);
         if (DraconicCodexScreen.RENDERING_IN_GUI.get()) {
             return;

@@ -5,11 +5,10 @@ import com.leon.saintsdragons.server.entity.draconianswarm.Winged;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.animation.state.AnimationTest;
-import software.bernie.geckolib.model.GeoModel;
+import com.leon.saintsdragons.client.compat.geo.LegacyAnimState;
 import com.leon.saintsdragons.util.compat.EntityModelData;
 
-public class WingedModel extends GeoModel<Winged> {
+public class WingedModel extends com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<Winged> {
     private static final Identifier MODEL = SaintsDragonsCommon.rl("geo/entity/draconian_swarm/winged/winged.geo.json");
     private static final Identifier TEXTURE =
             SaintsDragonsCommon.rl("textures/entity/draconian_swarm/winged/winged.png");
@@ -17,22 +16,22 @@ public class WingedModel extends GeoModel<Winged> {
             SaintsDragonsCommon.rl("animations/entity/draconian_swarm/winged/winged.animation.json");
 
     @Override
-    public Identifier getModelResource(Winged animatable) {
+    public Identifier getLegacyModelResource(Winged animatable) {
         return MODEL;
     }
 
     @Override
-    public Identifier getTextureResource(Winged animatable) {
+    public Identifier getLegacyTextureResource(Winged animatable) {
         return TEXTURE;
     }
 
     @Override
-    public Identifier getAnimationResource(Winged animatable) {
+    public Identifier getLegacyAnimationResource(Winged animatable) {
         return ANIMATIONS;
     }
 
     @Override
-    public void setCustomAnimations(Winged entity, long instanceId, AnimationTest<Winged> animationState) {
+    public void setCustomAnimations(Winged entity, long instanceId, LegacyAnimState<Winged> animationState) {
         super.setCustomAnimations(entity, instanceId, animationState);
         if (!entity.isAlive()) {
             return;

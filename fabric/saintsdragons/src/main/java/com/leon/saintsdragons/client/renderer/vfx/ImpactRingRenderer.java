@@ -15,7 +15,7 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class ImpactRingRenderer extends EntityRenderer<ImpactRingEntity> {
+public class ImpactRingRenderer extends com.leon.saintsdragons.client.compat.render.LegacyEntityRenderer<ImpactRingEntity> {
     private static final int TOTAL_FRAMES = 4;
     private static final Identifier[] TEXTURES = new Identifier[TOTAL_FRAMES];
 

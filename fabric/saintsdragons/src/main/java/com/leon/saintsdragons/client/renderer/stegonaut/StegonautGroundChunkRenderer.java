@@ -12,7 +12,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-public class StegonautGroundChunkRenderer extends EntityRenderer<StegonautGroundChunkEntity> {
+public class StegonautGroundChunkRenderer extends com.leon.saintsdragons.client.compat.render.LegacyEntityRenderer<StegonautGroundChunkEntity> {
     private final BlockRenderDispatcher blockRenderer;
 
     public StegonautGroundChunkRenderer(EntityRendererProvider.Context context) {

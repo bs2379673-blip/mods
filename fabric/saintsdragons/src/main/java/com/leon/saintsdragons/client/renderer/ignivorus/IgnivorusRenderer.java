@@ -20,7 +20,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import software.bernie.geckolib.cache.model.GeoBone;
-import software.bernie.geckolib.util.RenderUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,8 +46,8 @@ public class IgnivorusRenderer extends DragonGeoEntityRenderer<Ignivorus> {
 
     public IgnivorusRenderer(EntityRendererProvider.Context context) {
         super(context, new IgnivorusModel());
-        this.addRenderLayer(new IgnivorusNightEmissiveLayer(this));
-        this.addRenderLayer(new IgnivorusGlowLayer(this));
+        this.withRenderLayer(new IgnivorusNightEmissiveLayer(this));
+        this.withRenderLayer(new IgnivorusGlowLayer(this));
     }
 
     @Override
@@ -137,32 +136,16 @@ public class IgnivorusRenderer extends DragonGeoEntityRenderer<Ignivorus> {
     private final Map<String, Matrix4f> collisionTransforms = new HashMap<>();
 
     @Override
-    public void render(Ignivorus entity, float yaw, float partialTick, PoseStack poses,
-                       MultiBufferSource buffers, int light) {
-        collisionTransforms.clear();
-        try {
-            super.render(entity, yaw, partialTick, poses, buffers, light);
-        } finally {
-            collisionTransforms.clear();
-        }
+    protected java.util.Set<String> extraSampledBones(Ignivorus entity) {
+        return entity.isBaby() ? java.util.Set.of() : new java.util.HashSet<>(IgnivorusHitboxes.BONES);
     }
 
     @Override
-    public void renderRecursively(PoseStack poses, Ignivorus entity, GeoBone bone, RenderType type, MultiBufferSource buffers, VertexConsumer vertices, boolean reRender,
-                                  float partialTick, int light, int overlay, float red, float green, float blue, float alpha) {
-        super.renderRecursively(poses, entity, bone, type, buffers, vertices, reRender, partialTick,
-                light, overlay, red, green, blue, alpha);
-        if (reRender || entity.isBaby()
+    protected void onDragonBone(Ignivorus entity, GeoBone bone, PoseStack poses) {
+        if (entity.isBaby()
                 || !RenderPassContext.isExtractionAllowed(entity.getId())
-                || !IgnivorusHitboxes.BONES.contains(bone.getName())) return;
-        poses.pushPose();
-        try {
-            RenderUtil.prepMatrixForBone(poses, bone);
-            collisionTransforms.put(bone.getName(), RenderUtil.invertAndMultiplyMatrices(
-                    poses.last().pose(), this.entityRenderTranslations));
-        } finally {
-            poses.popPose();
-        }
+                || !IgnivorusHitboxes.BONES.contains(bone.name())) return;
+        collisionTransforms.put(bone.name(), relativeFull(bone, poses));
     }
 
     private void captureCollisionPose(Ignivorus entity) {

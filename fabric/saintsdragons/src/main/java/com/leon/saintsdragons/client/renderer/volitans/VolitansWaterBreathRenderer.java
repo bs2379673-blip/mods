@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
-public class VolitansWaterBreathRenderer extends EntityRenderer<VolitansWaterBreathEntity> {
+public class VolitansWaterBreathRenderer extends com.leon.saintsdragons.client.compat.render.LegacyEntityRenderer<VolitansWaterBreathEntity> {
     private static final float SPRITE_WIDTH_PX = 32.0F;
     private static final float SPRITE_HEIGHT_PX = 32.0F;
     private static final int TOTAL_FRAMES = 5;
@@ -50,7 +50,7 @@ public class VolitansWaterBreathRenderer extends EntityRenderer<VolitansWaterBre
 
         poseStack.pushPose();
         poseStack.scale(scale, scale, scale);
-        poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+        poseStack.mulPose(this.entityRenderDispatcher.camera.rotation());
 
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix4f = pose.pose();

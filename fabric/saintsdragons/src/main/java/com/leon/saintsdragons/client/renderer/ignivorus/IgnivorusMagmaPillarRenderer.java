@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class IgnivorusMagmaPillarRenderer extends GeoEntityRenderer<IgnivorusMagmaPillarEntity> {
+public class IgnivorusMagmaPillarRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<IgnivorusMagmaPillarEntity> {
 
     public IgnivorusMagmaPillarRenderer(EntityRendererProvider.Context context) {
         super(context, new IgnivorusMagmaPillarModel());

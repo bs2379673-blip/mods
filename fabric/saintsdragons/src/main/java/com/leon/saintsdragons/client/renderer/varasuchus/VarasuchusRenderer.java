@@ -16,7 +16,7 @@ public class VarasuchusRenderer extends DragonGeoEntityRenderer<Varasuchus> {
 
     public VarasuchusRenderer(EntityRendererProvider.Context context) {
         super(context, new VarasuchusModel());
-        this.addRenderLayer(new VarasuchusNightEmissiveLayer(this));
+        this.withRenderLayer(new VarasuchusNightEmissiveLayer(this));
     }
 
     @Override
