@@ -279,7 +279,7 @@ public final class VolitansInteractionHandler extends AbstractDragonInteractionH
     private void triggerTamingAdvancement(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
             var advancement = serverPlayer.level().getServer().getAdvancements()
-                    .getAdvancement(SaintsDragonsCommon.rl("tame_volitans"));
+                    .get(SaintsDragonsCommon.rl("tame_volitans"));
             if (advancement != null) {
                 serverPlayer.getAdvancements().award(advancement, "tame_volitans");
             }

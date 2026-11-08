@@ -95,7 +95,7 @@ public class RaevyxEggBlock extends BaseEntityBlock {
             if (eggEntity != null) {
                 if (com.leon.saintsdragons.util.compat.Compat.ownerUUID(eggEntity) != null) {
                     com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(baby, com.leon.saintsdragons.util.compat.Compat.ownerUUID(eggEntity));
-                    baby.setTame(true);
+                    baby.setTame(true, true);
                 }
                 if (eggEntity.getBabyGender() != null) {
                     baby.setGender(eggEntity.getBabyGender());
@@ -245,7 +245,7 @@ public class RaevyxEggBlock extends BaseEntityBlock {
                                   @Nullable RaevyxEggBlockEntity eggEntity,
                                   Identifier advancementId,
                                   String criterion) {
-        var advancement = level.getServer().getAdvancements().getAdvancement(advancementId);
+        var advancement = level.getServer().getAdvancements().get(advancementId);
         if (advancement == null) {
             return;
         }

@@ -141,7 +141,7 @@ final class ImmutableBlockSnapshot implements BlockGetter {
                 maxBuildHeight - minBuildHeight
         );
         if (metrics != null) {
-            metrics.capture(level.getServer().getTickCount(), level.dimension().location().toString(),
+            metrics.capture(level.getServer().getTickCount(), level.dimension().identifier().toString(),
                     sections.keySet(), dynamicCollisionBoxes.size(), System.nanoTime() - captureStarted);
         }
         return result;

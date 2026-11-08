@@ -896,7 +896,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         UUID ownerId = com.leon.saintsdragons.util.compat.Compat.ownerUUID(this);
         if (ownerId != null) {
             com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(baby, ownerId);
-            baby.setTame(true);
+            baby.setTame(true, true);
         }
 
         baby.setAge(-24000);
@@ -1072,7 +1072,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
                                             @Nullable SpawnGroupData spawnData,
                                             @Nullable CompoundTag spawnTag) {
         return SaintsDragonVariantRegistry.variantIdToLegacy(getDragonVariantTypeId(),
-                chooseSpawnTextureVariantId(levelAccessor, difficulty, reason, spawnData, spawnTag));
+                chooseSpawnTextureVariantId(levelAccessor, difficulty, reason, spawnData, null));
     }
 
     protected Identifier chooseSpawnTextureVariantId(@NotNull ServerLevelAccessor levelAccessor,
@@ -1174,9 +1174,9 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
     @Override
     public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor levelAccessor, @NotNull DifficultyInstance difficulty, @NotNull EntitySpawnReason reason,
                                                  @Nullable SpawnGroupData spawnData) {
-        SpawnGroupData data = super.finalizeSpawn(levelAccessor, difficulty, reason, spawnData, spawnTag);
+        SpawnGroupData data = super.finalizeSpawn(levelAccessor, difficulty, reason, spawnData);
         ensureGenderInitialized();
-        Identifier chosenVariant = chooseSpawnTextureVariantId(levelAccessor, difficulty, reason, spawnData, spawnTag);
+        Identifier chosenVariant = chooseSpawnTextureVariantId(levelAccessor, difficulty, reason, spawnData);
         if (this.isBaby() && shouldPersistAdultTextureVariantOnBabies()) {
             setPendingAdultTextureVariantId(chosenVariant);
             setCurrentTextureVariantId(SaintsDragonVariantRegistry.defaultVariantId(getDragonVariantTypeId()));
@@ -1445,8 +1445,8 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
     public void die(@NotNull DamageSource cause) {
         if (!this.dead) {
             killDataCause = cause;
-            killDataRecentlyHit = this.lastHurtByPlayerTime;
-            killDataAttackingPlayer = this.lastHurtByPlayer;
+            killDataRecentlyHit = this.lastHurtByPlayerMemoryTime;
+            killDataAttackingPlayer = this.getLastHurtByPlayer();
 
             dying = true;
 
@@ -1497,8 +1497,9 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
 
         if (this.deathTime >= deathDuration && !this.level().isClientSide()) {
 
-            this.lastHurtByPlayer = killDataAttackingPlayer;
-            this.lastHurtByPlayerTime = killDataRecentlyHit;
+            if (killDataAttackingPlayer != null) {
+                this.setLastHurtByPlayer(killDataAttackingPlayer, killDataRecentlyHit);
+            }
 
             if (killDataCause != null) {
                 this.dropAllDeathLoot(killDataCause);
@@ -1517,7 +1518,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
                     + " uuid=" + this.getUUID()
                     + " reason=" + reason
                     + " pos=" + this.position()
-                    + " dim=" + this.level().dimension().location()
+                    + " dim=" + this.level().dimension().identifier()
                     + " health=" + this.getHealth()
                     + " alive=" + this.isAlive()
                     + " dying=" + this.isDying()
@@ -1556,20 +1557,20 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
     }
 
     @Override
-    protected void dropAllDeathLoot(@NotNull DamageSource source) {
+    protected void dropAllDeathLoot(net.minecraft.server.level.ServerLevel saintsdragons$level, @NotNull DamageSource source) {
         if (deathTime < getDeathAnimationDurationTicks()) {
             return;
         }
-        super.dropAllDeathLoot(source);
+        super.dropAllDeathLoot(saintsdragons$level, source);
         dropAdditionalDeathLootAfterBase(source);
     }
 
     protected void dropAdditionalDeathLootAfterBase(@NotNull DamageSource source) {
     }
 
-    @Override
-    public @NotNull AABB getBoundingBoxForCulling() {
-        return super.getBoundingBoxForCulling().inflate(
+    
+    public @NotNull AABB getRenderCullingBox() {
+        return this.getBoundingBox().inflate(
                 getCullingInflateX(),
                 getCullingInflateY(),
                 getCullingInflateZ());
@@ -1622,7 +1623,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
 
         UUID ownerUUID = resolveEggOwnerUUID(partner);
         if (ownerUUID != null) {
-            com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(eggEntity, ownerUUID);
+            eggEntity.setOwnerUUID(ownerUUID);
         }
 
         eggEntity.setBabyGender(this.getRandom().nextBoolean() ? DragonGender.FEMALE : DragonGender.MALE);
@@ -2064,7 +2065,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         return getConfiguredDragonAttributes().extraBoolean(key, fallback);
     }
 
-    protected void setAttributeBase(Attribute attribute, double value) {
+    protected void setAttributeBase(net.minecraft.core.Holder<Attribute> attribute, double value) {
         AttributeInstance instance = this.getAttribute(attribute);
         if (instance != null) {
             instance.setBaseValue(value);
@@ -2104,8 +2105,8 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
     }
 
     @Override
-    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
-        EntityDimensions baseDimensions = super.getDimensions(pose);
+    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
+        EntityDimensions baseDimensions = super.getDefaultDimensions(pose);
         float babyScale = getBabyHitboxScale();
         return isBaby() && babyScale != 1.0F ? baseDimensions.scale(babyScale) : baseDimensions;
     }
@@ -2426,11 +2427,11 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         return entity != null
                 && (DragonTargetingHelper.isVillageDefender(entity)
                 || CompanionCombatRules.isTrusted(entity, com.leon.saintsdragons.util.compat.Compat.ownerUUID(this), level())
-                || super.isAlliedTo(entity));
+                || super.considersEntityAsAlly(entity));
     }
 
     @Override
-    public boolean isAlliedTo(@NotNull Entity entity) {
+    protected boolean considersEntityAsAlly(@NotNull Entity entity) {
         return isAlly(entity);
     }
 
@@ -2514,7 +2515,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
             return;
         }
         var advancement = serverPlayer.level().getServer().getAdvancements()
-                .getAdvancement(SaintsDragonsCommon.rl("encounter_dragon"));
+                .get(SaintsDragonsCommon.rl("encounter_dragon"));
         if (advancement != null) {
             serverPlayer.getAdvancements().award(advancement, "encounter_dragon");
         }
@@ -2764,7 +2765,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         if (state.isAir() || !state.getFluidState().isEmpty()) {
             return false;
         }
-        return state.isSolidRender(level, pos) || state.isFaceSturdy(level, pos, Direction.UP);
+        return state.isSolidRender() || state.isFaceSturdy(level, pos, Direction.UP);
     }
 
     // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag

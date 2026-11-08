@@ -234,7 +234,7 @@ public final class DragonBrainDebugTracker {
                     + " target=" + path.getTarget();
         }
         if (value instanceof GlobalPos globalPos) {
-            return globalPos.dimension().location() + " " + globalPos.pos().toShortString();
+            return globalPos.dimension().identifier() + " " + globalPos.pos().toShortString();
         }
         if (value instanceof Vec3 position) {
             return format(position);

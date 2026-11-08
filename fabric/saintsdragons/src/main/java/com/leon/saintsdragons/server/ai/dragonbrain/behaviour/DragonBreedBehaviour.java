@@ -164,7 +164,7 @@ public class DragonBreedBehaviour<T extends DragonEntity> extends DragonBehaviou
                         : rideable.getAIMovement().setWaypoint(partner, speed, false);
                 movementIssued = accepted || movementIssued;
             } else {
-                movementIssued = dragon.getNavigation().snapTo(partner, speed) || movementIssued;
+                movementIssued = dragon.getNavigation().moveTo(partner, speed) || movementIssued;
             }
         }
         loveTime = (int)Math.min(Integer.MAX_VALUE, context.gameTime() - courtshipStartedAt);
@@ -441,7 +441,7 @@ public class DragonBreedBehaviour<T extends DragonEntity> extends DragonBehaviou
         for (int depth = 0; depth <= EGG_SEARCH_DEPTH; depth++) {
             BlockPos check = position.below(depth);
             BlockState ground = level.getBlockState(check);
-            if (!ground.isAir() && ground.isSolidRender(level, check) && level.getBlockState(check.above()).isAir()) {
+            if (!ground.isAir() && ground.isSolidRender() && level.getBlockState(check.above()).isAir()) {
                 return check.above();
             }
         }

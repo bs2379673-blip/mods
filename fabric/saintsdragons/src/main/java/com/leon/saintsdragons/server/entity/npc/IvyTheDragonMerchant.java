@@ -680,8 +680,8 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     @Override
     protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
         PathNavigateGround navigation = new PathNavigateGround(this, level);
-        navigation.setCanOpenDoors(true);
-        navigation.setCanPassDoors(true);
+        navigation.getNodeEvaluator().setCanOpenDoors(true);
+        navigation.getNodeEvaluator().setCanPassDoors(true);
         return navigation;
     }
 
@@ -1910,11 +1910,11 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         return entity == this
                 || CompanionCombatRules.isTrusted(entity, getOwnerUUID(), level())
                 || DragonTargetingHelper.isVillageDefender(entity)
-                || super.isAlliedTo(entity);
+                || super.considersEntityAsAlly(entity);
     }
 
     @Override
-    public boolean isAlliedTo(@NotNull Entity entity) {
+    protected boolean considersEntityAsAlly(@NotNull Entity entity) {
         return isCombatFriendly(entity);
     }
 

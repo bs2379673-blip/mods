@@ -357,7 +357,7 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    public EntityDimensions getDimensions(@NotNull Pose pose) {
+    protected EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
         float scale = getVisualScale();
         return EntityDimensions.fixed(0.98F * scale, 0.98F * scale);
     }

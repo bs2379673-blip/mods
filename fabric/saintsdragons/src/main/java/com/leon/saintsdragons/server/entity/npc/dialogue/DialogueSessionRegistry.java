@@ -465,7 +465,7 @@ public final class DialogueSessionRegistry {
 
     private static Set<String> collectFlags(ServerPlayer player, IvyTheDragonMerchant ivy, Set<String> baseFlags) {
         Set<String> flags = new HashSet<>(baseFlags);
-        flags.add("dimension:" + player.level().dimension().location());
+        flags.add("dimension:" + player.level().dimension().identifier());
         if (flags.containsAll(IVY_WORK_TOPIC_FLAGS)) {
             flags.add("known_work_done");
         }

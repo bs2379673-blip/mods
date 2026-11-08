@@ -162,7 +162,7 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
             return;
         }
         var advancement = serverPlayer.level().getServer().getAdvancements()
-                .getAdvancement(SaintsDragonsCommon.rl("pocket_dragon"));
+                .get(SaintsDragonsCommon.rl("pocket_dragon"));
         if (advancement != null) {
             serverPlayer.getAdvancements().award(advancement, "bind_dragon");
         }
@@ -204,11 +204,11 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
         prepareDragonForRelease(newDragon, player);
 
         if (ownerUUID != null) {
-            newDragon.setTame(true);
+            newDragon.setTame(true, true);
             com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(newDragon, ownerUUID);
         } else {
             // Do not register a Codex entry until the reconstructed entity is actually accepted by the level.
-            newDragon.setTame(true);
+            newDragon.setTame(true, true);
             com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(newDragon, player.getUUID());
         }
 

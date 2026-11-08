@@ -222,7 +222,7 @@ public abstract class RideableFlyingDragon extends RideableDragonBase implements
     }
 
     public boolean isHoldingRiderDiveMomentum() {
-        if (level().isClientSide() && !isControlledByLocalInstance()) {
+        if (level().isClientSide() && !isLocalInstanceAuthoritative()) {
             return this.entityData.get(DATA_RIDER_DIVE_MOMENTUM);
         }
         return riderDiveBoostHoldTicks > 0;
@@ -328,9 +328,9 @@ public abstract class RideableFlyingDragon extends RideableDragonBase implements
     }
 
     protected void configureAirNavigation(FlyingPathNavigation navigation) {
-        navigation.setCanOpenDoors(false);
+        navigation.getNodeEvaluator().setCanOpenDoors(false);
         navigation.setCanFloat(false);
-        navigation.setCanPassDoors(false);
+        navigation.getNodeEvaluator().setCanPassDoors(false);
     }
 
     protected void afterSwitchToGroundNavigation() {
@@ -948,7 +948,7 @@ public abstract class RideableFlyingDragon extends RideableDragonBase implements
     private void tickDivePose() {
         boolean aerial = isFlying() || isLanding() || isTakeoff();
         float target;
-        if (level().isClientSide() && !isControlledByLocalInstance()) {
+        if (level().isClientSide() && !isLocalInstanceAuthoritative()) {
             target = aerial ? this.entityData.get(DATA_DIVE_POSE_TARGET) : 0.0F;
         } else {
             Vec3 velocity = getDeltaMovement();
@@ -1802,7 +1802,7 @@ public abstract class RideableFlyingDragon extends RideableDragonBase implements
 
     public void moveAiFlightTo(@Nullable Vec3 target, double speed) {
         if (target != null) {
-            getNavigation().snapTo(target.x, target.y, target.z, speed);
+            getNavigation().moveTo(target.x, target.y, target.z, speed);
         }
     }
 

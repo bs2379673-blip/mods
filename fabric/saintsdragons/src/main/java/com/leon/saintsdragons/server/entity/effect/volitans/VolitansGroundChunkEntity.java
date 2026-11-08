@@ -173,7 +173,7 @@ public class VolitansGroundChunkEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
+    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
         return DIMENSIONS;
     }
 

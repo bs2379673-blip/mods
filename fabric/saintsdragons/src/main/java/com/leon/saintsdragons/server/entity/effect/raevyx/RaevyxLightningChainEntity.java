@@ -144,7 +144,7 @@ public class RaevyxLightningChainEntity extends Entity {
     }
 
     @Override
-    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
+    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
         return EntityDimensions.scalable(this.getSize() * 0.5F, this.getSize());
     }
 

@@ -1263,7 +1263,7 @@ public class IvyCombatBrain {
     private void closeDistance(LivingEntity target) {
         setState(CombatState.CLOSING_DISTANCE, 8);
         ivy.setBoxingMovement(false, true);
-        ivy.getNavigation().snapTo(target, 1.0D);
+        ivy.getNavigation().moveTo(target, 1.0D);
     }
 
     private void closeDistanceIntercept(LivingEntity target) {
@@ -1272,7 +1272,7 @@ public class IvyCombatBrain {
 
         Vec3 velocity = target.getDeltaMovement();
         Vec3 predicted = target.position().add(velocity.x * INTERCEPT_PREDICTION_TICKS, 0.0D, velocity.z * INTERCEPT_PREDICTION_TICKS);
-        ivy.getNavigation().snapTo(predicted.x, target.getY(), predicted.z, 1.08D);
+        ivy.getNavigation().moveTo(predicted.x, target.getY(), predicted.z, 1.08D);
     }
 
     private boolean updateTargetStillness(LivingEntity target) {

@@ -291,7 +291,7 @@ public class IgnivorusBodySlamAbility extends DragonAbility<Ignivorus> {
         for (int y = dragonY; y > level.getMinY(); y--) {
             BlockPos checkPos = new BlockPos(startPos.getX(), y, startPos.getZ());
             BlockState state = level.getBlockState(checkPos);
-            if (!state.isAir() && !state.liquid() && state.isSolidRender(level, checkPos)) {
+            if (!state.isAir() && !state.liquid() && state.isSolidRender()) {
                 return checkPos;
             }
         }

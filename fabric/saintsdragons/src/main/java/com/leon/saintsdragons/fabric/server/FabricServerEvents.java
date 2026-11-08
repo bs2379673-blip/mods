@@ -73,7 +73,7 @@ public final class FabricServerEvents {
                 return InteractionResult.PASS;
             }
             var advancement = serverPlayer.level().getServer().getAdvancements()
-                .getAdvancement(SaintsDragonsCommon.rl("why"));
+                .get(SaintsDragonsCommon.rl("why"));
             if (advancement != null) {
                 serverPlayer.getAdvancements().award(advancement, "hit_baby");
             }

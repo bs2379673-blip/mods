@@ -331,7 +331,7 @@ public class CindervaneFireballEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
+    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
         return EntityDimensions.fixed(0.98F, 0.98F);
     }
 

@@ -77,6 +77,11 @@ public abstract class DragonGeoEntityRenderer<T extends RideableDragonBase> exte
     }
 
     @Override
+    protected AABB getBoundingBoxForCulling(T entity) {
+        return entity.getRenderCullingBox();
+    }
+
+    @Override
     public void extractRenderState(T entity, SDRenderState state, float partialTick) {
         super.extractRenderState(entity, state, partialTick);
         state.shadowRadius = entity.isBaby() ? getBabyShadowRadius(entity) : getAdultShadowRadius(entity);

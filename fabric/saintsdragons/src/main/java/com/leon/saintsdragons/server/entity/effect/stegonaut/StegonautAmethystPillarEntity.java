@@ -245,7 +245,7 @@ public class StegonautAmethystPillarEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
+    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
         return BASE_DIMENSIONS.scale(getVisualScale());
     }
 

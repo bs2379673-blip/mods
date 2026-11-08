@@ -129,7 +129,7 @@ public final class VolitansUnderwaterBreedBehaviour extends DragonBreedBehaviour
             BlockPos egg = floor.above();
             BlockState floorState = level.getBlockState(floor);
             if (!floorState.isAir()
-                    && floorState.isSolidRender(level, floor)
+                    && floorState.isSolidRender()
                     && level.getBlockState(egg).getFluidState().is(FluidTags.WATER)) {
                 return egg;
             }

@@ -184,10 +184,10 @@ public abstract class RideableDragonBase extends DragonEntity {
         return null;
     }
 
-    @Override
+    
     public double getPassengersRidingOffset() {
         List<DragonSeatDefinition> seats = getRiderSeats();
-        return seats.isEmpty() ? super.getPassengersRidingOffset() : seats.get(0).offset().y;
+        return seats.isEmpty() ? (this.getBbHeight() * 0.75D) : seats.get(0).offset().y;
     }
 
     @Override
@@ -1171,7 +1171,7 @@ public abstract class RideableDragonBase extends DragonEntity {
         if (this instanceof Ignivorus ignivorus) {
             ignivorus.stopHitboxAnimation(AnimationHelper.MOVEMENT_CONTROLLER, null);
         } else {
-            stopTriggeredAnimation(AnimationHelper.MOVEMENT_CONTROLLER, null);
+            stopTriggeredAnim(AnimationHelper.MOVEMENT_CONTROLLER, null);
         }
         forceEndActiveAbility();
         setAggressive(false);

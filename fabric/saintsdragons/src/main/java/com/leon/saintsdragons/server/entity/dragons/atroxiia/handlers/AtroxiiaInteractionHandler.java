@@ -165,7 +165,7 @@ public final class AtroxiiaInteractionHandler extends AbstractDragonInteractionH
         }
 
         var advancement = serverPlayer.level().getServer().getAdvancements()
-                .getAdvancement(SaintsDragonsCommon.rl("tame_atroxiia"));
+                .get(SaintsDragonsCommon.rl("tame_atroxiia"));
         if (advancement != null) {
             serverPlayer.getAdvancements().award(advancement, "tame_atroxiia");
         }

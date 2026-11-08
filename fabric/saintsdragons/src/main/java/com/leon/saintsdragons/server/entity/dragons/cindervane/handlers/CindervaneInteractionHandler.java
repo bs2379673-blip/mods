@@ -332,7 +332,7 @@ public class CindervaneInteractionHandler extends AbstractDragonInteractionHandl
     private void triggerTamingAdvancement(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
             var advancement = serverPlayer.level().getServer().getAdvancements()
-                    .getAdvancement(SaintsDragonsCommon.rl("tame_cindervane"));
+                    .get(SaintsDragonsCommon.rl("tame_cindervane"));
             if (advancement != null) {
                 serverPlayer.getAdvancements().award(advancement, "tame_cindervane");
             }

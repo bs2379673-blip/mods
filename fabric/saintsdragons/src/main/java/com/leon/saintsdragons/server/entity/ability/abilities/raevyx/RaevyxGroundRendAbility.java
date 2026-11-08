@@ -472,7 +472,7 @@ public class RaevyxGroundRendAbility extends DragonAbility<Raevyx> {
         for (int y = startY; y >= stopY; y--) {
             BlockPos pos = new BlockPos(x, y, z);
             BlockState state = server.getBlockState(pos);
-            if (!state.isAir() && !state.liquid() && state.isSolidRender(server, pos)) {
+            if (!state.isAir() && !state.liquid() && state.isSolidRender()) {
                 return pos;
             }
         }

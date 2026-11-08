@@ -213,7 +213,7 @@ public final class StegonautInteractionHandler extends AbstractDragonInteraction
     private void awardTamingAdvancement(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
             var advancement = serverPlayer.level().getServer().getAdvancements()
-                    .getAdvancement(SaintsDragonsCommon.rl("tame_stegonaut"));
+                    .get(SaintsDragonsCommon.rl("tame_stegonaut"));
             if (advancement != null) {
                 serverPlayer.getAdvancements().award(advancement, "tame_stegonaut");
             }

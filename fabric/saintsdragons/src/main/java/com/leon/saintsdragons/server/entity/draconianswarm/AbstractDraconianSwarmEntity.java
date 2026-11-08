@@ -233,16 +233,16 @@ public abstract class AbstractDraconianSwarmEntity extends Monster implements Ti
     @Override
     protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
         FlyingPathNavigation navigation = new FlyingPathNavigation(this, level);
-        navigation.setCanOpenDoors(false);
-        navigation.setCanPassDoors(false);
+        navigation.getNodeEvaluator().setCanOpenDoors(false);
+        navigation.getNodeEvaluator().setCanPassDoors(false);
         navigation.setCanFloat(false);
         return navigation;
     }
 
     protected PathNavigation createSwarmNavigation(Level level) {
         AsyncSwarmFlyingPathNavigation navigation = new AsyncSwarmFlyingPathNavigation(this, level, this.swarmFlightController);
-        navigation.setCanOpenDoors(false);
-        navigation.setCanPassDoors(false);
+        navigation.getNodeEvaluator().setCanOpenDoors(false);
+        navigation.getNodeEvaluator().setCanPassDoors(false);
         navigation.setCanFloat(false);
         return navigation;
     }

@@ -145,7 +145,7 @@ public class FabricDragonPart extends Entity implements DragonPartEntity {
     }
 
     @Override
-    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
+    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
         return this.size;
     }
 

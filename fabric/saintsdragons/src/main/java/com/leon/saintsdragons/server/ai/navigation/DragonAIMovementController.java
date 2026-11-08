@@ -940,7 +940,7 @@ public class DragonAIMovementController {
                 }
                 return true;
             }
-            return dragon.getNavigation().snapTo(waypoint.target().x, waypoint.target().y, waypoint.target().z, waypoint.speed());
+            return dragon.getNavigation().moveTo(waypoint.target().x, waypoint.target().y, waypoint.target().z, waypoint.speed());
         }
 
         if (!canUseGroundNavigation()) {
@@ -1061,7 +1061,7 @@ public class DragonAIMovementController {
             recordGroundPathFailure(currentWaypoint.target(), "incomplete-path");
             return false;
         }
-        if (!dragon.getNavigation().snapTo(path, currentWaypoint.speed())) {
+        if (!dragon.getNavigation().moveTo(path, currentWaypoint.speed())) {
             recordGroundPathFailure(currentWaypoint.target(), "navigation-rejected-path");
             return false;
         }

@@ -269,7 +269,7 @@ final class IvyCompanionController {
             double distance = ivy.distanceToSqr(owner);
             boolean shouldRun = distance > FOLLOW_RUN_DISTANCE_SQR;
             ivy.setRunning(shouldRun);
-            boolean pathing = ivy.getNavigation().snapTo(owner, shouldRun ? FOLLOW_RUN_SPEED : FOLLOW_WALK_SPEED);
+            boolean pathing = ivy.getNavigation().moveTo(owner, shouldRun ? FOLLOW_RUN_SPEED : FOLLOW_WALK_SPEED);
             if (shouldDirectFollow(owner, distance, pathing)) {
                 directFollowOwner(owner, shouldRun);
             }
@@ -373,7 +373,7 @@ final class IvyCompanionController {
             }
 
             ivy.setRunning(true);
-            ivy.getNavigation().snapTo(vehicle, BOAT_NAVIGATION_SPEED);
+            ivy.getNavigation().moveTo(vehicle, BOAT_NAVIGATION_SPEED);
         }
 
         @Nullable
@@ -500,7 +500,7 @@ final class IvyCompanionController {
             BlockPos start = plan.startLadder();
             ivy.setNoGravity(false);
             ivy.setShiftKeyDown(false);
-            ivy.getNavigation().snapTo(start.getX() + 0.5D, start.getY(), start.getZ() + 0.5D, LADDER_APPROACH_SPEED);
+            ivy.getNavigation().moveTo(start.getX() + 0.5D, start.getY(), start.getZ() + 0.5D, LADDER_APPROACH_SPEED);
             if (isAtLadderApproach(start)) {
                 ivy.getNavigation().stop();
                 centerOnLadder(start);

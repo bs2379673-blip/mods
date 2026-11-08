@@ -887,7 +887,7 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
     public void awardTamingAdvancement(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
             var advancement = serverPlayer.level().getServer().getAdvancements()
-                    .getAdvancement(SaintsDragonsCommon.rl("tame_varasuchus"));
+                    .get(SaintsDragonsCommon.rl("tame_varasuchus"));
             if (advancement != null) {
                 serverPlayer.getAdvancements().award(advancement, "tame_varasuchus");
             }
@@ -1474,7 +1474,7 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
             desired = new Vec3(0, velocity.y * 0.9, 0);
         }
         Vec3 blended = velocity.add(desired.subtract(velocity).scale(0.28D));
-        double dragFactor = this.isControlledByLocalInstance() ? 0.92D : 0.94D;
+        double dragFactor = this.isLocalInstanceAuthoritative() ? 0.92D : 0.94D;
         blended = blended.multiply(dragFactor, 0.96D, dragFactor);
         double verticalVel = blended.y;
         if (isGoingUp()) {
@@ -1541,7 +1541,7 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
 
             LivingEntity rider = this.dragon.getControllingPassenger();
             if (this.dragon.isVehicle() && rider != null) {
-                if (this.dragon.isControlledByLocalInstance()) {
+                if (this.dragon.isLocalInstanceAuthoritative()) {
                     float bodyYaw = rider.getYRot();
                     this.dragon.setYRot(bodyYaw);
                     this.dragon.setYHeadRot(bodyYaw);

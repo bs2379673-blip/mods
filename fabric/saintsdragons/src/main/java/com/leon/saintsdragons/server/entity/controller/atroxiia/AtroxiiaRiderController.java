@@ -83,7 +83,7 @@ public record AtroxiiaRiderController(Atroxiia dragon) {
         }
 
         Vec3 blended = velocity.add(desiredVelocity.subtract(velocity).scale(SWIM_RESPONSE));
-        double horizontalDrag = dragon.isControlledByLocalInstance() ? 0.92D : 0.94D;
+        double horizontalDrag = dragon.isLocalInstanceAuthoritative() ? 0.92D : 0.94D;
         blended = blended.multiply(horizontalDrag, 0.96D, horizontalDrag);
 
         double verticalVelocity = blended.y;

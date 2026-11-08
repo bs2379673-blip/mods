@@ -275,7 +275,7 @@ public class RaevyxInteractionHandler extends AbstractDragonInteractionHandler<R
     private void triggerTamingAdvancement(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
             var advancement = serverPlayer.level().getServer().getAdvancements()
-                .getAdvancement(SaintsDragonsCommon.rl("tame_raevyx"));
+                .get(SaintsDragonsCommon.rl("tame_raevyx"));
             if (advancement != null) {
                 serverPlayer.getAdvancements().award(advancement, "tame_raevyx");
             }

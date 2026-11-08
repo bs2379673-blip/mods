@@ -270,7 +270,7 @@ public class IgnivorusInteractionHandler extends AbstractDragonInteractionHandle
     private void triggerTamingAdvancement(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
             var advancement = serverPlayer.level().getServer().getAdvancements()
-                    .getAdvancement(SaintsDragonsCommon.rl("tame_ignivorus"));
+                    .get(SaintsDragonsCommon.rl("tame_ignivorus"));
             if (advancement != null) {
                 serverPlayer.getAdvancements().award(advancement, "tame_ignivorus");
             }

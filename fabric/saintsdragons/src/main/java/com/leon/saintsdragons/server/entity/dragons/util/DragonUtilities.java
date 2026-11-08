@@ -251,7 +251,7 @@ public final class DragonUtilities {
     }
 
     public static void awardAdvancement(ServerPlayer player, String advancementId, String criterion) {
-        var advancement = player.level().getServer().getAdvancements().getAdvancement(SaintsDragonsCommon.rl(advancementId));
+        var advancement = player.level().getServer().getAdvancements().get(SaintsDragonsCommon.rl(advancementId));
         if (advancement != null) {
             player.getAdvancements().award(advancement, criterion);
         }

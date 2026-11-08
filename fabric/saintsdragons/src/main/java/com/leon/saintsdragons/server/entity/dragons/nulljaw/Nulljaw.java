@@ -702,7 +702,7 @@ public class Nulljaw extends RideableFlyingDragon implements PackMember<Nulljaw>
                         this.level().broadcastEntityEvent(this, (byte) 7);
                         if (player instanceof ServerPlayer serverPlayer) {
                             var advancement = serverPlayer.level().getServer().getAdvancements()
-                                    .getAdvancement(SaintsDragonsCommon.rl("tame_nulljaw"));
+                                    .get(SaintsDragonsCommon.rl("tame_nulljaw"));
                             if (advancement != null) {
                                 serverPlayer.getAdvancements().award(advancement, "tame_nulljaw");
                             }

@@ -36,7 +36,7 @@ public final class VolitansUnderwaterSpawner {
     }
 
     public static void tick(ServerLevel level) {
-        Identifier dimensionId = level.dimension().location();
+        Identifier dimensionId = level.dimension().identifier();
         int counter = tickCounters.getOrDefault(dimensionId, 0) + 1;
         tickCounters.put(dimensionId, counter);
         if (counter < CHECK_INTERVAL) {

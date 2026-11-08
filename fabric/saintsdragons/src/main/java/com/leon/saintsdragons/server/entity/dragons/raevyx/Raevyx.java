@@ -584,7 +584,7 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
             return;
         }
         var advancement = serverPlayer.level().getServer().getAdvancements()
-                .getAdvancement(SaintsDragonsCommon.rl("raevyx_dive_exit"));
+                .get(SaintsDragonsCommon.rl("raevyx_dive_exit"));
         if (advancement != null) {
             serverPlayer.getAdvancements().award(advancement, "raevyx_dive_exit");
         }
