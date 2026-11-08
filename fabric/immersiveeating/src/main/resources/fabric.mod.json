@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "food",
+  "version": "${version}",
+  "name": "Kaleidoscope Immersive Eating (1.21.11)",
+  "description": "Port a 1.21.11",
+  "authors": ["XianYue", "NightEpiphany"],
+  "license": "GPL-3.0-only",
+  "environment": "*",
+  "entrypoints": {"main": ["io.github.memorytoame.immersiveeating.fabric.KaleidoscopeImmersiveEating"]},
+  "depends": {"fabricloader": ">=0.17.0", "minecraft": "~1.21.11", "fabric-api": "*"}
+}

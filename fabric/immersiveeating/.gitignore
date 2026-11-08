@@ -1,0 +1,6 @@
+build/
+.gradle/
+run/
+# modelos, animaciones y texturas del mod original (CC BY-NC-ND 4.0): se bajan al compilar con ci/bajar_mca.sh
+src/main/resources/assets/food/geckolib/
+src/main/resources/assets/food/textures/

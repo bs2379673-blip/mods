@@ -1,0 +1,61 @@
+// Kaleidoscope Immersive Eating (GPL-3.0, de XianYue y NightEpiphany), llevado a Fabric 1.21.11.
+// Los modelos, animaciones y texturas (CC BY-NC-ND 4.0) no se suben: ci/bajar_mca.sh los trae del repo original.
+plugins {
+    id 'fabric-loom' version '1.13-SNAPSHOT'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    maven {
+        name = 'GeckoLib'
+        url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        content { includeGroup 'software.bernie.geckolib' }
+    }
+    maven {
+        name = 'Fuzs'
+        url = 'https://raw.githubusercontent.com/Fuzss/modresources/main/maven/'
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation "software.bernie.geckolib:geckolib-fabric-${project.minecraft_version}:${project.geckolib_version}"
+    modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${project.forgeconfigapiport_version}"
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+    it.options.encoding = 'UTF-8'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+jar {
+    from('LICENSE') { rename { "LICENSE_immersiveeating" } }
+    from('LICENSE-ASSETS')
+    from('NOTICE')
+}
+
+tasks.register('copiarClasspath', Copy) {
+    from sourceSets.main.compileClasspath
+    into layout.buildDirectory.dir('cp')
+}
