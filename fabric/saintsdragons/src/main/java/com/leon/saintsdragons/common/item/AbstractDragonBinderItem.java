@@ -13,7 +13,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -74,10 +73,10 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player,
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player,
                                                            @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        return BinderComponentUtil.isBound(stack) ? InteractionResultHolder.pass(stack) : super.use(level, player, hand);
+        return BinderComponentUtil.isBound(stack) ? InteractionResult.PASS : super.use(level, player, hand);
     }
 
     @Override
@@ -111,7 +110,7 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
 
     private ItemStack captureDragon(ItemStack stack, T dragon, Player player) {
         ItemStack copied = stack.copy();
-        CompoundTag tag = copied.getOrCreateTag();
+        CompoundTag tag = com.leon.saintsdragons.util.compat.Compat.getOrCreateTag(copied);
 
         com.leon.saintsdragons.util.compat.Compat.putUUID(tag, BinderComponentUtil.BOUND_DRAGON_UUID, dragon.getUUID());
         tag.putString(BinderComponentUtil.BOUND_DRAGON_NAME, dragon.getName().getString());
@@ -119,7 +118,7 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
         if (dragon.hasCustomName()) {
             Component customName = dragon.getCustomName();
             if (customName != null) {
-                tag.putString(BinderComponentUtil.BOUND_CUSTOM_NAME, Component.Serializer.toJson(customName));
+                tag.putString(BinderComponentUtil.BOUND_CUSTOM_NAME, com.leon.saintsdragons.util.compat.Compat.componentToJson(customName));
             } else {
                 tag.remove(BinderComponentUtil.BOUND_CUSTOM_NAME);
             }
@@ -140,9 +139,9 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
         CompoundTag dragonData = new CompoundTag();
         prepareDragonForCapture(dragon, player);
         dragon.setBoundInBinder(true);
-        dragon.saveWithoutId(dragonData);
+        com.leon.saintsdragons.util.compat.Compat.saveEntity(dragon, dragonData);
         tag.put(getDragonDataKey(), dragonData);
-        copied.setTag(tag);
+        com.leon.saintsdragons.util.compat.Compat.setTag(copied, tag);
 
         if (player.level() instanceof ServerLevel serverLevel) {
             DragonCodexSavedData.get(serverLevel).updateDragonBoundState(player.getUUID(), dragon.getUUID(), true);
@@ -170,7 +169,7 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
     }
 
     protected final boolean releaseDragon(ItemStack stack, Player player, Vec3 position, boolean airborne) {
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = com.leon.saintsdragons.util.compat.Compat.getTag(stack);
         if (tag == null || !tag.contains(BinderComponentUtil.BOUND_DRAGON_UUID)) {
             return false;
         }
@@ -192,7 +191,7 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
         if (tag.contains(getDragonDataKey())) {
             try {
                 CompoundTag dragonData = tag.getCompoundOrEmpty(getDragonDataKey());
-                newDragon.load(dragonData);
+                com.leon.saintsdragons.util.compat.Compat.loadEntity(newDragon, dragonData);
                 newDragon.setBoundInBinder(false);
             } catch (Exception e) {
                 player.displayClientMessage(Component.translatable("saintsdragons.message.binder_data_corrupted"), true);
@@ -215,7 +214,7 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
 
         if (tag.contains(BinderComponentUtil.BOUND_CUSTOM_NAME)) {
             try {
-                Component customName = Component.Serializer.fromJson(tag.getString(BinderComponentUtil.BOUND_CUSTOM_NAME));
+                Component customName = com.leon.saintsdragons.util.compat.Compat.componentFromJson(tag.getString(BinderComponentUtil.BOUND_CUSTOM_NAME));
                 if (customName != null) {
                     newDragon.setCustomName(customName);
                 }

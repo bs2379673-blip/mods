@@ -1,12 +1,15 @@
 package com.leon.saintsdragons.common.item;
 
+import net.minecraft.world.InteractionResult;
+
+import net.minecraft.nbt.CompoundTag;
+
 import com.leon.saintsdragons.client.renderer.item.MossbackItemRenderer;
 import com.leon.saintsdragons.common.registry.ModEntities;
 import com.leon.saintsdragons.server.entity.dragons.Mossback;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -38,7 +41,7 @@ public class MossbackItem extends Item implements GeoItem {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
         if (level instanceof ServerLevel serverLevel) {
@@ -56,34 +59,33 @@ public class MossbackItem extends Item implements GeoItem {
             }
         }
 
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS.heldItemTransformedTo(stack);
     }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "idle", 4, state -> {
-            ItemStack stack = state.getData(DataTickets.ITEMSTACK);
+        controllers.add(new AnimationController<>("idle", 4, state -> {
+            ItemStack stack = state.getData(com.leon.saintsdragons.util.compat.SDTickets.ITEMSTACK);
             state.setAndContinue(isBaby(stack) ? BABY_IDLE : IDLE);
             return PlayState.CONTINUE;
         }));
     }
 
     public static boolean isBaby(ItemStack stack) {
-        return stack != null && stack.hasTag() && stack.getTag().getBoolean(BABY_TAG);
+        return stack != null && com.leon.saintsdragons.util.compat.Compat.hasTag(stack) && com.leon.saintsdragons.util.compat.Compat.getTag(stack).getBoolean(BABY_TAG);
     }
 
     public static void setBaby(ItemStack stack, boolean baby) {
         if (stack == null || stack.isEmpty()) {
             return;
         }
+        CompoundTag tag = com.leon.saintsdragons.util.compat.Compat.getOrCreateTag(stack);
         if (baby) {
-            stack.getOrCreateTag().putBoolean(BABY_TAG, true);
-        } else if (stack.hasTag()) {
-            stack.getTag().remove(BABY_TAG);
-            if (stack.getTag().isEmpty()) {
-                stack.setTag(null);
-            }
+            tag.putBoolean(BABY_TAG, true);
+        } else {
+            tag.remove(BABY_TAG);
         }
+        com.leon.saintsdragons.util.compat.Compat.setTag(stack, tag);
     }
 
     @Override

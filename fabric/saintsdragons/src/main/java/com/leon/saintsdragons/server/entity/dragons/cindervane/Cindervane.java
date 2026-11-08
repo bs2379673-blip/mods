@@ -494,8 +494,8 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
     }
 
     @Override
-    protected void defineRideableDragonData() {
-        this.entityData.define(DATA_SLASH_GRAB_PASSENGER_ID, -1);
+    protected void defineRideableDragonData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        builder.define(DATA_SLASH_GRAB_PASSENGER_ID, -1);
     }
 
     @Override

@@ -581,32 +581,32 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
     }
 
     @Override
-    protected void defineRideableDragonData() {
-        this.entityData.define(DATA_FLIGHT_PITCH, 0.0F);
-        this.entityData.define(DATA_ACCUMULATED_ROLL, 0.0F);
-        this.entityData.define(DATA_PITCH_KEY_MODE, false);
-        this.entityData.define(DATA_SCREEN_SHAKE_AMOUNT, 0.0F);
-        this.entityData.define(DATA_ULTIMATE_SLAM_ACTIVE, false);
-        this.entityData.define(DATA_BREATH_MODE, 0); // 0=water, 1=poison
-        this.entityData.define(DATA_BREATHING, false);
-        this.entityData.define(DATA_BREATH_START_TIME, -1L);
-        this.entityData.define(DATA_BREATH_FIRE_TIME, -1L);
-        this.entityData.define(DATA_POISON_BALL_CHARGE_TIME, -1L);
-        this.entityData.define(DATA_POISON_BALL_FIRE_TIME, -1L);
-        this.entityData.define(DATA_WATER_BREATH_ENERGY, 1.0F);
-        this.entityData.define(DATA_POISON_BREATH_ENERGY, 1.0F);
-        this.entityData.define(DATA_WATER_BREATH_DEPLETED, false);
-        this.entityData.define(DATA_POISON_BREATH_DEPLETED, false);
-        this.entityData.define(DATA_BURROWING, false);
-        this.entityData.define(DATA_FEEDING_COOLDOWN, 0);
-        this.entityData.define(DATA_VENOM_NEUTRALIZED_TICKS, 0);
-        this.entityData.define(DATA_TAMING_STUNNED, false);
-        this.entityData.define(DATA_RIDER_NUDGE_TICKS, 0);
-        this.entityData.define(DATA_RIDER_NUDGE_X, 0.0F);
-        this.entityData.define(DATA_RIDER_NUDGE_Z, 0.0F);
-        this.entityData.define(DATA_RIDER_NUDGE_DRAG, 1.0F);
-        this.entityData.define(DATA_RIDER_NUDGE_MODE, RIDER_NUDGE_NONE);
-        this.entityData.define(DATA_RIDER_NUDGE_STEER_OFFSET, 0.0F);
+    protected void defineRideableDragonData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        builder.define(DATA_FLIGHT_PITCH, 0.0F);
+        builder.define(DATA_ACCUMULATED_ROLL, 0.0F);
+        builder.define(DATA_PITCH_KEY_MODE, false);
+        builder.define(DATA_SCREEN_SHAKE_AMOUNT, 0.0F);
+        builder.define(DATA_ULTIMATE_SLAM_ACTIVE, false);
+        builder.define(DATA_BREATH_MODE, 0); // 0=water, 1=poison
+        builder.define(DATA_BREATHING, false);
+        builder.define(DATA_BREATH_START_TIME, -1L);
+        builder.define(DATA_BREATH_FIRE_TIME, -1L);
+        builder.define(DATA_POISON_BALL_CHARGE_TIME, -1L);
+        builder.define(DATA_POISON_BALL_FIRE_TIME, -1L);
+        builder.define(DATA_WATER_BREATH_ENERGY, 1.0F);
+        builder.define(DATA_POISON_BREATH_ENERGY, 1.0F);
+        builder.define(DATA_WATER_BREATH_DEPLETED, false);
+        builder.define(DATA_POISON_BREATH_DEPLETED, false);
+        builder.define(DATA_BURROWING, false);
+        builder.define(DATA_FEEDING_COOLDOWN, 0);
+        builder.define(DATA_VENOM_NEUTRALIZED_TICKS, 0);
+        builder.define(DATA_TAMING_STUNNED, false);
+        builder.define(DATA_RIDER_NUDGE_TICKS, 0);
+        builder.define(DATA_RIDER_NUDGE_X, 0.0F);
+        builder.define(DATA_RIDER_NUDGE_Z, 0.0F);
+        builder.define(DATA_RIDER_NUDGE_DRAG, 1.0F);
+        builder.define(DATA_RIDER_NUDGE_MODE, RIDER_NUDGE_NONE);
+        builder.define(DATA_RIDER_NUDGE_STEER_OFFSET, 0.0F);
     }
 
     @Override

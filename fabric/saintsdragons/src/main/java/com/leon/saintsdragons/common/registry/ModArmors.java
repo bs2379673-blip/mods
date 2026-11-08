@@ -3,7 +3,7 @@ package com.leon.saintsdragons.common.registry;
 import com.leon.saintsdragons.common.item.DragonlordArmorItem;
 import com.leon.saintsdragons.common.item.BloodTempestArmorItem;
 import com.leon.saintsdragons.common.item.DraconianArmorItem;
-import net.minecraft.world.item.ArmorItem;
+import com.leon.saintsdragons.util.compat.items.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 

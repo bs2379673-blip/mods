@@ -184,7 +184,7 @@ public class VolitansGroundChunkEntity extends Entity implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 0, this::animationPredicate));
+        controllers.add(new AnimationController<>("controller", 0, this::animationPredicate));
     }
 
     private <E extends GeoEntity> PlayState animationPredicate(AnimationTest<E> state) {

@@ -50,7 +50,7 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "orb", 0,
+        controllers.add(new AnimationController<>("orb", 0,
                 state -> state.setAndContinue(RawAnimation.begin().thenLoop("spin"))));
     }
 

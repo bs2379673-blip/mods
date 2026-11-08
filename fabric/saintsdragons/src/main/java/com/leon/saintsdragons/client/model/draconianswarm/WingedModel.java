@@ -7,7 +7,7 @@ import net.minecraft.util.Mth;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.animation.state.AnimationTest;
 import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.leon.saintsdragons.util.compat.EntityModelData;
 
 public class WingedModel extends GeoModel<Winged> {
     private static final Identifier MODEL = SaintsDragonsCommon.rl("geo/entity/draconian_swarm/winged/winged.geo.json");
@@ -41,7 +41,7 @@ public class WingedModel extends GeoModel<Winged> {
         float pitch = Mth.clamp(entity.getFlightPitchRadians(animationState.getPartialTick()), -0.95F, 0.95F);
         getBone("root").ifPresent(bone -> bone.setRotX(bone.getInitialSnapshot().getRotX() + pitch));
 
-        EntityModelData modelData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
+        EntityModelData modelData = animationState.getData(com.leon.saintsdragons.util.compat.SDTickets.ENTITY_MODEL_DATA);
         if (modelData != null) {
             float lookPitch = Mth.clamp(modelData.headPitch() * Mth.DEG_TO_RAD, -0.55F, 0.55F);
             float lookYaw = Mth.clamp(modelData.netHeadYaw() * Mth.DEG_TO_RAD, -0.75F, 0.75F);

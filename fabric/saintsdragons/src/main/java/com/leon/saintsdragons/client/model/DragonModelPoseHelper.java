@@ -5,7 +5,7 @@ import com.leon.saintsdragons.server.entity.component.DragonBreathPose;
 import net.minecraft.util.Mth;
 import software.bernie.geckolib.cache.model.GeoBone;
 import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.leon.saintsdragons.util.compat.EntityModelData;
 
 import java.util.Optional;
 

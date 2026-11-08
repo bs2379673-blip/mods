@@ -101,10 +101,10 @@ public abstract class RideableDragonBase extends DragonEntity {
         builder.define(DATA_GOING_UP, false);
         builder.define(DATA_GOING_DOWN, false);
         builder.define(DATA_ACCELERATING, false);
-        defineRideableDragonData();
+        defineRideableDragonData(builder);
     }
 
-    protected void defineRideableDragonData() {
+    protected void defineRideableDragonData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
     }
 
     public DragonAIMovementController getAIMovement() {

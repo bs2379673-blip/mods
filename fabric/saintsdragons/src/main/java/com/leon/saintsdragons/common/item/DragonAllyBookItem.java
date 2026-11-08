@@ -6,7 +6,6 @@ import com.leon.saintsdragons.server.entity.base.DragonEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -39,11 +38,11 @@ public class DragonAllyBookItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         if (level.isClientSide()) {
             openCodexScreen(null, CodexTab.PHYSIOLOGY);
         }
-        return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
+        return InteractionResult.SUCCESS.heldItemTransformedTo(player.getItemInHand(hand));
     }
 
     @Environment(EnvType.CLIENT)

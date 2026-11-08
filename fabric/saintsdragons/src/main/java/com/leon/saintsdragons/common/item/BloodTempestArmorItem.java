@@ -20,26 +20,15 @@ import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.equipment.ArmorMaterial;
+import com.leon.saintsdragons.util.compat.items.ArmorItem;
+import com.leon.saintsdragons.util.compat.items.LegacyArmorMaterial;
 
 public class BloodTempestArmorItem extends ArmorItem implements GeoItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private final Supplier<Object> renderProvider = this::createFabricRenderProvider;
 
-    public BloodTempestArmorItem(ArmorMaterial armorMaterial, Type type, Properties properties) {
+    public BloodTempestArmorItem(LegacyArmorMaterial armorMaterial, Type type, Properties properties) {
         super(armorMaterial, type, properties);
-    }
-
-    @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
-        Multimap<Attribute, AttributeModifier> base = super.getDefaultAttributeModifiers(slot);
-        if (slot != getType().getSlot()) {
-            return base;
-        }
-        return ConfiguredItemAttributes.armor(base, configuredDefense(),
-                ToolsArmorConfig.BLOOD_TEMPEST_TOUGHNESS.get(),
-                ToolsArmorConfig.BLOOD_TEMPEST_KNOCKBACK_RESISTANCE.get());
     }
 
     @Override

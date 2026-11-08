@@ -556,7 +556,7 @@ public final class DialogueSessionRegistry {
 
     private static Component resolveName(Component component, String chosenName) {
         JsonElement resolvedJson = replaceNamePlaceholder(Component.Serializer.toJsonTree(component), chosenName);
-        Component resolved = Component.Serializer.fromJson(resolvedJson);
+        Component resolved = com.leon.saintsdragons.util.compat.Compat.componentFromJson(resolvedJson);
         return resolved == null ? component : resolved;
     }
 

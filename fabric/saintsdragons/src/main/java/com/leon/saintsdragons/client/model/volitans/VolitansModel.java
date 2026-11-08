@@ -11,7 +11,7 @@ import net.minecraft.util.Mth;
 import software.bernie.geckolib.cache.model.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.animation.state.AnimationTest;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.leon.saintsdragons.util.compat.EntityModelData;
 
 public class VolitansModel extends DragonGeoModel<Volitans> {
     private static final float DEG_TO_RAD = Mth.DEG_TO_RAD;
@@ -53,7 +53,7 @@ public class VolitansModel extends DragonGeoModel<Volitans> {
             return;
         }
 
-        EntityModelData modelData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
+        EntityModelData modelData = animationState.getData(com.leon.saintsdragons.util.compat.SDTickets.ENTITY_MODEL_DATA);
         if (modelData == null) return;
         if (entity.isAlive()){
             if (entity.isDeadOrDying()){

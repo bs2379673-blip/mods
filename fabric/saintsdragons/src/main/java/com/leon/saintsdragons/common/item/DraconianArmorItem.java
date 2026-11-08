@@ -4,8 +4,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.equipment.ArmorMaterial;
+import com.leon.saintsdragons.util.compat.items.ArmorItem;
+import com.leon.saintsdragons.util.compat.items.LegacyArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -16,7 +16,7 @@ import java.util.List;
 import com.leon.saintsdragons.client.renderer.armor.DraconianArmorTextures;
 
 public class DraconianArmorItem extends ArmorItem {
-    public DraconianArmorItem(ArmorMaterial material, Type type, Properties properties) {
+    public DraconianArmorItem(LegacyArmorMaterial material, Type type, Properties properties) {
         super(material, type, properties);
     }
 

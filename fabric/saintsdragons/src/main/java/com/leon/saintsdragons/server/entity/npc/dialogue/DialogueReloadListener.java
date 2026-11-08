@@ -135,7 +135,7 @@ public final class DialogueReloadListener extends SimpleJsonResourceReloadListen
         if (object.has("text") && object.get("text").isJsonPrimitive() && !object.has("translate")) {
             return parseStyledLiteral(object.get("text").getAsString());
         }
-        Component component = Component.Serializer.fromJson(element);
+        Component component = com.leon.saintsdragons.util.compat.Compat.componentFromJson(element);
         return component == null ? Component.empty() : component;
     }
 

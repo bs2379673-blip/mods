@@ -1,5 +1,7 @@
 package com.leon.saintsdragons.common.item;
 
+import net.minecraft.world.InteractionResult;
+
 import com.leon.saintsdragons.server.entity.npc.IvyTheDragonMerchant;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -7,7 +9,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -28,44 +29,45 @@ public final class IvyOctopusPlushieItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player,
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player,
                                                            @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (level.isClientSide()) {
-            return InteractionResultHolder.success(stack);
+            return InteractionResult.SUCCESS.heldItemTransformedTo(stack);
         }
         if (!(player instanceof ServerPlayer serverPlayer)) {
-            return InteractionResultHolder.fail(stack);
+            return InteractionResult.FAIL;
         }
-        if (player.getCooldowns().isOnCooldown(this)) {
-            return InteractionResultHolder.fail(stack);
+        if (player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) {
+            return InteractionResult.FAIL;
         }
 
         UUID boundOwnerUuid = getBoundOwnerUuid(stack);
         if (boundOwnerUuid != null && !boundOwnerUuid.equals(player.getUUID())) {
             player.displayClientMessage(Component.translatable("message.saintsdragons.ivy_plushie.not_owner"), true);
-            return InteractionResultHolder.fail(stack);
+            return InteractionResult.FAIL;
         }
 
         IvyTheDragonMerchant ivy = findLoadedIvy(serverPlayer, getBoundIvyUuid(stack));
         if (ivy == null) {
             player.displayClientMessage(Component.translatable("message.saintsdragons.ivy_plushie.not_loaded"), true);
-            return InteractionResultHolder.fail(stack);
+            return InteractionResult.FAIL;
         }
         if (!ivy.summonNear(serverPlayer)) {
             player.displayClientMessage(Component.translatable("message.saintsdragons.ivy_plushie.no_safe_position"), true);
-            return InteractionResultHolder.fail(stack);
+            return InteractionResult.FAIL;
         }
 
         bindTo(stack, ivy, serverPlayer);
-        player.getCooldowns().addCooldown(this, USE_COOLDOWN_TICKS);
-        return InteractionResultHolder.success(stack);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), USE_COOLDOWN_TICKS);
+        return InteractionResult.SUCCESS.heldItemTransformedTo(stack);
     }
 
     public static void bindTo(ItemStack stack, IvyTheDragonMerchant ivy, ServerPlayer owner) {
-        CompoundTag tag = stack.getOrCreateTag();
+        CompoundTag tag = com.leon.saintsdragons.util.compat.Compat.getOrCreateTag(stack);
         com.leon.saintsdragons.util.compat.Compat.putUUID(tag, BOUND_IVY_UUID_TAG, ivy.getUUID());
         com.leon.saintsdragons.util.compat.Compat.putUUID(tag, BOUND_OWNER_UUID_TAG, owner.getUUID());
+        com.leon.saintsdragons.util.compat.Compat.setTag(stack, tag);
     }
 
     public static boolean canRepresent(ItemStack stack, IvyTheDragonMerchant ivy, ServerPlayer owner) {
@@ -82,13 +84,13 @@ public final class IvyOctopusPlushieItem extends Item {
 
     @Nullable
     private static UUID getBoundIvyUuid(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = com.leon.saintsdragons.util.compat.Compat.getTag(stack);
         return tag != null && com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, BOUND_IVY_UUID_TAG) ? com.leon.saintsdragons.util.compat.Compat.getUUID(tag, BOUND_IVY_UUID_TAG) : null;
     }
 
     @Nullable
     private static UUID getBoundOwnerUuid(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = com.leon.saintsdragons.util.compat.Compat.getTag(stack);
         return tag != null && com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, BOUND_OWNER_UUID_TAG) ? com.leon.saintsdragons.util.compat.Compat.getUUID(tag, BOUND_OWNER_UUID_TAG) : null;
     }
 

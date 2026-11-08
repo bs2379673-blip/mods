@@ -333,9 +333,9 @@ public class Nulljaw extends RideableFlyingDragon implements PackMember<Nulljaw>
     }
 
     @Override
-    protected void defineRideableDragonData() {
-        this.entityData.define(DATA_FLIGHT_PITCH, 0f);
-        this.entityData.define(DATA_FEEDING_COOLDOWN, 0);
+    protected void defineRideableDragonData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        builder.define(DATA_FLIGHT_PITCH, 0f);
+        builder.define(DATA_FEEDING_COOLDOWN, 0);
     }
 
     @Override

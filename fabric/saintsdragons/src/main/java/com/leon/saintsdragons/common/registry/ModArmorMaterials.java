@@ -2,13 +2,13 @@ package com.leon.saintsdragons.common.registry;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.equipment.ArmorMaterial;
+import com.leon.saintsdragons.util.compat.items.ArmorItem;
+import com.leon.saintsdragons.util.compat.items.LegacyArmorMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.function.Supplier;
 
-public enum ModArmorMaterials implements ArmorMaterial {
+public enum ModArmorMaterials implements LegacyArmorMaterial {
     DRACONIAN_FLESH(
             "draconian_armor",
             25,

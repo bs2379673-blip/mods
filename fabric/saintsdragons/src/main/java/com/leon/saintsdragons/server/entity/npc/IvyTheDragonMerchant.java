@@ -97,7 +97,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.stats.Stats;
-import net.minecraft.world.item.ArmorItem;
+import com.leon.saintsdragons.util.compat.items.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -513,7 +513,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
                 return false;
             }
             movedIvy = transferredIvy;
-            movedIvy.load(savedData);
+            com.leon.saintsdragons.util.compat.Compat.loadEntity(movedIvy, savedData);
             movedIvy.snapTo(destinationPosition.x, destinationPosition.y, destinationPosition.z,
                     movedIvy.getYRot(), movedIvy.getXRot());
         }

@@ -27,7 +27,7 @@ public class DragonlordArmorModel extends GeoModel<DragonlordArmorItem> {
                                     AnimationTest<DragonlordArmorItem> animationState) {
         super.setCustomAnimations(animatable, instanceId, animationState);
 
-        Entity wearer = animationState.getData(DataTickets.ENTITY);
+        Entity wearer = animationState.getData(com.leon.saintsdragons.util.compat.SDTickets.ENTITY);
         if (!(wearer instanceof LivingEntity living)
                 || !living.isFallFlying()
                 || !DragonlordArmorSetBonus.isWearingFullSet(living)) {

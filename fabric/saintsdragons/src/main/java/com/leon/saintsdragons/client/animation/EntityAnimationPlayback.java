@@ -11,7 +11,7 @@ import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.animatable.manager.AnimatableManager;
 import software.bernie.geckolib.animation.state.AnimationTest;
 import software.bernie.geckolib.constant.dataticket.DataTicket;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.leon.saintsdragons.util.compat.EntityModelData;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 /** Client-only playback */
@@ -67,8 +67,8 @@ public final class EntityAnimationPlayback {
                 speed >= renderer.getMotionAnimThreshold(entity) && limbAmount != 0);
         state.animationTick = entity.getTick(entity);
         state.setData(DataTickets.TICK, state.animationTick);
-        state.setData(DataTickets.ENTITY, entity);
-        state.setData(DataTickets.ENTITY_MODEL_DATA,
+        state.setData(com.leon.saintsdragons.util.compat.SDTickets.ENTITY, entity);
+        state.setData(com.leon.saintsdragons.util.compat.SDTickets.ENTITY_MODEL_DATA,
                 new EntityModelData(sitting, entity.isBaby(), bodyYaw - headYaw, -entity.xRotO));
         long instanceId = renderer.getInstanceId(entity);
         model.addAdditionalStateData(entity, instanceId, state::setData);

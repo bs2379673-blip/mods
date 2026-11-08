@@ -10,8 +10,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import com.leon.saintsdragons.util.compat.items.SwordItem;
+import com.leon.saintsdragons.util.compat.items.Tier;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
@@ -40,13 +40,6 @@ public class DragonheartSwordItem extends SwordItem {
         this.entityReach = entityReach;
         this.criticalDamageBonus = criticalDamageBonus;
         this.tier = tier;
-    }
-
-    @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
-        return ConfiguredItemAttributes.weapon(super.getDefaultAttributeModifiers(slot), slot,
-                isBloodTempest() ? bloodTempestDamage() : dragonlordDamage(),
-                isBloodTempest() ? bloodTempestSpeed() : dragonlordSpeed());
     }
 
     public double getEntityReach() {

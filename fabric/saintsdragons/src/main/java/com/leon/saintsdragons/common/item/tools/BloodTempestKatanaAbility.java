@@ -79,7 +79,7 @@ public final class BloodTempestKatanaAbility {
         List<LivingEntity> targets = collectTargets(player, origin, destination);
 
         Item sword = ModItems.BLOOD_TEMPEST_KATANA.get();
-        player.getCooldowns().addCooldown(sword, ToolsArmorConfig.BLOOD_TEMPEST_KATANA_ABILITY_COOLDOWN_TICKS.get());
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(sword), ToolsArmorConfig.BLOOD_TEMPEST_KATANA_ABILITY_COOLDOWN_TICKS.get());
         player.resetAttackStrengthTicker();
         player.teleportTo(destination.x, destination.y, destination.z);
         player.setDeltaMovement(Vec3.ZERO);
@@ -262,7 +262,7 @@ public final class BloodTempestKatanaAbility {
         }
 
         Item sword = ModItems.BLOOD_TEMPEST_KATANA.get();
-        return player.getMainHandItem().is(sword) && !player.getCooldowns().isOnCooldown(sword);
+        return player.getMainHandItem().is(sword) && !player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(sword));
     }
 
     private static Vec3 findDestination(ServerPlayer player, Vec3 direction) {

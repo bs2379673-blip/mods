@@ -26,7 +26,7 @@ import software.bernie.geckolib.cache.model.GeoBone;
 import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
 import software.bernie.geckolib.animation.state.AnimationTest;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.leon.saintsdragons.util.compat.EntityModelData;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.util.RenderUtil;
@@ -270,8 +270,8 @@ public abstract class DragonGeoEntityRenderer<T extends RideableDragonBase> exte
                 speed >= getMotionAnimThreshold(entity) && limbAmount != 0);
         long instanceId = getInstanceId(entity);
         state.setData(DataTickets.TICK, entity.getTick(entity));
-        state.setData(DataTickets.ENTITY, entity);
-        state.setData(DataTickets.ENTITY_MODEL_DATA, new EntityModelData(sitting, entity.isBaby(),
+        state.setData(com.leon.saintsdragons.util.compat.SDTickets.ENTITY, entity);
+        state.setData(com.leon.saintsdragons.util.compat.SDTickets.ENTITY_MODEL_DATA, new EntityModelData(sitting, entity.isBaby(),
                 bodyYaw - headYaw, -Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
         T previousAnimatable = this.animatable;
         this.animatable = entity;

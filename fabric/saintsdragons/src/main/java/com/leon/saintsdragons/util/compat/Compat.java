@@ -97,6 +97,64 @@ public final class Compat {
         return out;
     }
 
+    /** El NBT propio de un item (antes com.leon.saintsdragons.util.compat.Compat.getTag(stack)); null si no tiene. Es una copia: guardar con setTag. */
+    public static CompoundTag getTag(net.minecraft.world.item.ItemStack stack) {
+        net.minecraft.world.item.component.CustomData d = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+        return d == null ? null : d.copyTag();
+    }
+
+    public static CompoundTag getOrCreateTag(net.minecraft.world.item.ItemStack stack) {
+        CompoundTag t = getTag(stack);
+        return t == null ? new CompoundTag() : t;
+    }
+
+    public static boolean hasTag(net.minecraft.world.item.ItemStack stack) {
+        return stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+    }
+
+    public static void setTag(net.minecraft.world.item.ItemStack stack, CompoundTag tag) {
+        if (tag == null || tag.isEmpty()) {
+            stack.remove(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+        } else {
+            stack.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag));
+        }
+    }
+
+    public static String componentToJson(net.minecraft.network.chat.Component c) {
+        return net.minecraft.network.chat.ComponentSerialization.CODEC.encodeStart(registries().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE), c)
+                .result().map(Object::toString).orElse("\"\"");
+    }
+
+    public static net.minecraft.network.chat.Component componentFromJson(String json) {
+        try {
+            return net.minecraft.network.chat.ComponentSerialization.CODEC.parse(registries().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),
+                    com.google.gson.JsonParser.parseString(json)).result().orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** Guardar / cargar una entidad en NBT (el juego ahora usa ValueOutput / ValueInput). */
+    public static CompoundTag saveEntity(net.minecraft.world.entity.Entity e, CompoundTag into) {
+        net.minecraft.world.level.storage.TagValueOutput out = net.minecraft.world.level.storage.TagValueOutput.createWithContext(
+                net.minecraft.util.ProblemReporter.DISCARDING, e.registryAccess());
+        e.saveWithoutId(out);
+        into.merge(out.buildResult());
+        return into;
+    }
+
+    public static boolean saveEntityAsPassenger(net.minecraft.world.entity.Entity e, CompoundTag into) {
+        net.minecraft.world.level.storage.TagValueOutput out = net.minecraft.world.level.storage.TagValueOutput.createWithContext(
+                net.minecraft.util.ProblemReporter.DISCARDING, e.registryAccess());
+        boolean ok = e.save(out);
+        into.merge(out.buildResult());
+        return ok;
+    }
+
+    public static void loadEntity(net.minecraft.world.entity.Entity e, CompoundTag tag) {
+        e.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING, e.registryAccess(), tag));
+    }
+
     public static boolean hasUUID(CompoundTag t, String key) {
         return t.read(key, UUIDUtil.CODEC).isPresent();
     }

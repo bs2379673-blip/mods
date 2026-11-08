@@ -637,18 +637,18 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
     }
 
     @Override
-    protected void defineRideableDragonData() {
-        this.entityData.define(DATA_LANDED, false);
-        this.entityData.define(DATA_DODGING, false);
-        this.entityData.define(DATA_DASHING, false);
-        this.entityData.define(DATA_RIDER_NUDGE_TICKS, 0);
-        this.entityData.define(DATA_RIDER_NUDGE_X, 0.0F);
-        this.entityData.define(DATA_RIDER_NUDGE_Z, 0.0F);
-        this.entityData.define(DATA_RIDER_NUDGE_DRAG, 1.0F);
-        this.entityData.define(DATA_RIDER_NUDGE_STEER_OFFSET, 0.0F);
-        this.entityData.define(DATA_LAST_DASH_RIGHT, false);
-        this.entityData.define(DATA_GROUND_RENDING, false);
-        this.entityData.define(DATA_GROUND_REND_START, -1L);
+    protected void defineRideableDragonData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        builder.define(DATA_LANDED, false);
+        builder.define(DATA_DODGING, false);
+        builder.define(DATA_DASHING, false);
+        builder.define(DATA_RIDER_NUDGE_TICKS, 0);
+        builder.define(DATA_RIDER_NUDGE_X, 0.0F);
+        builder.define(DATA_RIDER_NUDGE_Z, 0.0F);
+        builder.define(DATA_RIDER_NUDGE_DRAG, 1.0F);
+        builder.define(DATA_RIDER_NUDGE_STEER_OFFSET, 0.0F);
+        builder.define(DATA_LAST_DASH_RIGHT, false);
+        builder.define(DATA_GROUND_RENDING, false);
+        builder.define(DATA_GROUND_REND_START, -1L);
     }
 
     @Override

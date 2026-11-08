@@ -23,7 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.item.SpawnEggItem;
-import net.minecraft.world.item.Tier;
+import com.leon.saintsdragons.util.compat.items.Tier;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.sounds.SoundEvent;
@@ -169,32 +169,6 @@ public final class FabricPlatformHelper implements PlatformHelper {
                                            float criticalDamageBonus,
                                            Properties properties) {
             super(tier, attackDamageModifier, attackSpeedModifier, entityReach, criticalDamageBonus, properties);
-        }
-
-        @Override
-        public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
-            Multimap<Attribute, AttributeModifier> modifiers = super.getDefaultAttributeModifiers(slot);
-            if (slot != EquipmentSlot.MAINHAND) {
-                return modifiers;
-            }
-
-            ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
-            builder.putAll(modifiers);
-            builder.put(
-                    ReachEntityAttributes.REACH,
-                    new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(TARGETING_REACH_MODIFIER_UUID),
-                            this.getTargetingReachBonus() + REACH_ALIGNMENT,
-                            AttributeModifier.Operation.ADD_VALUE
-                    )
-            );
-            builder.put(
-                    ReachEntityAttributes.ATTACK_RANGE,
-                    new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(ENTITY_REACH_MODIFIER_UUID),
-                            this.getEntityReachBonus() + REACH_ALIGNMENT,
-                            AttributeModifier.Operation.ADD_VALUE
-                    )
-            );
-            return builder.build();
         }
     }
 

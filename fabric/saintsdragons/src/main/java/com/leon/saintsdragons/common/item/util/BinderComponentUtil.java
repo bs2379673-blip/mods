@@ -24,7 +24,7 @@ public final class BinderComponentUtil {
         if (!isBinderStack(stack) || !isBound(stack)) {
             return null;
         }
-        var tag = stack.getTag();
+        var tag = com.leon.saintsdragons.util.compat.Compat.getTag(stack);
         if (tag == null || !com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, BOUND_DRAGON_UUID)) {
             return null;
         }
@@ -35,7 +35,7 @@ public final class BinderComponentUtil {
         if (!isBinderStack(stack) || !isBound(stack)) {
             return null;
         }
-        var tag = stack.getTag();
+        var tag = com.leon.saintsdragons.util.compat.Compat.getTag(stack);
         if (tag == null || !tag.contains(BOUND_DRAGON_NAME)) {
             return null;
         }
@@ -46,7 +46,7 @@ public final class BinderComponentUtil {
         if (!isBinderStack(stack)) {
             return false;
         }
-        var tag = stack.getTag();
+        var tag = com.leon.saintsdragons.util.compat.Compat.getTag(stack);
         return tag != null && tag.getBoolean(IS_BOUND);
     }
 
@@ -94,10 +94,10 @@ public final class BinderComponentUtil {
     }
 
     public static UUID getBoundOwnerUuid(ItemStack stack) {
-        if (!isBinderStack(stack) || !stack.hasTag()) {
+        if (!isBinderStack(stack) || !com.leon.saintsdragons.util.compat.Compat.hasTag(stack)) {
             return null;
         }
-        var tag = stack.getTag();
+        var tag = com.leon.saintsdragons.util.compat.Compat.getTag(stack);
         if (tag == null || !com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, BOUND_OWNER_UUID)) {
             return null;
         }

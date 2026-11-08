@@ -157,11 +157,11 @@ public class Stegonaut extends RideableGroundDragon implements PackMember<Stegon
     }
 
     @Override
-    protected void defineRideableDragonData() {
-        this.entityData.define(DATA_HAS_CHEST, false);
-        this.entityData.define(DATA_SADDLED, false);
-        this.entityData.define(DATA_FEEDING_COOLDOWN, 0);
-        this.entityData.define(DATA_SCREEN_SHAKE_AMOUNT, 0.0F);
+    protected void defineRideableDragonData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        builder.define(DATA_HAS_CHEST, false);
+        builder.define(DATA_SADDLED, false);
+        builder.define(DATA_FEEDING_COOLDOWN, 0);
+        builder.define(DATA_SCREEN_SHAKE_AMOUNT, 0.0F);
     }
     @Override
     public Map<String, VocalEntry> getVocalEntries() {

@@ -251,7 +251,7 @@ public class StegonautAmethystPillarEntity extends Entity implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 1, this::animationPredicate));
+        controllers.add(new AnimationController<>("controller", 1, this::animationPredicate));
     }
 
     private <E extends GeoEntity> PlayState animationPredicate(AnimationTest<E> state) {

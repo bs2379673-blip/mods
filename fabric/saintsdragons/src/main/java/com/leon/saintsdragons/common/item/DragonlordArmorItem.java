@@ -12,8 +12,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.equipment.ArmorMaterial;
+import com.leon.saintsdragons.util.compat.items.ArmorItem;
+import com.leon.saintsdragons.util.compat.items.LegacyArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -56,47 +56,9 @@ public class DragonlordArmorItem extends ArmorItem implements GeoItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private final Supplier<Object> renderProvider = this::createFabricRenderProvider;
 
-    public DragonlordArmorItem(ArmorMaterial material, Type type, Properties properties) {
+    public DragonlordArmorItem(LegacyArmorMaterial material, Type type, Properties properties) {
         super(material, type, properties);
         GeoItem.registerSyncedAnimatable(this);
-    }
-
-    @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
-        Multimap<Attribute, AttributeModifier> modifiers = super.getDefaultAttributeModifiers(slot);
-        if (slot != this.getType().getSlot()) {
-            return modifiers;
-        }
-
-        ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
-        builder.putAll(ConfiguredItemAttributes.armor(
-                modifiers,
-                configuredDefense(),
-                ToolsArmorConfig.DRAGONLORD_TOUGHNESS.get(),
-                configuredKnockbackResistance()
-        ));
-        builder.put(
-                Attributes.MAX_HEALTH,
-                new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(maxHealthUuid()),
-                        maxHealthMultiplier(),
-                        AttributeModifier.Operation.ADD_MULTIPLIED_BASE
-                )
-        );
-        builder.put(
-                ModAttributes.FIRE_RESISTANCE.get(),
-                new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(fireResistanceUuid()),
-                        ToolsArmorConfig.DRAGONLORD_FIRE_RESISTANCE.get(),
-                        AttributeModifier.Operation.ADD_VALUE
-                )
-        );
-        builder.put(
-                ModAttributes.BLAST_RESISTANCE.get(),
-                new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(blastResistanceUuid()),
-                        ToolsArmorConfig.DRAGONLORD_BLAST_RESISTANCE.get(),
-                        AttributeModifier.Operation.ADD_VALUE
-                )
-        );
-        return builder.build();
     }
 
     private double configuredKnockbackResistance() {
@@ -192,7 +154,7 @@ public class DragonlordArmorItem extends ArmorItem implements GeoItem {
                 FLIGHT_CONTROLLER,
                 3,
                 state -> {
-                    Entity wearer = state.getData(DataTickets.ENTITY);
+                    Entity wearer = state.getData(com.leon.saintsdragons.util.compat.SDTickets.ENTITY);
                     if (!(wearer instanceof LivingEntity living)
                             || !living.isFallFlying()
                             || !DragonlordArmorSetBonus.isWearingFullSet(living)) {

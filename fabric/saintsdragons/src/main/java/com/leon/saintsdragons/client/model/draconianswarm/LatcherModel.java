@@ -7,7 +7,7 @@ import net.minecraft.util.Mth;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.animation.state.AnimationTest;
 import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.model.data.EntityModelData;
+import com.leon.saintsdragons.util.compat.EntityModelData;
 
 public class LatcherModel extends GeoModel<Latcher> {
     private static final Identifier MODEL =
@@ -45,7 +45,7 @@ public class LatcherModel extends GeoModel<Latcher> {
         float speed = Mth.clamp((float) entity.getDeltaMovement().length(), 0.0F, 0.7F);
         float dragYaw = Mth.clamp(entity.getTailDragYawRadians(partialTick), -0.95F, 0.95F);
         float swayYaw = Mth.sin((entity.tickCount + partialTick) * 0.18F) * speed * 0.12F;
-        EntityModelData modelData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
+        EntityModelData modelData = animationState.getData(com.leon.saintsdragons.util.compat.SDTickets.ENTITY_MODEL_DATA);
 
         applyFlightPitch(pitchRad);
         applyLook(modelData);

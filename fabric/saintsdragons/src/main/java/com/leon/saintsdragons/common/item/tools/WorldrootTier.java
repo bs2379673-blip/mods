@@ -2,7 +2,7 @@ package com.leon.saintsdragons.common.item.tools;
 
 import com.leon.saintsdragons.common.registry.ModItems;
 import java.util.function.Supplier;
-import net.minecraft.world.item.Tier;
+import com.leon.saintsdragons.util.compat.items.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
