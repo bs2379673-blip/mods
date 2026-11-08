@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "saintsdragons",
+  "version": "${version}",
+  "name": "Saint's Dragons",
+  "description": "Animated dragons by Leon Saint. Unofficial port to Fabric 1.21.11 for personal use (code MIT; art and sound All Rights Reserved by Leon Saint, unmodified).",
+  "authors": ["Leon Saint"],
+  "contributors": ["Port 1.21.11: Starlevi (uso personal)"],
+  "license": "MIT (code) / All Rights Reserved (assets)",
+  "icon": "assets/saintsdragons/saintsdragons.png",
+  "contact": {
+    "homepage": "https://raevyx.miraheze.org/wiki/Main_Page",
+    "sources": "https://github.com/LilRicefield/saints-dragons"
+  },
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.leon.saintsdragons.fabric.SaintsDragonsFabric"],
+    "client": ["com.leon.saintsdragons.fabric.SaintsDragonsFabricClient"]
+  },
+  "mixins": ["saintsdragons.mixins.json", "saintsdragons-hooks.mixins.json"],
+  "accessWidener": "saintsdragons.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.17",
+    "minecraft": "~1.21.11",
+    "fabric-api": "*",
+    "geckolib": ">=5.4"
+  }
+}

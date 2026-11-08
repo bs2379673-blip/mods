@@ -2,7 +2,6 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.leon.saintsdragons.fabric.mixin.fabric",
-  "refmap": "saintsdragons-fabric-fabric-refmap.json",
   "compatibilityLevel": "JAVA_21",
   "client": [
     "AirDismountInputMixin",
@@ -14,7 +13,6 @@
     "InventoryScreenMixin",
     "EntityRendererMixin",
     "EntityTurnMixin",
-    "ParticleEngineMixin",
     "GuiMixin",
     "DragonPartAttackMixin",
     "DragonPartInteractionMixin"
@@ -26,9 +24,7 @@
     "PathfinderMobMixin",
     "PlayerMixin",
     "RedStoneWireBlockMixin",
-    "StructureTemplateEntityMixin",
-    "ItemPropertiesMixin",
-    "BlockPropertiesMixin"
+    "StructureTemplateEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

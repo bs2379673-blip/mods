@@ -136,16 +136,17 @@ public class CindervaneFireballRenderer extends com.leon.saintsdragons.client.co
         poses.translate(0.0, -0.25, 0.0);
     }
 
+    // port 1.21.11: la textura del fuego corre de a cuadros y se dibuja con luz plena
     @Override
-    public void actuallyRender(PoseStack poses, CindervaneFireballEntity entity, BakedGeoModel model,
-                               RenderType renderType, MultiBufferSource buffers, VertexConsumer buffer,
-                               boolean isReRender, float partialTick, int packedLight, int packedOverlay,
-                               float red, float green, float blue, float alpha) {
+    protected VertexConsumer wrapBuffer(CindervaneFireballEntity entity, VertexConsumer buffer, float partialTick) {
         float age = entity.tickCount + partialTick;
         int frame = (int) (age / FRAME_TICKS) % FRAME_COUNT;
         float offset = frame / (float) FRAME_COUNT;
-        super.actuallyRender(poses, entity, model, renderType, buffers,
-                new ScrollingFireballVertexConsumer(buffer, offset), isReRender, partialTick,
-                LightTexture.FULL_BRIGHT, packedOverlay, red, green, blue, alpha);
+        return new ScrollingFireballVertexConsumer(buffer, offset);
+    }
+
+    @Override
+    protected int modelLight(CindervaneFireballEntity entity, int packedLight) {
+        return LightTexture.FULL_BRIGHT;
     }
 }

@@ -356,34 +356,8 @@ public class RaevyxLightningBeamLayer extends com.leon.saintsdragons.client.comp
         ));
         return hit.getType() != HitResult.Type.MISS ? hit.getLocation() : tentativeEnd;
     }
-
-
     private static Vec3 getBoneWorldPositionInterpolated(BakedGeoModel model, String boneName, Raevyx entity, float partialTick) {
-        if (model == null || boneName == null || entity == null) return null;
-        var boneOpt = model.getBone(boneName);
-        if (boneOpt.isEmpty()) return null;
-        var bone = boneOpt.get();
-        Matrix4f worldMat = new Matrix4f(bone.getWorldSpaceMatrix());
-
-        Vector4f pivotWorld = new Vector4f(0f, 0f, 0f, 1f);
-        worldMat.transform(pivotWorld);
-
-        double entityX = entity.getX();
-        double entityY = entity.getY();
-        double entityZ = entity.getZ();
-
-        double entityOldX = entity.xo;
-        double entityOldY = entity.yo;
-        double entityOldZ = entity.zo;
-
-        double interpX = Mth.lerp(partialTick, entityOldX, entityX);
-        double interpY = Mth.lerp(partialTick, entityOldY, entityY);
-        double interpZ = Mth.lerp(partialTick, entityOldZ, entityZ);
-
-        double correctedX = pivotWorld.x() - entityX + interpX;
-        double correctedY = pivotWorld.y() - entityY + interpY;
-        double correctedZ = pivotWorld.z() - entityZ + interpZ;
-
-        return new Vec3(correctedX, correctedY, correctedZ);
+        // port 1.21.11: la posicion del hueso sale del cuadro que se esta dibujando
+        return com.leon.saintsdragons.client.compat.geo.LegacyGeoRenderLayer.boneWorldPosition(boneName);
     }
 }

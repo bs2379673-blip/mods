@@ -41,11 +41,42 @@ public abstract class LegacyGeoRenderLayer<T extends Entity & GeoAnimatable> ext
         Float pt = info.renderState().getGeckolibData(DataTickets.PARTIAL_TICK);
         DeferredBufferSource buffers = new DeferredBufferSource();
         LegacyGeoEntityRenderer.pushLayer(info, collector);
+        RenderPassInfo<?> prevInfo = CURRENT.get();
+        CURRENT.set(info);
         try {
             render(info.poseStack(), e, info.model(), null, buffers, null, pt == null ? 1 : pt, info.packedLight(), info.packedOverlay());
         } finally {
             LegacyGeoEntityRenderer.popLayer();
+            CURRENT.set(prevInfo);
         }
         buffers.submit(collector);
+    }
+
+    private static final ThreadLocal<RenderPassInfo<?>> CURRENT = new ThreadLocal<>();
+
+    /**
+     * Port 1.21.11: donde esta un hueso en el mundo en este cuadro (en GeckoLib 4 se leia de la matriz del hueso).
+     * Solo sirve dentro de render(...) de una capa.
+     */
+    public static net.minecraft.world.phys.Vec3 boneWorldPosition(String boneName) {
+        RenderPassInfo<?> info = CURRENT.get();
+        if (info == null || boneName == null) {
+            return null;
+        }
+        var bone = info.model().getBone(boneName);
+        if (bone.isEmpty()) {
+            return null;
+        }
+        net.minecraft.world.phys.Vec3[] out = new net.minecraft.world.phys.Vec3[1];
+        info.renderPosed(() -> {
+            PoseStack ps = new PoseStack();
+            ps.last().set(info.getModelRenderMatrixPose());
+            software.bernie.geckolib.util.RenderUtil.transformToBone(ps, bone.get());
+            org.joml.Matrix4f m = ps.last().pose();
+            net.minecraft.world.phys.Vec3 cam = info.cameraState() == null || info.cameraState().pos == null
+                    ? net.minecraft.world.phys.Vec3.ZERO : info.cameraState().pos;
+            out[0] = new net.minecraft.world.phys.Vec3(cam.x + m.m30(), cam.y + m.m31(), cam.z + m.m32());
+        });
+        return out[0];
     }
 }

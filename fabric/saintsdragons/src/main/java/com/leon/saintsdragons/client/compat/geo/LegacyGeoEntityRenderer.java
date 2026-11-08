@@ -94,7 +94,47 @@ public class LegacyGeoEntityRenderer<T extends Entity & GeoAnimatable> extends G
     }
 
     public RenderType getRenderType(T animatable, Identifier texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+        if (getGeoModel() instanceof LegacyGeoModel<T> legacy) {
+            RenderType t = legacy.getRenderType(animatable, texture);
+            if (t != null) {
+                return t;
+            }
+        }
         return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutNoCull(texture);
+    }
+
+    // ------------------------------------------------------------ cambiar los vertices (lo que hacia actuallyRender)
+
+    /** Envolver lo que se dibuja (por ejemplo, para correr la textura); null = sin cambios. */
+    protected com.mojang.blaze3d.vertex.VertexConsumer wrapBuffer(T entity, com.mojang.blaze3d.vertex.VertexConsumer buffer, float partialTick) {
+        return null;
+    }
+
+    /** La luz con que se dibuja el modelo (por ejemplo, siempre al maximo). */
+    protected int modelLight(T entity, int packedLight) {
+        return packedLight;
+    }
+
+    @Override
+    public void submitRenderTasks(RenderPassInfo<SDRenderState> info, net.minecraft.client.renderer.OrderedSubmitNodeCollector collector, RenderType type) {
+        T e = entityOf(info.renderState());
+        float partial = partialOf(info.renderState());
+        if (e == null || (wrapBuffer(e, null, partial) == null && modelLight(e, info.packedLight()) == info.packedLight())) {
+            super.submitRenderTasks(info, collector, type);
+            return;
+        }
+        int light = modelLight(e, info.packedLight());
+        int overlay = info.packedOverlay();
+        int color = info.renderColor();
+        collector.submitCustomGeometry(info.poseStack(), type, (pose, vc) -> {
+            com.mojang.blaze3d.vertex.VertexConsumer w = wrapBuffer(e, vc, partial);
+            com.mojang.blaze3d.vertex.VertexConsumer out = w == null ? vc : w;
+            PoseStack ps = info.poseStack();
+            ps.pushPose();
+            ps.last().set(pose);
+            info.renderPosed(() -> info.model().render(info, out, light, overlay, color));
+            ps.popPose();
+        });
     }
 
     @Override
@@ -142,6 +182,7 @@ public class LegacyGeoEntityRenderer<T extends Entity & GeoAnimatable> extends G
     public void adjustModelBonesForRender(RenderPassInfo<SDRenderState> renderPassInfo, BoneSnapshots snapshots) {
         super.adjustModelBonesForRender(renderPassInfo, snapshots);
         LegacyGeoModel.runCustomAnimations(getGeoModel(), renderPassInfo, snapshots);
+        hideBlockBones(renderPassInfo, snapshots);
     }
 
     /** Huesos de los que se quiere saber donde quedaron al dibujar (ver {@link #onBonePose}). */
@@ -156,6 +197,9 @@ public class LegacyGeoEntityRenderer<T extends Entity & GeoAnimatable> extends G
     @Override
     public void preRenderPass(RenderPassInfo<SDRenderState> renderPassInfo, SubmitNodeCollector renderTasks) {
         super.preRenderPass(renderPassInfo, renderTasks);
+        if (renderPassInfo.willRender()) {
+            addBlockBones(renderPassInfo);
+        }
         T e = entityOf(renderPassInfo.renderState());
         if (e == null || !renderPassInfo.willRender()) {
             return;
@@ -231,5 +275,108 @@ public class LegacyGeoEntityRenderer<T extends Entity & GeoAnimatable> extends G
     /** Si se dibuja el modelo de GeckoLib (algunos efectos solo dibujan lo suyo). */
     protected boolean shouldDrawModel(SDRenderState renderState) {
         return true;
+    }
+
+    // ------------------------------------------------------------ cubos dibujados como bloques
+
+    /** Huesos cuyos cubos se dibujan como un bloque (en GeckoLib 4: renderCube con renderSingleBlock). */
+    protected boolean isBlockBone(T entity, software.bernie.geckolib.cache.model.GeoBone bone) {
+        return false;
+    }
+
+    /** El bloque que se dibuja en esos cubos (null = ninguno). */
+    protected net.minecraft.world.level.block.state.BlockState blockFor(T entity) {
+        return null;
+    }
+
+    /** Tamano de cada bloque (1 = entero), alrededor de su centro. */
+    protected float blockScale(T entity, float partialTick) {
+        return 1;
+    }
+
+    private boolean blockBoneOrParent(T e, software.bernie.geckolib.cache.model.GeoBone bone) {
+        for (software.bernie.geckolib.cache.model.GeoBone b = bone; b != null; b = b.parent()) {
+            if (isBlockBone(e, b)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void forEachBone(software.bernie.geckolib.cache.model.GeoBone[] bones, java.util.function.Consumer<software.bernie.geckolib.cache.model.GeoBone> c) {
+        for (software.bernie.geckolib.cache.model.GeoBone b : bones) {
+            c.accept(b);
+            forEachBone(b.children(), c);
+        }
+    }
+
+    void addBlockBones(RenderPassInfo<SDRenderState> info) {
+        T e = entityOf(info.renderState());
+        if (e == null) {
+            return;
+        }
+        net.minecraft.world.level.block.state.BlockState block = blockFor(e);
+        if (block == null || block.isAir()) {
+            return;
+        }
+        float scale = blockScale(e, partialOf(info.renderState()));
+        int light = info.packedLight();
+        forEachBone(info.model().topLevelBones(), bone -> {
+            if (bone instanceof software.bernie.geckolib.cache.model.cuboid.CuboidGeoBone cb && cb.cubes.length > 0 && blockBoneOrParent(e, bone)) {
+                info.addPerBoneRender(bone, (pass, b, tasks) -> {
+                    PoseStack ps = pass.poseStack();
+                    for (software.bernie.geckolib.cache.model.cuboid.GeoCube cube : cb.cubes) {
+                        double[] c = cubeCenter(cube);
+                        ps.pushPose();
+                        ps.translate(c[0] - 0.5D, c[1] - 0.5D, c[2] - 0.5D);
+                        if (scale < 0.999F) {
+                            float sc = Math.max(scale, 0.001F);
+                            ps.translate(0.5D, 0.5D, 0.5D);
+                            ps.scale(sc, sc, sc);
+                            ps.translate(-0.5D, -0.5D, -0.5D);
+                        }
+                        tasks.submitBlock(ps, block, light, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, 0);
+                        ps.popPose();
+                    }
+                });
+            }
+        });
+    }
+
+    void hideBlockBones(RenderPassInfo<SDRenderState> info, BoneSnapshots snapshots) {
+        T e = entityOf(info.renderState());
+        if (e == null || blockFor(e) == null) {
+            return;
+        }
+        forEachBone(info.model().topLevelBones(), bone -> {
+            if (blockBoneOrParent(e, bone)) {
+                snapshots.get(bone.name()).ifPresent(sn -> sn.skipRender(true));
+            }
+        });
+    }
+
+    private static double[] cubeCenter(software.bernie.geckolib.cache.model.cuboid.GeoCube cube) {
+        double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY, minZ = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY, maxZ = Double.NEGATIVE_INFINITY;
+        for (software.bernie.geckolib.cache.model.GeoQuad quad : cube.quads()) {
+            if (quad == null) {
+                continue;
+            }
+            for (software.bernie.geckolib.cache.model.GeoVertex v : quad.vertices()) {
+                if (v == null) {
+                    continue;
+                }
+                minX = Math.min(minX, v.posX());
+                minY = Math.min(minY, v.posY());
+                minZ = Math.min(minZ, v.posZ());
+                maxX = Math.max(maxX, v.posX());
+                maxY = Math.max(maxY, v.posY());
+                maxZ = Math.max(maxZ, v.posZ());
+            }
+        }
+        if (!Double.isFinite(minX)) {
+            return new double[]{0, 0, 0};
+        }
+        return new double[]{(minX + maxX) * 0.5D, (minY + maxY) * 0.5D, (minZ + maxZ) * 0.5D};
     }
 }

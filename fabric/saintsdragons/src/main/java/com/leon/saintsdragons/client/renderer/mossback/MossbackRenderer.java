@@ -20,6 +20,6 @@ public class MossbackRenderer extends com.leon.saintsdragons.client.compat.geo.L
 
     @Override
     public @NotNull Identifier getTextureLocation(@NotNull Mossback entity) {
-        return getGeoModel().getLegacyTextureResource(entity);
+        return ((com.leon.saintsdragons.client.compat.geo.LegacyGeoModel<Mossback>) getGeoModel()).getLegacyTextureResource(entity);
     }
 }

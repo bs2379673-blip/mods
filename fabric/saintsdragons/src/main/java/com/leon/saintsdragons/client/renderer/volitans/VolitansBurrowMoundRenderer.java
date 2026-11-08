@@ -29,8 +29,6 @@ import java.util.Deque;
 public class VolitansBurrowMoundRenderer extends com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<VolitansBurrowMoundEntity> {
     private static final Identifier TEXTURE = SaintsDragonsCommon.rl("textures/objects/volitans/burrow_mound.png");
     private static final float MODEL_FORWARD_YAW_OFFSET = 0.0F;
-    private final Deque<Boolean> blockMaterialStack = new ArrayDeque<>();
-    private MultiBufferSource currentBufferSource;
 
     public VolitansBurrowMoundRenderer(EntityRendererProvider.Context context) {
         super(context, new VolitansBurrowMoundModel());
@@ -54,111 +52,9 @@ public class VolitansBurrowMoundRenderer extends com.leon.saintsdragons.client.c
         poseStack.popPose();
     }
 
-    @Override
-    public void renderRecursively(PoseStack poseStack, VolitansBurrowMoundEntity animatable, GeoBone bone,
-                                  RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer,
-                                  boolean isReRender, float partialTick, int packedLight, int packedOverlay,
-                                  float red, float green, float blue, float alpha) {
-        boolean inheritedBlockMaterial = !blockMaterialStack.isEmpty() && blockMaterialStack.peek();
-        boolean blockMaterial = inheritedBlockMaterial || usesBlockMaterial(bone);
-        blockMaterialStack.push(blockMaterial);
-
-        if (blockMaterial) {
-            float opacity = animatable.getOpacity(partialTick);
-            if (opacity <= 0.001F) {
-                blockMaterialStack.pop();
-                return;
-            }
-            poseStack.pushPose();
-            RenderUtil.prepMatrixForBone(poseStack, bone);
-            this.currentBufferSource = bufferSource;
-            renderCubesOfBone(poseStack, bone, buffer, packedLight, OverlayTexture.NO_OVERLAY, red, green, blue, opacity);
-            renderChildBones(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender,
-                    partialTick, packedLight, packedOverlay, red, green, blue, opacity);
-            poseStack.popPose();
-        } else {
-            float fadedAlpha = alpha * animatable.getOpacity(partialTick);
-            super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender,
-                    partialTick, packedLight, packedOverlay, red, green, blue, fadedAlpha);
-        }
-
-        blockMaterialStack.pop();
-    }
-
-    @Override
-    public void renderCube(PoseStack poseStack, GeoCube cube, VertexConsumer buffer, int packedLight,
-                           int packedOverlay, float red, float green, float blue, float alpha) {
-        if (blockMaterialStack.isEmpty() || !blockMaterialStack.peek()) {
-            super.renderCube(poseStack, cube, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-            return;
-        }
-
-        VolitansBurrowMoundEntity entity = getAnimatable();
-        if (entity == null) {
-            return;
-        }
-
-        BlockState state = entity.getBlockState();
-        if (state.isAir()) {
-            return;
-        }
-
-        poseStack.pushPose();
-        BlockCenter center = getCubeCenter(cube);
-        poseStack.translate(center.x() - 0.5D, center.y() - 0.5D, center.z() - 0.5D);
-        if (alpha < 0.999F) {
-            double centerOffset = 0.5D;
-            float scale = Math.max(alpha, 0.001F);
-            poseStack.translate(centerOffset, centerOffset, centerOffset);
-            poseStack.scale(scale, scale, scale);
-            poseStack.translate(-centerOffset, -centerOffset, -centerOffset);
-        }
-        BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
-        blockRenderer.renderSingleBlock(state, poseStack, currentBufferSource, packedLight, OverlayTexture.NO_OVERLAY);
-        poseStack.popPose();
-    }
-
     private static boolean usesBlockMaterial(GeoBone bone) {
         String name = bone.name();
         return "pillars".equals(name) || "formations".equals(name);
-    }
-
-    private static BlockCenter getCubeCenter(GeoCube cube) {
-        double minX = Double.POSITIVE_INFINITY;
-        double minY = Double.POSITIVE_INFINITY;
-        double minZ = Double.POSITIVE_INFINITY;
-        double maxX = Double.NEGATIVE_INFINITY;
-        double maxY = Double.NEGATIVE_INFINITY;
-        double maxZ = Double.NEGATIVE_INFINITY;
-
-        for (GeoQuad quad : cube.quads()) {
-            if (quad == null) {
-                continue;
-            }
-            for (GeoVertex vertex : quad.vertices()) {
-                if (vertex == null) {
-                    continue;
-                }
-                minX = Math.min(minX, vertex.position().x());
-                minY = Math.min(minY, vertex.position().y());
-                minZ = Math.min(minZ, vertex.position().z());
-                maxX = Math.max(maxX, vertex.position().x());
-                maxY = Math.max(maxY, vertex.position().y());
-                maxZ = Math.max(maxZ, vertex.position().z());
-            }
-        }
-
-        if (!Double.isFinite(minX)) {
-            return new BlockCenter(0.0D, 0.0D, 0.0D);
-        }
-        return new BlockCenter(
-                (minX + maxX) * 0.5D,
-                (minY + maxY) * 0.5D,
-                (minZ + maxZ) * 0.5D
-        );
-    }
-
-    private record BlockCenter(double x, double y, double z) {
     }
 
     @Override
@@ -170,5 +66,21 @@ public class VolitansBurrowMoundRenderer extends com.leon.saintsdragons.client.c
     public RenderType getRenderType(VolitansBurrowMoundEntity animatable, Identifier texture,
                                     @Nullable MultiBufferSource bufferSource, float partialTick) {
         return net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture);
+    }
+
+    // port 1.21.11: los pilares y formaciones se dibujan como el bloque del suelo, achicandose al desaparecer
+    @Override
+    protected boolean isBlockBone(VolitansBurrowMoundEntity entity, GeoBone bone) {
+        return usesBlockMaterial(bone);
+    }
+
+    @Override
+    protected BlockState blockFor(VolitansBurrowMoundEntity entity) {
+        return entity.getBlockState();
+    }
+
+    @Override
+    protected float blockScale(VolitansBurrowMoundEntity entity, float partialTick) {
+        return entity.getOpacity(partialTick);
     }
 }

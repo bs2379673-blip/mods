@@ -67,16 +67,17 @@ public class IgnivorusFireballRenderer extends com.leon.saintsdragons.client.com
         }
     }
 
+    // port 1.21.11: la textura del fuego corre de a cuadros y se dibuja con luz plena
     @Override
-    public void actuallyRender(PoseStack poses, IgnivorusFireballEntity entity, BakedGeoModel model,
-                               RenderType renderType, MultiBufferSource buffers, VertexConsumer buffer,
-                               boolean isReRender, float partialTick, int packedLight, int packedOverlay,
-                               float red, float green, float blue, float alpha) {
+    protected VertexConsumer wrapBuffer(IgnivorusFireballEntity entity, VertexConsumer buffer, float partialTick) {
         float age = entity.getVisualAge(partialTick);
         int frame = (int) (age / FRAME_TICKS) % FRAME_COUNT;
         float offset = frame / (float) FRAME_COUNT;
-        super.actuallyRender(poses, entity, model, renderType, buffers,
-                new ScrollingFireballVertexConsumer(buffer, offset), isReRender, partialTick,
-                LightTexture.FULL_BRIGHT, packedOverlay, red, green, blue, alpha);
+        return new ScrollingFireballVertexConsumer(buffer, offset);
+    }
+
+    @Override
+    protected int modelLight(IgnivorusFireballEntity entity, int packedLight) {
+        return LightTexture.FULL_BRIGHT;
     }
 }

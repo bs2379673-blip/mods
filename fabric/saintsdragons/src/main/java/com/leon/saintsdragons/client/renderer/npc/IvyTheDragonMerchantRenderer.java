@@ -53,21 +53,15 @@ public class IvyTheDragonMerchantRenderer extends com.leon.saintsdragons.client.
     @Override
     public void render(@NotNull IvyTheDragonMerchant entity, float entityYaw, float partialTick,
                        @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
-        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
-        renderIdleChatter(entity, partialTick, poseStack, bufferSource, packedLight);
-    }
-
-    @Override
-    public void preRender(PoseStack poseStack, IvyTheDragonMerchant entity, BakedGeoModel model,
-                          MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender,
-                          float partialTick, int packedLight, int packedOverlay,
-                          float red, float green, float blue, float alpha) {
-        if (!isReRender && hasDragonSeat(entity)
-                && DragonRiderAttachments.transformRider(entity, partialTick, poseStack, getRenderOffset(entity, partialTick))) {
+        // port 1.21.11: lo que hacia preRender (sentarse en el asiento del dragon) va antes de dibujar
+        poseStack.pushPose();
+        if (hasDragonSeat(entity)
+                && DragonRiderAttachments.transformRider(entity, partialTick, poseStack, Vec3.ZERO)) {
             poseStack.translate(0, MOUNTED_MODEL_Y_OFFSET, 0);
         }
-        super.preRender(poseStack, entity, model, bufferSource, buffer, isReRender, partialTick,
-                packedLight, packedOverlay, red, green, blue, alpha);
+        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        poseStack.popPose();
+        renderIdleChatter(entity, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override
@@ -78,17 +72,6 @@ public class IvyTheDragonMerchantRenderer extends com.leon.saintsdragons.client.
             rotationYaw = Mth.rotLerp(partialTick, dragon.yBodyRotO, dragon.yBodyRot);
         }
         super.applyRotations(entity, poseStack, ageInTicks, rotationYaw, partialTick);
-    }
-
-    @Override
-    public void renderFinal(PoseStack poseStack, IvyTheDragonMerchant entity, BakedGeoModel model,
-                            MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick,
-                            int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        poseStack.pushPose();
-        translateSeatLabel(entity, partialTick, poseStack, entity.getNameTagOffsetY());
-        super.renderFinal(poseStack, entity, model, bufferSource, buffer, partialTick,
-                packedLight, packedOverlay, red, green, blue, alpha);
-        poseStack.popPose();
     }
 
     private static boolean hasDragonSeat(IvyTheDragonMerchant entity) {
@@ -106,7 +89,7 @@ public class IvyTheDragonMerchantRenderer extends com.leon.saintsdragons.client.
         }
         Vec3 delta = seat.worldPosition(dragon, partialTick, new Vec3(0, height + MOUNTED_MODEL_Y_OFFSET, 0))
                 .subtract(DragonRiderAttachments.interpolatedPosition(entity, partialTick))
-                .subtract(getRenderOffset(entity, partialTick));
+                ;
         poseStack.translate(delta.x, delta.y - height, delta.z);
     }
 
@@ -128,7 +111,7 @@ public class IvyTheDragonMerchantRenderer extends com.leon.saintsdragons.client.
         }
         playVoiceBlipForNewText(visibleChatter, state);
         Font font = Minecraft.getInstance().font;
-        float y = entity.getNameTagOffsetY() + CHATTER_Y_OFFSET;
+        float y = (entity.getBbHeight() + 0.5F) + CHATTER_Y_OFFSET;
         poseStack.pushPose();
         translateSeatLabel(entity, partialTick, poseStack, y);
         poseStack.translate(0.0F, y, 0.0F);

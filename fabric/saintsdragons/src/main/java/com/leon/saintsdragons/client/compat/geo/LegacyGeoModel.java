@@ -82,6 +82,11 @@ public abstract class LegacyGeoModel<T extends GeoAnimatable> extends GeoModel<T
         return this.defaultAnimation;
     }
 
+    /** El tipo de dibujo (como getRenderType de los modelos de GeckoLib 4); null = el del renderer. */
+    public net.minecraft.client.renderer.rendertype.RenderType getRenderType(T animatable, Identifier texture) {
+        return null;
+    }
+
     /** Mover huesos despues de la animacion (como en GeckoLib 4). */
     public void setCustomAnimations(T animatable, long instanceId, LegacyAnimState<T> state) {
     }

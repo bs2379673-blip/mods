@@ -7,7 +7,9 @@
     "DragonPartQueryMixin",
     "IgnivorusPartLifecycleMixin",
     "PlayerDefaultAttributesMixin",
-    "RangedAttributeAccessor"
+    "RangedAttributeAccessor",
+    "ItemPropertiesMixin",
+    "BlockPropertiesMixin"
   ],
   "client": [
     "ClientLevelEntityMapAccessor"
