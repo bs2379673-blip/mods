@@ -2,7 +2,6 @@ package com.leon.saintsdragons.common.item.tools;
 
 import com.google.common.collect.Multimap;
 import com.leon.saintsdragons.common.config.ToolsArmorConfig;
-import com.leon.saintsdragons.common.item.ConfiguredItemAttributes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -68,12 +67,11 @@ public class DragonheartSwordItem extends SwordItem {
     }
 
     @Override
-    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        boolean hurt = super.hurtEnemy(stack, target, attacker);
-        if (hurt && !isBloodTempest()) {
+    public void hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        super.hurtEnemy(stack, target, attacker);
+        if (!isBloodTempest()) {
             target.igniteForSeconds(DRAGONLORD_FIRE_ASPECT_SECONDS);
         }
-        return hurt;
     }
 
     @Override

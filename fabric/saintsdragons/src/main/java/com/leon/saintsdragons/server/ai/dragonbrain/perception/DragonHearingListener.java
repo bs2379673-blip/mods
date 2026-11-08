@@ -50,7 +50,7 @@ public final class DragonHearingListener implements GameEventListener {
 
     @Override
     public boolean handleGameEvent(ServerLevel level,
-                                   GameEvent event,
+                                   net.minecraft.core.Holder<GameEvent> event,
                                    GameEvent.Context eventContext,
                                    Vec3 eventPosition) {
         if (!dragon.isAlive() || dragon.isDying() || dragon.isRemoved()) {
@@ -221,11 +221,11 @@ public final class DragonHearingListener implements GameEventListener {
         return position.add(Math.cos(angle) * distance, vertical, Math.sin(angle) * distance);
     }
 
-    private static Stimulus stimulus(GameEvent event) {
+    private static Stimulus stimulus(net.minecraft.core.Holder<GameEvent> event) {
         if (event.is(GameEvent.EXPLODE) || event.is(GameEvent.LIGHTNING_STRIKE)) {
             return new Stimulus(DragonSensoryObservation.Kind.EXPLOSION, 1.0F, 1.5F, true);
         }
-        if (event.is(GameEvent.ENTITY_ROAR) || event.is(GameEvent.SHRIEK)) {
+        if (event.is(GameEvent.ENTITY_ACTION) || event.is(GameEvent.SHRIEK)) {
             return new Stimulus(DragonSensoryObservation.Kind.ROAR, 0.95F, 1.35F, true);
         }
         if (event.is(GameEvent.ENTITY_DAMAGE) || event.is(GameEvent.ENTITY_DIE)) {

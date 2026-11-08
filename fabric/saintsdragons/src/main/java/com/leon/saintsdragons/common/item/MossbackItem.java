@@ -25,7 +25,6 @@ import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.animation.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.lang.reflect.Proxy;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -34,7 +33,6 @@ public class MossbackItem extends Item implements GeoItem {
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.mossback.idle");
     private static final RawAnimation BABY_IDLE = RawAnimation.begin().thenLoop("baby_mossback.animation.idle");
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    private final Supplier<Object> renderProvider = this::createFabricRenderProvider;
 
     public MossbackItem(Properties properties) {
         super(properties);
@@ -72,7 +70,7 @@ public class MossbackItem extends Item implements GeoItem {
     }
 
     public static boolean isBaby(ItemStack stack) {
-        return stack != null && com.leon.saintsdragons.util.compat.Compat.hasTag(stack) && com.leon.saintsdragons.util.compat.Compat.getTag(stack).getBoolean(BABY_TAG);
+        return stack != null && com.leon.saintsdragons.util.compat.Compat.hasTag(stack) && com.leon.saintsdragons.util.compat.Compat.getTag(stack).getBooleanOr(BABY_TAG, false);
     }
 
     public static void setBaby(ItemStack stack, boolean baby) {
@@ -92,82 +90,6 @@ public class MossbackItem extends Item implements GeoItem {
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
     }
-
-    @Override
-    public void createRenderer(Consumer<Object> consumer) {
-        Object provider = createFabricRenderProvider();
-        if (provider != null) {
-            consumer.accept(provider);
-        }
-    }
-
-    @Override
-    public Supplier<Object> getRenderProvider() {
-        return renderProvider;
-    }
-
-    private Object createFabricRenderProvider() {
-        try {
-            Class<?> renderProviderClass = Class.forName("software.bernie.geckolib.animatable.client.RenderProvider");
-            return Proxy.newProxyInstance(
-                    MossbackItem.class.getClassLoader(),
-                    new Class<?>[]{renderProviderClass},
-                    (proxyInstance, method, args) -> {
-                        if ("getCustomRenderer".equals(method.getName())) {
-                            return MossbackForgeRendererHolder.renderer();
-                        }
-                        return null;
-                    });
-        } catch (ClassNotFoundException ignored) {
-            return null;
-        }
-    }
-
-    public void initializeClient(Consumer<Object> consumer) {
-        try {
-            Class<?> extensions = Class.forName("net.minecraftforge.client.extensions.common.IClientItemExtensions");
-            Object proxy = Proxy.newProxyInstance(
-                    MossbackItem.class.getClassLoader(),
-                    new Class<?>[]{extensions},
-                    (proxyInstance, method, args) -> {
-                        if ("getCustomRenderer".equals(method.getName())) {
-                            return MossbackForgeRendererHolder.renderer();
-                        }
-                        return defaultForgeExtensionValue(method.getReturnType());
-                    });
-            consumer.accept(proxy);
-        } catch (ClassNotFoundException ignored) {
-        }
-    }
-
-    private static Object defaultForgeExtensionValue(Class<?> returnType) {
-        if (returnType == Boolean.TYPE) {
-            return false;
-        }
-        if (returnType == Byte.TYPE) {
-            return (byte) 0;
-        }
-        if (returnType == Short.TYPE) {
-            return (short) 0;
-        }
-        if (returnType == Integer.TYPE) {
-            return 0;
-        }
-        if (returnType == Long.TYPE) {
-            return 0L;
-        }
-        if (returnType == Float.TYPE) {
-            return 0.0F;
-        }
-        if (returnType == Double.TYPE) {
-            return 0.0D;
-        }
-        if (returnType == Character.TYPE) {
-            return '\0';
-        }
-        return null;
-    }
-
     private static final class MossbackForgeRendererHolder {
         private static MossbackItemRenderer renderer;
 
@@ -177,5 +99,21 @@ public class MossbackItem extends Item implements GeoItem {
             }
             return renderer;
         }
+    }
+
+    // port 1.21.11 / GeckoLib 5: el renderer se pide aca (solo en el cliente)
+    @Override
+    public void createGeoRenderer(Consumer<software.bernie.geckolib.animatable.client.GeoRenderProvider> consumer) {
+        consumer.accept(new software.bernie.geckolib.animatable.client.GeoRenderProvider() {
+            private com.leon.saintsdragons.client.renderer.item.MossbackItemRenderer renderer;
+
+            @Override
+            public software.bernie.geckolib.renderer.GeoItemRenderer<?> getGeoItemRenderer() {
+                if (this.renderer == null) {
+                    this.renderer = new com.leon.saintsdragons.client.renderer.item.MossbackItemRenderer();
+                }
+                return this.renderer;
+            }
+        });
     }
 }

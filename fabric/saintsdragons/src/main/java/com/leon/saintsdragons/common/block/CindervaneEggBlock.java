@@ -31,6 +31,14 @@ import java.util.function.Supplier;
 
 
 public class CindervaneEggBlock extends AbstractTimedDragonEggBlock<CindervaneEggBlockEntity> {
+    // port 1.21.11
+    public static final com.mojang.serialization.MapCodec<CindervaneEggBlock> CODEC = simpleCodec(CindervaneEggBlock::new);
+
+    @Override
+    protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
     public static final int MAX_EGGS = 3;
     public static final IntegerProperty EGGS = IntegerProperty.create("eggs", 1, MAX_EGGS);
     private static final int DEFAULT_HATCH_TICKS = 12000; // 10 minutes

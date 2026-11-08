@@ -30,11 +30,11 @@ public record MessageDialogueOpen(int entityId, Identifier dialogueId, String no
         buffer.writeIdentifier(message.dialogueId);
         buffer.writeUtf(message.nodeId, 128);
         buffer.writeUtf(message.nodeType, 32);
-        buffer.writeComponent(message.speaker);
-        buffer.writeComponent(message.text);
+        com.leon.saintsdragons.util.compat.Compat.writeComponent(buffer, message.speaker);
+        com.leon.saintsdragons.util.compat.Compat.writeComponent(buffer, message.text);
         buffer.writeInt(message.choices.size());
         for (Choice choice : message.choices) {
-            buffer.writeComponent(choice.text());
+            com.leon.saintsdragons.util.compat.Compat.writeComponent(buffer, choice.text());
             buffer.writeUtf(choice.next(), 128);
         }
     }
@@ -44,12 +44,12 @@ public record MessageDialogueOpen(int entityId, Identifier dialogueId, String no
         Identifier dialogueId = buffer.readIdentifier();
         String nodeId = buffer.readUtf(128);
         String nodeType = buffer.readUtf(32);
-        Component speaker = buffer.readComponent();
-        Component text = buffer.readComponent();
+        Component speaker = com.leon.saintsdragons.util.compat.Compat.readComponent(buffer);
+        Component text = com.leon.saintsdragons.util.compat.Compat.readComponent(buffer);
         int size = buffer.readInt();
         List<Choice> choices = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            choices.add(new Choice(buffer.readComponent(), buffer.readUtf(128)));
+            choices.add(new Choice(com.leon.saintsdragons.util.compat.Compat.readComponent(buffer), buffer.readUtf(128)));
         }
         return new MessageDialogueOpen(entityId, dialogueId, nodeId, nodeType, speaker, text, choices);
     }

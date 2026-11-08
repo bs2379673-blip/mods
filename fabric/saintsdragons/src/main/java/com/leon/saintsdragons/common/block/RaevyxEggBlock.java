@@ -42,6 +42,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class RaevyxEggBlock extends BaseEntityBlock {
+    // port 1.21.11
+    public static final com.mojang.serialization.MapCodec<RaevyxEggBlock> CODEC = simpleCodec(RaevyxEggBlock::new);
+
+    @Override
+    protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
     public static final int MAX_HATCH_LEVEL = 2;
     public static final IntegerProperty HATCH = BlockStateProperties.HATCH;
     private static final int DEFAULT_NORMAL_TOTAL_HATCH_TICKS = 18000;
@@ -93,8 +101,8 @@ public class RaevyxEggBlock extends BaseEntityBlock {
         Raevyx baby = ModEntities.RAEVYX.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
         if (baby != null) {
             if (eggEntity != null) {
-                if (com.leon.saintsdragons.util.compat.Compat.ownerUUID(eggEntity) != null) {
-                    com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(baby, com.leon.saintsdragons.util.compat.Compat.ownerUUID(eggEntity));
+                if (eggEntity.getOwnerUUID() != null) {
+                    com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(baby, eggEntity.getOwnerUUID());
                     baby.setTame(true, true);
                 }
                 if (eggEntity.getBabyGender() != null) {
@@ -192,7 +200,8 @@ public class RaevyxEggBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void entityInside(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Entity entity) {
+    protected void entityInside(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Entity entity,
+                                net.minecraft.world.entity.InsideBlockEffectApplier sdEffects, boolean sdPast) {
         // Lightning strike instantly hatches the egg
         if (!level.isClientSide() && entity instanceof LightningBolt) {
             if (level instanceof ServerLevel serverLevel) {
@@ -202,7 +211,8 @@ public class RaevyxEggBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void neighborChanged(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Block block, @NotNull BlockPos fromPos, boolean isMoving) {
+    protected void neighborChanged(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Block block,
+                                   @org.jetbrains.annotations.Nullable net.minecraft.world.level.redstone.Orientation sdOrientation, boolean isMoving) {
         if (!level.isClientSide()) {
             level.scheduleTick(pos, this, 1);
         }
@@ -271,7 +281,7 @@ public class RaevyxEggBlock extends BaseEntityBlock {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, @NotNull Level level, @NotNull BlockPos pos, net.minecraft.core.Direction sdDirection) {
         return state.getValue(HATCH);
     }
 

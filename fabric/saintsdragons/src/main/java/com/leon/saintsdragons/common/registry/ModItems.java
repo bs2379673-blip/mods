@@ -15,7 +15,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffects;
@@ -360,7 +359,7 @@ public class ModItems {
                             new Item.Properties()
                                     .food(new FoodProperties.Builder()
                                             .nutrition(2)
-                                            .saturationMod(0.1F)
+                                            .saturationModifier(0.1F)
                                             .build())
                     ));
 
@@ -370,7 +369,7 @@ public class ModItems {
                             new Item.Properties()
                                     .food(new FoodProperties.Builder()
                                             .nutrition(5)
-                                            .saturationMod(0.6F)
+                                            .saturationModifier(0.6F)
                                             .build())
                     ));
 
@@ -397,10 +396,12 @@ public class ModItems {
                             new Item.Properties()
                                     .food(new FoodProperties.Builder()
                                             .nutrition(4)
-                                            .saturationMod(0.3F)
-                                            .effect(Mossback.createToxinEffect(MobEffects.POISON), 1.0F)
-                                            .effect(Mossback.createToxinEffect(MobEffects.NAUSEA), 1.0F)
-                                            .effect(Mossback.createToxinEffect(MobEffects.BLINDNESS), 1.0F)
+                                            .saturationModifier(0.3F)
+                                            .build(), net.minecraft.world.item.component.Consumables.defaultFood()
+                                            .onConsume(new net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect(java.util.List.of(
+                                                    Mossback.createToxinEffect(MobEffects.POISON),
+                                                    Mossback.createToxinEffect(MobEffects.NAUSEA),
+                                                    Mossback.createToxinEffect(MobEffects.BLINDNESS)), 1.0F))
                                             .build())
                     ));
 
@@ -410,7 +411,7 @@ public class ModItems {
                             new Item.Properties()
                                     .food(new FoodProperties.Builder()
                                             .nutrition(8)
-                                            .saturationMod(0.5F)
+                                            .saturationModifier(0.5F)
                                             .build())
                     ));
 
@@ -579,7 +580,7 @@ public class ModItems {
                                     .stacksTo(16)
                                     .food(new FoodProperties.Builder()
                                             .nutrition(10)
-                                            .saturationMod(1.2f)
+                                            .saturationModifier(1.2f)
                                             .build())
                     ));
     public static final Supplier<Item> DRACONIAN_CONTROLLER =
@@ -592,22 +593,21 @@ public class ModItems {
 
     public static final Supplier<Item> BLEEDING_BOLT_MUSIC_DISC =
             REGISTER.register("bleeding_bolt_music_disc",
-                    () -> new RecordItem(
-                            1,
-                            ModSounds.BLEEDING_BOLT.get(),
+                    () -> new Item(
                             new Item.Properties()
                                     .stacksTo(1)
-                                    .rarity(Rarity.RARE),
-                            20 * 104
+                                    .rarity(Rarity.RARE)
+                                    .jukeboxPlayable(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.JUKEBOX_SONG,
+                                            com.leon.saintsdragons.common.SaintsDragonsCommon.rl("bleeding_bolt")))
                     ));
     public static final Supplier<Item> MOSSBACK_MUSIC_MUSIC_DISC =
             REGISTER.register("mossback_music_music_disc",
-                    () -> new RecordItem(
-                            1,
-                            ModSounds.MOSSBACK_MUSIC.get(),
+                    () -> new Item(
                             new Item.Properties()
                                     .stacksTo(1)
-                                    .rarity(Rarity.COMMON), 20 * 42
+                                    .rarity(Rarity.COMMON)
+                                    .jukeboxPlayable(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.JUKEBOX_SONG,
+                                            com.leon.saintsdragons.common.SaintsDragonsCommon.rl("mossback_music")))
                     ));
 
     public static boolean isDragonBrush(ItemStack stack) {

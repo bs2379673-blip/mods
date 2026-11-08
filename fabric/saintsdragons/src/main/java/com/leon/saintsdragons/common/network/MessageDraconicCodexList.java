@@ -42,7 +42,7 @@ public record MessageDraconicCodexList(List<Entry> entries) {
                     dragon.getZ(),
                     dragon.level().getBiome(dragon.blockPosition())
                             .unwrapKey()
-                            .map(key -> key.location().toString())
+                            .map(key -> key.identifier().toString())
                             .orElse("minecraft:unknown")
             ));
         }

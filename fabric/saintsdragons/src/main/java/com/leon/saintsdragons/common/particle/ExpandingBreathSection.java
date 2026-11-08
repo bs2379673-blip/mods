@@ -121,7 +121,7 @@ public final class ExpandingBreathSection {
         }
         List<AABB> obstacles = new ArrayList<>();
         List<BlockPos> positions = new ArrayList<>();
-        BlockCollisions<TerrainShape> collisions = new BlockCollisions<>(level, null, bounds, false,
+        BlockCollisions<TerrainShape> collisions = new BlockCollisions<>(level, (net.minecraft.world.entity.Entity) null, bounds, false,
                 (pos, shape) -> new TerrainShape(pos.immutable(), shape));
         while (collisions.hasNext()) {
             TerrainShape terrain = collisions.next();

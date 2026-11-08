@@ -78,7 +78,7 @@ public final class DragonlordArmorSetBonus {
         }
 
         boolean fullSet = isWearingFullSet(player);
-        AttributeInstance doubleJump = player.getAttribute(ModAttributes.DOUBLE_JUMP.get());
+        AttributeInstance doubleJump = player.getAttribute(net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.wrapAsHolder(ModAttributes.DOUBLE_JUMP.get()));
         if (doubleJump != null) {
             if (fullSet) {
                 if (doubleJump.getModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(DOUBLE_JUMP_MODIFIER_UUID)) == null) {
@@ -159,7 +159,7 @@ public final class DragonlordArmorSetBonus {
         if (USED_MIDAIR_JUMP.contains(player.getUUID())) {
             return false;
         }
-        AttributeInstance doubleJump = player.getAttribute(ModAttributes.DOUBLE_JUMP.get());
+        AttributeInstance doubleJump = player.getAttribute(net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.wrapAsHolder(ModAttributes.DOUBLE_JUMP.get()));
         if (doubleJump == null || doubleJump.getValue() < 1.0D) {
             return false;
         }
@@ -189,8 +189,8 @@ public final class DragonlordArmorSetBonus {
             return true;
         }
 
-        boolean blocked = (source.is(DamageTypeTags.IS_FIRE) && player.getAttributeValue(ModAttributes.FIRE_RESISTANCE.get()) >= 100.0D)
-                || (source.is(DamageTypeTags.IS_EXPLOSION) && player.getAttributeValue(ModAttributes.BLAST_RESISTANCE.get()) >= 100.0D);
+        boolean blocked = (source.is(DamageTypeTags.IS_FIRE) && player.getAttributeValue(net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.wrapAsHolder(ModAttributes.FIRE_RESISTANCE.get())) >= 100.0D)
+                || (source.is(DamageTypeTags.IS_EXPLOSION) && player.getAttributeValue(net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.wrapAsHolder(ModAttributes.BLAST_RESISTANCE.get())) >= 100.0D);
         if (blocked && source.is(DamageTypeTags.IS_FIRE)) {
             player.clearFire();
         }

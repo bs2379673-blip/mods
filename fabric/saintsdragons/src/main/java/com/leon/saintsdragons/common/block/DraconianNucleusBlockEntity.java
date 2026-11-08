@@ -269,7 +269,7 @@ public class DraconianNucleusBlockEntity extends BlockEntity {
                 continue;
             }
 
-            swarm.finalizeSpawn(level, level.getCurrentDifficultyAt(spawnPos), EntitySpawnReason.TRIGGERED, null, null);
+            swarm.finalizeSpawn(level, level.getCurrentDifficultyAt(spawnPos), EntitySpawnReason.TRIGGERED, null);
             swarm.assignNucleusEncounter(
                     nucleusPos,
                     this.encounterId,
@@ -368,7 +368,7 @@ public class DraconianNucleusBlockEntity extends BlockEntity {
 
     private static boolean claimSummonSound(ServerLevel level, BlockPos pos, SoundEvent sound) {
         long gameTime = level.getGameTime();
-        Identifier soundId = sound.getLocation();
+        Identifier soundId = sound.location();
         double mergeRadiusSqr = SUMMON_SOUND_MERGE_RADIUS * SUMMON_SOUND_MERGE_RADIUS;
 
         synchronized (RECENT_SUMMON_SOUNDS) {
@@ -434,9 +434,7 @@ public class DraconianNucleusBlockEntity extends BlockEntity {
                 player.isAlive() && player.gameMode.getGameModeForPlayer() == GameType.SURVIVAL).isEmpty();
     }
 
-    @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void sdSave(CompoundTag tag) {
         tag.putString("EncounterState", this.encounterState.name());
         if (this.encounterId != null) {
             com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "EncounterId", this.encounterId);
@@ -464,9 +462,7 @@ public class DraconianNucleusBlockEntity extends BlockEntity {
         tag.putLongArray("ActiveSwarms", swarmIds);
     }
 
-    @Override
-    public void load(@NotNull CompoundTag tag) {
-        super.load(tag);
+    protected void sdLoad(CompoundTag tag) {
         try {
             this.encounterState = EncounterState.valueOf(tag.getStringOr("EncounterState", ""));
         } catch (IllegalArgumentException ignored) {
@@ -493,8 +489,8 @@ public class DraconianNucleusBlockEntity extends BlockEntity {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag() {
-        return saveWithoutMetadata();
+    public @NotNull CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+        return saveWithoutMetadata(registries);
     }
 
     @Override
@@ -516,5 +512,20 @@ public class DraconianNucleusBlockEntity extends BlockEntity {
         ACTIVE,
         INTERMISSION,
         COMPLETE
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void saveAdditional(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        super.saveAdditional(saintsdragonsOut);
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void loadAdditional(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        super.loadAdditional(saintsdragonsIn);
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

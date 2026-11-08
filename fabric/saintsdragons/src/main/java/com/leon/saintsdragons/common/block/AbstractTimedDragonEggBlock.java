@@ -71,7 +71,7 @@ public abstract class AbstractTimedDragonEggBlock<E extends AbstractDragonEggBlo
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, @NotNull Level level, @NotNull BlockPos pos, net.minecraft.core.Direction sdDirection) {
         return state.getValue(HATCH);
     }
 
@@ -200,8 +200,8 @@ public abstract class AbstractTimedDragonEggBlock<E extends AbstractDragonEggBlo
             }
 
             if (eggEntity != null) {
-                if (com.leon.saintsdragons.util.compat.Compat.ownerUUID(eggEntity) != null) {
-                    com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(baby, com.leon.saintsdragons.util.compat.Compat.ownerUUID(eggEntity));
+                if (eggEntity.getOwnerUUID() != null) {
+                    com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(baby, eggEntity.getOwnerUUID());
                     baby.setTame(true, true);
                 }
                 if (eggEntity.getBabyGender() != null) {

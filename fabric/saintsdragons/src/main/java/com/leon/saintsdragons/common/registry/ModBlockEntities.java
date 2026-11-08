@@ -24,58 +24,31 @@ public final class ModBlockEntities {
                     .create(Registries.BLOCK_ENTITY_TYPE, () -> BuiltInRegistries.BLOCK_ENTITY_TYPE, SaintsDragonsCommon.MOD_ID);
 
     public static final Supplier<BlockEntityType<RaevyxEggBlockEntity>> RAEVYX_EGG =
-            REGISTER.register("raevyx_egg", () -> BlockEntityType.Builder.of(
-                    RaevyxEggBlockEntity::new,
-                    ModBlocks.RAEVYX_EGG.get()
-            ).build(null));
+            REGISTER.register("raevyx_egg", () -> net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(RaevyxEggBlockEntity::new, ModBlocks.RAEVYX_EGG.get()).build());
 
     public static final Supplier<BlockEntityType<IgnivorusEggBlockEntity>> IGNIVORUS_EGG =
-            REGISTER.register("ignivorus_egg", () -> BlockEntityType.Builder.of(
-                    IgnivorusEggBlockEntity::new,
-                    ModBlocks.IGNIVORUS_EGG.get()
-            ).build(null));
+            REGISTER.register("ignivorus_egg", () -> net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(IgnivorusEggBlockEntity::new, ModBlocks.IGNIVORUS_EGG.get()).build());
 
     public static final Supplier<BlockEntityType<CindervaneEggBlockEntity>> CINDERVANE_EGG =
-            REGISTER.register("cindervane_egg", () -> BlockEntityType.Builder.of(
-                    CindervaneEggBlockEntity::new,
-                    ModBlocks.CINDERVANE_EGG.get()
-            ).build(null));
+            REGISTER.register("cindervane_egg", () -> net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(CindervaneEggBlockEntity::new, ModBlocks.CINDERVANE_EGG.get()).build());
 
     public static final Supplier<BlockEntityType<VarasuchusEggBlockEntity>> VARASUCHUS_EGG =
-            REGISTER.register("varasuchus_egg", () -> BlockEntityType.Builder.of(
-                    VarasuchusEggBlockEntity::new,
-                    ModBlocks.VARASUCHUS_EGG.get()
-            ).build(null));
+            REGISTER.register("varasuchus_egg", () -> net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(VarasuchusEggBlockEntity::new, ModBlocks.VARASUCHUS_EGG.get()).build());
 
     public static final Supplier<BlockEntityType<StegonautEggBlockEntity>> STEGONAUT_EGG =
-            REGISTER.register("stegonaut_egg", () -> BlockEntityType.Builder.of(
-                    StegonautEggBlockEntity::new,
-                    ModBlocks.STEGONAUT_EGG.get()
-            ).build(null));
+            REGISTER.register("stegonaut_egg", () -> net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(StegonautEggBlockEntity::new, ModBlocks.STEGONAUT_EGG.get()).build());
 
     public static final Supplier<BlockEntityType<VolitansEggBlockEntity>> VOLITANS_EGG =
-            REGISTER.register("volitans_egg", () -> BlockEntityType.Builder.of(
-                    VolitansEggBlockEntity::new,
-                    ModBlocks.VOLITANS_EGG.get()
-            ).build(null));
+            REGISTER.register("volitans_egg", () -> net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(VolitansEggBlockEntity::new, ModBlocks.VOLITANS_EGG.get()).build());
 
     public static final Supplier<BlockEntityType<AtroxiiaEggBlockEntity>> ATROXIIA_EGG =
-            REGISTER.register("atroxiia_egg", () -> BlockEntityType.Builder.of(
-                    AtroxiiaEggBlockEntity::new,
-                    ModBlocks.ATROXIIA_EGG.get()
-            ).build(null));
+            REGISTER.register("atroxiia_egg", () -> net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(AtroxiiaEggBlockEntity::new, ModBlocks.ATROXIIA_EGG.get()).build());
 
     public static final Supplier<BlockEntityType<DraconianNucleusBlockEntity>> DRACONIAN_NUCLEUS =
-            REGISTER.register("draconian_nucleus", () -> BlockEntityType.Builder.of(
-                    DraconianNucleusBlockEntity::new,
-                    ModBlocks.DRACONIAN_NUCLEUS.get()
-            ).build(null));
+            REGISTER.register("draconian_nucleus", () -> net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(DraconianNucleusBlockEntity::new, ModBlocks.DRACONIAN_NUCLEUS.get()).build());
 
     public static final Supplier<BlockEntityType<DraconicCrucibleBlockEntity>> DRACONIC_CRUCIBLE =
-            REGISTER.register("draconic_crucible", () -> BlockEntityType.Builder.of(
-                    DraconicCrucibleBlockEntity::new,
-                    ModBlocks.DRACONIC_CRUCIBLE.get()
-            ).build(null));
+            REGISTER.register("draconic_crucible", () -> net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(DraconicCrucibleBlockEntity::new, ModBlocks.DRACONIC_CRUCIBLE.get()).build());
 
     public static void register() {
         REGISTER.register();

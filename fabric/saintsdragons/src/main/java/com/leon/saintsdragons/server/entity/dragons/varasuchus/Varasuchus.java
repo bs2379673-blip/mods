@@ -172,7 +172,7 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
                                                  @NotNull DifficultyInstance difficulty,
                                                  @NotNull EntitySpawnReason reason,
                                                  @Nullable SpawnGroupData spawnData) {
-        SpawnGroupData data = super.finalizeSpawn(levelAccessor, difficulty, reason, spawnData, spawnTag);
+        SpawnGroupData data = super.finalizeSpawn(levelAccessor, difficulty, reason, spawnData);
         roostComponent.initializeHomeFromSpawn(levelAccessor, reason);
         return data;
     }

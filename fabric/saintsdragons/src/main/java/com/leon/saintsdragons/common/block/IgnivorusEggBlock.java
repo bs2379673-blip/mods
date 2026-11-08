@@ -21,6 +21,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 public class IgnivorusEggBlock extends AbstractTimedDragonEggBlock<IgnivorusEggBlockEntity> {
+    // port 1.21.11
+    public static final com.mojang.serialization.MapCodec<IgnivorusEggBlock> CODEC = simpleCodec(IgnivorusEggBlock::new);
+
+    @Override
+    protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
     private static final int DEFAULT_HATCH_TICKS = 36000; // 30 minutes
     private static final VoxelShape SHAPE = box(3.0D, 0.0D, 3.0D, 13.0D, 13.0D, 13.0D);
 

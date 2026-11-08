@@ -1354,13 +1354,13 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
         if (hasAtroxiiaChest() && tag.contains("AtroxiiiaChestsItems")) {
             ListTag items = tag.getListOrEmpty("AtroxiiiaChestsItems");
             for (int i = 0; i < items.size(); i++) {
-                ItemStack remainder = atroxiiaChestInventory.addItem(com.leon.saintsdragons.util.compat.Compat.loadStack(items.getCompound(i)));
+                ItemStack remainder = atroxiiaChestInventory.addItem(com.leon.saintsdragons.util.compat.Compat.loadStack(items.getCompoundOrEmpty(i)));
                 if (!remainder.isEmpty()) pendingChestOverflow.add(remainder);
             }
         }
         ListTag overflow = tag.getListOrEmpty("AtroxiiaChestOverflow");
         for (int i = 0; i < overflow.size(); i++) {
-            ItemStack stack = com.leon.saintsdragons.util.compat.Compat.loadStack(overflow.getCompound(i));
+            ItemStack stack = com.leon.saintsdragons.util.compat.Compat.loadStack(overflow.getCompoundOrEmpty(i));
             if (!stack.isEmpty()) pendingChestOverflow.add(stack);
         }
         tamingController.load(tag);

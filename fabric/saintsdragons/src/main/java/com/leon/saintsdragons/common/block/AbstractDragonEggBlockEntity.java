@@ -78,9 +78,7 @@ public abstract class AbstractDragonEggBlockEntity extends BlockEntity {
         }
     }
 
-    @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void sdSave(CompoundTag tag) {
         tag.putDouble("HatchProgress", this.hatchProgress);
         if (this.ownerUUID != null) {
             com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "OwnerUUID", this.ownerUUID);
@@ -94,9 +92,7 @@ public abstract class AbstractDragonEggBlockEntity extends BlockEntity {
         tag.putBoolean("PausedHatchingParticlesShown", this.pausedHatchingParticlesShown);
     }
 
-    @Override
-    public void load(@NotNull CompoundTag tag) {
-        super.load(tag);
+    protected void sdLoad(CompoundTag tag) {
         if (tag.contains("HatchProgress")) {
             this.hatchProgress = Math.max(0.0D, Math.min(1.0D, tag.getDoubleOr("HatchProgress", 0.0D)));
         } else {
@@ -113,5 +109,20 @@ public abstract class AbstractDragonEggBlockEntity extends BlockEntity {
             this.babyGender = DragonGender.fromId(tag.getByteOr("BabyGender", (byte) 0));
         }
         this.pausedHatchingParticlesShown = tag.getBooleanOr("PausedHatchingParticlesShown", false);
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void saveAdditional(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        super.saveAdditional(saintsdragonsOut);
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void loadAdditional(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        super.loadAdditional(saintsdragonsIn);
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

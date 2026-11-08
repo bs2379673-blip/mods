@@ -342,7 +342,7 @@ public class RaevyxLightningChainEntity extends Entity {
         if (compound.contains("startX")) {
             this.startPos = new Vec3(
                 compound.getDoubleOr("startX", 0.0D),
-                compound.getDouble("startY"),
+                compound.getDoubleOr("startY", 0.0D),
                 compound.getDouble("startZ")
             );
         }
@@ -350,7 +350,7 @@ public class RaevyxLightningChainEntity extends Entity {
         if (compound.contains("endX")) {
             this.endPos = new Vec3(
                 compound.getDoubleOr("endX", 0.0D),
-                compound.getDouble("endY"),
+                compound.getDoubleOr("endY", 0.0D),
                 compound.getDouble("endZ")
             );
         }

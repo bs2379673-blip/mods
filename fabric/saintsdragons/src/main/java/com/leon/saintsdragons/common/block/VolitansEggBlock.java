@@ -31,6 +31,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 public class VolitansEggBlock extends AbstractTimedDragonEggBlock<VolitansEggBlockEntity> implements SimpleWaterloggedBlock {
+    // port 1.21.11
+    public static final com.mojang.serialization.MapCodec<VolitansEggBlock> CODEC = simpleCodec(VolitansEggBlock::new);
+
+    @Override
+    protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final int DEFAULT_HATCH_TICKS = 18000;
     private static final VoxelShape SHAPE = box(4.0D, 0.0D, 4.0D, 12.0D, 10.0D, 12.0D);
@@ -67,16 +75,17 @@ public class VolitansEggBlock extends AbstractTimedDragonEggBlock<VolitansEggBlo
     }
 
     @Override
-    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction,
-                                           @NotNull BlockState neighborState, @NotNull LevelAccessor level,
-                                           @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
+    protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull net.minecraft.world.level.LevelReader level,
+                                           @NotNull net.minecraft.world.level.ScheduledTickAccess sdTicks, @NotNull BlockPos pos,
+                                           @NotNull Direction direction, @NotNull BlockPos neighborPos,
+                                           @NotNull BlockState neighborState, @NotNull net.minecraft.util.RandomSource sdRandom) {
         if (!state.getValue(WATERLOGGED) && level.getFluidState(pos).getType() == Fluids.WATER) {
             state = state.setValue(WATERLOGGED, true);
         }
         if (state.getValue(WATERLOGGED)) {
-            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            sdTicks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
-        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+        return super.updateShape(state, level, sdTicks, pos, direction, neighborPos, neighborState, sdRandom);
     }
 
     @Override

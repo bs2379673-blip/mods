@@ -17,13 +17,13 @@ public final class ModPotions {
                     .create(Registries.POTION, () -> BuiltInRegistries.POTION, SaintsDragonsCommon.MOD_ID);
 
     public static final Supplier<Potion> TIDEGUARD =
-            REGISTER.register("tideguard", () -> new Potion(
+            REGISTER.register("tideguard", () -> new Potion("tideguard",
                     new MobEffectInstance(MobEffects.WATER_BREATHING, 20 * 60),
                     new MobEffectInstance(MobEffects.DOLPHINS_GRACE, 20 * 60)
             ));
 
     public static final Supplier<Potion> SEARING =
-            REGISTER.register("searing", () -> new Potion(
+            REGISTER.register("searing", () -> new Potion("searing",
                     new MobEffectInstance(MobEffects.STRENGTH, 20 * 60 * 8, 2),
                     new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 20 * 60 * 8)
             ));

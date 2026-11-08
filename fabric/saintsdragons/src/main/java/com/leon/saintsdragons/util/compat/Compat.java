@@ -168,4 +168,27 @@ public final class Compat {
             t.store(key, UUIDUtil.CODEC, id);
         }
     }
+
+    /** Port 1.21.11: textos por la red como JSON (FriendlyByteBuf ya no tiene writeComponent). */
+    public static void writeComponent(net.minecraft.network.FriendlyByteBuf buf, net.minecraft.network.chat.Component c) {
+        buf.writeUtf(componentToJson(c == null ? net.minecraft.network.chat.Component.empty() : c), 262144);
+    }
+
+    public static net.minecraft.network.chat.Component readComponent(net.minecraft.network.FriendlyByteBuf buf) {
+        net.minecraft.network.chat.Component c = componentFromJson(buf.readUtf(262144));
+        return c == null ? net.minecraft.network.chat.Component.empty() : c;
+    }
+
+    public static net.minecraft.network.chat.Component componentFromJson(com.google.gson.JsonElement json) {
+        try {
+            return net.minecraft.network.chat.ComponentSerialization.CODEC.parse(registries().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),
+                    json).result().orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static net.minecraft.world.item.ItemStack loadStack(java.util.Optional<CompoundTag> tag) {
+        return loadStack(tag.orElse(null));
+    }
 }

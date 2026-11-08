@@ -191,7 +191,7 @@ public abstract class AbstractDraconianSwarmEntity extends Monster implements Ti
                                                  @NotNull DifficultyInstance difficulty,
                                                  @NotNull EntitySpawnReason spawnType,
                                                  @Nullable SpawnGroupData spawnGroupData) {
-        SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData, tag);
+        SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
         applyInitialConfiguredAttributes();
         return data;
     }

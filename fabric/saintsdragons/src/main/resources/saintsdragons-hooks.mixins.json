@@ -5,9 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "DragonPartQueryMixin",
-    "BrewingStandBlockEntityMixin",
     "IgnivorusPartLifecycleMixin",
-    "PotionBrewingMixin",
     "PlayerDefaultAttributesMixin",
     "RangedAttributeAccessor"
   ],

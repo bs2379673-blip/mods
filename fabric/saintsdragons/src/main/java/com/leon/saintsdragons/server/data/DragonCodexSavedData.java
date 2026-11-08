@@ -544,7 +544,7 @@ public class DragonCodexSavedData extends SavedData {
     private static String resolveBiomeId(DragonEntity dragon) {
         return dragon.level().getBiome(dragon.blockPosition())
                 .unwrapKey()
-                .map(key -> key.location().toString())
+                .map(key -> key.identifier().toString())
                 .orElse("minecraft:unknown");
     }
 

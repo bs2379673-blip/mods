@@ -98,7 +98,7 @@ public final class CommonServerLifecycleEvents {
         Component url = Component.literal(WIKI_URL).withStyle(style -> style
                 .withColor(ChatFormatting.AQUA)
                 .withUnderlined(true)
-                .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, WIKI_URL)));
+                .withClickEvent(new ClickEvent.OpenUrl(java.net.URI.create(WIKI_URL))));
         player.displayClientMessage(Component.translatable("saintsdragons.message.wiki_prompt").append(" ").append(url), false);
     }
 

@@ -13,7 +13,7 @@ public class ArrowOfVenomItem extends ArrowItem {
     }
 
     @Override
-    public AbstractArrow createArrow(Level level, ItemStack stack, LivingEntity shooter) {
+    public AbstractArrow createArrow(Level level, ItemStack stack, LivingEntity shooter, @org.jetbrains.annotations.Nullable ItemStack sdWeapon) {
         return new ArrowOfVenomEntity(level, shooter);
     }
 }

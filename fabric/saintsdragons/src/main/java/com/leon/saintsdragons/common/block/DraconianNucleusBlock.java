@@ -19,6 +19,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DraconianNucleusBlock extends BaseEntityBlock {
+    // port 1.21.11
+    public static final com.mojang.serialization.MapCodec<DraconianNucleusBlock> CODEC = simpleCodec(DraconianNucleusBlock::new);
+
+    @Override
+    protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
     private static final VoxelShape SHAPE = box(2.0D, 2.0D, 2.0D, 14.0D, 14.0D, 14.0D);
 
     public DraconianNucleusBlock(Properties properties) {

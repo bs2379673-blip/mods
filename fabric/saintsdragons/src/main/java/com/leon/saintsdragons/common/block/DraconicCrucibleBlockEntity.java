@@ -353,7 +353,7 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
         return current == null
                 || candidate.priority() > current.priority()
                 || (candidate.priority() == current.priority()
-                && candidate.getId().toString().compareTo(current.getId().toString()) < 0);
+                && candidate.id().toString().compareTo(current.id().toString()) < 0);
     }
 
     private SimpleContainer createGridView() {
@@ -536,12 +536,7 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
         return slot >= INPUT_SLOT_START && slot < INPUT_SLOT_START + INPUT_SLOT_COUNT;
     }
 
-    @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) {
-        super.saveAdditional(tag);
-        if (!trySaveLootTable(tag)) {
-            ContainerHelper.saveAllItems(tag, this.items);
-        }
+    protected void sdSave(CompoundTag tag) {
         tag.putInt("BurnTime", this.burnTime);
         tag.putInt("BurnTimeTotal", this.burnTimeTotal);
         tag.putInt("ActiveHeatLevel", this.activeHeatLevel);
@@ -563,13 +558,7 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
         }
     }
 
-    @Override
-    public void load(@NotNull CompoundTag tag) {
-        super.load(tag);
-        this.items = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY);
-        if (!tryLoadLootTable(tag)) {
-            ContainerHelper.loadAllItems(tag, this.items);
-        }
+    protected void sdLoad(CompoundTag tag) {
         this.burnTime = tag.getIntOr("BurnTime", 0);
         this.burnTimeTotal = tag.getIntOr("BurnTimeTotal", 0);
         this.activeHeatLevel = tag.getIntOr("ActiveHeatLevel", 0);
@@ -596,7 +585,7 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
             }
         }
         this.pendingResult = tag.contains("PendingResult")
-                ? com.leon.saintsdragons.util.compat.Compat.loadStack(tag.getCompound("PendingResult"))
+                ? com.leon.saintsdragons.util.compat.Compat.loadStack(tag.getCompoundOrEmpty("PendingResult"))
                 : ItemStack.EMPTY;
         this.activeRecipeId = tag.contains("ActiveRecipe")
                 ? Identifier.tryParse(tag.getStringOr("ActiveRecipe", ""))
@@ -716,5 +705,27 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
             int processingTime,
             @Nullable DraconicCrucibleShapedRecipe shapedRecipe
     ) {
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void saveAdditional(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        super.saveAdditional(saintsdragonsOut);
+        if (!trySaveLootTable(saintsdragonsOut)) {
+            ContainerHelper.saveAllItems(saintsdragonsOut, this.items);
+        }
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void loadAdditional(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        super.loadAdditional(saintsdragonsIn);
+        this.items = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY);
+        if (!tryLoadLootTable(saintsdragonsIn)) {
+            ContainerHelper.loadAllItems(saintsdragonsIn, this.items);
+        }
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

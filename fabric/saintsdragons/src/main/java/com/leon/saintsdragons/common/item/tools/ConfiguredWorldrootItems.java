@@ -2,7 +2,6 @@ package com.leon.saintsdragons.common.item.tools;
 
 import com.google.common.collect.Multimap;
 import com.leon.saintsdragons.common.config.ToolsArmorConfig;
-import com.leon.saintsdragons.common.item.ConfiguredItemAttributes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;

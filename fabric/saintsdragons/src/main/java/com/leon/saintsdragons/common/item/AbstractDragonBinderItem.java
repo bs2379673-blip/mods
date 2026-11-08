@@ -174,7 +174,7 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
             return false;
         }
 
-        UUID ownerUUID = tag.contains(BinderComponentUtil.BOUND_OWNER_UUID) ? tag.getUUID(BinderComponentUtil.BOUND_OWNER_UUID) : null;
+        UUID ownerUUID = tag.contains(BinderComponentUtil.BOUND_OWNER_UUID) ? com.leon.saintsdragons.util.compat.Compat.getUUID(tag, BinderComponentUtil.BOUND_OWNER_UUID) : null;
         if (ownerUUID != null && !player.getUUID().equals(ownerUUID)) {
             player.displayClientMessage(Component.translatable(getReleaseNotOwnerMessageKey()), true);
             return false;
@@ -185,7 +185,7 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
         }
 
         String dragonName = tag.getStringOr(BinderComponentUtil.BOUND_DRAGON_NAME, "");
-        UUID originalUUID = tag.getUUID(BinderComponentUtil.BOUND_DRAGON_UUID);
+        UUID originalUUID = com.leon.saintsdragons.util.compat.Compat.getUUID(tag, BinderComponentUtil.BOUND_DRAGON_UUID);
         T newDragon = createDragon(serverLevel);
 
         if (tag.contains(getDragonDataKey())) {
@@ -214,7 +214,7 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
 
         if (tag.contains(BinderComponentUtil.BOUND_CUSTOM_NAME)) {
             try {
-                Component customName = com.leon.saintsdragons.util.compat.Compat.componentFromJson(tag.getString(BinderComponentUtil.BOUND_CUSTOM_NAME));
+                Component customName = com.leon.saintsdragons.util.compat.Compat.componentFromJson(tag.getStringOr(BinderComponentUtil.BOUND_CUSTOM_NAME, ""));
                 if (customName != null) {
                     newDragon.setCustomName(customName);
                 }
@@ -297,7 +297,7 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
         return true;
     }
 
-    protected void appendExtraBoundTooltip(@NotNull List<Component> tooltip, @Nullable String dragonName) {
+    protected void appendExtraBoundTooltip(@NotNull java.util.function.Consumer<Component> tooltip, @Nullable String dragonName) {
     }
 
     @Override

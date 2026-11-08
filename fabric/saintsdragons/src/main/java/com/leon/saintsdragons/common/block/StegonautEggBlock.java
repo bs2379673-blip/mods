@@ -22,6 +22,14 @@ import java.util.function.Supplier;
 
 
 public class StegonautEggBlock extends AbstractTimedDragonEggBlock<StegonautEggBlockEntity> {
+    // port 1.21.11
+    public static final com.mojang.serialization.MapCodec<StegonautEggBlock> CODEC = simpleCodec(StegonautEggBlock::new);
+
+    @Override
+    protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
     private static final int DEFAULT_HATCH_TICKS = 30000; // 25 minutes
     private static final VoxelShape EGG_SHAPE = box(3.0D, 0.0D, 3.0D, 13.0D, 10.0D, 13.0D);
 

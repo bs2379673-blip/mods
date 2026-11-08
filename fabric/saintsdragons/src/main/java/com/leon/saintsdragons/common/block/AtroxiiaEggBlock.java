@@ -21,6 +21,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 public class AtroxiiaEggBlock extends AbstractTimedDragonEggBlock<AtroxiiaEggBlockEntity> {
+    // port 1.21.11
+    public static final com.mojang.serialization.MapCodec<AtroxiiaEggBlock> CODEC = simpleCodec(AtroxiiaEggBlock::new);
+
+    @Override
+    protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
     private static final int DEFAULT_HATCH_TICKS = 24000; // 20 minutes
     private static final VoxelShape EGG_SHAPE = box(5.0D, 0.0D, 5.0D, 11.0D, 8.0D, 11.0D);
 

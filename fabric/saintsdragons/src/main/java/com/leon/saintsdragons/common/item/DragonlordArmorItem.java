@@ -27,7 +27,6 @@ import software.bernie.geckolib.animation.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import org.jetbrains.annotations.Nullable;
-import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -54,7 +53,6 @@ public class DragonlordArmorItem extends ArmorItem implements GeoItem {
     private static final UUID BOOTS_BLAST_RESISTANCE_UUID = UUID.fromString("931b023b-f0a1-4aaa-bc85-6338ec3d44d8");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    private final Supplier<Object> renderProvider = this::createFabricRenderProvider;
 
     public DragonlordArmorItem(LegacyArmorMaterial material, Type type, Properties properties) {
         super(material, type, properties);
@@ -150,7 +148,6 @@ public class DragonlordArmorItem extends ArmorItem implements GeoItem {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         AnimationController<DragonlordArmorItem> flightController = new AnimationController<>(
-                this,
                 FLIGHT_CONTROLLER,
                 3,
                 state -> {
@@ -174,71 +171,9 @@ public class DragonlordArmorItem extends ArmorItem implements GeoItem {
         return cache;
     }
 
+    // port 1.21.11 / GeckoLib 5: el renderer se pide aca (solo en el cliente)
     @Override
-    public void createRenderer(Consumer<Object> consumer) {
-        Object provider = createFabricRenderProvider();
-        if (provider != null) {
-            consumer.accept(provider);
-        }
-    }
-
-    @Override
-    public Supplier<Object> getRenderProvider() {
-        return renderProvider;
-    }
-
-    private Object createFabricRenderProvider() {
-        try {
-            Class<?> providerClass = Class.forName("software.bernie.geckolib.animatable.client.RenderProvider");
-            return Proxy.newProxyInstance(DragonlordArmorItem.class.getClassLoader(), new Class<?>[]{providerClass},
-                    (proxy, method, args) -> {
-                        if ("getHumanoidArmorModel".equals(method.getName()) || "getGenericArmorModel".equals(method.getName())) {
-                            return getHumanoidArmorModel(args);
-                        }
-                        return null;
-                    });
-        } catch (ClassNotFoundException ignored) {
-            return null;
-        }
-    }
-
-    public void initializeClient(Consumer<Object> consumer) {
-        try {
-            Class<?> extensions = Class.forName("net.minecraftforge.client.extensions.common.IClientItemExtensions");
-            Object proxy = Proxy.newProxyInstance(DragonlordArmorItem.class.getClassLoader(), new Class<?>[]{extensions},
-                    (proxyInstance, method, args) -> {
-                        if ("getHumanoidArmorModel".equals(method.getName()) || "getGenericArmorModel".equals(method.getName())) {
-                            return getHumanoidArmorModel(args);
-                        }
-                        return defaultForgeExtensionValue(method.getReturnType());
-                    });
-            consumer.accept(proxy);
-        } catch (ClassNotFoundException ignored) {
-        }
-    }
-
-    private Object getHumanoidArmorModel(Object[] args) {
-        if (args == null || args.length < 4) {
-            return null;
-        }
-        try {
-            Class<?> provider = Class.forName("com.leon.saintsdragons.client.renderer.armor.DragonlordArmorRenderProvider");
-            return provider.getMethod("getHumanoidArmorModel", Object.class, Object.class, Object.class, Object.class)
-                    .invoke(null, args[0], args[1], args[2], args[3]);
-        } catch (ReflectiveOperationException ignored) {
-            return args[3];
-        }
-    }
-
-    private static Object defaultForgeExtensionValue(Class<?> type) {
-        if (type == Boolean.TYPE) return false;
-        if (type == Byte.TYPE) return (byte) 0;
-        if (type == Short.TYPE) return (short) 0;
-        if (type == Integer.TYPE) return 0;
-        if (type == Long.TYPE) return 0L;
-        if (type == Float.TYPE) return 0.0F;
-        if (type == Double.TYPE) return 0.0D;
-        if (type == Character.TYPE) return '\0';
-        return null;
+    public void createGeoRenderer(Consumer<software.bernie.geckolib.animatable.client.GeoRenderProvider> consumer) {
+        consumer.accept(new com.leon.saintsdragons.client.renderer.armor.DragonlordArmorRenderProvider());
     }
 }

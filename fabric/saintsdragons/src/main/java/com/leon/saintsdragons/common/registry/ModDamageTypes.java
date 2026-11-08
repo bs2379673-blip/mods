@@ -16,6 +16,6 @@ public final class ModDamageTypes {
 
     public static DamageSource raevyxLightning(LivingEntity attacker) {
         return new DamageSource(attacker.level().registryAccess()
-                .registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(RAEVYX_LIGHTNING), attacker);
+                .lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(RAEVYX_LIGHTNING), attacker);
     }
 }

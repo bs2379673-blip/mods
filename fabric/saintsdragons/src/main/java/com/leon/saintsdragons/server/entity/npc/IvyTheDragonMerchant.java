@@ -486,7 +486,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         CompoundTag savedData = null;
         if (changingDimensions) {
             savedData = new CompoundTag();
-            saveWithoutId(savedData);
+            com.leon.saintsdragons.util.compat.Compat.saveEntity(this, savedData);
         }
         if (sourceLevel != null) {
             sourceLevel.sendParticles(ParticleTypes.PORTAL, sourcePosition.x, sourcePosition.y + 1.0D, sourcePosition.z,
@@ -497,11 +497,11 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
 
         if (changingDimensions) {
             if (!teleportTo(destinationLevel, destinationPosition.x, destinationPosition.y, destinationPosition.z,
-                    Set.<Relative>of(), getYRot(), getXRot())) {
+                    Set.<Relative>of(), getYRot(), getXRot(), true)) {
                 return false;
             }
         } else {
-            moveTo(destinationPosition.x, destinationPosition.y, destinationPosition.z, getYRot(), getXRot());
+            snapTo(destinationPosition.x, destinationPosition.y, destinationPosition.z, getYRot(), getXRot());
             setYHeadRot(getYRot());
         }
 
@@ -526,9 +526,15 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     }
 
     @Nullable
-    @Override
     public UUID getOwnerUUID() {
         return this.entityData.get(DATA_OWNER_UUID).orElse(null);
+    }
+
+    @Nullable
+    @Override
+    public net.minecraft.world.entity.EntityReference<LivingEntity> getOwnerReference() {
+        UUID id = getOwnerUUID();
+        return id == null ? null : net.minecraft.world.entity.EntityReference.of(id);
     }
 
     public void setOwnerUUID(@Nullable UUID ownerUuid) {
@@ -667,7 +673,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
                 this,
                 Zombie.class,
                 true,
-                target -> !(target instanceof ZombifiedPiglin)
+                (target, sdLevel) -> !(target instanceof ZombifiedPiglin)
         ));
     }
 
@@ -723,7 +729,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     @Override
     protected void checkFallDamage(double yMovement, boolean grounded, BlockState state, BlockPos pos) {
         // Capture before vanilla resets fallDistance and resolves vertical collision/bouncing.
-        float drop = fallDistance + (float) Math.max(0.0D, -yMovement);
+        float drop = (float) fallDistance + (float) Math.max(0.0D, -yMovement);
         float impactSpeed = (float) Math.max(0.0D, -getDeltaMovement().y);
         super.checkFallDamage(yMovement, grounded, state, pos);
         if (!level().isClientSide() && grounded && canBlendFallAndLanding()
@@ -911,7 +917,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         }
 
         double damage = 1.0D;
-        Multimap<Attribute, AttributeModifier> modifiers =
+        Multimap<net.minecraft.core.Holder<Attribute>, AttributeModifier> modifiers =
                 com.leon.saintsdragons.util.compat.Compat.attributeModifiers(sword, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
         for (AttributeModifier modifier : modifiers.get(Attributes.ATTACK_DAMAGE)) {
             if (modifier.operation() == AttributeModifier.Operation.ADD_VALUE) {
@@ -922,7 +928,9 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
                 damage *= 1.0D + modifier.amount();
             }
         }
-        damage += EnchantmentHelper.getDamageBonus(sword, target.getType());
+        if (level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            damage = EnchantmentHelper.modifyDamage(serverLevel, sword, target, damageSources().mobAttack(this), (float) damage);
+        }
         return (float) Math.max(0.0D, damage);
     }
 
@@ -948,7 +956,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         if (!(level() instanceof ServerLevel server) || target.isAlive() || !(target instanceof Mob mob)) {
             return;
         }
-        int xp = mob.getExperienceReward();
+        int xp = level() instanceof net.minecraft.server.level.ServerLevel serverLevel ? mob.getExperienceReward(serverLevel, this) : 0;
         if (xp <= 0) {
             return;
         }
@@ -1044,7 +1052,6 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         return this.entityData.get(DATA_HIDE_COMBAT_SWORD);
     }
 
-    @Override
     public @NotNull Iterable<ItemStack> getArmorSlots() {
         List<ItemStack> armor = new ArrayList<>(4);
         armor.add(ivyInventory.getItem(IvyInventoryMenu.BOOTS_SLOT));
@@ -1112,7 +1119,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     protected float getDamageAfterArmorAbsorb(@NotNull DamageSource source, float amount) {
         if (!source.is(DamageTypeTags.BYPASSES_ARMOR)) {
             hurtArmor(source, amount);
-            amount = CombatRules.getDamageAfterAbsorb(amount, getArmorValue(), getEquippedArmorToughness());
+            amount = CombatRules.getDamageAfterAbsorb(this, amount, source, getArmorValue(), getEquippedArmorToughness());
         }
         return amount;
     }
@@ -1136,7 +1143,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         ItemStack stack = ivyInventory.getItem(slot);
         boolean fireResistant = source.is(DamageTypeTags.IS_FIRE) && stack.has(net.minecraft.core.component.DataComponents.DAMAGE_RESISTANT);
         if (!fireResistant && stack.getItem() instanceof ArmorItem) {
-            stack.hurtAndBreak((int) amount, this, ivy -> ivy.broadcastBreakEvent(equipmentSlot));
+            stack.hurtAndBreak((int) amount, this, equipmentSlot);
         }
     }
 
@@ -1173,13 +1180,15 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     public @NotNull MerchantOffers getOffers() {
         if (offers == null) {
             offers = new MerchantOffers();
-            updateTrades();
+            if (level() instanceof net.minecraft.server.level.ServerLevel sdServer) {
+                updateTrades(sdServer);
+            }
         }
         return offers;
     }
 
     @Override
-    protected void updateTrades() {
+    protected void updateTrades(net.minecraft.server.level.ServerLevel sdLevel) {
         MerchantOffers offers = getOffers();
         if (!offers.isEmpty()) {
             return;
@@ -1603,8 +1612,8 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     }
 
     @Override
-    protected void actuallyHurt(@NotNull DamageSource source, float amount) {
-        super.actuallyHurt(source, amount);
+    protected void actuallyHurt(net.minecraft.server.level.ServerLevel sdLevel, @NotNull DamageSource source, float amount) {
+        super.actuallyHurt(sdLevel, source, amount);
         if (getHealth() <= 0.0F) {
             if (!tryUseInventoryTotem(source)) {
                 if (canEnterDownedState(source)) {
@@ -2418,8 +2427,8 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
                 && tag.contains(HOUSE_HOME_Z_TAG)) {
             setHouseHome(new BlockPos(
                     tag.getIntOr(HOUSE_HOME_X_TAG, 0),
-                    tag.getInt(HOUSE_HOME_Y_TAG),
-                    tag.getInt(HOUSE_HOME_Z_TAG)
+                    tag.getIntOr(HOUSE_HOME_Y_TAG, 0),
+                    tag.getIntOr(HOUSE_HOME_Z_TAG, 0)
             ));
         } else {
             clearHouseHome();
@@ -2558,12 +2567,12 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
 
     private void setHouseHome(BlockPos home) {
         this.houseHome = home.immutable();
-        this.restrictTo(this.houseHome, HOUSE_ROAM_RADIUS);
+        this.setHomeTo(this.houseHome, HOUSE_ROAM_RADIUS);
     }
 
     private void clearHouseHome() {
         this.houseHome = null;
-        this.clearRestriction();
+        this.clearHome();
     }
 
     private void tickWaterCombatBlock() {

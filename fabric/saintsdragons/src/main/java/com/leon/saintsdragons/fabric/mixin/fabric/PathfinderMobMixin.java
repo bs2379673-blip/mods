@@ -29,7 +29,7 @@ public abstract class PathfinderMobMixin {
 
         Entity leashHolder = mob.getLeashHolder();
         if (leashHolder != null && leashHolder.level() == mob.level()) {
-            mob.restrictTo(BlockPos.containing(leashHolder.position()), 5);
+            mob.setHomeTo(BlockPos.containing(leashHolder.position()), 5);
             float distance = mob.distanceTo(leashHolder);
 
             if (mob instanceof TamableAnimal tamable && tamable.isInSittingPose()) {

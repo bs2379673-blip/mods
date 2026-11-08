@@ -309,8 +309,7 @@ public final class BloodTempestKatanaAbility {
                 }
                 target.knockback(0.25D, -direction.x, -direction.z);
                 ItemStack katana = player.getMainHandItem();
-                katana.hurtAndBreak(1, player,
-                        wearer -> wearer.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+                katana.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
             }
         }
     }

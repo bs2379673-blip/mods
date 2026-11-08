@@ -91,7 +91,7 @@ public final class IvyTradeRegistry {
         return new TradePool(rolls, entries);
     }
 
-    private static VillagerTrades.ItemListing parseTrade(Identifier fileId, JsonObject trade) {
+    private static Listing parseTrade(Identifier fileId, JsonObject trade) {
         StackFactory costA = parseStack(GsonHelper.getAsJsonObject(trade, "cost_a"), fileId);
         StackFactory costB = trade.has("cost_b")
                 ? parseStack(GsonHelper.getAsJsonObject(trade, "cost_b"), fileId)
@@ -105,11 +105,11 @@ public final class IvyTradeRegistry {
         return (trader, random) -> {
             ItemStack secondCost = costB.create(random);
             if (secondCost.isEmpty()) {
-                return new MerchantOffer(costA.create(random), result.create(random), maxUses, xp, priceMultiplier);
+                return new MerchantOffer(cost(costA.create(random)), result.create(random), maxUses, xp, priceMultiplier);
             }
             return new MerchantOffer(
-                    costA.create(random),
-                    secondCost,
+                    cost(costA.create(random)),
+                    java.util.Optional.of(cost(secondCost)),
                     result.create(random),
                     maxUses,
                     xp,
@@ -147,7 +147,8 @@ public final class IvyTradeRegistry {
             ItemStack stack = new ItemStack(item.get(), count.roll(random));
             for (EnchantmentEntry enchantment : enchantments) {
                 if (random.nextFloat() <= enchantment.chance()) {
-                    stack.enchant(enchantment.enchantment(), enchantment.level());
+                    stack.enchant(com.leon.saintsdragons.util.compat.Compat.enchantment(net.minecraft.resources.ResourceKey.create(
+                            net.minecraft.core.registries.Registries.ENCHANTMENT, enchantment.enchantment())), enchantment.level());
                 }
             }
             return stack;
@@ -178,8 +179,7 @@ public final class IvyTradeRegistry {
         for (JsonElement element : array) {
             JsonObject enchantmentJson = GsonHelper.convertToJsonObject(element, fileId + " enchantment");
             Identifier id = Identifier.parse(GsonHelper.getAsString(enchantmentJson, "id"));
-            Enchantment enchantment = BuiltInRegistries.ENCHANTMENT.getOptional(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Unknown enchantment " + id + " in " + fileId));
+            Identifier enchantment = id;
             int level = GsonHelper.getAsInt(enchantmentJson, "level", 1);
             float chance = GsonHelper.getAsFloat(enchantmentJson, "chance", 1.0F);
             result.add(new EnchantmentEntry(enchantment, level, chance));
@@ -191,7 +191,7 @@ public final class IvyTradeRegistry {
         void addOffers(AbstractVillager trader, RandomSource random, MerchantOffers offers);
     }
 
-    private record FixedTrade(VillagerTrades.ItemListing listing) implements OfferSource {
+    private record FixedTrade(Listing listing) implements OfferSource {
         @Override
         public void addOffers(AbstractVillager trader, RandomSource random, MerchantOffers offers) {
             addOffer(listing, trader, random, offers);
@@ -222,7 +222,7 @@ public final class IvyTradeRegistry {
         }
     }
 
-    private static void addOffer(VillagerTrades.ItemListing listing,
+    private static void addOffer(Listing listing,
                                  AbstractVillager trader,
                                  RandomSource random,
                                  MerchantOffers offers) {
@@ -255,10 +255,21 @@ public final class IvyTradeRegistry {
         }
     }
 
-    private record EnchantmentEntry(Enchantment enchantment, int level, float chance) {
+    /** Port 1.21.11: el ItemListing de 1.20.1 (las ofertas se arman aca, no en las de los aldeanos). */
+    @FunctionalInterface
+    interface Listing {
+        @org.jetbrains.annotations.Nullable
+        MerchantOffer getOffer(net.minecraft.world.entity.Entity trader, RandomSource random);
     }
 
-    private record WeightedTrade(VillagerTrades.ItemListing listing, int weight) {
+    private static net.minecraft.world.item.trading.ItemCost cost(ItemStack stack) {
+        return new net.minecraft.world.item.trading.ItemCost(stack.getItem(), stack.getCount());
+    }
+
+    private record EnchantmentEntry(Identifier enchantment, int level, float chance) {
+    }
+
+    private record WeightedTrade(Listing listing, int weight) {
     }
 
     private record WeightedResult(StackFactory factory, int weight) {

@@ -39,7 +39,7 @@ public final class BinderComponentUtil {
         if (tag == null || !tag.contains(BOUND_DRAGON_NAME)) {
             return null;
         }
-        return tag.getString(BOUND_DRAGON_NAME);
+        return tag.getStringOr(BOUND_DRAGON_NAME, "");
     }
 
     public static boolean isBound(ItemStack stack) {
@@ -47,7 +47,7 @@ public final class BinderComponentUtil {
             return false;
         }
         var tag = com.leon.saintsdragons.util.compat.Compat.getTag(stack);
-        return tag != null && tag.getBoolean(IS_BOUND);
+        return tag != null && tag.getBooleanOr(IS_BOUND, false);
     }
 
     public static boolean isBinderStack(ItemStack stack) {
@@ -67,18 +67,13 @@ public final class BinderComponentUtil {
             return false;
         }
 
-        for (ItemStack stack : player.getInventory().items) {
+        for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
             if (containsDragonUuid(stack, dragonId)) {
                 return true;
             }
         }
-        for (ItemStack stack : player.getInventory().offhand) {
-            if (containsDragonUuid(stack, dragonId)) {
-                return true;
-            }
-        }
-        for (ItemStack stack : player.getInventory().armor) {
-            if (containsDragonUuid(stack, dragonId)) {
+        for (net.minecraft.world.entity.EquipmentSlot slot : net.minecraft.world.entity.EquipmentSlot.values()) {
+            if (containsDragonUuid(player.getItemBySlot(slot), dragonId)) {
                 return true;
             }
         }

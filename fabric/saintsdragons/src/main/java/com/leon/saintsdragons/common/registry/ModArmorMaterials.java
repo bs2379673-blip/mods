@@ -17,7 +17,7 @@ public enum ModArmorMaterials implements LegacyArmorMaterial {
             5,
             3,
             18,
-            SoundEvents.ARMOR_EQUIP_LEATHER,
+            SoundEvents.ARMOR_EQUIP_LEATHER.value(),
             1.0F,
             0.0F,
             () -> Ingredient.of(ModItems.DRACONIAN_FLESH.get())
@@ -30,7 +30,7 @@ public enum ModArmorMaterials implements LegacyArmorMaterial {
             7,
             4,
             18,
-            SoundEvents.ARMOR_EQUIP_NETHERITE,
+            SoundEvents.ARMOR_EQUIP_NETHERITE.value(),
             4.0F,
             0.15F,
             () -> Ingredient.of(ModItems.DRAGONHEART_CHUNK.get())
@@ -43,7 +43,7 @@ public enum ModArmorMaterials implements LegacyArmorMaterial {
             8,
             5,
             20,
-            SoundEvents.ARMOR_EQUIP_NETHERITE,
+            SoundEvents.ARMOR_EQUIP_NETHERITE.value(),
             5.0F,
             0.0F,
             () -> Ingredient.of(ModItems.DRAGONHEART_ALLOY.get())

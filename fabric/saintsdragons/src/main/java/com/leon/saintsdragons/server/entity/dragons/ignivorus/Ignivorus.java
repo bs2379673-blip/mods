@@ -615,7 +615,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
                                                  @NotNull DifficultyInstance difficulty,
                                                  @NotNull EntitySpawnReason spawnType,
                                                  @Nullable SpawnGroupData spawnData) {
-        SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnType, spawnData, dataTag);
+        SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnType, spawnData);
         roostComponent.initializeHomeFromSpawn(level, spawnType);
         applyConfiguredAttributes();
         this.setHealth(this.getMaxHealth());

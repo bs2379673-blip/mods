@@ -221,7 +221,7 @@ public class Nulljaw extends RideableFlyingDragon implements PackMember<Nulljaw>
                                                  @NotNull DifficultyInstance difficulty,
                                                  @NotNull EntitySpawnReason spawnReason,
                                                  @Nullable SpawnGroupData spawnData) {
-        spawnData = super.finalizeSpawn(level, difficulty, spawnReason, spawnData, dataTag);
+        spawnData = super.finalizeSpawn(level, difficulty, spawnReason, spawnData);
         applyConfiguredAttributes();
         this.setHealth(this.getMaxHealth());
         return spawnData;

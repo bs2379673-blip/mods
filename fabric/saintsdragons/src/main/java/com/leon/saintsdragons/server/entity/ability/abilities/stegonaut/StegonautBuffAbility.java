@@ -234,12 +234,15 @@ public class StegonautBuffAbility {
     }
 
     private static boolean hasBoundStegonautBinder(Player player) {
-        return hasBoundStegonautBinder(player.getInventory().items)
-                || hasBoundStegonautBinder(player.getInventory().offhand)
-                || hasBoundStegonautBinder(player.getInventory().armor);
+        java.util.List<ItemStack> equipped = new java.util.ArrayList<>();
+        for (net.minecraft.world.entity.EquipmentSlot slot : net.minecraft.world.entity.EquipmentSlot.values()) {
+            equipped.add(player.getItemBySlot(slot));
+        }
+        return hasBoundStegonautBinder(player.getInventory().getNonEquipmentItems())
+                || hasBoundStegonautBinder(equipped);
     }
 
-    private static boolean hasBoundStegonautBinder(NonNullList<ItemStack> stacks) {
+    private static boolean hasBoundStegonautBinder(java.util.List<ItemStack> stacks) {
         for (ItemStack stack : stacks) {
             if (!stack.isEmpty()
                     && stack.getItem() instanceof StegonautBinderItem

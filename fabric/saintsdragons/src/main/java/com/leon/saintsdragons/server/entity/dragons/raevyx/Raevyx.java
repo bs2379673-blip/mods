@@ -2429,7 +2429,7 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
             @NotNull DifficultyInstance difficulty,
             @NotNull EntitySpawnReason spawnReason,
             @Nullable SpawnGroupData spawnData) {
-        spawnData = super.finalizeSpawn(level, difficulty, spawnReason, spawnData, dataTag);
+        spawnData = super.finalizeSpawn(level, difficulty, spawnReason, spawnData);
         if (spawnReason == EntitySpawnReason.CHUNK_GENERATION) {
             if (!(spawnData instanceof RaevyxFamilyData)) {
                 if (this.random.nextFloat() < 0.05F) {

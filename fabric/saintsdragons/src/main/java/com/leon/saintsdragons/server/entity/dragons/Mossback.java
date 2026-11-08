@@ -65,7 +65,7 @@ public class Mossback extends Animal implements TickingGeoEntity {
     private static final double TOXIN_RADIUS = 3.25D;
     private static final int TOXIN_PARTICLES = 36;
 
-    public static MobEffectInstance createToxinEffect(MobEffect effect) {
+    public static MobEffectInstance createToxinEffect(net.minecraft.core.Holder<MobEffect> effect) {
         return new MobEffectInstance(effect, TOXIN_EFFECT_TICKS, 0);
     }
 
