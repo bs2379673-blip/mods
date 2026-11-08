@@ -1,0 +1,41 @@
+# Trae fuentes de referencia para portear mods (solo codigo con licencia libre):
+# Kaleidoscope Immersive Eating 26.1.2 (GPL-3.0) descompilado, GeckoLib 5.4.5 1.21.11 (MIT) con sus fuentes,
+# y la lista de objetos de Kaleidoscope Cookery Refabricated para 1.21.11.
+name: Fuentes de referencia
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fuentes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Bajar y descompilar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          mkdir -p ref jars
+          python3 fabric/tools/bajar_modrinth.py "kaleidoscope immersive eating" 26.1.2 jars ie.jar | tee ref/LEEME.txt
+          python3 fabric/tools/bajar_modrinth.py "kaleidoscope cookery refabricated" 1.21.11 jars kc.jar | tee -a ref/LEEME.txt || true
+          curl -sSL -o vf.jar https://repo1.maven.org/maven2/org/vineflower/vineflower/1.11.1/vineflower-1.11.1.jar
+          mkdir -p ref/ie_src
+          java -jar vf.jar -dgs=1 jars/ie.jar ref/ie_src > /dev/null
+          rm -rf ref/ie_src/assets ref/ie_src/data
+          find ref/ie_src -type f ! -name "*.java" ! -name "*.json" -delete
+          unzip -l jars/ie.jar > ref/ie_lista.txt
+          curl -sSL -o ref/geckolib-sources.jar https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/software/bernie/geckolib/geckolib-fabric-1.21.11/5.4.5/geckolib-fabric-1.21.11-5.4.5-sources.jar || true
+          if [ -f jars/kc.jar ]; then
+            unzip -l jars/kc.jar > ref/kc_lista.txt
+            unzip -p jars/kc.jar fabric.mod.json > ref/kc_fabric.mod.json || true
+            unzip -p jars/kc.jar "assets/kaleidoscope_cookery/lang/en_us.json" > ref/kc_en_us.json || true
+          fi
+          tar czf fuentes.tgz ref
+          gh release create fuentes-ci --title "Fuentes de referencia" --notes "Codigo libre para portear (GPL-3.0 / MIT)" 2>/dev/null || true
+          gh release upload fuentes-ci fuentes.tgz --clobber
+          echo "::notice::$(tr '\n' '|' < ref/LEEME.txt)"
