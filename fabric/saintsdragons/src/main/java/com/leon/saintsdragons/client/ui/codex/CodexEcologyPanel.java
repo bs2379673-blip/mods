@@ -279,7 +279,7 @@ public class CodexEcologyPanel {
                 BuiltInRegistries.ITEM;
 
         for (Identifier id : drops) {
-            Item item = registry.get(id);
+            Item item = registry.getValue(id);
             if (item == Items.AIR) {
                 itemY += rowGap;
                 continue;

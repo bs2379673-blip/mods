@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public final class VolitansBreathEmitterParticle extends Particle {
+public final class VolitansBreathEmitterParticle extends com.leon.saintsdragons.client.particle.compat.TextureSheetParticle {
     private record Droplet(VolitansBreathParticle particle, double birth) {}
 
     private final Volitans dragon;

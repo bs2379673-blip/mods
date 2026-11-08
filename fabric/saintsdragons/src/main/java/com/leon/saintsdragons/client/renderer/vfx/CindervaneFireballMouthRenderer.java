@@ -75,7 +75,7 @@ public final class CindervaneFireballMouthRenderer {
             Vec3 point = origin.add(spread.scale(0.3));
             dragon.level().addParticle(i < 8
                             ? ModParticles.FIRE_BREATH_EMBER.get()
-                            : ModParticles.CINDERVANE_MOUTH_EMITTER.get(), true,
+                            : ModParticles.CINDERVANE_MOUTH_EMITTER.get(), true, false,
                     point.x, point.y, point.z, velocity.x, velocity.y, velocity.z);
         }
     }

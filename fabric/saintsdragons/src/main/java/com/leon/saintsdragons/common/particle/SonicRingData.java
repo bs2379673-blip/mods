@@ -14,8 +14,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 
-public record SonicRingData(float yaw, float pitch, float scale, int duration) implements ParticleOptions {
-    public static final ParticleOptions.Deserializer<SonicRingData> DESERIALIZER = new ParticleOptions.Deserializer<>() {
+public record SonicRingData(float yaw, float pitch, float scale, int duration) implements com.leon.saintsdragons.util.compat.LegacyParticleOptions {
+    public static final com.leon.saintsdragons.util.compat.ParticleDeserializer<SonicRingData> DESERIALIZER = new com.leon.saintsdragons.util.compat.ParticleDeserializer<>() {
         @Override
         public @NotNull SonicRingData fromCommand(@NotNull ParticleType<SonicRingData> type, @NotNull StringReader reader) throws CommandSyntaxException {
             reader.expect(' ');
@@ -44,16 +44,14 @@ public record SonicRingData(float yaw, float pitch, float scale, int duration) i
         ).apply(b, SonicRingData::new));
     }
 
-    @Override
-    public void writeToNetwork(@NotNull FriendlyByteBuf buf) {
+        public void writeToNetwork(@NotNull FriendlyByteBuf buf) {
         buf.writeFloat(this.yaw);
         buf.writeFloat(this.pitch);
         buf.writeFloat(this.scale);
         buf.writeInt(this.duration);
     }
 
-    @Override
-    public @NotNull String writeToString() {
+        public @NotNull String writeToString() {
         return String.format(
                 Locale.ROOT,
                 "%s %.2f %.2f %.2f %d",

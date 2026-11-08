@@ -9,10 +9,10 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
-public record FireBreathBurstData(int dragonId) implements ParticleOptions {
+public record FireBreathBurstData(int dragonId) implements com.leon.saintsdragons.util.compat.LegacyParticleOptions {
     public static final Codec<FireBreathBurstData> CODEC = Codec.INT.fieldOf("dragon_id")
             .xmap(FireBreathBurstData::new, FireBreathBurstData::dragonId).codec();
-    public static final Deserializer<FireBreathBurstData> DESERIALIZER = new Deserializer<>() {
+    public static final com.leon.saintsdragons.util.compat.ParticleDeserializer<FireBreathBurstData> DESERIALIZER = new com.leon.saintsdragons.util.compat.ParticleDeserializer<>() {
         @Override
         public @NotNull FireBreathBurstData fromCommand(@NotNull ParticleType<FireBreathBurstData> type,
                                                         @NotNull StringReader reader) throws CommandSyntaxException {
@@ -32,13 +32,11 @@ public record FireBreathBurstData(int dragonId) implements ParticleOptions {
         return ModParticles.FIRE_BREATH_BURST.get();
     }
 
-    @Override
-    public void writeToNetwork(@NotNull FriendlyByteBuf buffer) {
+        public void writeToNetwork(@NotNull FriendlyByteBuf buffer) {
         buffer.writeVarInt(dragonId);
     }
 
-    @Override
-    public @NotNull String writeToString() {
+        public @NotNull String writeToString() {
         return "saintsdragons:fire_breath_burst " + dragonId;
     }
 }

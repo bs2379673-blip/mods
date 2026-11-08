@@ -122,7 +122,7 @@ public final class IgnivorusExplosionFireParticle extends TextureSheetParticle {
     private void corner(VertexConsumer buffer, Quaternionf rotation, Vec3 center, float half,
                         float unitX, float unitY, float u, float v) {
         Vector3f offset = new Vector3f(unitX, unitY, 0.0F).mul(half).rotate(rotation);
-        buffer.addVertex(center.x + offset.x, center.y + offset.y, center.z + offset.z)
+        buffer.addVertex((float) (center.x + offset.x), (float) (center.y + offset.y), (float) (center.z + offset.z))
                 .setUv(u, v).setColor(this.rCol, this.gCol, this.bCol, this.alpha)
                 .setLight(0xF000F0);
     }

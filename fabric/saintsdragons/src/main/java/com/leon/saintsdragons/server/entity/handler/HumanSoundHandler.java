@@ -113,7 +113,7 @@ public class HumanSoundHandler {
         try {
             Identifier rl = Identifier.tryParse(soundId);
             if (rl != null) {
-                SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(rl);
+                SoundEvent sound = BuiltInRegistries.SOUND_EVENT.getValue(rl);
                 Vec3 position = resolveLocator(locator);
                 playSoundImmediate(sound, position, volume, pitch);
             }

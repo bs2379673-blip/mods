@@ -27,7 +27,7 @@ public final class IgnivorusExplosionLayerParticle extends TextureSheetParticle 
     private final Layer layer;
     private final int frameCount;
     private final float ticksPerFrame;
-    private final ParticleRenderType renderType;
+    private final LegacyRenderType renderType;
 
     private IgnivorusExplosionLayerParticle(ClientLevel level, double x, double y, double z,
                                             SpriteSet sprites, Layer layer) {
@@ -176,7 +176,7 @@ public final class IgnivorusExplosionLayerParticle extends TextureSheetParticle 
             Vec3 towardCamera = camera.position().subtract(x, y, z);
             Vec3 right = new Vec3(towardCamera.z, 0.0D, -towardCamera.x);
             if (right.lengthSqr() < 1.0E-8D) {
-                double yaw = Math.toRadians(camera.getYRot());
+                double yaw = Math.toRadians(camera.yRot());
                 right = new Vec3(Math.cos(yaw), 0.0D, Math.sin(yaw));
             } else {
                 right = right.normalize();
@@ -200,13 +200,12 @@ public final class IgnivorusExplosionLayerParticle extends TextureSheetParticle 
 
     private void auraCorner(VertexConsumer buffer, Vec3 center, Vec3 right,
                             float horizontal, float vertical, float u, float v) {
-        buffer.addVertex(center.x + right.x * horizontal * quadSize, center.y + vertical * quadSize,
-                        center.z + right.z * horizontal * quadSize)
+        buffer.addVertex((float) (center.x + right.x * horizontal * quadSize), (float) (center.y + vertical * quadSize), (float) (center.z + right.z * horizontal * quadSize))
                 .setUv(u, v).setColor(rCol, gCol, bCol, alpha).setLight(0xF000F0);
     }
 
     private void corner(VertexConsumer buffer, Vec3 center, float dx, float dz, float u, float v) {
-        buffer.addVertex(center.x + dx, center.y, center.z + dz)
+        buffer.addVertex((float) (center.x + dx), (float) (center.y), (float) (center.z + dz))
                 .setUv(u, v).setColor(rCol, gCol, bCol, alpha).setLight(0xF000F0);
     }
 

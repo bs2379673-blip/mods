@@ -88,7 +88,7 @@ public final class AsyncDragonPathfinder {
     }
 
     public static Future<?> calculateGroundPathAsync(Mob dragon, Vec3 target, Consumer<Path> callback) {
-        MinecraftServer server = dragon.getServer();
+        MinecraftServer server = dragon.level().getServer();
         if (server != null && !server.isSameThread()) {
             return rejectOffThreadRequest(server, dragon, "ground path request", callback);
         }
@@ -117,7 +117,7 @@ public final class AsyncDragonPathfinder {
                                                       boolean avoidWater,
                                                       int detourAllowance,
                                                       Consumer<Path> callback) {
-        MinecraftServer server = dragon.getServer();
+        MinecraftServer server = dragon.level().getServer();
         if (server == null) {
             return CompletableFuture.completedFuture(null);
         }
@@ -261,7 +261,7 @@ public final class AsyncDragonPathfinder {
                                                                Vec3 target,
                                                                Predicate<BlockState> ignoredBlocks,
                                                                Consumer<Path> callback) {
-        MinecraftServer server = dragon.getServer();
+        MinecraftServer server = dragon.level().getServer();
         if (server == null) {
             return CompletableFuture.completedFuture(null);
         }
@@ -348,7 +348,7 @@ public final class AsyncDragonPathfinder {
     }
 
     public static Future<?> calculateSwimPathAsync(Mob dragon, Vec3 target, Consumer<List<Vec3>> callback) {
-        MinecraftServer server = dragon.getServer();
+        MinecraftServer server = dragon.level().getServer();
         if (server == null) {
             return CompletableFuture.completedFuture(null);
         }

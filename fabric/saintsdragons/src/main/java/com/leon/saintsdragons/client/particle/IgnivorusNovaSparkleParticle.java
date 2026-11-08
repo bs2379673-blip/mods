@@ -20,7 +20,7 @@ public final class IgnivorusNovaSparkleParticle extends TextureSheetParticle {
     private final float spin;
     private final float phase;
     private final float frequency;
-    private final ParticleRenderType renderType;
+    private final LegacyRenderType renderType;
 
     private IgnivorusNovaSparkleParticle(ClientLevel level, double x, double y, double z,
                                         double vx, double vy, double vz, SpriteSet sprites) {

@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-final class IgnivorusBreathParticle extends Particle {
+final class IgnivorusBreathParticle extends com.leon.saintsdragons.client.particle.compat.TextureSheetParticle {
     private record Flame(FireBreathParticle particle, double birth) {}
 
     private final Ignivorus dragon;

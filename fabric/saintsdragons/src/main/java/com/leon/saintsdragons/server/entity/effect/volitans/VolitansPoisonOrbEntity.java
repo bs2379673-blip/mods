@@ -186,14 +186,14 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
             Vec3 point = previous.add(travel.scale((i + random.nextDouble()) / samples));
             double spread = 0.18 * getVisualScale();
             if (i % 2 == 0) {
-                level().addParticle(ModParticles.VOLITANS_POISON_ORB_EMITTER.get(), true,
+                level().addParticle(ModParticles.VOLITANS_POISON_ORB_EMITTER.get(), true, false,
                         point.x + (random.nextDouble() - 0.5) * spread,
                         point.y + (random.nextDouble() - 0.5) * spread,
                         point.z + (random.nextDouble() - 0.5) * spread,
                         (random.nextDouble() - 0.5) * 0.15, random.nextDouble() * 0.1,
                         (random.nextDouble() - 0.5) * 0.15);
             }
-            level().addParticle(ModParticles.VOLITANS_POISON_ORB_TRAIL.get(), true,
+            level().addParticle(ModParticles.VOLITANS_POISON_ORB_TRAIL.get(), true, false,
                     point.x + (random.nextDouble() - 0.5) * spread,
                     point.y + (random.nextDouble() - 0.5) * spread,
                     point.z + (random.nextDouble() - 0.5) * spread,

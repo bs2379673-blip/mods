@@ -104,7 +104,7 @@ public final class IgnivorusChargedFireballTrailParticle extends TextureSheetPar
 
     private void vertex(VertexConsumer buffer, Quaternionf rotation, Vec3 center, float x, float y, float u, float v) {
         Vector3f corner = new Vector3f(x, y, 0).mul(quadSize).rotate(rotation);
-        buffer.addVertex(center.x + corner.x, center.y + corner.y, center.z + corner.z)
+        buffer.addVertex((float) (center.x + corner.x), (float) (center.y + corner.y), (float) (center.z + corner.z))
                 .setUv(u, v).setColor(rCol, gCol, bCol, alpha).setLight(0xF000F0);
     }
 

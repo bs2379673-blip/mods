@@ -47,7 +47,7 @@ public final class DragonMovingSoundController {
             }
             return;
         }
-        SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(resourceLocation);
+        SoundEvent sound = BuiltInRegistries.SOUND_EVENT.getValue(resourceLocation);
         if (sound == null) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Sound event not found in registry for entity {}: {}", entityId, resourceLocation);

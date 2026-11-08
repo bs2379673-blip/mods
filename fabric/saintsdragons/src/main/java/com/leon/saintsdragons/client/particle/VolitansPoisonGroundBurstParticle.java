@@ -15,7 +15,7 @@ public final class VolitansPoisonGroundBurstParticle extends TextureSheetParticl
     private static final int FRAMES = 12;
     private static final float FRAME_TICKS = 0.75F;
     private final SpriteSet sprites;
-    private final ParticleRenderType renderType;
+    private final LegacyRenderType renderType;
 
     private VolitansPoisonGroundBurstParticle(ClientLevel level, double x, double y, double z,
                                               double scale, SpriteSet sprites) {

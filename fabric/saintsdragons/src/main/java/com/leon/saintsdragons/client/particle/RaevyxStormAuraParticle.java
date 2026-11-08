@@ -72,7 +72,7 @@ public final class RaevyxStormAuraParticle extends TextureSheetParticle {
     }
 
     private void vertex(VertexConsumer buffer, Vec3 position, float u, float v) {
-        buffer.addVertex(position.x, position.y, position.z).setUv(u, v).setColor(rCol, gCol, bCol, alpha).setLight(0xF000F0);
+        buffer.addVertex((float) (position.x), (float) (position.y), (float) (position.z)).setUv(u, v).setColor(rCol, gCol, bCol, alpha).setLight(0xF000F0);
     }
 
     @Override

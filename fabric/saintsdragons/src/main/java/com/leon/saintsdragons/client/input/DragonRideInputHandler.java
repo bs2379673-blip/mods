@@ -25,7 +25,7 @@ import net.minecraft.world.entity.Entity;
 import java.util.function.Consumer;
 
 public final class DragonRideInputHandler {
-    private static final String KEY_CATEGORY = "key.categories.saintsdragons";
+    private static final net.minecraft.client.KeyMapping.Category KEY_CATEGORY = com.leon.saintsdragons.util.compat.SDKeys.CATEGORY;
     public static final KeyMapping DRAGON_ASCEND = new KeyMapping(
             "key.saintsdragons.ascend",
             InputConstants.Type.KEYSYM,

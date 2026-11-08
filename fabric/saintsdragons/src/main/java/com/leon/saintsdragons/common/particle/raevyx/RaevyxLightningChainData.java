@@ -15,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 
-public record RaevyxLightningChainData(float size, Vec3 startPos, Vec3 endPos) implements ParticleOptions {
-    public static final ParticleOptions.Deserializer<RaevyxLightningChainData> DESERIALIZER = new ParticleOptions.Deserializer<>() {
+public record RaevyxLightningChainData(float size, Vec3 startPos, Vec3 endPos) implements com.leon.saintsdragons.util.compat.LegacyParticleOptions {
+    public static final com.leon.saintsdragons.util.compat.ParticleDeserializer<RaevyxLightningChainData> DESERIALIZER = new com.leon.saintsdragons.util.compat.ParticleDeserializer<>() {
         @Override
         public @NotNull RaevyxLightningChainData fromCommand(@NotNull ParticleType<RaevyxLightningChainData> type, @NotNull StringReader reader) throws CommandSyntaxException {
             reader.expect(' ');
@@ -59,8 +59,7 @@ public record RaevyxLightningChainData(float size, Vec3 startPos, Vec3 endPos) i
         ).apply(b, RaevyxLightningChainData::new));
     }
 
-    @Override
-    public void writeToNetwork(@NotNull FriendlyByteBuf buf) {
+        public void writeToNetwork(@NotNull FriendlyByteBuf buf) {
         buf.writeFloat(this.size);
         buf.writeDouble(this.startPos.x);
         buf.writeDouble(this.startPos.y);
@@ -70,8 +69,7 @@ public record RaevyxLightningChainData(float size, Vec3 startPos, Vec3 endPos) i
         buf.writeDouble(this.endPos.z);
     }
 
-    @Override
-    public @NotNull String writeToString() {
+        public @NotNull String writeToString() {
         return String.format(Locale.ROOT, "%s %.2f %.2f %.2f %.2f %.2f %.2f %.2f",
                 BuiltInRegistries.PARTICLE_TYPE.getKey(ModParticles.LIGHTNING_CHAIN.get()), this.size,
                 this.startPos.x, this.startPos.y, this.startPos.z,

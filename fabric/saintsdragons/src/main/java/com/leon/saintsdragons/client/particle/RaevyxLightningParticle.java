@@ -66,7 +66,7 @@ public class RaevyxLightningParticle extends TextureSheetParticle {
         float cy = (float)(Mth.lerp(partialTicks, this.yo, this.y) - cam.y());
         float cz = (float)(Mth.lerp(partialTicks, this.zo, this.z) - cam.z());
         Quaternionf camQ = new Quaternionf();
-        camQ.rotateY((float) Math.toRadians(-camera.getYRot()));
+        camQ.rotateY((float) Math.toRadians(-camera.yRot()));
         float size = this.getQuadSize(partialTicks);
         CORNER_CACHE[0].set(-1.0F, -1.0F, 0.0F);
         CORNER_CACHE[1].set(-1.0F,  1.0F, 0.0F);

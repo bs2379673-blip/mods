@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
-public record FireBreathParticleData(float range, float density, float scale, int dragonId) implements ParticleOptions {
+public record FireBreathParticleData(float range, float density, float scale, int dragonId) implements com.leon.saintsdragons.util.compat.LegacyParticleOptions {
     public static final Codec<FireBreathParticleData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.FLOAT.fieldOf("range").forGetter(FireBreathParticleData::range),
             Codec.FLOAT.fieldOf("density").forGetter(FireBreathParticleData::density),
@@ -34,7 +34,7 @@ public record FireBreathParticleData(float range, float density, float scale, in
         scale = Float.isFinite(scale) ? Math.max(0.1F, Math.min(5.0F, scale)) : 1.0F;
     }
 
-    public static final Deserializer<FireBreathParticleData> DESERIALIZER = new Deserializer<>() {
+    public static final com.leon.saintsdragons.util.compat.ParticleDeserializer<FireBreathParticleData> DESERIALIZER = new com.leon.saintsdragons.util.compat.ParticleDeserializer<>() {
         @Override
         public @NotNull FireBreathParticleData fromCommand(@NotNull ParticleType<FireBreathParticleData> type,
                                                           @NotNull StringReader reader) throws CommandSyntaxException {
@@ -70,16 +70,14 @@ public record FireBreathParticleData(float range, float density, float scale, in
         return ModParticles.FIRE_BREATH_FLAME.get();
     }
 
-    @Override
-    public void writeToNetwork(@NotNull FriendlyByteBuf buffer) {
+        public void writeToNetwork(@NotNull FriendlyByteBuf buffer) {
         buffer.writeFloat(range);
         buffer.writeFloat(density);
         buffer.writeFloat(scale);
         buffer.writeInt(dragonId);
     }
 
-    @Override
-    public @NotNull String writeToString() {
+        public @NotNull String writeToString() {
         return String.format(Locale.ROOT, "saintsdragons:fire_breath_flame %s %s %s", range, density, scale)
                 + (dragonId < 0 ? "" : " @" + dragonId);
     }

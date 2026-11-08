@@ -37,7 +37,7 @@ public final class FabricDragonUI {
             "key.saintsdragons.toggle_dragon_ui",
             InputConstants.Type.KEYSYM,
             InputConstants.KEY_F4,
-            "key.categories.saintsdragons"
+            com.leon.saintsdragons.util.compat.SDKeys.CATEGORY
     );
 
     static {

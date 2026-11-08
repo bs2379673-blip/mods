@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
 public final class ControlChordKeyMapping extends KeyMapping {
-    public ControlChordKeyMapping(String name, InputConstants.Type type, int keyCode, String category) {
+    public ControlChordKeyMapping(String name, InputConstants.Type type, int keyCode, net.minecraft.client.KeyMapping.Category category) {
         super(name, type, keyCode, category);
     }
 
@@ -24,7 +24,7 @@ public final class ControlChordKeyMapping extends KeyMapping {
             return false;
         }
 
-        long window = minecraft.getWindow().getWindow();
+        var window = minecraft.getWindow();
         boolean controlDown = InputConstants.isKeyDown(window, InputConstants.KEY_LCONTROL)
                 || InputConstants.isKeyDown(window, InputConstants.KEY_RCONTROL);
         return controlDown;

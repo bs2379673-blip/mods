@@ -143,7 +143,7 @@ public class CindervaneFireballEntity extends Entity implements GeoEntity {
                             : i == 1 ? ModParticles.CINDERVANE_SPEC_TRAIL.get()
                             : i == 5 ? ModParticles.CINDERVANE_MORE_SPEC_TRAIL.get()
                             : i == 6 ? ModParticles.CINDERVANE_DARK_FIRE_TRAIL.get()
-                            : ModParticles.CINDERVANE_BETTER_FIRE_TRAIL.get(), true,
+                            : ModParticles.CINDERVANE_BETTER_FIRE_TRAIL.get(), true, false,
                     getX() - velocity.x * along + ox, getY() + getBbHeight() * 0.5 - velocity.y * along + oy,
                     getZ() - velocity.z * along + oz,
                     velocity.x * 0.12 + ox * 0.10, velocity.y * 0.12 + oy * 0.10 + 0.025,

@@ -15,14 +15,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 
 public record GroundDecalParticleData(boolean fissure, float yaw, float scale, int duration)
-        implements ParticleOptions {
+        implements com.leon.saintsdragons.util.compat.LegacyParticleOptions {
     /** Keeps the decal just above the supporting face without visibly floating. */
     public static final double GROUND_OFFSET = 0.002D;
     public static final float NORMAL_SCALE = 7.0F;
     public static final int NORMAL_DURATION = 34;
 
-    public static final ParticleOptions.Deserializer<GroundDecalParticleData> DESERIALIZER =
-            new ParticleOptions.Deserializer<>() {
+    public static final com.leon.saintsdragons.util.compat.ParticleDeserializer<GroundDecalParticleData> DESERIALIZER =
+            new com.leon.saintsdragons.util.compat.ParticleDeserializer<>() {
                 @Override
                 public @NotNull GroundDecalParticleData fromCommand(
                         @NotNull ParticleType<GroundDecalParticleData> type,
@@ -65,16 +65,14 @@ public record GroundDecalParticleData(boolean fissure, float yaw, float scale, i
         return new GroundDecalParticleData(true, yaw, scale, duration);
     }
 
-    @Override
-    public void writeToNetwork(@NotNull FriendlyByteBuf buffer) {
+        public void writeToNetwork(@NotNull FriendlyByteBuf buffer) {
         buffer.writeBoolean(this.fissure);
         buffer.writeFloat(this.yaw);
         buffer.writeFloat(this.scale);
         buffer.writeInt(this.duration);
     }
 
-    @Override
-    public @NotNull String writeToString() {
+        public @NotNull String writeToString() {
         return String.format(
                 Locale.ROOT,
                 "%s %s %.2f %.2f %d",

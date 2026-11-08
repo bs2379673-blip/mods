@@ -95,7 +95,7 @@ public final class IvyOctopusPlushieItem extends Item {
     }
 
     private static IvyTheDragonMerchant findLoadedIvy(ServerPlayer player, @Nullable UUID boundIvyUuid) {
-        MinecraftServer server = player.getServer();
+        MinecraftServer server = player.level().getServer();
         if (server == null) {
             return null;
         }

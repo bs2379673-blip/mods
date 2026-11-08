@@ -19,7 +19,7 @@ public final class DragonlordJumpParticle extends TextureSheetParticle {
     public enum Kind { FIRE, SPEC, SMOKE, EMITTER, STRIKE, GROUND_IMPACT }
 
     private final SpriteSet sprites;
-    private final ParticleRenderType renderType;
+    private final LegacyRenderType renderType;
     private final Kind kind;
     private final int frames;
     private final float size;
@@ -107,7 +107,7 @@ public final class DragonlordJumpParticle extends TextureSheetParticle {
                 center.add(right).add(up), center.add(right).subtract(up)};
         for (int i : new int[] {0, 1, 2, 3, 3, 2, 1, 0}) {
             Vec3 point = corners[i];
-            buffer.addVertex(point.x, point.y, point.z)
+            buffer.addVertex((float) (point.x), (float) (point.y), (float) (point.z))
                     .setUv(i < 2 ? getU0() : getU1(), i == 0 || i == 3 ? getV1() : getV0()).setColor(1.0F, 1.0F, 1.0F, alpha).setLight(0xF000F0);
         }
     }

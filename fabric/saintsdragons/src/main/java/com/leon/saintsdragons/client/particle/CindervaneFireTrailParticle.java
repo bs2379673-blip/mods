@@ -82,7 +82,7 @@ public final class CindervaneFireTrailParticle extends TextureSheetParticle {
     private void vertex(VertexConsumer buffer, Quaternionf rotation, Vec3 center,
                         float localX, float localY, float u, float v) {
         Vector3f corner = new Vector3f(localX, localY, 0).mul(quadSize).rotate(rotation);
-        buffer.addVertex(center.x + corner.x, center.y + corner.y, center.z + corner.z)
+        buffer.addVertex((float) (center.x + corner.x), (float) (center.y + corner.y), (float) (center.z + corner.z))
                 .setUv(u, v).setColor(rCol, gCol, bCol, alpha).setLight(0xF000F0);
     }
 

@@ -21,7 +21,7 @@ public final class IgnivorusAftermathFlameParticle extends TextureSheetParticle 
     private final int frames;
     private final float size;
     private final float frameOffset;
-    private final ParticleRenderType renderType;
+    private final LegacyRenderType renderType;
     private int nextSparkAge;
 
     private IgnivorusAftermathFlameParticle(ClientLevel level, double x, double y, double z,

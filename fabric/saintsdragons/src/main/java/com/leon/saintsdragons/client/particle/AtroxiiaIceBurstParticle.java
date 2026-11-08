@@ -89,7 +89,7 @@ public final class AtroxiiaIceBurstParticle extends TextureSheetParticle {
     private void corner(VertexConsumer buffer, Vec3 center, float dx, float dz, float u, float v) {
         double px = (dx * Math.cos(angle) - dz * Math.sin(angle)) * quadSize;
         double pz = (dx * Math.sin(angle) + dz * Math.cos(angle)) * quadSize;
-        buffer.addVertex(center.x + px, center.y, center.z + pz).setUv(u, v).setColor(rCol, gCol, bCol, alpha).setLight(0xF000F0);
+        buffer.addVertex((float) (center.x + px), (float) (center.y), (float) (center.z + pz)).setUv(u, v).setColor(rCol, gCol, bCol, alpha).setLight(0xF000F0);
     }
 
     @Override

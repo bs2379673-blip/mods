@@ -42,9 +42,9 @@ public final class ModParticles {
     public static final Supplier<SimpleParticleType> VOLITANS_POISON_ORB_TRAIL =
             REGISTER.register("volitans_poison_orb_trail", () -> Services.PLATFORM.createSimpleParticle(true));
     public static final Supplier<ParticleType<VolitansBreathParticleData>> VOLITANS_BREATH_STREAM =
-            REGISTER.register("volitans_breath_stream", () -> new ParticleType<>(false, VolitansBreathParticleData.DESERIALIZER) {
+            REGISTER.register("volitans_breath_stream", () -> new com.leon.saintsdragons.util.compat.LegacyParticleType<>(false, VolitansBreathParticleData.DESERIALIZER) {
                 @Override
-                public Codec<VolitansBreathParticleData> codec() {
+                public Codec<VolitansBreathParticleData> legacyCodec() {
                     return VolitansBreathParticleData.CODEC;
                 }});
 
@@ -78,53 +78,53 @@ public final class ModParticles {
 
     public static final Supplier<ParticleType<RaevyxLightningStormData>> LIGHTNING_STORM =
             REGISTER.register("lightning_storm",
-                    () -> new ParticleType<>(false, RaevyxLightningStormData.DESERIALIZER) {
+                    () -> new com.leon.saintsdragons.util.compat.LegacyParticleType<>(false, RaevyxLightningStormData.DESERIALIZER) {
                         @Override
-                        public Codec<RaevyxLightningStormData> codec() {
+                        public Codec<RaevyxLightningStormData> legacyCodec() {
                             return RaevyxLightningStormData.CODEC(this);
                         }
                     });
 
     public static final Supplier<ParticleType<RaevyxLightningStormData>> LIGHTNING_STORM_NIGHT_GOLD =
             REGISTER.register("lightning_storm_night_gold",
-                    () -> new ParticleType<>(false, RaevyxLightningStormData.DESERIALIZER) {
+                    () -> new com.leon.saintsdragons.util.compat.LegacyParticleType<>(false, RaevyxLightningStormData.DESERIALIZER) {
                         @Override
-                        public Codec<RaevyxLightningStormData> codec() {
+                        public Codec<RaevyxLightningStormData> legacyCodec() {
                             return RaevyxLightningStormData.CODEC(this);
                         }
                     });
 
     public static final Supplier<ParticleType<RaevyxLightningChainData>> LIGHTNING_CHAIN =
             REGISTER.register("lightning_chain",
-                    () -> new ParticleType<>(false, RaevyxLightningChainData.DESERIALIZER) {
+                    () -> new com.leon.saintsdragons.util.compat.LegacyParticleType<>(false, RaevyxLightningChainData.DESERIALIZER) {
                         @Override
-                        public Codec<RaevyxLightningChainData> codec() {
+                        public Codec<RaevyxLightningChainData> legacyCodec() {
                             return RaevyxLightningChainData.CODEC(this);
                         }
                     });
 
     public static final Supplier<ParticleType<SonicRingData>> RAEVYX_SONIC_RING =
             REGISTER.register("raevyx_sonic_ring",
-                    () -> new ParticleType<>(false, SonicRingData.DESERIALIZER) {
+                    () -> new com.leon.saintsdragons.util.compat.LegacyParticleType<>(false, SonicRingData.DESERIALIZER) {
                         @Override
-                        public Codec<SonicRingData> codec() {
+                        public Codec<SonicRingData> legacyCodec() {
                             return SonicRingData.CODEC(this);
                         }
                     });
 
     public static final Supplier<ParticleType<BloodTempestKatanaRingData>> BLOOD_TEMPEST_SWORD_RING =
             REGISTER.register("blood_tempest_sword_ring",
-                    () -> new ParticleType<>(false, BloodTempestKatanaRingData.DESERIALIZER) {
+                    () -> new com.leon.saintsdragons.util.compat.LegacyParticleType<>(false, BloodTempestKatanaRingData.DESERIALIZER) {
                         @Override
-                        public Codec<BloodTempestKatanaRingData> codec() {
+                        public Codec<BloodTempestKatanaRingData> legacyCodec() {
                             return BloodTempestKatanaRingData.codec(this);
                         }
                     });
 
     public static final Supplier<ParticleType<FireBreathParticleData>> FIRE_BREATH_FLAME =
-            REGISTER.register("fire_breath_flame", () -> new ParticleType<>(false, FireBreathParticleData.DESERIALIZER) {
+            REGISTER.register("fire_breath_flame", () -> new com.leon.saintsdragons.util.compat.LegacyParticleType<>(false, FireBreathParticleData.DESERIALIZER) {
                 @Override
-                public Codec<FireBreathParticleData> codec() {
+                public Codec<FireBreathParticleData> legacyCodec() {
                     return FireBreathParticleData.CODEC;
                 }
             });
@@ -268,9 +268,9 @@ public final class ModParticles {
             REGISTER.register("fire_breath_flicker", () -> Services.PLATFORM.createSimpleParticle(false));
 
     public static final Supplier<ParticleType<FireBreathBurstData>> FIRE_BREATH_BURST =
-            REGISTER.register("fire_breath_burst", () -> new ParticleType<>(false, FireBreathBurstData.DESERIALIZER) {
+            REGISTER.register("fire_breath_burst", () -> new com.leon.saintsdragons.util.compat.LegacyParticleType<>(false, FireBreathBurstData.DESERIALIZER) {
                 @Override
-                public Codec<FireBreathBurstData> codec() {
+                public Codec<FireBreathBurstData> legacyCodec() {
                     return FireBreathBurstData.CODEC;
                 }
             });
@@ -352,18 +352,18 @@ public final class ModParticles {
 
     public static final Supplier<ParticleType<GroundDecalParticleData>> GROUND_CRACK =
             REGISTER.register("ground_crack",
-                    () -> new ParticleType<>(false, GroundDecalParticleData.DESERIALIZER) {
+                    () -> new com.leon.saintsdragons.util.compat.LegacyParticleType<>(false, GroundDecalParticleData.DESERIALIZER) {
                         @Override
-                        public Codec<GroundDecalParticleData> codec() {
+                        public Codec<GroundDecalParticleData> legacyCodec() {
                             return GroundDecalParticleData.codec(this);
                         }
                     });
 
     public static final Supplier<ParticleType<GroundDecalParticleData>> GROUND_CRACK_FISSURE =
             REGISTER.register("ground_crack_fissure",
-                    () -> new ParticleType<>(false, GroundDecalParticleData.DESERIALIZER) {
+                    () -> new com.leon.saintsdragons.util.compat.LegacyParticleType<>(false, GroundDecalParticleData.DESERIALIZER) {
                         @Override
-                        public Codec<GroundDecalParticleData> codec() {
+                        public Codec<GroundDecalParticleData> legacyCodec() {
                             return GroundDecalParticleData.codec(this);
                         }
                     });

@@ -420,7 +420,7 @@ public class IgnivorusUltimateAbility extends DragonAbility<Ignivorus> {
                     .add(0.0D, 0.05D + random.nextDouble() * 0.25D, 0.0D);
             for (var viewer : viewers) {
                 server.sendParticles(viewer, i < FIRE_PUFF_COUNT ? ModParticles.IGNIVORUS_EXPLOSION_FIRE.get()
-                        : ModParticles.IGNIVORUS_EXPLOSION_SPEC.get(), true,
+                        : ModParticles.IGNIVORUS_EXPLOSION_SPEC.get(), true, false,
                         pos.x, pos.y, pos.z, 0, vel.x, vel.y, vel.z, 1.0D);
             }
         }

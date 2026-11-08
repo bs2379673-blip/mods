@@ -9,10 +9,10 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
-public record VolitansBreathParticleData(int dragonId) implements ParticleOptions {
+public record VolitansBreathParticleData(int dragonId) implements com.leon.saintsdragons.util.compat.LegacyParticleOptions {
     public static final Codec<VolitansBreathParticleData> CODEC = Codec.INT.fieldOf("dragon_id")
             .xmap(VolitansBreathParticleData::new, VolitansBreathParticleData::dragonId).codec();
-    public static final Deserializer<VolitansBreathParticleData> DESERIALIZER = new Deserializer<>() {
+    public static final com.leon.saintsdragons.util.compat.ParticleDeserializer<VolitansBreathParticleData> DESERIALIZER = new com.leon.saintsdragons.util.compat.ParticleDeserializer<>() {
         @Override
         public @NotNull VolitansBreathParticleData fromCommand(@NotNull ParticleType<VolitansBreathParticleData> type,
                                                                @NotNull StringReader reader) throws CommandSyntaxException {
@@ -32,13 +32,11 @@ public record VolitansBreathParticleData(int dragonId) implements ParticleOption
         return ModParticles.VOLITANS_BREATH_STREAM.get();
     }
 
-    @Override
-    public void writeToNetwork(@NotNull FriendlyByteBuf buffer) {
+        public void writeToNetwork(@NotNull FriendlyByteBuf buffer) {
         buffer.writeVarInt(dragonId);
     }
 
-    @Override
-    public @NotNull String writeToString() {
+        public @NotNull String writeToString() {
         return "saintsdragons:volitans_breath_stream " + dragonId;
     }
 }

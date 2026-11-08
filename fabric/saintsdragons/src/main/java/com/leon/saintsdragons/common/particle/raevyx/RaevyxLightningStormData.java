@@ -14,12 +14,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 
-public record RaevyxLightningStormData(float size, boolean nightGold) implements ParticleOptions {
+public record RaevyxLightningStormData(float size, boolean nightGold) implements com.leon.saintsdragons.util.compat.LegacyParticleOptions {
     public RaevyxLightningStormData(float size) {
         this(size, false);
     }
 
-    public static final ParticleOptions.Deserializer<RaevyxLightningStormData> DESERIALIZER = new ParticleOptions.Deserializer<>() {
+    public static final com.leon.saintsdragons.util.compat.ParticleDeserializer<RaevyxLightningStormData> DESERIALIZER = new com.leon.saintsdragons.util.compat.ParticleDeserializer<>() {
         @Override
         public @NotNull RaevyxLightningStormData fromCommand(@NotNull ParticleType<RaevyxLightningStormData> type, @NotNull StringReader reader) throws CommandSyntaxException {
             reader.expect(' ');
@@ -43,13 +43,11 @@ public record RaevyxLightningStormData(float size, boolean nightGold) implements
         return type == ModParticles.LIGHTNING_STORM_NIGHT_GOLD.get();
     }
 
-    @Override
-    public void writeToNetwork(@NotNull FriendlyByteBuf buf) {
+        public void writeToNetwork(@NotNull FriendlyByteBuf buf) {
         buf.writeFloat(this.size);
     }
 
-    @Override
-    public @NotNull String writeToString() {
+        public @NotNull String writeToString() {
         return String.format(
                 Locale.ROOT,
                 "%s %.2f",

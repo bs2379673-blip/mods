@@ -123,7 +123,7 @@ public final class FireBreathBurstParticle extends TextureSheetParticle {
     }
 
     private static void ringVertex(VertexConsumer buffer, Vec3 point, float u, float v, float opacity) {
-        buffer.addVertex(point.x, point.y, point.z).setUv(u, v).setColor(1.0F, 0.65F, 0.08F, opacity).setLight(0xF000F0);
+        buffer.addVertex((float) (point.x), (float) (point.y), (float) (point.z)).setUv(u, v).setColor(1.0F, 0.65F, 0.08F, opacity).setLight(0xF000F0);
     }
 
     private void anchorToMouth(float partialTicks) {

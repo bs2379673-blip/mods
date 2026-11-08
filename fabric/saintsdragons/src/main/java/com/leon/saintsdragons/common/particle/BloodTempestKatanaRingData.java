@@ -15,9 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 
 public record BloodTempestKatanaRingData(float yaw, float pitch, float scale, int duration)
-        implements ParticleOptions {
-    public static final ParticleOptions.Deserializer<BloodTempestKatanaRingData> DESERIALIZER =
-            new ParticleOptions.Deserializer<>() {
+        implements com.leon.saintsdragons.util.compat.LegacyParticleOptions {
+    public static final com.leon.saintsdragons.util.compat.ParticleDeserializer<BloodTempestKatanaRingData> DESERIALIZER =
+            new com.leon.saintsdragons.util.compat.ParticleDeserializer<>() {
                 @Override
                 public @NotNull BloodTempestKatanaRingData fromCommand(
                         @NotNull ParticleType<BloodTempestKatanaRingData> type,
@@ -52,16 +52,14 @@ public record BloodTempestKatanaRingData(float yaw, float pitch, float scale, in
         ).apply(instance, BloodTempestKatanaRingData::new));
     }
 
-    @Override
-    public void writeToNetwork(@NotNull FriendlyByteBuf buffer) {
+        public void writeToNetwork(@NotNull FriendlyByteBuf buffer) {
         buffer.writeFloat(this.yaw);
         buffer.writeFloat(this.pitch);
         buffer.writeFloat(this.scale);
         buffer.writeInt(this.duration);
     }
 
-    @Override
-    public @NotNull String writeToString() {
+        public @NotNull String writeToString() {
         return String.format(
                 Locale.ROOT,
                 "%s %.2f %.2f %.2f %d",
