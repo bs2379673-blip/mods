@@ -4,6 +4,9 @@
 name: Fuentes de referencia
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/fuentes.yml'
 permissions:
   contents: write
 jobs:
