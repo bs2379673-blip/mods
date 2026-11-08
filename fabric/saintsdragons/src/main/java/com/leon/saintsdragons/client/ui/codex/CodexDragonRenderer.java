@@ -90,8 +90,6 @@ public class CodexDragonRenderer {
             "nulljaw", portraitDefinition("nulljaw", NULLJAW_SCALE, NULLJAW_OFFSET_X, NULLJAW_OFFSET_Y,
                     NULLJAW_BABY_SCALE_ADJUSTMENT, NULLJAW_BABY_OFFSET_X, NULLJAW_BABY_OFFSET_Y)
     );
-    private final CodexStaticPortraitRenderer staticPortraitRenderer = new CodexStaticPortraitRenderer();
-    private final Map<UUID, CodexStaticPortraitRenderer.Portrait> staticPortraits = new HashMap<>();
 
     public void drawDragonPortrait(GuiGraphics guiGraphics, Minecraft minecraft, CodexDragonEntry selected,
                                    int leftPos, int topPos, int mouseX, int mouseY) {
@@ -119,15 +117,9 @@ public class CodexDragonRenderer {
 
         DraconicCodexScreen.RENDERING_IN_GUI.set(true);
         try {
-            InventoryScreen.renderEntityInInventoryFollowsMouse(
-                    guiGraphics,
-                    centerX,
-                    centerY,
-                    size,
-                    (float) (centerX - mouseX),
-                    (float) (centerY - CodexLayout.DRAGON_RENDER_BOX_SIZE - mouseY),
-                    dragon
-            );
+            InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, boxX, boxY,
+                    boxX + CodexLayout.DRAGON_RENDER_BOX_SIZE, boxY + CodexLayout.DRAGON_RENDER_BOX_SIZE,
+                    size, 0.0625F, mouseX, mouseY, dragon);
         } finally {
             DraconicCodexScreen.RENDERING_IN_GUI.set(false);
         }
@@ -187,42 +179,8 @@ public class CodexDragonRenderer {
         if (model == null || texture == null) {
             return;
         }
-        CodexStaticPortraitRenderer.Portrait portrait = staticPortraits.compute(selected.entityId(), (dragonId, current) ->
-                current != null && current.matches(model, texture)
-                        ? current
-                        : new CodexStaticPortraitRenderer.Portrait(dragonId, model, texture));
-        int boxX = leftPos + CodexLayout.DRAGON_RENDER_BOX_X;
-        int boxY = topPos + CodexLayout.DRAGON_RENDER_BOX_Y;
-        int centerX = boxX + CodexLayout.DRAGON_RENDER_BOX_SIZE / 2 + frame.offsetX();
-        int centerY = boxY + CodexLayout.DRAGON_RENDER_BOX_SIZE + frame.offsetY();
-        float yaw = (float) Math.atan((centerX - mouseX) / 40.0F);
-        float pitch = (float) Math.atan((centerY - CodexLayout.DRAGON_RENDER_BOX_SIZE - mouseY) / 40.0F);
-        PoseStack poseStack = guiGraphics.pose();
-
-        guiGraphics.enableScissor(boxX, boxY,
-                boxX + CodexLayout.DRAGON_RENDER_BOX_SIZE,
-                boxY + CodexLayout.DRAGON_RENDER_BOX_SIZE);
-        poseStack.pushPose();
-        try {
-            poseStack.translate(centerX, centerY, 50.0D);
-            int scale = frame.scale();
-            poseStack.mulPoseMatrix(new Matrix4f().scaling(scale, scale, -scale));
-            poseStack.mulPose(new Quaternionf()
-                    .rotateZ((float) Math.PI)
-                    .rotateX(pitch * 20.0F * ((float) Math.PI / 180.0F))
-                    .rotateY(-yaw * 20.0F * ((float) Math.PI / 180.0F)));
-
-            Lighting.setupForEntityInInventory();
-            MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
-            RenderType renderType = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutNoCull(texture);
-            staticPortraitRenderer.render(poseStack, portrait, buffers, renderType,
-                    buffers.getBuffer(renderType), LightTexture.FULL_BRIGHT);
-            guiGraphics.flush();
-        } finally {
-            poseStack.popPose();
-            Lighting.setupFor3DItems();
-            guiGraphics.disableScissor();
-        }
+        // Port 1.21.11: el retrato del dragon que no esta cargado (modelo suelto de GeckoLib dibujado a mano en
+        // la interfaz) no se porto; sin dragon cerca no se muestra el modelo.
     }
 
     private Identifier resolveAdultTexture(CodexDragonEntry selected, PortraitDefinition definition) {

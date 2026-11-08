@@ -37,13 +37,13 @@ public class DraconicCrucibleScreen extends AbstractContainerScreen<DraconicCruc
 
     @Override
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        guiGraphics.blit(TEXTURE, this.leftPos, this.topPos, 0, 0,
+        com.leon.saintsdragons.util.compat.Gui.color(1.0F, 1.0F, 1.0F, 1.0F);
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, this.leftPos, this.topPos, 0, 0,
                 this.imageWidth, this.imageHeight, 256, 256);
         int arrowFillHeight = getArrowFillHeight();
         if (arrowFillHeight > 0) {
             int arrowOffset = ARROW_HEIGHT - arrowFillHeight;
-            guiGraphics.blit(TEXTURE,
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE,
                     this.leftPos + ARROW_X,
                     this.topPos + ARROW_Y + arrowOffset,
                     ARROW_U,
@@ -56,7 +56,7 @@ public class DraconicCrucibleScreen extends AbstractContainerScreen<DraconicCruc
         int gaugeFillHeight = getGaugeFillHeight();
         if (gaugeFillHeight > 0) {
             int gaugeOffset = GAUGE_HEIGHT - gaugeFillHeight;
-            guiGraphics.blit(TEXTURE,
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE,
                     this.leftPos + GAUGE_X,
                     this.topPos + GAUGE_Y + gaugeOffset,
                     GAUGE_U,
@@ -69,12 +69,12 @@ public class DraconicCrucibleScreen extends AbstractContainerScreen<DraconicCruc
         if (this.menu.isProcessing()) {
             int panelX = this.leftPos + PANEL_X;
             int panelY = this.topPos + PANEL_Y;
-            guiGraphics.blit(TEXTURE, panelX, panelY, PANEL_U, PANEL_V,
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, panelX, panelY, PANEL_U, PANEL_V,
                     PANEL_WIDTH, PANEL_HEIGHT, 256, 256);
             int barFillHeight = getBarFillHeight();
             if (barFillHeight > 0) {
                 int barOffset = BAR_HEIGHT - barFillHeight;
-                guiGraphics.blit(TEXTURE,
+                com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE,
                         panelX + BAR_X,
                         panelY + BAR_Y + barOffset,
                         BAR_U,
@@ -132,7 +132,6 @@ public class DraconicCrucibleScreen extends AbstractContainerScreen<DraconicCruc
         if (this.crucibleButton != null) {
             this.crucibleButton.active = this.menu.canStartProcessing();
         }
-        this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
@@ -155,21 +154,21 @@ public class DraconicCrucibleScreen extends AbstractContainerScreen<DraconicCruc
                     ? BUTTON_CLICKED_V
                     : (this.isHovered() ? BUTTON_HIGHLIGHTED_V : BUTTON_DEFAULT_V));
             if (!this.active) {
-                RenderSystem.setShaderColor(0.45F, 0.45F, 0.45F, 1.0F);
+                com.leon.saintsdragons.util.compat.Gui.color(0.45F, 0.45F, 0.45F, 1.0F);
             }
-            guiGraphics.blit(TEXTURE, this.getX(), this.getY(), BUTTON_U, v,
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, this.getX(), this.getY(), BUTTON_U, v,
                     BUTTON_WIDTH, BUTTON_HEIGHT, 256, 256);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            com.leon.saintsdragons.util.compat.Gui.color(1.0F, 1.0F, 1.0F, 1.0F);
         }
 
         @Override
-        public void onClick(double mouseX, double mouseY) {
+        public void onClick(net.minecraft.client.input.MouseButtonEvent sdEvent, boolean sdDouble) {
             this.pressed = true;
             this.onPress.run();
         }
 
         @Override
-        public void onRelease(double mouseX, double mouseY) {
+        public void onRelease(net.minecraft.client.input.MouseButtonEvent sdEvent) {
             this.pressed = false;
         }
 

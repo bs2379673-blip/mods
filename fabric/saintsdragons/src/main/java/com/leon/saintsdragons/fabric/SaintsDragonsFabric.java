@@ -60,6 +60,7 @@ public final class SaintsDragonsFabric implements ModInitializer {
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new FabricDialogueReloadListener());
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new FabricDragonChestLootReloadListener());
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new FabricDraconicCrucibleThermalReloadListener());
+        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new com.leon.saintsdragons.fabric.resource.FabricDraconicCrucibleRecipesReloadListener());
         FabricServerEvents.init();
         FabricLootTableModifier.register();
         CommonModEvents.registerEntityAttributes(SaintsDragonsFabric::registerDefaultAttributes);

@@ -7,14 +7,13 @@ import com.google.gson.JsonObject;
 import com.leon.saintsdragons.common.SaintsDragonsCommon;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-public final class DraconicCrucibleThermalReloadListener extends SimpleJsonResourceReloadListener {
+public final class DraconicCrucibleThermalReloadListener extends com.leon.saintsdragons.util.compat.JsonReloadListener {
     private static final Gson GSON = new GsonBuilder().create();
     private static final Identifier CONFIG_ID = SaintsDragonsCommon.rl("thermal");
     private static final DraconicCrucibleThermalReloadListener INSTANCE =

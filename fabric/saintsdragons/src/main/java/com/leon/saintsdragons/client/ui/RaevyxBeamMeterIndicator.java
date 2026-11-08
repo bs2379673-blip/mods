@@ -95,33 +95,29 @@ public class RaevyxBeamMeterIndicator {
         if (smoothAlpha <= 0.01f) {
             return;
         }
-
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         int x = (screenWidth - BAR_WIDTH) / 2;
         int y = screenHeight - 45;
         int iconX = x - ICON_SIZE - ICON_GAP;
         int iconY = y + (BAR_HEIGHT - ICON_SIZE) / 2;
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, smoothAlpha);
-        guiGraphics.blit(BEAM_ICON, iconX, iconY, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+        com.leon.saintsdragons.util.compat.Gui.color(1.0f, 1.0f, 1.0f, smoothAlpha);
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, BEAM_ICON, iconX, iconY, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
         if (smoothWhiteFlash > 0.01f) {
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, smoothAlpha * smoothWhiteFlash);
-            guiGraphics.blit(BEAM_FLASH_WHITE, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
+            com.leon.saintsdragons.util.compat.Gui.color(1.0f, 1.0f, 1.0f, smoothAlpha * smoothWhiteFlash);
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, BEAM_FLASH_WHITE, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
         }
 
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, smoothAlpha);
+        com.leon.saintsdragons.util.compat.Gui.color(1.0f, 1.0f, 1.0f, smoothAlpha);
         int fillWidth = Math.max(0, Math.min(BAR_WIDTH, Math.round(BAR_WIDTH * smoothFill)));
         if (fillWidth > 0) {
-            guiGraphics.blit(BEAM_BASE, x, y, 0, 0, fillWidth, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, BEAM_BASE, x, y, 0, 0, fillWidth, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
         }
-        guiGraphics.blit(BEAM_OVERLAY, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, BEAM_OVERLAY, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
         if (smoothRedFlash > 0.01f) {
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, smoothAlpha * smoothRedFlash);
-            guiGraphics.blit(BEAM_FLASH_RED, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
+            com.leon.saintsdragons.util.compat.Gui.color(1.0f, 1.0f, 1.0f, smoothAlpha * smoothRedFlash);
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, BEAM_FLASH_RED, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
         }
 
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.disableBlend();
+        com.leon.saintsdragons.util.compat.Gui.color(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     public boolean shouldRender() {

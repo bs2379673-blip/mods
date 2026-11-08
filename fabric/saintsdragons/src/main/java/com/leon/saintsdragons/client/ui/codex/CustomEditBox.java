@@ -106,7 +106,8 @@ public class CustomEditBox extends EditBox {
 
             if (!displayedText.isEmpty()) {
                 String beforeCursor = cursorInView ? displayedText.substring(0, cursorPosInDisplayed) : displayedText;
-                textEndX = guiGraphics.drawString(font, beforeCursor, textX, textY, textColor, false);
+                guiGraphics.drawString(font, beforeCursor, textX, textY, textColor, false);
+                textEndX = textX + font.width(beforeCursor);
             }
 
             int maxLength = (int) getMaxLengthMethod.invoke(this);

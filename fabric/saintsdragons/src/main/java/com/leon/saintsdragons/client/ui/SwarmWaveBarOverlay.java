@@ -12,7 +12,7 @@ import net.minecraft.util.Mth;
 
 @Environment(EnvType.CLIENT)
 public final class SwarmWaveBarOverlay {
-    private static final Identifier TEXTURE = Identifier.parse(
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(
             SaintsDragonsCommon.MOD_ID,
             "textures/gui/draconian_swarm/draconian_swarm_wave_bar.png"
     );
@@ -72,17 +72,13 @@ public final class SwarmWaveBarOverlay {
                 ? Component.translatable("gui.saintsdragons.draconian_swarm.wave", wave)
                 : Component.translatable("gui.saintsdragons.draconian_swarm");
         int titleWidth = minecraft.font.width(title);
-
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         graphics.drawString(minecraft.font, title, (screenWidth - titleWidth) / 2, y, 0xFFFFFFFF, true);
 
         int barY = y + 12;
-        graphics.blit(TEXTURE, x, barY, 0, OVERLAY_V, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, TEXTURE_HEIGHT);
+        com.leon.saintsdragons.util.compat.Gui.blit(graphics, TEXTURE, x, barY, 0, OVERLAY_V, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, TEXTURE_HEIGHT);
         int fillWidth = Mth.clamp(Math.round(BAR_WIDTH * smoothProgress), 0, BAR_WIDTH);
         if (fillWidth > 0) {
-            graphics.blit(TEXTURE, x, barY, 0, FILL_V, fillWidth, BAR_HEIGHT, BAR_WIDTH, TEXTURE_HEIGHT);
+            com.leon.saintsdragons.util.compat.Gui.blit(graphics, TEXTURE, x, barY, 0, FILL_V, fillWidth, BAR_HEIGHT, BAR_WIDTH, TEXTURE_HEIGHT);
         }
-        RenderSystem.disableBlend();
     }
 }

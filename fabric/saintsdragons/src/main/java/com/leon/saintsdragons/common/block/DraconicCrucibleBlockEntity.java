@@ -288,15 +288,15 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
         SimpleContainer grid = createGridView();
         DraconicCrucibleShapedRecipe shapedMatch = null;
         for (DraconicCrucibleShapedRecipe recipe :
-                level.getRecipeManager().getAllRecipesFor(ModRecipes.DRACONIC_CRUCIBLE_SHAPED_TYPE.get())) {
-            if (recipe.matches(grid, level) && isPreferred(recipe, shapedMatch)) {
+                com.leon.saintsdragons.common.recipe.DraconicCrucibleRecipes.shaped()) {
+            if (recipe.matches(grid) && isPreferred(recipe, shapedMatch)) {
                 shapedMatch = recipe;
             }
         }
         if (shapedMatch != null) {
             return new CrucibleJob(
                     shapedMatch.getId(), SHAPED_JOB_SLOT,
-                    shapedMatch.getResultItem(level.registryAccess()).copy(),
+                    shapedMatch.result(),
                     shapedMatch.requiredHeatLevel(), shapedMatch.processingTime(), shapedMatch);
         }
 
@@ -308,14 +308,14 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
             }
             DraconicCrucibleSmeltingRecipe smeltingMatch = null;
             for (DraconicCrucibleSmeltingRecipe recipe :
-                    level.getRecipeManager().getAllRecipesFor(ModRecipes.DRACONIC_CRUCIBLE_SMELTING_TYPE.get())) {
+                    com.leon.saintsdragons.common.recipe.DraconicCrucibleRecipes.smelting()) {
                 if (recipe.ingredient().test(input) && isPreferred(recipe, smeltingMatch)) {
                     smeltingMatch = recipe;
                 }
             }
             if (smeltingMatch != null) {
                 return new CrucibleJob(
-                        smeltingMatch.getId(), inventorySlot, smeltingMatch.result().copy(),
+                        smeltingMatch.id(), inventorySlot, smeltingMatch.result().copy(),
                         smeltingMatch.requiredHeatLevel(), smeltingMatch.processingTime(), null);
             }
 
@@ -323,15 +323,18 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
                 continue;
             }
 
-            SimpleContainer singleInput = new SimpleContainer(input);
-            SmeltingRecipe vanillaRecipe = level.getRecipeManager()
+            if (!(level instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
+                continue;
+            }
+            net.minecraft.world.item.crafting.SingleRecipeInput singleInput = new net.minecraft.world.item.crafting.SingleRecipeInput(input);
+            net.minecraft.world.item.crafting.RecipeHolder<SmeltingRecipe> vanillaRecipe = serverLevel.recipeAccess()
                     .getRecipeFor(RecipeType.SMELTING, singleInput, level)
                     .orElse(null);
             if (vanillaRecipe != null) {
-                ItemStack result = vanillaRecipe.assemble(singleInput, level.registryAccess());
+                ItemStack result = vanillaRecipe.value().assemble(singleInput, level.registryAccess());
                 return new CrucibleJob(
-                        vanillaRecipe.getId(), inventorySlot, result,
-                        DraconicCrucibleFuelTier.LEVEL_1.heatLevel(), vanillaRecipe.getCookingTime(), null);
+                        vanillaRecipe.id().identifier(), inventorySlot, result,
+                        DraconicCrucibleFuelTier.LEVEL_1.heatLevel(), vanillaRecipe.value().cookingTime(), null);
             }
         }
         return null;

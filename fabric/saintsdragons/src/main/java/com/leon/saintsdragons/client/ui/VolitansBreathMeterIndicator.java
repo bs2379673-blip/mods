@@ -66,27 +66,23 @@ public class VolitansBreathMeterIndicator {
         float smoothFill = lerp(previousAnimatedFill, animatedFill, clampedPartial);
         float smoothRedFlash = lerp(previousRedFlashAlpha, redFlashAlpha, clampedPartial);
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-
         int x = (screenWidth - BAR_WIDTH) / 2;
         int y = screenHeight - 45;
         int fillWidth = Math.max(0, Math.min(BAR_WIDTH, Math.round(BAR_WIDTH * smoothFill)));
 
         Identifier activeGauge = breathMode == 1 ? POISON_GAUGE : WATER_GAUGE;
         if (fillWidth > 0) {
-            guiGraphics.blit(activeGauge, x, y, 0, 0, fillWidth, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, activeGauge, x, y, 0, 0, fillWidth, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
         }
 
-        guiGraphics.blit(GAUGE_OVERLAY, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, GAUGE_OVERLAY, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
 
         if (smoothRedFlash > 0.01F) {
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, smoothRedFlash);
-            guiGraphics.blit(GAUGE_OVERLAY_RED, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
+            com.leon.saintsdragons.util.compat.Gui.color(1.0F, 1.0F, 1.0F, smoothRedFlash);
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, GAUGE_OVERLAY_RED, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
         }
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.disableBlend();
+        com.leon.saintsdragons.util.compat.Gui.color(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     private float getSelectedEnergy() {

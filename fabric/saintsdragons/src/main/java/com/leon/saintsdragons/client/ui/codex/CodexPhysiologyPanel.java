@@ -88,7 +88,7 @@ public class CodexPhysiologyPanel {
     private void drawHealthStat(GuiGraphics guiGraphics, Font font, CodexDragonEntry selected, int leftPos, int topPos) {
         int iconX = leftPos + CodexLayout.HEALTH_ICON_OFFSET_X;
         int iconY = topPos + CodexLayout.HEALTH_ICON_OFFSET_Y;
-        guiGraphics.blit(healthIcon, iconX, iconY, 0, 0,
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, healthIcon, iconX, iconY, 0, 0,
                 CodexLayout.STAT_ICON_WIDTH, CodexLayout.STAT_ICON_HEIGHT,
                 CodexLayout.STAT_ICON_WIDTH, CodexLayout.STAT_ICON_HEIGHT);
         String healthValue = formatStat(selected.currentHealth()) + "/" + formatStat(selected.maxHealth());
@@ -99,7 +99,7 @@ public class CodexPhysiologyPanel {
     private void drawArmorStat(GuiGraphics guiGraphics, Font font, CodexDragonEntry selected, int leftPos, int topPos) {
         int iconX = leftPos + CodexLayout.HEALTH_ICON_OFFSET_X;
         int iconY = topPos + CodexLayout.HEALTH_ICON_OFFSET_Y + CodexLayout.STAT_ICON_HEIGHT + CodexLayout.STAT_ICON_GAP_Y;
-        guiGraphics.blit(armorIcon, iconX, iconY, 0, 0,
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, armorIcon, iconX, iconY, 0, 0,
                 CodexLayout.STAT_ICON_WIDTH, CodexLayout.STAT_ICON_HEIGHT,
                 CodexLayout.STAT_ICON_WIDTH, CodexLayout.STAT_ICON_HEIGHT);
         String armorValue = formatStat(selected.armor());
@@ -110,7 +110,7 @@ public class CodexPhysiologyPanel {
     private void drawHungerStat(GuiGraphics guiGraphics, Font font, CodexDragonEntry selected, int leftPos, int topPos) {
         int iconX = leftPos + CodexLayout.HUNGER_ICON_OFFSET_X;
         int iconY = topPos + CodexLayout.HEALTH_ICON_OFFSET_Y;
-        guiGraphics.blit(hungerIcon, iconX, iconY, 0, 0,
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, hungerIcon, iconX, iconY, 0, 0,
                 CodexLayout.STAT_ICON_WIDTH, CodexLayout.STAT_ICON_HEIGHT,
                 CodexLayout.STAT_ICON_WIDTH, CodexLayout.STAT_ICON_HEIGHT);
         String hungerValue = formatStat(selected.hunger()) + "/100";
@@ -121,7 +121,7 @@ public class CodexPhysiologyPanel {
     private void drawHappinessStat(GuiGraphics guiGraphics, Font font, CodexDragonEntry selected, int leftPos, int topPos) {
         int iconX = leftPos + CodexLayout.HAPPINESS_ICON_OFFSET_X;
         int iconY = topPos + CodexLayout.HEALTH_ICON_OFFSET_Y + CodexLayout.STAT_ICON_HEIGHT + CodexLayout.STAT_ICON_GAP_Y;
-        guiGraphics.blit(happinessIcon, iconX, iconY, 0, 0,
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, happinessIcon, iconX, iconY, 0, 0,
                 CodexLayout.STAT_ICON_WIDTH, CodexLayout.STAT_ICON_HEIGHT,
                 CodexLayout.STAT_ICON_WIDTH, CodexLayout.STAT_ICON_HEIGHT);
         String happinessValue = formatStat(selected.happiness()) + "/100";
@@ -132,7 +132,7 @@ public class CodexPhysiologyPanel {
     private void drawVariantStat(GuiGraphics guiGraphics, Font font, CodexDragonEntry selected, int leftPos, int topPos) {
         int iconX = leftPos + CodexLayout.VARIANT_ICON_OFFSET_X;
         int iconY = topPos + CodexLayout.HEALTH_ICON_OFFSET_Y + (CodexLayout.STAT_ICON_HEIGHT + CodexLayout.STAT_ICON_GAP_Y) * 2;
-        guiGraphics.blit(variantIcon, iconX, iconY, 0, 0,
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, variantIcon, iconX, iconY, 0, 0,
                 CodexLayout.STAT_ICON_WIDTH, CodexLayout.STAT_ICON_HEIGHT,
                 CodexLayout.STAT_ICON_WIDTH, CodexLayout.STAT_ICON_HEIGHT);
         String key = resolveVariantTranslationKey(selected);
@@ -158,7 +158,7 @@ public class CodexPhysiologyPanel {
     private void drawGenderStat(GuiGraphics guiGraphics, Font font, CodexDragonEntry selected, int leftPos, int topPos) {
         int iconX = leftPos + CodexLayout.HEALTH_ICON_OFFSET_X;
         int iconY = topPos + CodexLayout.HEALTH_ICON_OFFSET_Y + (CodexLayout.STAT_ICON_HEIGHT + CodexLayout.STAT_ICON_GAP_Y) * 2;
-        guiGraphics.blit(genderIcon, iconX, iconY, 0, 0,
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, genderIcon, iconX, iconY, 0, 0,
                 CodexLayout.STAT_ICON_WIDTH, CodexLayout.STAT_ICON_HEIGHT,
                 CodexLayout.STAT_ICON_WIDTH, CodexLayout.STAT_ICON_HEIGHT);
         String genderKey = selected.genderKnown()
@@ -200,7 +200,7 @@ public class CodexPhysiologyPanel {
         int size = CodexLayout.BRUSHING_ICON_SIZE;
 
         if (!selected.brushingAvailable()) {
-            guiGraphics.blit(brushingUnavailableIcon, iconX, iconY, 0, 0,
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, brushingUnavailableIcon, iconX, iconY, 0, 0,
                     size, size, size, size);
             drawBrushingProgress(guiGraphics, font, selected, iconX, iconY, size);
             return;
@@ -213,7 +213,7 @@ public class CodexPhysiologyPanel {
         Identifier frame = (animationTick / 3L) % 2L == 0L
                 ? brushingAvailableIcon1
                 : brushingAvailableIcon2;
-        guiGraphics.blit(frame, iconX, iconY, 0, 0,
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, frame, iconX, iconY, 0, 0,
                 size, size, size, size);
         drawBrushingProgress(guiGraphics, font, selected, iconX, iconY, size);
     }

@@ -25,12 +25,8 @@ public final class FabricDragonAttributeReloadListener implements IdentifiableRe
     }
 
     @Override
-    public @NotNull CompletableFuture<Void> reload(PreparableReloadListener.@NotNull PreparationBarrier barrier,
-                                                   @NotNull ResourceManager manager,
-                                                   @NotNull ProfilerFiller prepareProfiler,
-                                                   @NotNull ProfilerFiller applyProfiler,
-                                                   @NotNull Executor prepareExecutor,
-                                                   @NotNull Executor applyExecutor) {
-        return delegate.reload(barrier, manager, prepareProfiler, applyProfiler, prepareExecutor, applyExecutor);
+    public @NotNull CompletableFuture<Void> reload(PreparableReloadListener.@NotNull SharedState sdState, @NotNull Executor sdPrepare,
+                                                   PreparableReloadListener.@NotNull PreparationBarrier barrier, @NotNull Executor sdApply) {
+        return delegate.reload(sdState, sdPrepare, barrier, sdApply);
     }
 }

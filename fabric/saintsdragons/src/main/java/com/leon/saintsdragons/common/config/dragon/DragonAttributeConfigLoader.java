@@ -21,7 +21,6 @@ import com.leon.saintsdragons.common.config.SaintsDragonsConfig;
 import com.leon.saintsdragons.platform.Services;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +35,7 @@ import java.util.Objects;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public final class DragonAttributeConfigLoader extends SimpleJsonResourceReloadListener {
+public final class DragonAttributeConfigLoader extends com.leon.saintsdragons.util.compat.JsonReloadListener {
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .disableHtmlEscaping()

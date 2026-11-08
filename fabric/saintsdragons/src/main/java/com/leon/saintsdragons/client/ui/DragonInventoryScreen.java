@@ -48,15 +48,15 @@ public class DragonInventoryScreen extends AbstractContainerScreen<DragonInvento
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        com.leon.saintsdragons.util.compat.Gui.color(1.0F, 1.0F, 1.0F, 1.0F);
         int x = this.leftPos;
         int y = this.topPos;
-        guiGraphics.blit(TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
-        guiGraphics.blit(TEXTURE, x + 7, y + 17, SADDLE_SLOT_U, SADDLE_SLOT_V, 18, 18, TEXTURE_WIDTH, TEXTURE_HEIGHT);
-        guiGraphics.blit(TEXTURE, x + 7, y + 39, CHEST_SLOT_U, CHEST_SLOT_V, 18, 18, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, x + 7, y + 17, SADDLE_SLOT_U, SADDLE_SLOT_V, 18, 18, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, x + 7, y + 39, CHEST_SLOT_U, CHEST_SLOT_V, 18, 18, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         if (this.menu.hasChestInstalled()) {
-            guiGraphics.blit(TEXTURE, x + 79, y + 17, CHEST_SLOTS_U, CHEST_SLOTS_V,
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, x + 79, y + 17, CHEST_SLOTS_U, CHEST_SLOTS_V,
                     this.menu.getChestColumns() * 18, this.menu.getChestRows() * 18, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
 
@@ -69,7 +69,7 @@ public class DragonInventoryScreen extends AbstractContainerScreen<DragonInvento
                     x + PREVIEW_FRAME_X + PREVIEW_FRAME_SIZE,
                     y + PREVIEW_FRAME_Y + PREVIEW_FRAME_SIZE
             );
-            InventoryScreen.renderEntityInInventoryFollowsMouse(
+            com.leon.saintsdragons.util.compat.Gui.entity(
                     guiGraphics,
                     renderX,
                     renderY,
@@ -84,7 +84,6 @@ public class DragonInventoryScreen extends AbstractContainerScreen<DragonInvento
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }

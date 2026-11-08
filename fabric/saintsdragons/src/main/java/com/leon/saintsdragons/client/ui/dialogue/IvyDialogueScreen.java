@@ -137,7 +137,7 @@ public class IvyDialogueScreen extends Screen {
         int boxX = (width - BOX_W) / 2;
         int boxY = getBoxY();
         renderChoices(guiGraphics, boxY, mouseX, mouseY);
-        guiGraphics.blit(TEXTURE, boxX, boxY, BOX_U, BOX_V, BOX_W, BOX_H, TEXTURE_SIZE, TEXTURE_SIZE);
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, boxX, boxY, BOX_U, BOX_V, BOX_W, BOX_H, TEXTURE_SIZE, TEXTURE_SIZE);
 
         int textColor = 0x3A2A1E;
         if (!message.speaker().getString().isBlank()) {
@@ -152,9 +152,9 @@ public class IvyDialogueScreen extends Screen {
         }
         if (isTextComplete() && !isNameInputNode() && (message.choices().isEmpty() || isContinuationOnly())) {
             float alpha = getArrowAlpha();
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
-            guiGraphics.blit(TEXTURE, boxX + ARROW_X, boxY + ARROW_Y, ARROW_U, ARROW_V, ARROW_W, ARROW_H, TEXTURE_SIZE, TEXTURE_SIZE);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            com.leon.saintsdragons.util.compat.Gui.color(1.0F, 1.0F, 1.0F, alpha);
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, boxX + ARROW_X, boxY + ARROW_Y, ARROW_U, ARROW_V, ARROW_W, ARROW_H, TEXTURE_SIZE, TEXTURE_SIZE);
+            com.leon.saintsdragons.util.compat.Gui.color(1.0F, 1.0F, 1.0F, 1.0F);
         }
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
@@ -200,9 +200,12 @@ public class IvyDialogueScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent sdEvent, boolean sdDouble) {
+        double mouseX = sdEvent.x();
+        double mouseY = sdEvent.y();
+        int button = sdEvent.button();
         if (button != 0) {
-            return super.mouseClicked(mouseX, mouseY, button);
+            return super.mouseClicked(sdEvent, sdDouble);
         }
         if (!isTextComplete()) {
             skipText();
@@ -210,7 +213,7 @@ public class IvyDialogueScreen extends Screen {
         }
         int boxY = getBoxY();
         if (isNameInputNode()) {
-            return super.mouseClicked(mouseX, mouseY, button);
+            return super.mouseClicked(sdEvent, sdDouble);
         }
         if (isContinuationOnly()) {
             ensureChoicesStarted();
@@ -228,13 +231,13 @@ public class IvyDialogueScreen extends Screen {
             onClose();
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(sdEvent, sdDouble);
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double sdScrollX, double delta) {
         if (message.choices().isEmpty() || !isTextComplete() || isNameInputNode() || isContinuationOnly()) {
-            return super.mouseScrolled(mouseX, mouseY, delta);
+            return super.mouseScrolled(mouseX, mouseY, sdScrollX, delta);
         }
         int boxY = getBoxY();
         int choiceWidth = getChoiceWidth();
@@ -244,31 +247,34 @@ public class IvyDialogueScreen extends Screen {
         int viewportTop = viewportBottom - viewportHeight;
         if (mouseX < choiceX - 4 || mouseX >= choiceX + choiceWidth + 4
                 || mouseY < viewportTop || mouseY >= viewportBottom) {
-            return super.mouseScrolled(mouseX, mouseY, delta);
+            return super.mouseScrolled(mouseX, mouseY, sdScrollX, delta);
         }
         int maxScroll = Math.max(0, getChoicesTotalHeight(choiceWidth) - viewportHeight);
         if (maxScroll == 0) {
-            return super.mouseScrolled(mouseX, mouseY, delta);
+            return super.mouseScrolled(mouseX, mouseY, sdScrollX, delta);
         }
         choiceScrollOffset = clamp(choiceScrollOffset - (int) Math.round(delta * 18.0D), maxScroll);
         return true;
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent sdKey) {
+        int keyCode = sdKey.key();
+        int scanCode = sdKey.scancode();
+        int modifiers = sdKey.modifiers();
         if (!isTextComplete()) {
             if (isAdvanceKey(keyCode)) {
                 skipText();
                 return true;
             }
-            return super.keyPressed(keyCode, scanCode, modifiers);
+            return super.keyPressed(sdKey);
         }
         if (isNameInputNode()) {
             if ((keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) && isTextComplete()) {
                 submitCustomName();
                 return true;
             }
-            return super.keyPressed(keyCode, scanCode, modifiers);
+            return super.keyPressed(sdKey);
         }
         if (isContinuationOnly()) {
             if (isAdvanceKey(keyCode)) {
@@ -278,9 +284,9 @@ public class IvyDialogueScreen extends Screen {
                 }
                 return true;
             }
-            return super.keyPressed(keyCode, scanCode, modifiers);
+            return super.keyPressed(sdKey);
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(sdKey);
     }
 
     private static boolean isAdvanceKey(int keyCode) {

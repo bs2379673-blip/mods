@@ -135,7 +135,7 @@ public class DraconicCodexScreen extends Screen {
         requestCodexRefresh(false);
         NetworkHandler.sendToServer(MessageGlobalAllyRequest.INSTANCE);
 
-        refreshEntryButton = addRenderableWidget(new ImageButton(
+        refreshEntryButton = addRenderableWidget(new com.leon.saintsdragons.util.compat.TexButton(
                 leftPos + REFRESH_ICON_OFFSET_X,
                 topPos + REFRESH_ICON_OFFSET_Y,
                 REFRESH_ICON_WIDTH,
@@ -152,7 +152,7 @@ public class DraconicCodexScreen extends Screen {
         refreshEntryButton.setTooltip(Tooltip.create(Component.translatable("saintsdragons.gui.draconic_codex.refresh_entry")));
         refreshEntryButton.active = true;
 
-        removeEntryButton = addRenderableWidget(new ImageButton(
+        removeEntryButton = addRenderableWidget(new com.leon.saintsdragons.util.compat.TexButton(
                 leftPos + REMOVE_ENTRY_ICON_OFFSET_X,
                 topPos + REMOVE_ENTRY_ICON_OFFSET_Y,
                 REMOVE_ENTRY_ICON_WIDTH,
@@ -195,9 +195,8 @@ public class DraconicCodexScreen extends Screen {
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
 
-        guiGraphics.blit(BOOK_TEXTURE, leftPos, topPos, 0, 0,
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, BOOK_TEXTURE, leftPos, topPos, 0, 0,
                 CodexLayout.GUI_WIDTH, CodexLayout.GUI_HEIGHT,
                 CodexLayout.GUI_WIDTH, CodexLayout.GUI_HEIGHT);
 
@@ -220,7 +219,10 @@ public class DraconicCodexScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent sdEvent, boolean sdDouble) {
+        double mouseX = sdEvent.x();
+        double mouseY = sdEvent.y();
+        int button = sdEvent.button();
         if (button == 0) {
             if (activeTab == CodexTab.ECOLOGY && handleEcologyLinkClick(mouseX, mouseY)) {
                 return true;
@@ -251,7 +253,7 @@ public class DraconicCodexScreen extends Screen {
                 return true;
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(sdEvent, sdDouble);
     }
 
     private boolean handleEcologyLinkClick(double mouseX, double mouseY) {
@@ -281,7 +283,7 @@ public class DraconicCodexScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double sdScrollX, double delta) {
         if (activeTab == CodexTab.ECOLOGY) {
             if (ecologyPanel.handleLinkScroll(mouseX, mouseY, delta)) {
                 return true;

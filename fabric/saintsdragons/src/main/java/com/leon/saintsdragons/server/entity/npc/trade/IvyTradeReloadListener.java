@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 import com.leon.saintsdragons.common.SaintsDragonsCommon;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-public final class IvyTradeReloadListener extends SimpleJsonResourceReloadListener {
+public final class IvyTradeReloadListener extends com.leon.saintsdragons.util.compat.JsonReloadListener {
     private static final Gson GSON = new GsonBuilder().create();
     private static final IvyTradeReloadListener INSTANCE = new IvyTradeReloadListener();
 

@@ -57,7 +57,6 @@ public class ConfigNavigationScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        renderBackground(graphics);
         graphics.drawCenteredString(font, title, width / 2, 20, 0xFFFFFF);
         super.render(graphics, mouseX, mouseY, partialTick);
     }

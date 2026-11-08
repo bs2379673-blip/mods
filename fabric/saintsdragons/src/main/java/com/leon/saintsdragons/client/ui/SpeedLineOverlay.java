@@ -50,8 +50,6 @@ public final class SpeedLineOverlay {
         }
 
         spawnLines(width, height, intensity);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         for (Iterator<Line> iterator = lines.iterator(); iterator.hasNext(); ) {
             Line line = iterator.next();
             if (!line.tick()) {
@@ -60,7 +58,6 @@ public final class SpeedLineOverlay {
             }
             renderLine(graphics, line, intensity);
         }
-        RenderSystem.disableBlend();
     }
 
     private void spawnLines(int width, int height, float intensity) {
@@ -83,11 +80,11 @@ public final class SpeedLineOverlay {
         }
 
         int color = (alpha << 24) | (LINE_COLOR & 0x00FFFFFF);
-        graphics.pose().pushPose();
-        graphics.pose().translate(line.x, line.y, 0.0F);
-        graphics.pose().mulPose(Axis.ZP.rotationDegrees(line.angle));
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(line.x, line.y);
+        graphics.pose().rotate((float) Math.toRadians(line.angle));
         graphics.fill(0, -line.thickness / 2, line.length, line.thickness / 2, color);
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
     }
 
     private static final class Line {

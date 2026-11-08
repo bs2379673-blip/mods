@@ -81,10 +81,10 @@ public class IvyInventoryScreen extends AbstractContainerScreen<IvyInventoryMenu
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        com.leon.saintsdragons.util.compat.Gui.color(1.0F, 1.0F, 1.0F, 1.0F);
         int x = this.leftPos;
         int y = this.topPos;
-        guiGraphics.blit(TEXTURE, x, y, 0, 0, BASE_W, IMAGE_H, TEX_W, TEX_H);
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, x, y, 0, 0, BASE_W, IMAGE_H, TEX_W, TEX_H);
         renderIvyPreview(guiGraphics, x, y, mouseX, mouseY);
         renderVitals(guiGraphics, x, y);
     }
@@ -96,7 +96,7 @@ public class IvyInventoryScreen extends AbstractContainerScreen<IvyInventoryMenu
         }
         int renderX = x + PREVIEW_X;
         int renderY = y + PREVIEW_Y;
-        InventoryScreen.renderEntityInInventoryFollowsMouse(
+        com.leon.saintsdragons.util.compat.Gui.entity(
                 guiGraphics,
                 renderX,
                 renderY,
@@ -124,22 +124,22 @@ public class IvyInventoryScreen extends AbstractContainerScreen<IvyInventoryMenu
         int healthY = y + VITALS_DEST_HEALTH_Y;
         int armorY = y + VITALS_DEST_ARMOR_Y;
 
-        guiGraphics.blit(TEXTURE, iconX, healthY, VITALS_SOURCE_HEART_ICON_X, VITALS_SOURCE_HEART_ICON_Y,
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, iconX, healthY, VITALS_SOURCE_HEART_ICON_X, VITALS_SOURCE_HEART_ICON_Y,
                 ICON_SIZE, ICON_SIZE, TEX_W, TEX_H);
-        guiGraphics.blit(TEXTURE, barX, healthY, VITALS_SOURCE_BAR_X, VITALS_SOURCE_HEALTH_BAR_Y,
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, barX, healthY, VITALS_SOURCE_BAR_X, VITALS_SOURCE_HEALTH_BAR_Y,
                 BAR_W, BAR_H, TEX_W, TEX_H);
         if (healthFillWidth > 0) {
-            guiGraphics.blit(TEXTURE, barX + 3, healthY + 3,
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, barX + 3, healthY + 3,
                     VITALS_SOURCE_FILL_X, VITALS_SOURCE_HEALTH_FILL_Y,
                     healthFillWidth, FILL_H, TEX_W, TEX_H);
         }
 
-        guiGraphics.blit(TEXTURE, iconX, armorY, VITALS_SOURCE_ARMOR_ICON_X, VITALS_SOURCE_ARMOR_ICON_Y,
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, iconX, armorY, VITALS_SOURCE_ARMOR_ICON_X, VITALS_SOURCE_ARMOR_ICON_Y,
                 ICON_SIZE, ICON_SIZE, TEX_W, TEX_H);
-        guiGraphics.blit(TEXTURE, barX, armorY, VITALS_SOURCE_BAR_X, VITALS_SOURCE_ARMOR_BAR_Y,
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, barX, armorY, VITALS_SOURCE_BAR_X, VITALS_SOURCE_ARMOR_BAR_Y,
                 BAR_W, BAR_H, TEX_W, TEX_H);
         if (armorFillWidth > 0) {
-            guiGraphics.blit(TEXTURE, barX + 3, armorY + 3,
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, TEXTURE, barX + 3, armorY + 3,
                     VITALS_SOURCE_FILL_X, VITALS_SOURCE_ARMOR_FILL_Y,
                     armorFillWidth, FILL_H, TEX_W, TEX_H);
         }
@@ -198,8 +198,7 @@ public class IvyInventoryScreen extends AbstractContainerScreen<IvyInventoryMenu
         for (int i = 0; i < effects.size(); i++) {
             MobEffectInstance effect = effects.get(i);
             int iconY = y + i * (EFFECT_ICON_SIZE + EFFECT_ICON_GAP);
-            TextureAtlasSprite sprite = minecraft.getMobEffectTextures().get(effect.getEffect());
-            guiGraphics.blit(x, iconY, 0, EFFECT_ICON_SIZE, EFFECT_ICON_SIZE, sprite);
+            guiGraphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, net.minecraft.client.gui.Gui.getMobEffectSprite(effect.getEffect()), x, iconY, EFFECT_ICON_SIZE, EFFECT_ICON_SIZE);
 
             if (mouseX >= x && mouseX < x + EFFECT_ICON_SIZE
                     && mouseY >= iconY && mouseY < iconY + EFFECT_ICON_SIZE) {
@@ -208,7 +207,7 @@ public class IvyInventoryScreen extends AbstractContainerScreen<IvyInventoryMenu
         }
 
         if (hoveredEffect != null) {
-            guiGraphics.renderTooltip(this.font, getEffectTooltip(hoveredEffect), Optional.empty(), mouseX, mouseY);
+            guiGraphics.setComponentTooltipForNextFrame(this.font, getEffectTooltip(hoveredEffect), mouseX, mouseY);
         }
     }
 
@@ -224,14 +223,14 @@ public class IvyInventoryScreen extends AbstractContainerScreen<IvyInventoryMenu
         }
         lines.add(name);
         if (effect.getDuration() > 0) {
-            lines.add(MobEffectUtil.formatDuration(effect, 1.0F));
+            lines.add(MobEffectUtil.formatDuration(effect, 1.0F, 20.0F));
         }
         return lines;
     }
 
-    private void addMissingEffect(List<MobEffectInstance> effects, MobEffect mobEffect) {
+    private void addMissingEffect(List<MobEffectInstance> effects, net.minecraft.core.Holder<MobEffect> mobEffect) {
         for (MobEffectInstance effect : effects) {
-            if (effect.getEffect() == mobEffect) {
+            if (effect.getEffect().equals(mobEffect)) {
                 return;
             }
         }
@@ -263,7 +262,6 @@ public class IvyInventoryScreen extends AbstractContainerScreen<IvyInventoryMenu
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         renderIvyEffects(guiGraphics, mouseX, mouseY);
         this.renderTooltip(guiGraphics, mouseX, mouseY);

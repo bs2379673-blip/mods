@@ -70,8 +70,6 @@ public class DragonRideHealthBar {
         if (dragon instanceof Cindervane || dragon instanceof Varasuchus) {
             y += 6;
         }
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
 
         if (dragon instanceof Raevyx) {
             renderTexturedHealthBar(guiGraphics, x, y, RAEVYX_BASE, RAEVYX_OVERLAY);
@@ -92,16 +90,15 @@ public class DragonRideHealthBar {
         }
 
         renderHealthText(guiGraphics, x, y);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.disableBlend();
+        com.leon.saintsdragons.util.compat.Gui.color(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     private void renderTexturedHealthBar(GuiGraphics guiGraphics, int x, int y, Identifier baseTexture, Identifier overlayTexture) {
         int fillWidth = Math.max(0, Math.min(BAR_WIDTH, Math.round(BAR_WIDTH * currentHealthPercent)));
         if (fillWidth > 0) {
-            guiGraphics.blit(baseTexture, x, y, 0, 0, fillWidth, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, baseTexture, x, y, 0, 0, fillWidth, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
         }
-        guiGraphics.blit(overlayTexture, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
+        com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, overlayTexture, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT);
     }
 
     private void renderFallbackHealthBar(GuiGraphics guiGraphics, int x, int y) {

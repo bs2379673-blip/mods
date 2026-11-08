@@ -17,8 +17,8 @@ public class CodexAllyPanel {
     private final Identifier addIcon;
     private final Identifier removeIcon;
     private CustomEditBox allyInput;
-    private ImageButton addAllyButton;
-    private ImageButton removeAllyButton;
+    private net.minecraft.client.gui.components.Button addAllyButton;
+    private net.minecraft.client.gui.components.Button removeAllyButton;
 
     public CodexAllyPanel(Identifier editBoxTexture, Identifier addIcon, Identifier removeIcon) {
         this.editBoxTexture = editBoxTexture;
@@ -49,7 +49,7 @@ public class CodexAllyPanel {
 
         int iconButtonX = inputX + inputWidth + 8;
 
-        addAllyButton = new ImageButton(
+        addAllyButton = new com.leon.saintsdragons.util.compat.TexButton(
                 iconButtonX - 36, inputY + 18, 16, 16,
                 0, 0, 0,
                 addIcon,
@@ -60,7 +60,7 @@ public class CodexAllyPanel {
                 Component.translatable("saintsdragons.gui.draconic_codex.ally.add")));
         addWidget.accept(addAllyButton);
 
-        removeAllyButton = new ImageButton(
+        removeAllyButton = new com.leon.saintsdragons.util.compat.TexButton(
                 iconButtonX - 19, inputY + 18, 16, 16,
                 0, 0, 0,
                 removeIcon,
@@ -90,7 +90,7 @@ public class CodexAllyPanel {
     public void draw(GuiGraphics guiGraphics, Font font, int left, int top, int bottom,
                      List<String> allyList, int allyScrollOffset) {
         if (allyInput != null) {
-            guiGraphics.blit(editBoxTexture,
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, editBoxTexture,
                     allyInput.getX() - 1,
                     allyInput.getY() - 2,
                     0, 0,

@@ -36,11 +36,11 @@ public class CodexTabPanel {
         int x = CodexLayout.getActiveTabX(leftPos);
         int y = CodexLayout.getTabY(topPos, index);
         if (isActive) {
-            guiGraphics.blit(activeTexture, x, y, 0, 0,
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, activeTexture, x, y, 0, 0,
                     CodexLayout.TAB_WIDTH, CodexLayout.TAB_HEIGHT,
                     CodexLayout.TAB_WIDTH, CodexLayout.TAB_HEIGHT);
         } else {
-            guiGraphics.blit(inactiveTexture, x, y, 0, 0,
+            com.leon.saintsdragons.util.compat.Gui.blit(guiGraphics, inactiveTexture, x, y, 0, 0,
                     CodexLayout.TAB_CLOSED_WIDTH, CodexLayout.TAB_CLOSED_HEIGHT,
                     CodexLayout.TAB_CLOSED_WIDTH, CodexLayout.TAB_CLOSED_HEIGHT);
         }

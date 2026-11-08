@@ -85,8 +85,6 @@ public class MeleeModeNotification {
         int bgColor = (bgAlpha << 24);
         int borderColor = (borderAlpha << 24) | 0x00555555;
         int textColor = (textAlpha << 24) | 0x00FFFFFF;
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         guiGraphics.fill(x, y - 2, x + boxWidth, y + boxHeight - 2, bgColor);
         guiGraphics.fill(x, y - 2, x + boxWidth, y - 1, borderColor);
         guiGraphics.fill(x, y + boxHeight - 3, x + boxWidth, y + boxHeight - 2, borderColor);
@@ -100,8 +98,6 @@ public class MeleeModeNotification {
             textColor,
             false
         );
-
-        RenderSystem.disableBlend();
     }
 
     private float easeOutCubic(float t) {

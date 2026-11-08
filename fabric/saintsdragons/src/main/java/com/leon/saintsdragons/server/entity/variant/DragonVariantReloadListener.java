@@ -9,7 +9,6 @@ import com.leon.saintsdragons.common.SaintsDragonsCommon;
 import com.leon.saintsdragons.common.registry.DragonSpeciesRegistry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class DragonVariantReloadListener extends SimpleJsonResourceReloadListener {
+public final class DragonVariantReloadListener extends com.leon.saintsdragons.util.compat.JsonReloadListener {
     private static final Gson GSON = new GsonBuilder().create();
     private static final DragonVariantReloadListener INSTANCE = new DragonVariantReloadListener();
 

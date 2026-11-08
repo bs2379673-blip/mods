@@ -12,8 +12,7 @@
     "RangedAttributeAccessor"
   ],
   "client": [
-    "ClientLevelEntityMapAccessor",
-    "ClientRecipeBookMixin"
+    "ClientLevelEntityMapAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
