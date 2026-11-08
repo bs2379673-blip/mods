@@ -11,6 +11,18 @@ import java.util.Map;
 public class SDRenderState extends LivingEntityRenderState implements GeoRenderState {
     private final Map<DataTicket<?>, Object> data = new Reference2ObjectOpenHashMap<>();
 
+    // GeckoLib mete por mixin su propio mapa en EntityRenderState y redefine add/has;
+    // hay que redefinirlos aca tambien para que todo use el mismo mapa.
+    @Override
+    public <D> void addGeckolibData(DataTicket<D> dataTicket, D value) {
+        this.data.put(dataTicket, value);
+    }
+
+    @Override
+    public boolean hasGeckolibData(DataTicket<?> dataTicket) {
+        return this.data.containsKey(dataTicket);
+    }
+
     @Override
     public Map<DataTicket<?>, Object> getDataMap() {
         return this.data;
