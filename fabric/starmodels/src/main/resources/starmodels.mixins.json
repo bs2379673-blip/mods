@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.starlevi.starmodels.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": ["AvatarRendererMixin", "PlayerModelMixin"],
+  "injectors": {"defaultRequire": 1}
+}

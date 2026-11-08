@@ -25,7 +25,8 @@ public class HairLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 
     @Override
     public void submit(PoseStack ps, SubmitNodeCollector collector, int light, AvatarRenderState s, float yRot, float xRot) {
-        if (s.isInvisible) {
+        // si otro mod (StarModels) escondio la cabeza del jugador, el pelo tampoco va
+        if (s.isInvisible || !getParentModel().head.visible) {
             return;
         }
         HairRender.Frame f = ((FabricRenderState) (Object) s).getData(HairRender.KEY);

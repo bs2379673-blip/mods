@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "starmodels",
+  "version": "${version}",
+  "name": "StarModels",
+  "description": "Personajes de Roblox como modelo del jugador, con las animaciones del jugador (EMF, Fresh Animations, Punchy...) y un workshop de accesorios.",
+  "authors": ["Starlevi"],
+  "license": "All-Rights-Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.starlevi.starmodels.StarModels"],
+    "client": ["com.starlevi.starmodels.client.StarModelsClient"]
+  },
+  "mixins": ["starmodels.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.17",
+    "minecraft": "~1.21.11",
+    "fabric-api": "*"
+  }
+}
