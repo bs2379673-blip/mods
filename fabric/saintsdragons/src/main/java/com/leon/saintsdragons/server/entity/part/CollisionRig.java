@@ -254,7 +254,10 @@ public final class CollisionRig {
     private static float radians(double degrees) { return (float) Math.toRadians(degrees); }
 
     private static JsonObject read(String path) {
-        String resource = "/assets/saintsdragons/" + path;
+        // port 1.21.11: GeckoLib 5 guarda los modelos en geckolib/models y las animaciones en geckolib/animations
+        String moved = path.startsWith("geo/") ? "geckolib/models/" + path.substring(4)
+                : path.startsWith("animations/") ? "geckolib/" + path : path;
+        String resource = "/assets/saintsdragons/" + moved;
         try (var stream = CollisionRig.class.getResourceAsStream(resource)) {
             if (stream == null) throw new IllegalStateException("Missing collision resource " + resource);
             return JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
