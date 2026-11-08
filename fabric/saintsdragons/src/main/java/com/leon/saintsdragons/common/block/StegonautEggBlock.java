@@ -64,7 +64,7 @@ public class StegonautEggBlock extends AbstractTimedDragonEggBlock<StegonautEggB
 
     @Override
     protected DragonEntity createBaby(ServerLevel level) {
-        return ModEntities.STEGONAUT.get().create(level);
+        return ModEntities.STEGONAUT.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
     }
 
     @Override

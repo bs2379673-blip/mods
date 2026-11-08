@@ -166,7 +166,7 @@ public class CindervaneFireballEntity extends Entity implements GeoEntity {
                 start,
                 end,
                 getBoundingBox().expandTowards(getDeltaMovement()).inflate(0.75D),
-                this::canImpactEntity);
+                this::canImpactEntity, 0.0F);
         if (entityHit != null) {
             setPos(entityHit.getLocation());
             return true;
@@ -320,18 +320,12 @@ public class CindervaneFireballEntity extends Entity implements GeoEntity {
         return -0.2D;
     }
 
-    @Override
-    public boolean isInvulnerableTo(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source) {
+        public boolean isInvulnerableTo(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source) {
         return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY);
     }
 
     @Override
-    public float getEyeHeight(@NotNull Pose pose) {
-        return 0.5F;
-    }
-
-    @Override
-    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
+    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
         return EntityDimensions.fixed(0.98F, 0.98F);
     }
 

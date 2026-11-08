@@ -153,7 +153,7 @@ public final class VolitansUnderwaterSpawner {
     }
 
     private static boolean spawnOne(ServerLevel level, BlockPos pos, EntitySpawnReason spawnType) {
-        Volitans volitans = ModEntities.VOLITANS.get().create(level);
+        Volitans volitans = ModEntities.VOLITANS.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
         if (volitans == null) {
             return false;
         }
@@ -235,7 +235,7 @@ public final class VolitansUnderwaterSpawner {
     }
 
     private static boolean canFitVolitansAt(ServerLevel level, BlockPos pos) {
-        Volitans probe = ModEntities.VOLITANS.get().create(level);
+        Volitans probe = ModEntities.VOLITANS.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
         if (probe == null) {
             return false;
         }

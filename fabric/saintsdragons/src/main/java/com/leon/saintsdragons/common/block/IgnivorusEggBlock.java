@@ -73,7 +73,7 @@ public class IgnivorusEggBlock extends AbstractTimedDragonEggBlock<IgnivorusEggB
 
     @Override
     protected DragonEntity createBaby(ServerLevel level) {
-        return ModEntities.IGNIVORUS.get().create(level);
+        return ModEntities.IGNIVORUS.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
     }
 
     @Override

@@ -157,7 +157,7 @@ public final class DragonSetVariantCommand {
             end,
             box,
             target -> target instanceof DragonEntity && target.isPickable()
-        );
+        , 0.0F);
 
         if (result != null && result.getEntity() instanceof DragonEntity dragon) {
             return dragon;

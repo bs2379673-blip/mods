@@ -90,7 +90,7 @@ public class RaevyxEggBlock extends BaseEntityBlock {
         RaevyxEggBlockEntity eggEntity = getEggEntity(blockEntity);
         level.playSound(null, pos, SoundEvents.TURTLE_EGG_HATCH, SoundSource.BLOCKS, 0.7F, 0.9F + level.random.nextFloat() * 0.2F);
         level.removeBlock(pos, false);
-        Raevyx baby = ModEntities.RAEVYX.get().create(level);
+        Raevyx baby = ModEntities.RAEVYX.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
         if (baby != null) {
             if (eggEntity != null) {
                 if (com.leon.saintsdragons.util.compat.Compat.ownerUUID(eggEntity) != null) {

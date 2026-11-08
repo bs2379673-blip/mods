@@ -63,7 +63,7 @@ public class AtroxiiaEggBlock extends AbstractTimedDragonEggBlock<AtroxiiaEggBlo
 
     @Override
     protected DragonEntity createBaby(ServerLevel level) {
-        return ModEntities.ATROXIIA.get().create(level);
+        return ModEntities.ATROXIIA.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
     }
 
     @Override

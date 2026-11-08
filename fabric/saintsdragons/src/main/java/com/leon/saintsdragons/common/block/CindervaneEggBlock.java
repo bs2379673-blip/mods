@@ -130,7 +130,7 @@ public class CindervaneEggBlock extends AbstractTimedDragonEggBlock<CindervaneEg
 
     @Override
     protected DragonEntity createBaby(ServerLevel level) {
-        return ModEntities.CINDERVANE.get().create(level);
+        return ModEntities.CINDERVANE.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
     }
 
     @Override

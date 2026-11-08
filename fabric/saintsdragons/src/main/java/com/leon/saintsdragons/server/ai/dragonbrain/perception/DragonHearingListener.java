@@ -106,14 +106,14 @@ public final class DragonHearingListener implements GameEventListener {
 
         // A heard impact locates the noise. Only a seen projectile contributes a bearing.
         // Preserve that visual evidence instead of replacing it with the landing sound.
-        boolean rememberedProjectileOrigin = event == GameEvent.PROJECTILE_LAND
+        boolean rememberedProjectileOrigin = event.is(GameEvent.PROJECTILE_LAND)
                 && eventSource instanceof Projectile projectile
                 && isDangerousProjectileImpact(eventPosition)
                 && dragon.getVision().observeProjectileImpact(projectile, false);
 
         int ttl = Math.max(20, Math.round(profile.soundMemoryTicks() * stimulus.memoryMultiplier()));
         DragonAwarenessMemory awareness = DragonAwarenessMemory.get(dragon);
-        if (event == GameEvent.PROJECTILE_LAND
+        if (event.is(GameEvent.PROJECTILE_LAND)
                 && source instanceof LivingEntity
                 && sourceUuid != null
                 && isDangerousProjectileImpact(eventPosition)) {
@@ -222,34 +222,34 @@ public final class DragonHearingListener implements GameEventListener {
     }
 
     private static Stimulus stimulus(GameEvent event) {
-        if (event == GameEvent.EXPLODE || event == GameEvent.LIGHTNING_STRIKE) {
+        if (event.is(GameEvent.EXPLODE) || event.is(GameEvent.LIGHTNING_STRIKE)) {
             return new Stimulus(DragonSensoryObservation.Kind.EXPLOSION, 1.0F, 1.5F, true);
         }
-        if (event == GameEvent.ENTITY_ROAR || event == GameEvent.SHRIEK) {
+        if (event.is(GameEvent.ENTITY_ROAR) || event.is(GameEvent.SHRIEK)) {
             return new Stimulus(DragonSensoryObservation.Kind.ROAR, 0.95F, 1.35F, true);
         }
-        if (event == GameEvent.ENTITY_DAMAGE || event == GameEvent.ENTITY_DIE) {
+        if (event.is(GameEvent.ENTITY_DAMAGE) || event.is(GameEvent.ENTITY_DIE)) {
             return new Stimulus(DragonSensoryObservation.Kind.COMBAT, 0.85F, 1.25F, true);
         }
-        if (event == GameEvent.HIT_GROUND) {
+        if (event.is(GameEvent.HIT_GROUND)) {
             return new Stimulus(DragonSensoryObservation.Kind.IMPACT, 0.70F, 0.75F, false);
         }
-        if (event == GameEvent.PROJECTILE_LAND || event == GameEvent.PROJECTILE_SHOOT) {
+        if (event.is(GameEvent.PROJECTILE_LAND) || event.is(GameEvent.PROJECTILE_SHOOT)) {
             return new Stimulus(DragonSensoryObservation.Kind.PROJECTILE, 0.75F, 1.0F, true);
         }
-        if (event == GameEvent.BLOCK_DESTROY || event == GameEvent.BLOCK_PLACE) {
+        if (event.is(GameEvent.BLOCK_DESTROY) || event.is(GameEvent.BLOCK_PLACE)) {
             return new Stimulus(DragonSensoryObservation.Kind.BLOCK, 0.65F, 1.0F, true);
         }
-        if (event == GameEvent.BLOCK_OPEN || event == GameEvent.BLOCK_CLOSE) {
+        if (event.is(GameEvent.BLOCK_OPEN) || event.is(GameEvent.BLOCK_CLOSE)) {
             return new Stimulus(DragonSensoryObservation.Kind.BLOCK, 0.65F, 1.0F, false);
         }
-        if (event == GameEvent.TELEPORT) {
+        if (event.is(GameEvent.TELEPORT)) {
             return new Stimulus(DragonSensoryObservation.Kind.TELEPORT, 0.70F, 1.0F, true);
         }
-        if (event == GameEvent.SPLASH || event == GameEvent.SWIM) {
+        if (event.is(GameEvent.SPLASH) || event.is(GameEvent.SWIM)) {
             return new Stimulus(DragonSensoryObservation.Kind.SPLASH, 0.50F, 0.75F, false);
         }
-        if (event == GameEvent.STEP || event == GameEvent.FLAP || event == GameEvent.ELYTRA_GLIDE) {
+        if (event.is(GameEvent.STEP) || event.is(GameEvent.FLAP) || event.is(GameEvent.ELYTRA_GLIDE)) {
             return new Stimulus(DragonSensoryObservation.Kind.STEP, 0.30F, 0.65F, false);
         }
         return null;

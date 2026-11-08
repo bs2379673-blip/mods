@@ -55,7 +55,7 @@ public class VarasuchusEggBlock extends AbstractTimedDragonEggBlock<VarasuchusEg
 
     @Override
     protected DragonEntity createBaby(ServerLevel level) {
-        return ModEntities.VARASUCHUS.get().create(level);
+        return ModEntities.VARASUCHUS.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
     }
 
     @Override

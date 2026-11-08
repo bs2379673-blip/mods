@@ -176,7 +176,7 @@ public final class StegonautLushCaveSpawner {
             return false;
         }
 
-        Stegonaut stegonaut = ModEntities.STEGONAUT.get().create(level);
+        Stegonaut stegonaut = ModEntities.STEGONAUT.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
         if (stegonaut == null) {
             return false;
         }
@@ -212,7 +212,7 @@ public final class StegonautLushCaveSpawner {
     }
 
     private static boolean canFitStegonautAt(ServerLevel level, BlockPos pos) {
-        Stegonaut probe = ModEntities.STEGONAUT.get().create(level);
+        Stegonaut probe = ModEntities.STEGONAUT.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
         if (probe == null) {
             return false;
         }

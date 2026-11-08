@@ -45,7 +45,7 @@ public class MossbackItem extends Item implements GeoItem {
         ItemStack stack = player.getItemInHand(hand);
 
         if (level instanceof ServerLevel serverLevel) {
-            Mossback mossback = ModEntities.MOSSBACK.get().create(serverLevel);
+            Mossback mossback = ModEntities.MOSSBACK.get().create(serverLevel, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
             if (mossback != null) {
                 mossback.setBaby(isBaby(stack));
                 Vec3 look = player.getLookAngle();

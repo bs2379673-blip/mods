@@ -176,7 +176,7 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
                 return false;
             }
             return true;
-        });
+        }, 0.0F);
     }
 
     private void spawnTrailParticles(Vec3 previous) {
@@ -346,18 +346,12 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
         return false;
     }
 
-    @Override
-    public boolean isInvulnerableTo(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source) {
+        public boolean isInvulnerableTo(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source) {
         return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY);
     }
 
     @Override
-    public float getEyeHeight(@NotNull Pose pose) {
-        return 0.5F * getVisualScale();
-    }
-
-    @Override
-    protected EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
+    public EntityDimensions getDimensions(@NotNull Pose pose) {
         float scale = getVisualScale();
         return EntityDimensions.fixed(0.98F * scale, 0.98F * scale);
     }

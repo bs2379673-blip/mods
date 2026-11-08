@@ -144,7 +144,7 @@ public class StegonautGroundChunkEntity extends Entity {
                 return false;
             }
             return true;
-        });
+        }, 0.0F);
     }
 
     private void explode() {
@@ -220,12 +220,7 @@ public class StegonautGroundChunkEntity extends Entity {
     }
 
     @Override
-    public float getEyeHeight(@NotNull Pose pose) {
-        return 0.5F * getVisualScale();
-    }
-
-    @Override
-    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
+    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
         float scale = getVisualScale();
         return EntityDimensions.fixed(0.98F * scale, 0.98F * scale);
     }

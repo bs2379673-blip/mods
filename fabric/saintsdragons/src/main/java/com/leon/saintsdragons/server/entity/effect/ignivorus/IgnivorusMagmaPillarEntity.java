@@ -339,7 +339,7 @@ public class IgnivorusMagmaPillarEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
+    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
         return BASE_DIMENSIONS.scale(getVisualScale());
     }
 

@@ -159,7 +159,7 @@ public final class RaevyxStormSpawner {
     }
 
     private static boolean spawnOne(ServerLevel level, BlockPos pos, EntitySpawnReason spawnType) {
-        Raevyx raevyx = ModEntities.RAEVYX.get().create(level);
+        Raevyx raevyx = ModEntities.RAEVYX.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
         if (raevyx == null) {
             return false;
         }
@@ -193,7 +193,7 @@ public final class RaevyxStormSpawner {
     }
 
     private static boolean canFitRaevyxAt(ServerLevel level, BlockPos pos) {
-        Raevyx probe = ModEntities.RAEVYX.get().create(level);
+        Raevyx probe = ModEntities.RAEVYX.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
         if (probe == null) {
             return false;
         }

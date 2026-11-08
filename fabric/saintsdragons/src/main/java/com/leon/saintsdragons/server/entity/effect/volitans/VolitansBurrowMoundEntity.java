@@ -146,7 +146,7 @@ public class VolitansBurrowMoundEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
+    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
         return DIMENSIONS;
     }
 

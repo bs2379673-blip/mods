@@ -122,7 +122,7 @@ public class VolitansEggBlock extends AbstractTimedDragonEggBlock<VolitansEggBlo
 
     @Override
     protected DragonEntity createBaby(ServerLevel level) {
-        return ModEntities.VOLITANS.get().create(level);
+        return ModEntities.VOLITANS.get().create(level, net.minecraft.world.entity.EntitySpawnReason.NATURAL);
     }
 
     @Override
