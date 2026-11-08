@@ -1,7 +1,7 @@
 // Kaleidoscope Immersive Eating (GPL-3.0, de XianYue y NightEpiphany), llevado a Fabric 1.21.11.
 // Los modelos, animaciones y texturas (CC BY-NC-ND 4.0) no se suben: ci/bajar_mca.sh los trae del repo original.
 plugins {
-    id 'fabric-loom' version '1.13-SNAPSHOT'
+    id 'fabric-loom' version '1.15-SNAPSHOT'
 }
 
 version = project.mod_version
