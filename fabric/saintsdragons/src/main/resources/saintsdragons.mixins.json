@@ -8,6 +8,7 @@
     "CameraMixin",
     "CameraRollMixin",
     "GameRendererMixin",
+    "LocalPlayerPickMixin",
     "RiderMixin",
     "LivingEntityRendererMixin",
     "InventoryScreenMixin",
