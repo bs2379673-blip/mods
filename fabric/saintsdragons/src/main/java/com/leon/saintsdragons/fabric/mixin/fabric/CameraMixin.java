@@ -24,10 +24,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class CameraMixin implements CameraAccessor {
 
     @Shadow
-    protected abstract void move(double distance, double yaw, double pitch);
+    protected abstract void move(float distance, float yaw, float pitch);
 
     @Shadow
-    protected abstract double getMaxZoom(double distance);
+    protected abstract float getMaxZoom(float distance);
 
     @Shadow
     protected abstract void setPosition(double x, double y, double z);
@@ -39,10 +39,10 @@ public abstract class CameraMixin implements CameraAccessor {
     protected abstract void setPosition(Vec3 pos);
 
     @Shadow
-    protected abstract float getXRot();
+    public abstract float xRot();
 
     @Shadow
-    protected abstract float getYRot();
+    public abstract float yRot();
 
     @Shadow
     private Vector3f up;
@@ -58,12 +58,12 @@ public abstract class CameraMixin implements CameraAccessor {
      */
     @Override
     public void saintsdragons$invokeMove(double distance, double yaw, double pitch) {
-        this.move(distance, yaw, pitch);
+        this.move((float) distance, (float) yaw, (float) pitch);
     }
 
     @Override
     public double saintsdragons$invokeGetMaxZoom(double distance) {
-        return this.getMaxZoom(distance);
+        return this.getMaxZoom((float) distance);
     }
 
     @Override
@@ -78,12 +78,12 @@ public abstract class CameraMixin implements CameraAccessor {
 
     @Override
     public float saintsdragons$invokeGetXRot() {
-        return this.getXRot();
+        return this.xRot();
     }
 
     @Override
     public float saintsdragons$invokeGetYRot() {
-        return this.getYRot();
+        return this.yRot();
     }
 
     @Inject(method = "setup", at = @At("HEAD"), require = 0)

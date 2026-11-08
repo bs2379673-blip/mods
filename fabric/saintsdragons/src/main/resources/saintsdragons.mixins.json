@@ -21,7 +21,6 @@
     "ChunkGeneratorStructureStateMixin",
     "NameTagItemMixin",
     "LivingEntityMixin",
-    "PathfinderMobMixin",
     "PlayerMixin",
     "RedStoneWireBlockMixin",
     "StructureTemplateEntityMixin"

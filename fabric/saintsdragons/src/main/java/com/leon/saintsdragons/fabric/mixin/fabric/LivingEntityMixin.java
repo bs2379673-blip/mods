@@ -15,13 +15,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
-    @ModifyVariable(method = "hurt", at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private float saintsdragons$modifyDirectMeleeDamage(float damage, DamageSource source) {
+    // port 1.21.11: el dano del servidor entra por hurtServer
+    @ModifyVariable(method = "hurtServer", at = @At("HEAD"), argsOnly = true, ordinal = 0)
+    private float saintsdragons$modifyDirectMeleeDamage(float damage, net.minecraft.server.level.ServerLevel level, DamageSource source) {
         return DragonMeleeHitContext.modifyDamage((LivingEntity) (Object) this, source, damage);
     }
 
-    @Inject(method = "hurt", at = @At("RETURN"))
-    private void saintsdragons$observeDirectMeleeResult(DamageSource source, float damage,
+    @Inject(method = "hurtServer", at = @At("RETURN"))
+    private void saintsdragons$observeDirectMeleeResult(net.minecraft.server.level.ServerLevel level, DamageSource source, float damage,
                                                         CallbackInfoReturnable<Boolean> callback) {
         DragonMeleeHitContext.observeResult((LivingEntity) (Object) this, source, callback.getReturnValue());
     }

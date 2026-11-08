@@ -12,27 +12,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(InventoryScreen.class)
 public abstract class InventoryScreenMixin {
-    @Inject(method = "renderEntityInInventory", at = @At("HEAD"))
-    private static void saintsdragons$beginEntityPreview(GuiGraphics guiGraphics,
-                                                          int x,
-                                                          int y,
-                                                          int scale,
-                                                          Quaternionf pose,
-                                                          Quaternionf cameraOrientation,
-                                                          LivingEntity entity,
-                                                          CallbackInfo ci) {
+    @Inject(method = "renderEntityInInventoryFollowsMouse", at = @At("HEAD"), require = 0)
+    private static void saintsdragons$beginEntityPreview(CallbackInfo ci) {
         EntityPreviewRenderContext.begin();
     }
 
-    @Inject(method = "renderEntityInInventory", at = @At("RETURN"))
-    private static void saintsdragons$endEntityPreview(GuiGraphics guiGraphics,
-                                                        int x,
-                                                        int y,
-                                                        int scale,
-                                                        Quaternionf pose,
-                                                        Quaternionf cameraOrientation,
-                                                        LivingEntity entity,
-                                                        CallbackInfo ci) {
+    @Inject(method = "renderEntityInInventoryFollowsMouse", at = @At("RETURN"), require = 0)
+    private static void saintsdragons$endEntityPreview(CallbackInfo ci) {
         EntityPreviewRenderContext.end();
     }
 }

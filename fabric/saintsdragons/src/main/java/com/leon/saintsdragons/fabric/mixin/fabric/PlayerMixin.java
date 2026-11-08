@@ -23,7 +23,7 @@ public abstract class PlayerMixin {
         DragonMeleeHitContext.end((Player) (Object) this, target);
     }
 
-    @ModifyConstant(method = "attack", constant = @Constant(floatValue = 1.5F))
+    @ModifyConstant(method = "attack", constant = @Constant(floatValue = 1.5F), require = 0)
     private float saintsdragons$applyWeaponCriticalDamage(float vanillaMultiplier) {
         Player player = (Player) (Object) this;
         if (player.getMainHandItem().getItem() instanceof DragonheartSwordItem sword) {

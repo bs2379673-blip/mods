@@ -16,6 +16,7 @@ import java.util.Optional;
 public abstract class StructureTemplateEntityMixin {
     @Inject(method = "createEntityIgnoreException", at = @At("HEAD"), cancellable = true)
     private static void saintsdragons$filterDisabledStructureEntity(
+            net.minecraft.util.ProblemReporter reporter,
             ServerLevelAccessor level,
             CompoundTag entityTag,
             CallbackInfoReturnable<Optional<Entity>> cir) {

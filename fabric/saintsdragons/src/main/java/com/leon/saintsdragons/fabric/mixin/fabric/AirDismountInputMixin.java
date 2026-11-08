@@ -22,21 +22,23 @@ public abstract class AirDismountInputMixin {
             method = "tick",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/network/protocol/game/ServerboundPlayerInputPacket;<init>(FFZZ)V"
+                    target = "Lnet/minecraft/network/protocol/game/ServerboundPlayerInputPacket;<init>(Lnet/minecraft/world/entity/player/Input;)V"
             ),
-            index = 3
+            index = 0,
+            require = 0
     )
-    private boolean saintsdragons$blockAirDismountPacket(boolean shiftKeyDown) {
-        if (!shiftKeyDown) {
-            return false;
+    private net.minecraft.world.entity.player.Input saintsdragons$blockAirDismountPacket(net.minecraft.world.entity.player.Input input) {
+        if (!input.shift()) {
+            return input;
         }
         LocalPlayer player = (LocalPlayer) (Object) this;
         Entity vehicle = player.getVehicle();
         if (vehicle instanceof RideableFlyingDragon dragon && saintsdragons$shouldBlockDismount(player, dragon)) {
             saintsdragons$sendBlockedMessage(player);
-            return false;
+            return new net.minecraft.world.entity.player.Input(input.forward(), input.backward(), input.left(), input.right(),
+                    input.jump(), false, input.sprint());
         }
-        return true;
+        return input;
     }
 
     @Unique
