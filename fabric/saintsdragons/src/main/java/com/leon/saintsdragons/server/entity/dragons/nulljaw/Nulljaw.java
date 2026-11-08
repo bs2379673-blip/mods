@@ -569,8 +569,7 @@ public class Nulljaw extends RideableFlyingDragon implements PackMember<Nulljaw>
         return this.getFirstPassenger() instanceof LivingEntity living ? living : null;
     }
 
-    @Override
-    public double getPassengersRidingOffset() {
+        public double getPassengersRidingOffset() {
         return -CARRIED_HITBOX_DOWNWARD_EXTENSION;
     }
 
@@ -971,7 +970,7 @@ public class Nulljaw extends RideableFlyingDragon implements PackMember<Nulljaw>
             return false;
         }
 
-        float width = rider.getDimensions(Pose.STANDING).width * 0.8F;
+        float width = rider.getDimensions(Pose.STANDING).width() * 0.8F;
         AABB riderProbe = AABB.ofSize(rider.position().add(0.0D, 0.5D, 0.0D), width, 1.0E-6D, width);
         return BlockPos.betweenClosedStream(riderProbe).anyMatch(pos -> {
             BlockState state = this.level().getBlockState(pos);
@@ -1015,13 +1014,13 @@ public class Nulljaw extends RideableFlyingDragon implements PackMember<Nulljaw>
 
     private AABB createMountedCollisionShell(Vec3 position) {
         EntityDimensions dimensions = this.getDimensions(this.getPose());
-        double halfWidth = dimensions.width * 0.5D;
+        double halfWidth = dimensions.width() * 0.5D;
         return new AABB(
                 position.x - halfWidth,
                 position.y - CARRIED_HITBOX_DOWNWARD_EXTENSION,
                 position.z - halfWidth,
                 position.x + halfWidth,
-                position.y + dimensions.height,
+                position.y + dimensions.height(),
                 position.z + halfWidth
         );
     }

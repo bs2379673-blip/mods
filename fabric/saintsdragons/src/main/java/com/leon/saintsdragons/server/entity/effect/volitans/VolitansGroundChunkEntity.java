@@ -182,7 +182,7 @@ public class VolitansGroundChunkEntity extends Entity implements GeoEntity {
         controllers.add(new AnimationController<>("controller", 0, this::animationPredicate));
     }
 
-    private <E extends GeoEntity> PlayState animationPredicate(AnimationTest<E> state) {
+    private PlayState animationPredicate(AnimationTest<VolitansGroundChunkEntity> state) {
         state.controller().setAnimation(isDespawning() ? DESPAWN : SPAWN);
         return PlayState.CONTINUE;
     }

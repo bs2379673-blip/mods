@@ -20,17 +20,17 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class DragonCodexSavedData extends SavedData {
+    // port 1.21.11
+    private static final net.minecraft.world.level.saveddata.SavedDataType<DragonCodexSavedData> SD_TYPE =
+            com.leon.saintsdragons.util.compat.Compat.savedData("saintsdragons_draconic_codex", DragonCodexSavedData::new, DragonCodexSavedData::load, DragonCodexSavedData::save);
+
     private static final String DATA_NAME = "saintsdragons_draconic_codex";
 
     private final Map<UUID, List<DragonCodexEntry>> entriesByOwner = new HashMap<>();
 
     public static DragonCodexSavedData get(ServerLevel level) {
         ServerLevel storageLevel = level.getServer() != null ? level.getServer().overworld() : level;
-        return storageLevel.getDataStorage().computeIfAbsent(
-                DragonCodexSavedData::load,
-                DragonCodexSavedData::new,
-                DATA_NAME
-        );
+        return storageLevel.getDataStorage().computeIfAbsent(SD_TYPE);
     }
 
     public void addDragon(ServerPlayer owner, DragonEntity dragon) {
@@ -228,7 +228,6 @@ public class DragonCodexSavedData extends SavedData {
         return new ArrayList<>(entries);
     }
 
-    @Override
     public CompoundTag save(CompoundTag tag) {
         ListTag playerList = new ListTag();
         for (Map.Entry<UUID, List<DragonCodexEntry>> entry : entriesByOwner.entrySet()) {

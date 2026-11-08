@@ -448,7 +448,7 @@ public final class AsyncDragonPathfinder {
                 }
                 T resolvedResult = result;
                 try {
-                    server.tell(new TickTask(requestTick, () -> applyResult(
+                    server.schedule(new TickTask(requestTick, () -> applyResult(
                             request,
                             server,
                             dragon,
@@ -465,7 +465,7 @@ public final class AsyncDragonPathfinder {
             request.markRejected();
             LOGGER.warn("Rejected {} because the bounded path queue is full", operation);
             try {
-                server.tell(new TickTask(requestTick, () -> applyResult(
+                server.schedule(new TickTask(requestTick, () -> applyResult(
                         request,
                         server,
                         dragon,
@@ -498,7 +498,7 @@ public final class AsyncDragonPathfinder {
         }
         int requestTick = server.getTickCount();
         try {
-            server.tell(new TickTask(requestTick, () -> applyResult(
+            server.schedule(new TickTask(requestTick, () -> applyResult(
                     request,
                     server,
                     dragon,

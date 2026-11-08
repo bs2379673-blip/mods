@@ -47,7 +47,7 @@ public class DragonCombatHandler {
         this.abilityCooldowns.clear();
         if (tag.contains("AbilityCooldowns")) {
             CompoundTag cd = tag.getCompoundOrEmpty("AbilityCooldowns");
-            for (String key : cd.getAllKeys()) {
+            for (String key : cd.keySet()) {
                 var type = AbilityRegistry.get(key);
                 if (type != null) {
                     int val = Math.max(0, cd.getIntOr(key, 0));

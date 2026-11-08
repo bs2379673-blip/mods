@@ -12,16 +12,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class DragonlordPlayerSavedData extends SavedData {
+    // port 1.21.11
+    private static final net.minecraft.world.level.saveddata.SavedDataType<DragonlordPlayerSavedData> SD_TYPE =
+            com.leon.saintsdragons.util.compat.Compat.savedData("saintsdragons_dragonlord_players", DragonlordPlayerSavedData::new, DragonlordPlayerSavedData::load, DragonlordPlayerSavedData::save);
+
     private static final String DATA_NAME = "saintsdragons_dragonlord_players";
     private final Map<UUID, Float> savedHealth = new HashMap<>();
 
     public static DragonlordPlayerSavedData get(ServerLevel level) {
         ServerLevel storageLevel = level.getServer().overworld();
-        return storageLevel.getDataStorage().computeIfAbsent(
-                DragonlordPlayerSavedData::load,
-                DragonlordPlayerSavedData::new,
-                DATA_NAME
-        );
+        return storageLevel.getDataStorage().computeIfAbsent(SD_TYPE);
     }
 
     public void saveHealth(UUID playerId, float health) {
@@ -56,7 +56,6 @@ public class DragonlordPlayerSavedData extends SavedData {
         }
     }
 
-    @Override
     public CompoundTag save(CompoundTag tag) {
         ListTag players = new ListTag();
         for (Map.Entry<UUID, Float> entry : savedHealth.entrySet()) {

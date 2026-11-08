@@ -156,7 +156,7 @@ public final class DragonHappinessComponent {
                 }
             } else {
                 double amount = mult - 1.0;
-                if (existing == null || Math.abs(existing.getAmount() - amount) > MODIFIER_EPSILON) {
+                if (existing == null || Math.abs(existing.amount() - amount) > MODIFIER_EPSILON) {
                     if (existing != null) {
                         move.removeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_GROUND_UUID));
                     }
@@ -177,7 +177,7 @@ public final class DragonHappinessComponent {
                 }
             } else {
                 double amount = mult - 1.0;
-                if (existing == null || Math.abs(existing.getAmount() - amount) > MODIFIER_EPSILON) {
+                if (existing == null || Math.abs(existing.amount() - amount) > MODIFIER_EPSILON) {
                     if (existing != null) {
                         fly.removeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_FLY_UUID));
                     }

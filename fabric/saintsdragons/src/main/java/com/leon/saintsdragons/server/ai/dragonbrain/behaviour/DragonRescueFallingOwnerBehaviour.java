@@ -202,7 +202,7 @@ public final class DragonRescueFallingOwnerBehaviour<T extends RideableFlyingDra
         ).intersects(owner.getBoundingBox())) {
             return false;
         }
-        if (!owner.startRiding(dragon, true)) {
+        if (!owner.startRiding(dragon, true, true)) {
             return false;
         }
 

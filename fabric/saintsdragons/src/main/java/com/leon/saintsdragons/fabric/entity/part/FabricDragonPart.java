@@ -98,7 +98,7 @@ public class FabricDragonPart extends Entity implements DragonPartEntity {
     @Override
     public void addPassenger(@NotNull Entity passenger) {
         if (parent != null) {
-            passenger.startRiding(parent, true);
+            passenger.startRiding(parent, true, true);
             return;
         }
         super.addPassenger(passenger);

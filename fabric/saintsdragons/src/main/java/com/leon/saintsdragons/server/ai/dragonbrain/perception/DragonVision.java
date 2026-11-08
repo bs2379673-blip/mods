@@ -177,7 +177,7 @@ public final class DragonVision {
             if (!type.isInstance(entity)) continue;
             E candidate = type.cast(entity);
             if (!recognizes(candidate) || !predicate.test(candidate) || (combat && !dragon.canTarget(candidate))
-                    || !conditions.test(dragon, candidate)) continue;
+                    || !(dragon.level() instanceof net.minecraft.server.level.ServerLevel sdVisionLevel && conditions.test(sdVisionLevel, dragon, candidate))) continue;
             double next = dragon.distanceToSqr(candidate);
             if (next < distance) { nearest = candidate; distance = next; }
         }

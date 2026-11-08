@@ -538,7 +538,7 @@ final class AsyncGroundPathSearch {
             current = previous;
         }
         Collections.reverse(nodes);
-        return new DragonGroundPath(nodes, BlockPos.containing(this.requestedTarget), reached, frontier);
+        return DragonGroundPath.create(nodes, BlockPos.containing(this.requestedTarget), reached, frontier);
     }
 
     private void publishDebug(@Nullable DragonPathSearchDebug.SearchSession debugSession,
@@ -687,7 +687,7 @@ final class AsyncGroundPathSearch {
                     }
                     PathType pathType = state.is(Blocks.LADDER)
                             ? PathType.WALKABLE
-                            : WalkNodeEvaluator.getBlockPathTypeStatic(this.snapshot, cursor);
+                            : SnapshotPathTypes.of(this.snapshot, cursor);
                     if (pathType == PathType.WATER
                             || pathType == PathType.WATER_BORDER
                             || pathType == PathType.LAVA) {

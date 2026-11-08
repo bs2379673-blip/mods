@@ -99,4 +99,10 @@ public class DragonWaterSplashEntity extends Entity {
     protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
         sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
+
+    // port 1.21.11
+    @Override
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel sdLevel, net.minecraft.world.damagesource.DamageSource sdSource, float sdAmount) {
+        return false;
+    }
 }

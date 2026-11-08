@@ -320,7 +320,7 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
     @Override
     public void recreateFromPacket(ClientboundAddEntityPacket packet) {
         super.recreateFromPacket(packet);
-        this.setDeltaMovement(packet.getXa(), packet.getYa(), packet.getZa());
+        this.setDeltaMovement(packet.getMovement());
     }
 
     @Override
@@ -341,7 +341,7 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
     @Override
     public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            return super.hurtServer(saintsdragons$level, source, amount);
+            return false; // port 1.21.11: Entity.hurtServer es abstracto
         }
         return false;
     }

@@ -21,4 +21,9 @@ public final class GeoCompat {
     public static RawAnimation triggered(AnimationController<?> controller) {
         return controller.isPlayingTriggeredAnimation() ? controller.getCurrentRawAnimation() : null;
     }
+
+    /** Port GeckoLib 5: el nombre de la animacion (la primera etapa) de un RawAnimation. */
+    public static String name(software.bernie.geckolib.animation.RawAnimation raw) {
+        return raw == null || raw.getAnimationStages().isEmpty() ? "" : raw.getAnimationStages().get(0).animationName();
+    }
 }

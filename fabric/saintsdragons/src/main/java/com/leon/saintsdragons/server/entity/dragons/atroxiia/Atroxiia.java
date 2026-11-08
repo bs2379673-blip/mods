@@ -234,7 +234,7 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
 
     public Atroxiia(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
-        this.setMaxUpStep(MAX_UP_STEP);
+        com.leon.saintsdragons.util.compat.Compat.setMaxUpStep(this, MAX_UP_STEP);
         this.setPathfindingMalus(PathType.POWDER_SNOW, 0.0F);
         this.setPathfindingMalus(PathType.DANGER_POWDER_SNOW, 0.0F);
         this.screenShakeComponent = new ScreenShakeComponent(this, DATA_SCREEN_SHAKE_AMOUNT, 0.18F);
@@ -1330,7 +1330,7 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
         tag.putBoolean("AtroxiiaHasChest", hasAtroxiiaChest());
         tag.putBoolean("AtroxiiaSaddled", hasSaddle());
         if (hasAtroxiiaChest()) {
-            tag.put("AtroxiiiaChestsItems", atroxiiaChestInventory.createTag());
+            tag.put("AtroxiiiaChestsItems", com.leon.saintsdragons.util.compat.Compat.containerToTag(atroxiiaChestInventory));
         }
         ListTag overflow = new ListTag();
         for (ItemStack stack : pendingChestOverflow) overflow.add(com.leon.saintsdragons.util.compat.Compat.saveStack(stack));

@@ -242,7 +242,7 @@ public class IgnivorusStompAbility extends DragonAbility<Ignivorus> {
         for (int y = dragonY; y > dragon.level().getMinY(); y--) {
             BlockPos checkPos = new BlockPos(startPos.getX(), y, startPos.getZ());
             BlockState state = dragon.level().getBlockState(checkPos);
-            if (!state.isAir() && !state.liquid() && state.isSolidRender(dragon.level(), checkPos)) {
+            if (!state.isAir() && !state.liquid() && state.isSolidRender()) {
                 return checkPos;
             }
         }

@@ -517,11 +517,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
 
         clientBabyState = baby;
         var animationManager = getAnimatableInstanceCache().getManagerForId(getId());
-        animationManager.clearSnapshotCache();
-        animationManager.getAnimationControllers().values().forEach(controller -> {
-            controller.stop();
-            controller.reset();
-        });
+        animationManager.getAnimationControllers().values().forEach(controller -> controller.reset());
     }
 
     @Override
@@ -1176,7 +1172,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
                                                  @Nullable SpawnGroupData spawnData) {
         SpawnGroupData data = super.finalizeSpawn(levelAccessor, difficulty, reason, spawnData);
         ensureGenderInitialized();
-        Identifier chosenVariant = chooseSpawnTextureVariantId(levelAccessor, difficulty, reason, spawnData);
+        Identifier chosenVariant = chooseSpawnTextureVariantId(levelAccessor, difficulty, reason, spawnData, null);
         if (this.isBaby() && shouldPersistAdultTextureVariantOnBabies()) {
             setPendingAdultTextureVariantId(chosenVariant);
             setCurrentTextureVariantId(SaintsDragonVariantRegistry.defaultVariantId(getDragonVariantTypeId()));
@@ -1501,8 +1497,8 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
                 this.setLastHurtByPlayer(killDataAttackingPlayer, killDataRecentlyHit);
             }
 
-            if (killDataCause != null) {
-                this.dropAllDeathLoot(killDataCause);
+            if (killDataCause != null && this.level() instanceof net.minecraft.server.level.ServerLevel sdServer) {
+                this.dropAllDeathLoot(sdServer, killDataCause);
             }
             this.level().broadcastEntityEvent(this, (byte)60);
             this.remove(Entity.RemovalReason.KILLED);

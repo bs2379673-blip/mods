@@ -252,7 +252,7 @@ public final class DragonHuntAndEatBehaviour<T extends RideableDragonBase> exten
 
         dragon.getLookControl().setLookAt(food, 30.0F, 30.0F);
         dragon.triggerAnim("interaction", "eat");
-        dragon.playSound(SoundEvents.GENERIC_EAT, 1.0F, dragon.isBaby() ? 1.4F : 1.0F);
+        dragon.playSound(SoundEvents.GENERIC_EAT.value(), 1.0F, dragon.isBaby() ? 1.4F : 1.0F);
         ItemStack eaten = food.getItem().copy();
         eaten.setCount(1);
         spawnEatingParticles(context, eaten);

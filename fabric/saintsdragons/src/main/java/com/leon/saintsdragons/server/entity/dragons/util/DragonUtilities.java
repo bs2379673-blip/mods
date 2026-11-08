@@ -207,7 +207,7 @@ public final class DragonUtilities {
             if (!(state.getBlock() instanceof RedStoneWireBlock wire)) {
                 continue;
             }
-            wire.neighborChanged(state, level, pos, wire, pos, false);
+            level.neighborChanged(state, pos, wire, null, false);
             level.updateNeighborsAt(pos, wire);
         }
     }
@@ -241,9 +241,9 @@ public final class DragonUtilities {
         }
 
         if (state.getBlock() instanceof ButtonBlock button) {
-            button.press(state, level, pos);
+            button.press(state, level, pos, null);
         } else if (state.getBlock() instanceof LeverBlock lever) {
-            lever.pull(state, level, pos);
+            lever.pull(state, level, pos, null);
         } else if (state.getBlock() instanceof LightningRodBlock lightningRod) {
             lightningRod.onLightningStrike(state, level, pos);
         }

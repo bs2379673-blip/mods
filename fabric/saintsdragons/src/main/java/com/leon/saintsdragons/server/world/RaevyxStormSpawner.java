@@ -168,7 +168,7 @@ public final class RaevyxStormSpawner {
         if (!level.noCollision(raevyx, raevyx.getBoundingBox())) {
             return false;
         }
-        raevyx.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), spawnType, null, null);
+        raevyx.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), spawnType, null);
         if (!level.noCollision(raevyx, raevyx.getBoundingBox())) {
             return false;
         }

@@ -14,16 +14,16 @@ import java.util.UUID;
  * Persistent per-player ally registry shared across all dragons.
  */
 public class GlobalDragonAllySavedData extends SavedData {
+    // port 1.21.11
+    private static final net.minecraft.world.level.saveddata.SavedDataType<GlobalDragonAllySavedData> SD_TYPE =
+            com.leon.saintsdragons.util.compat.Compat.savedData("saintsdragons_global_allies", GlobalDragonAllySavedData::new, GlobalDragonAllySavedData::load, GlobalDragonAllySavedData::save);
+
     private static final String DATA_NAME = "saintsdragons_global_allies";
 
     private final Map<UUID, Map<UUID, String>> alliesByOwner = new HashMap<>();
 
     public static GlobalDragonAllySavedData get(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(
-                GlobalDragonAllySavedData::load,
-                GlobalDragonAllySavedData::new,
-                DATA_NAME
-        );
+        return level.getDataStorage().computeIfAbsent(SD_TYPE);
     }
 
     public Map<UUID, String> getAllies(UUID ownerId) {
@@ -72,7 +72,6 @@ public class GlobalDragonAllySavedData extends SavedData {
         }
     }
 
-    @Override
     public CompoundTag save(CompoundTag tag) {
         ListTag playerList = new ListTag();
         for (Map.Entry<UUID, Map<UUID, String>> entry : alliesByOwner.entrySet()) {

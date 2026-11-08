@@ -242,7 +242,7 @@ public class IgnivorusFireballEntity extends Entity implements GeoEntity {
 
         float volume = 1.0F + (scale * 0.2F);
         float pitch = Math.max(0.4F, 0.9F / scale);
-        server.playSound(null, blockPosition(), SoundEvents.GENERIC_EXPLODE, getSoundSource(), volume, pitch);
+        server.playSound(null, blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), getSoundSource(), volume, pitch);
 
         AABB area = new AABB(impact.x - impactRadius, impact.y - impactRadius, impact.z - impactRadius,
                 impact.x + impactRadius, impact.y + impactRadius, impact.z + impactRadius);
@@ -465,7 +465,7 @@ public class IgnivorusFireballEntity extends Entity implements GeoEntity {
     @Override
     public void recreateFromPacket(@NotNull ClientboundAddEntityPacket packet) {
         super.recreateFromPacket(packet);
-        this.setDeltaMovement(packet.getXa(), packet.getYa(), packet.getZa());
+        this.setDeltaMovement(packet.getMovement());
     }
 
     @Override
@@ -491,13 +491,12 @@ public class IgnivorusFireballEntity extends Entity implements GeoEntity {
     @Override
     public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            return super.hurtServer(saintsdragons$level, source, amount);
+            return false; // port 1.21.11: Entity.hurtServer es abstracto
         }
         return false;
     }
 
-    @Override
-    public double getPassengersRidingOffset() {
+        public double getPassengersRidingOffset() {
         return -0.2D * getVisualScale();
     }
 

@@ -379,7 +379,7 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
     public Volitans(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         this.screenShakeComponent = new ScreenShakeComponent(this, DATA_SCREEN_SHAKE_AMOUNT, 0.0F);
-        this.setMaxUpStep(1.0F);
+        com.leon.saintsdragons.util.compat.Compat.setMaxUpStep(this, 1.0F);
         this.riderController = new VolitansRiderController(this);
         this.swimSteering = new GenericSwimSteeringController(this);
         this.asyncSwimController = new AsyncSwimController(this, this.swimSteering);
@@ -1197,8 +1197,7 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
         return null;
     }
 
-    @Override
-    public double getPassengersRidingOffset() {
+        public double getPassengersRidingOffset() {
         return riderController.getPassengersRidingOffset();
     }
 
@@ -1762,7 +1761,7 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
         setTarget(null);
         setAggressive(false);
         setLastHurtByMob(null);
-        this.setLastHurtByPlayer(null);
+        this.setLastHurtByPlayer((net.minecraft.world.entity.player.Player) null, 0);
         setInvulnerable(false);
         setBurrowing(false);
         stopUltimateSlamMovement();

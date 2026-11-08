@@ -112,7 +112,7 @@ public interface DragonBrainOwner<T extends DragonEntity> {
     }
 
     default void tickBrain(ServerLevel level, T dragon) {
-        level.getProfiler().push("dragonBrain");
+        net.minecraft.util.profiling.Profiler.get().push("dragonBrain");
         try {
             @SuppressWarnings("unchecked")
             Brain<T> brain = (Brain<T>)(Brain<?>)dragon.getBrain();
@@ -136,7 +136,7 @@ public interface DragonBrainOwner<T extends DragonEntity> {
                 ApplyMovementIntentBehaviour.applyPending(rideable);
             }
         } finally {
-            level.getProfiler().pop();
+            net.minecraft.util.profiling.Profiler.get().pop();
         }
     }
 

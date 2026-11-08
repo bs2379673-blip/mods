@@ -105,7 +105,7 @@ public final class NulljawBreedBehaviour extends DragonBreedBehaviour<Nulljaw> {
         }
         level.broadcastEntityEvent(dragon, (byte)18);
 
-        if (level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+        if (level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_DROPS)) {
             level.addFreshEntity(new ExperienceOrb(
                     level,
                     baby.getX(),

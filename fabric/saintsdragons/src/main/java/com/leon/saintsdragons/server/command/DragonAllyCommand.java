@@ -31,7 +31,7 @@ public class DragonAllyCommand {
         return SharedSuggestionProvider.suggest(
             source.getLevel().getEntitiesOfClass(DragonEntity.class, 
                 source.getEntity() != null ? source.getEntity().getBoundingBox().inflate(50) : 
-                AABB.ofSize(source.position(), 100, 100, 100))
+                AABB.ofSize(source.getPosition(), 100, 100, 100))
                 .stream()
                 .filter(dragon -> dragon.isTame() && source.getEntity() instanceof Player && dragon.isOwnedBy((Player) source.getEntity()))
                 .map(dragon -> String.valueOf(dragon.getId())),
@@ -41,7 +41,7 @@ public class DragonAllyCommand {
     
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("dragonally")
-            .requires(source -> source.hasPermission(2)) // OP level 2 required
+            .requires(com.leon.saintsdragons.util.compat.Compat::isOp) // OP level 2 required
             .then(Commands.literal("add")
                 .then(Commands.argument("drake", EntityArgument.entity())
                     .then(Commands.argument("username", StringArgumentType.string())

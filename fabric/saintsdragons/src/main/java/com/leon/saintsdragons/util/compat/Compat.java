@@ -191,4 +191,68 @@ public final class Compat {
     public static net.minecraft.world.item.ItemStack loadStack(java.util.Optional<CompoundTag> tag) {
         return loadStack(tag.orElse(null));
     }
+
+    /** Port 1.21.11: la altura de paso ahora es un atributo. */
+    public static void setMaxUpStep(net.minecraft.world.entity.LivingEntity e, float v) {
+        net.minecraft.world.entity.ai.attributes.AttributeInstance a = e.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.STEP_HEIGHT);
+        if (a != null) {
+            a.setBaseValue(v);
+        }
+    }
+
+    /** Port 1.21.11: getMyRidingOffset de 1.20.1 (el jugador iba 0,35 mas abajo; el resto, 0). */
+    public static double myRidingOffset(net.minecraft.world.entity.Entity passenger) {
+        return passenger instanceof net.minecraft.world.entity.player.Player ? -0.35D : 0.0D;
+    }
+
+    /** Port 1.21.11: gastar un uso del item que tiene en la mano (o puesto). */
+    public static void damageItem(net.minecraft.world.item.ItemStack stack, int amount, net.minecraft.world.entity.LivingEntity holder) {
+        for (net.minecraft.world.entity.EquipmentSlot slot : net.minecraft.world.entity.EquipmentSlot.values()) {
+            if (holder.getItemBySlot(slot) == stack) {
+                stack.hurtAndBreak(amount, holder, slot);
+                return;
+            }
+        }
+        stack.hurtAndBreak(amount, holder, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
+    }
+
+    /** Port 1.21.11: el inventario de un SimpleContainer en NBT (como createTag / fromTag de 1.20.1). */
+    public static net.minecraft.nbt.ListTag containerToTag(net.minecraft.world.SimpleContainer c) {
+        net.minecraft.nbt.ListTag list = new net.minecraft.nbt.ListTag();
+        for (int i = 0; i < c.getContainerSize(); i++) {
+            net.minecraft.world.item.ItemStack st = c.getItem(i);
+            if (!st.isEmpty()) {
+                CompoundTag t = saveStack(st);
+                t.putByte("Slot", (byte) i);
+                list.add(t);
+            }
+        }
+        return list;
+    }
+
+    public static void containerFromTag(net.minecraft.world.SimpleContainer c, net.minecraft.nbt.ListTag list) {
+        c.clearContent();
+        for (int i = 0; i < list.size(); i++) {
+            CompoundTag t = list.getCompoundOrEmpty(i);
+            int slot = t.getByteOr("Slot", (byte) -1) & 255;
+            if (t.contains("Slot") && slot < c.getContainerSize()) {
+                c.setItem(slot, loadStack(t));
+            } else if (!t.contains("Slot")) {
+                c.addItem(loadStack(t));
+            }
+        }
+    }
+
+    /** Port 1.21.11: los permisos de comandos. */
+    public static boolean isOp(net.minecraft.commands.CommandSourceStack source) {
+        return net.minecraft.commands.Commands.hasPermission(net.minecraft.commands.Commands.LEVEL_GAMEMASTERS).test(source);
+    }
+
+    /** Port 1.21.11: datos guardados del mundo con la forma de 1.20.1 (load(tag) / save(tag)). */
+    public static <T extends net.minecraft.world.level.saveddata.SavedData> net.minecraft.world.level.saveddata.SavedDataType<T> savedData(
+            String id, java.util.function.Supplier<T> ctor, java.util.function.Function<CompoundTag, T> load,
+            java.util.function.BiFunction<T, CompoundTag, CompoundTag> save) {
+        return new net.minecraft.world.level.saveddata.SavedDataType<>(id, ctor,
+                CompoundTag.CODEC.xmap(load, t -> save.apply(t, new CompoundTag())), null);
+    }
 }

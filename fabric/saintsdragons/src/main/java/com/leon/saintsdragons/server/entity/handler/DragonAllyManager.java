@@ -174,7 +174,11 @@ public class DragonAllyManager {
             return onlinePlayer.getGameProfile().name();
         }
         try {
-            return server.getProfileCache().get(uuid).map(profile -> profile.getName()).orElse(null);
+            net.minecraft.server.level.ServerPlayer online = server.getPlayerList().getPlayer(uuid);
+            if (online != null) {
+                return online.getGameProfile().name();
+            }
+            return server.services().nameToIdCache().get(uuid).map(net.minecraft.server.players.NameAndId::name).orElse(null);
         } catch (Exception e) {
             LOGGER.warn("Failed to resolve UUID '{}' to username: {}", uuid, e.getMessage());
             return null;

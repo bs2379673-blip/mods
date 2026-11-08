@@ -1375,7 +1375,7 @@ public abstract class RideableFlyingDragon extends RideableDragonBase implements
                 onGround(),
                 isInWater(),
                 isInLava(),
-                this.fallDistance,
+                (float) this.fallDistance,
                 getDeltaMovement()
         );
     }
@@ -1481,7 +1481,7 @@ public abstract class RideableFlyingDragon extends RideableDragonBase implements
                 isInWater(),
                 isInLava(),
                 isRiderFallRecoveryBlocked(),
-                this.fallDistance,
+                (float) this.fallDistance,
                 getDeltaMovement()
         );
     }

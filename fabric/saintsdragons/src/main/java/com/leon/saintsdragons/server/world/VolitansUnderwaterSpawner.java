@@ -162,7 +162,7 @@ public final class VolitansUnderwaterSpawner {
         if (!level.noCollision(volitans, volitans.getBoundingBox())) {
             return false;
         }
-        volitans.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), spawnType, null, null);
+        volitans.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), spawnType, null);
         if (!level.noCollision(volitans, volitans.getBoundingBox())) {
             return false;
         }

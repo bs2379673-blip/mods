@@ -534,7 +534,7 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
     public Raevyx(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         this.screenShakeComponent = new ScreenShakeComponent(this, DATA_SCREEN_SHAKE_AMOUNT, 0.34F);
-        this.setMaxUpStep(1.25F);
+        com.leon.saintsdragons.util.compat.Compat.setMaxUpStep(this, 1.25F);
         this.setPathfindingMalus(PathType.DANGER_FIRE, -1.0F);
         this.setPathfindingMalus(PathType.WATER, -1.0F);
         this.setPathfindingMalus(PathType.WATER_BORDER, -1.0F);
@@ -1240,8 +1240,7 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
     }
 
     // ===== RIDING SUPPORT =====
-    @Override
-    public double getPassengersRidingOffset() {
+        public double getPassengersRidingOffset() {
         return riderController.getPassengersRidingOffset();
     }
 
@@ -3137,7 +3136,7 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
 
     @Override
     public void stopDrinkingAnimation() {
-        stopTriggeredAnimation(
+        stopTriggeredAnim(
                 RaevyxAnimationHandler.MOVEMENT_CONTROLLER,
                 RaevyxAnimationHandler.DRINKING_TRIGGER
         );

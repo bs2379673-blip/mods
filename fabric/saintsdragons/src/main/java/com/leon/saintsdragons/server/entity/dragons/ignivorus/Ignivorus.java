@@ -461,7 +461,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
     public Ignivorus(EntityType<? extends Ignivorus> type, Level level) {
         super(type, level);
         this.screenShakeComponent = new ScreenShakeComponent(this, DATA_SCREEN_SHAKE_AMOUNT, SHAKE_DECAY_PER_TICK);
-        this.setMaxUpStep(DEFAULT_MAX_UP_STEP);
+        com.leon.saintsdragons.util.compat.Compat.setMaxUpStep(this, DEFAULT_MAX_UP_STEP);
 
         this.setPathfindingMalus(PathType.DANGER_FIRE, 0.0F);
         this.setPathfindingMalus(PathType.DAMAGE_FIRE, 0.0F);
@@ -1042,7 +1042,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
     }
 
     private void updateBulldozeStepHeight() {
-        setMaxUpStep(bulldozing && isVehicle() ? BULLDOZE_MAX_UP_STEP : DEFAULT_MAX_UP_STEP);
+        com.leon.saintsdragons.util.compat.Compat.setMaxUpStep(this, bulldozing && isVehicle() ? BULLDOZE_MAX_UP_STEP : DEFAULT_MAX_UP_STEP);
     }
 
     private void tickPhase2State() {
@@ -1353,7 +1353,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
         for (int y = dragonY; y > level().getMinY(); y--) {
             BlockPos checkPos = new BlockPos(startPos.getX(), y, startPos.getZ());
             BlockState state = level().getBlockState(checkPos);
-            if (!state.isAir() && !state.liquid() && state.isSolidRender(level(), checkPos)) {
+            if (!state.isAir() && !state.liquid() && state.isSolidRender()) {
                 return checkPos;
             }
         }
@@ -2142,8 +2142,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
         riderController.positionRider(passenger, moveFunction);
     }
 
-    @Override
-    public double getPassengersRidingOffset() {
+        public double getPassengersRidingOffset() {
         return riderController.getPassengersRidingOffset();
     }
 
@@ -3261,7 +3260,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
 
     public void stopHitboxAnimation(String controller, String animation) {
         if (!level().isClientSide()) collisionState.stop(controller, animation);
-        stopTriggeredAnimation(controller, animation);
+        stopTriggeredAnim(controller, animation);
     }
 
     public Vec3 getBonePositionForHitbox(String boneName) {
@@ -3341,7 +3340,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
         if (tag.contains("Phase2CooldownTicks")) {
             phase2CooldownTicks = Math.max(0, tag.getIntOr("Phase2CooldownTicks", 0));
         }
-        boolean interruptedLeap = tag.getBoolean("Leaping")
+        boolean interruptedLeap = tag.getBooleanOr("Leaping", false)
                 || tag.getIntOr("LeapAnimState", 0) != LEAP_STATE_NONE;
         leaping = false;
         leapWasVehicle = false;

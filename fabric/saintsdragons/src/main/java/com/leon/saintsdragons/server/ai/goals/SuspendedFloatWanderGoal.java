@@ -53,7 +53,7 @@ public final class SuspendedFloatWanderGoal extends Goal {
     @Override
     public void start() {
         if (this.target != null) {
-            this.movement.snapTo(this.target, this.speed);
+            this.movement.moveTo(this.target, this.speed);
         }
     }
 

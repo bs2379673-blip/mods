@@ -124,7 +124,7 @@ public class VolitansSpineEntity extends AbstractArrow implements GeoEntity {
     }
 
     @Override
-    protected ItemStack getPickupItem() {
+    protected ItemStack getDefaultPickupItem() {
         return ItemStack.EMPTY;
     }
 
@@ -133,7 +133,7 @@ public class VolitansSpineEntity extends AbstractArrow implements GeoEntity {
         controllers.add(new AnimationController<>("controller", 0, this::animationPredicate));
     }
 
-    private <E extends GeoEntity> PlayState animationPredicate(AnimationTest<E> state) {
+    private PlayState animationPredicate(AnimationTest<VolitansSpineEntity> state) {
         state.controller().setAnimation(IDLE);
         return PlayState.CONTINUE;
     }

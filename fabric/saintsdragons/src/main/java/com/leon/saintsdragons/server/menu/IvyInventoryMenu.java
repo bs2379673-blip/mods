@@ -32,7 +32,7 @@ public class IvyInventoryMenu extends AbstractContainerMenu {
     public static final int STORAGE_ROWS = 3;
     public static final int STORAGE_COUNT = STORAGE_COLUMNS * STORAGE_ROWS;
     public static final int IVY_SLOT_COUNT = STORAGE_START + STORAGE_COUNT;
-    private static final Identifier EMPTY_SWORD_SLOT = Identifier.parse("item/empty_slot_sword");
+    private static final Identifier EMPTY_SWORD_SLOT = Identifier.withDefaultNamespace("container/slot/sword");
     private static final int PLAYER_INV_START = IVY_SLOT_COUNT;
     private static final int PLAYER_INV_END = PLAYER_INV_START + 27;
     private static final int HOTBAR_START = PLAYER_INV_END;
@@ -195,8 +195,8 @@ public class IvyInventoryMenu extends AbstractContainerMenu {
         }
 
         @Override
-        public @NotNull Pair<Identifier, Identifier> getNoItemIcon() {
-            return Pair.of(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, this.emptyIcon);
+        public @NotNull Identifier getNoItemIcon() {
+            return this.emptyIcon;
         }
     }
 
@@ -216,8 +216,8 @@ public class IvyInventoryMenu extends AbstractContainerMenu {
         }
 
         @Override
-        public @NotNull Pair<Identifier, Identifier> getNoItemIcon() {
-            return Pair.of(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, EMPTY_SWORD_SLOT);
+        public @NotNull Identifier getNoItemIcon() {
+            return EMPTY_SWORD_SLOT;
         }
     }
 }

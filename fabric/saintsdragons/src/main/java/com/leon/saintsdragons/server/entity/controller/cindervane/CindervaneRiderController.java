@@ -132,7 +132,7 @@ public record CindervaneRiderController(Cindervane dragon) {
                 double worldZ = localX * Math.sin(yawRad) + localZ * Math.cos(yawRad);
 
                 double x = dragon.getX() + worldX;
-                double y = dragon.getY() + getAutoGrabRidingOffset() + AUTO_GRAB_HEIGHT_ADJUST + passenger.getMyRidingOffset();
+                double y = dragon.getY() + getAutoGrabRidingOffset() + AUTO_GRAB_HEIGHT_ADJUST + com.leon.saintsdragons.util.compat.Compat.myRidingOffset(passenger);
                 double z = dragon.getZ() + worldZ;
                 moveFunction.accept(passenger, x, y, z);
             }

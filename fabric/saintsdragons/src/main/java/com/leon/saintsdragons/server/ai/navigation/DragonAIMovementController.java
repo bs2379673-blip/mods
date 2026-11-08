@@ -1075,7 +1075,7 @@ public class DragonAIMovementController {
         setGroundMoveState(currentWaypoint.running());
         groundPathState = GroundPathState.FOLLOWING;
         groundPathDebugReason = (path.canReach() ? "following-complete-path" : "following-partial-path")
-                + (path instanceof DragonGroundPath groundPath && groundPath.endsAtSearchBoundary() ? "-frontier" : "");
+                + (DragonGroundPath.endsAtSearchBoundary(path) ? "-frontier" : "");
         return true;
     }
 
@@ -1086,7 +1086,7 @@ public class DragonAIMovementController {
 
         Vec3 endpoint = path.getEntityPosAtNode(dragon, path.getNodeCount() - 1);
         return groundRouteProgress.canFollowPartial(dragon.position(), endpoint, target,
-                path instanceof DragonGroundPath groundPath && groundPath.endsAtSearchBoundary(),
+                DragonGroundPath.endsAtSearchBoundary(path),
                 minimumGroundProgress(), groundPathLength(path));
     }
 

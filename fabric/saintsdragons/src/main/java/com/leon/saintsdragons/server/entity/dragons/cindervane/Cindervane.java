@@ -381,7 +381,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
     public Cindervane(EntityType<? extends Cindervane> type, Level level) {
         super(type, level);
         this.screenShakeComponent = new ScreenShakeComponent(this, DATA_SCREEN_SHAKE_AMOUNT, 0.12F);
-        this.setMaxUpStep(1.1F);
+        com.leon.saintsdragons.util.compat.Compat.setMaxUpStep(this, 1.1F);
         this.riderController = new CindervaneRiderController(this);
         this.movementController = new EntityAnimationController<>(this, "movement", 2, animationHandler::movementPredicate);
         this.actionController = new EntityAnimationController<>(this, CindervaneAnimationHandler.ACTION_CONTROLLER, 5, animationHandler::actionPredicate);
@@ -1220,11 +1220,10 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
             }
         };
 
-        Explosion.BlockInteraction blockInteraction = allowGriefing
-                ? Explosion.BlockInteraction.DESTROY
-                : Explosion.BlockInteraction.KEEP;
-        Explosion explosion = new Explosion(server, this, server.damageSources().explosion(this, this), calculator,
-                x, y + 0.2D, z, FIRE_BODY_EXPLOSION_RADIUS, allowBlockIgnition, blockInteraction);
+        // port 1.21.11: la explosion se hace de una vez con level.explode (con o sin romper bloques)
+        net.minecraft.world.level.Level.ExplosionInteraction blockInteraction = allowGriefing
+                ? net.minecraft.world.level.Level.ExplosionInteraction.MOB
+                : net.minecraft.world.level.Level.ExplosionInteraction.NONE;
 
         List<LivingEntity> allies = grantAlliesExplosionImmunity(server, x, y, z);
         double protectionRadius = FIRE_BODY_EXPLOSION_RADIUS + 4.0D;
@@ -1244,8 +1243,8 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
         for (LivingEntity entity : protectedEntities) {
             entity.setInvulnerable(true);
         }
-        explosion.explode();
-        explosion.finalizeExplosion(true);
+        server.explode(this, server.damageSources().explosion(this, this), calculator,
+                x, y + 0.2D, z, FIRE_BODY_EXPLOSION_RADIUS, allowBlockIgnition, blockInteraction);
         ServerPlayer responsiblePlayer = DragonUtilities.resolveResponsiblePlayer(this);
         if (responsiblePlayer != null) {
             DragonUtilities.awardAdvancement(responsiblePlayer, "tactical_nuke", "tactical_nuke");
@@ -1512,7 +1511,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
 
     @Override
     public void stopDrinkingAnimation() {
-        stopTriggeredAnimation(
+        stopTriggeredAnim(
                 CindervaneAnimationHandler.MOVEMENT_CONTROLLER,
                 CindervaneAnimationHandler.DRINKING_TRIGGER
         );
@@ -1747,7 +1746,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
         tag.putBoolean("CindervaneHasChest", hasCindervaneChest());
         tag.putBoolean("CindervaneSaddled", hasSaddle());
         if (hasCindervaneChest()) {
-            tag.put("CindervaneChestItems", cindervaneChestInventory.createTag());
+            tag.put("CindervaneChestItems", com.leon.saintsdragons.util.compat.Compat.containerToTag(cindervaneChestInventory));
         }
     }
 
@@ -1779,7 +1778,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
         setSaddle(restoredSaddle);
         setCindervaneChest(restoredChest);
         if (hasCindervaneChest() && tag.contains("CindervaneChestItems")) {
-            cindervaneChestInventory.fromTag(tag.getListOrEmpty("CindervaneChestItems"));
+            com.leon.saintsdragons.util.compat.Compat.containerFromTag(cindervaneChestInventory, tag.getListOrEmpty("CindervaneChestItems"));
         }
         if (!level().isClientSide()) {
             this.tickCount = 0;

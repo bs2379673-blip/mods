@@ -135,7 +135,7 @@ public final class DragonGroomingComponent {
 
         ItemStack scaleStack = new ItemStack(scaleItem, PLUCK_SCALE_COUNT);
         if (!player.addItem(scaleStack)) {
-            dragon.spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), scaleStack);
+            dragon.spawnAtLocation((net.minecraft.server.level.ServerLevel) dragon.level(), scaleStack);
         }
 
         pluckedThisCycle = true;
@@ -181,11 +181,11 @@ public final class DragonGroomingComponent {
     }
 
     private static void damageBrush(Player player, ItemStack brushStack) {
-        brushStack.hurtAndBreak(1, player, ignored -> {});
+        com.leon.saintsdragons.util.compat.Compat.damageItem(brushStack, 1, player);
     }
 
     private static void damagePlucker(Player player, ItemStack pluckerStack) {
-        pluckerStack.hurtAndBreak(1, player, ignored -> {});
+        com.leon.saintsdragons.util.compat.Compat.damageItem(pluckerStack, 1, player);
     }
 
     public void saveToNBT(CompoundTag tag) {

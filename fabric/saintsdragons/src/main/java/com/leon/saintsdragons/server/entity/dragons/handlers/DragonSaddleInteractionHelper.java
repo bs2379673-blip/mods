@@ -30,7 +30,7 @@ public final class DragonSaddleInteractionHelper {
             if (!dragon.level().isClientSide()) {
                 carrier.setSaddle(true);
                 consumeOne(player, heldItem);
-                dragon.playSound(SoundEvents.HORSE_SADDLE, 1.0F, 1.0F);
+                dragon.playSound(SoundEvents.HORSE_SADDLE.value(), 1.0F, 1.0F);
             }
             return InteractionResult.SUCCESS;
         }

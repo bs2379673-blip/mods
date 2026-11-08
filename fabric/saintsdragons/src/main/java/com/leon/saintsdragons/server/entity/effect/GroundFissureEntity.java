@@ -43,7 +43,6 @@ public class GroundFissureEntity extends Entity {
     public GroundFissureEntity(EntityType<? extends GroundFissureEntity> type, Level level) {
         super(type, level);
         this.noPhysics = true;
-        this.noCulling = true;
     }
 
     public GroundFissureEntity(Level level, Vec3 position, ServerPlayer owner,
@@ -237,5 +236,11 @@ public class GroundFissureEntity extends Entity {
     @Override
     protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
         sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
+    }
+
+    // port 1.21.11
+    @Override
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel sdLevel, net.minecraft.world.damagesource.DamageSource sdSource, float sdAmount) {
+        return false;
     }
 }

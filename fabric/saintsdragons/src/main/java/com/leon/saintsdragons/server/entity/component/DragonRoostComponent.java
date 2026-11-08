@@ -240,7 +240,8 @@ public final class DragonRoostComponent {
 
     @Nullable
     private StructureStart getRoostAt(ServerLevel level, BlockPos position) {
-        StructureStart roost = level.structureManager().getStructureWithPieceAt(position, roostStructure);
+        StructureStart roost = level.structureManager().getStructureWithPieceAt(position,
+                (java.util.function.Predicate<net.minecraft.core.Holder<net.minecraft.world.level.levelgen.structure.Structure>>) h -> h.is(roostStructure));
         return roost != null && roost.isValid() ? roost : null;
     }
 

@@ -75,7 +75,7 @@ public final class DragonSetVariantCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("setvariant")
-            .requires(source -> source.hasPermission(2))
+            .requires(com.leon.saintsdragons.util.compat.Compat::isOp)
             .then(Commands.argument("dragon", uuidArgument())
                 .suggests(DRAGON_UUID_SUGGESTIONS)
                 .then(Commands.argument("variant", StringArgumentType.greedyString())

@@ -357,7 +357,7 @@ final class IvyCompanionController {
                 if (controller != null) {
                     controller.stop();
                 }
-                ivy.startRiding(vehicle, true);
+                ivy.startRiding(vehicle, true, true);
                 return;
             }
 

@@ -36,7 +36,7 @@ public interface DancingEntity {
                 for (int z = center.getZ() - range; z <= center.getZ() + range; z++) {
                     cursor.set(x, y, z);
                     if (entity.level().getBlockEntity(cursor) instanceof JukeboxBlockEntity jukebox
-                            && jukebox.isRecordPlaying()) {
+                            && jukebox.getSongPlayer().isPlaying()) {
                         return true;
                     }
                 }

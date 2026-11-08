@@ -274,7 +274,7 @@ public class DragonInventoryMenu extends AbstractContainerMenu {
         this.equipmentCarrier.setSaddle(true);
         this.data.set(SADDLE_DATA_INDEX, 1);
         if (this.carrierEntity != null) {
-            this.carrierEntity.playSound(SoundEvents.HORSE_SADDLE, 1.0F, 1.0F);
+            this.carrierEntity.playSound(SoundEvents.HORSE_SADDLE.value(), 1.0F, 1.0F);
         }
         syncEquipmentIndicators();
     }

@@ -293,8 +293,8 @@ public class Mossback extends Animal implements TickingGeoEntity {
     }
 
     @Override
-    public int getExperienceReward() {
-        return isBaby() ? 0 : super.getExperienceReward();
+    protected int getBaseExperienceReward(net.minecraft.server.level.ServerLevel sdLevel) {
+        return isBaby() ? 0 : super.getBaseExperienceReward(sdLevel);
     }
 
     @Override
@@ -305,7 +305,7 @@ public class Mossback extends Animal implements TickingGeoEntity {
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob otherParent) {
-        Mossback baby = ModEntities.MOSSBACK.get().create(level);
+        Mossback baby = ModEntities.MOSSBACK.get().create(level, net.minecraft.world.entity.EntitySpawnReason.BREEDING);
         if (baby != null) {
             baby.setBaby(true);
         }

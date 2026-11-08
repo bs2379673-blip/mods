@@ -52,7 +52,7 @@ public class LatcherBiteGoal extends Goal {
         if (this.attackTick >= 0) {
             this.attackTick++;
             if (this.attackTick == DAMAGE_TICK && this.latcher.isInBiteRange(target)) {
-                this.latcher.doHurtTarget(target);
+                boolean sdBit = this.latcher.level() instanceof net.minecraft.server.level.ServerLevel sdHitLevel && this.latcher.doHurtTarget(sdHitLevel, target);
             }
             if (this.attackTick >= ATTACK_INTERVAL) {
                 this.attackTick = -1;

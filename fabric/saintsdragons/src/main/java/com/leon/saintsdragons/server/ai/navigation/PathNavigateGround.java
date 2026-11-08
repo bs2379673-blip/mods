@@ -174,7 +174,7 @@ public class PathNavigateGround extends GroundPathNavigation {
     @Override
     public boolean moveTo(Path path, double speedModifier) {
         clearFinalWaypointTolerance();
-        return super.snapTo(path, speedModifier);
+        return super.moveTo(path, speedModifier);
     }
 
     @Override
@@ -306,7 +306,7 @@ public class PathNavigateGround extends GroundPathNavigation {
         for (int x = Mth.floor(body.minX); x <= Mth.floor(body.maxX - GroundPathGeometry.SUPPORT_EPSILON); x++) {
             for (int z = Mth.floor(body.minZ); z <= Mth.floor(body.maxZ - GroundPathGeometry.SUPPORT_EPSILON); z++) {
                 cursor.set(x, y, z);
-                PathType type = WalkNodeEvaluator.getBlockPathTypeStatic(this.level, cursor);
+                PathType type = WalkNodeEvaluator.getPathTypeStatic(this.mob, cursor);
                 if (type == PathType.LAVA || type == PathType.WATER
                         || type == PathType.WATER_BORDER || this.mob.getPathfindingMalus(type) != 0.0F) {
                     return false;

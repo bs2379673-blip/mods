@@ -7,12 +7,15 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.ServerLevelData;
 
 public final class RaevyxStormSavedData extends SavedData {
+    // port 1.21.11
+    private static final net.minecraft.world.level.saveddata.SavedDataType<RaevyxStormSavedData> SD_TYPE =
+            com.leon.saintsdragons.util.compat.Compat.savedData("saintsdragons_raevyx_storm", RaevyxStormSavedData::new, RaevyxStormSavedData::load, RaevyxStormSavedData::save);
+
     private boolean summonedStorm;
     private int naturalThunderTicks;
 
     private static RaevyxStormSavedData get(ServerLevel level) {
-        return level.getServer().overworld().getDataStorage().computeIfAbsent(
-                RaevyxStormSavedData::load, RaevyxStormSavedData::new, "saintsdragons_raevyx_storm");
+        return level.getServer().overworld().getDataStorage().computeIfAbsent(SD_TYPE);
     }
 
     public static void beforeSummoning(ServerLevel level) {
@@ -36,7 +39,7 @@ public final class RaevyxStormSavedData extends SavedData {
             if (!level.isThundering()) state.summonedStorm = false;
             state.setDirty();
         } else if (state.naturalThunderTicks > 0
-                && level.getGameRules().getBoolean(GameRules.RULE_WEATHER_CYCLE)) {
+                && level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.ADVANCE_WEATHER)) {
             state.naturalThunderTicks--;
             state.setDirty();
         }
@@ -56,7 +59,6 @@ public final class RaevyxStormSavedData extends SavedData {
         return state;
     }
 
-    @Override
     public CompoundTag save(CompoundTag tag) {
         tag.putBoolean("SummonedStorm", summonedStorm);
         tag.putInt("NaturalThunderTicks", naturalThunderTicks);

@@ -116,7 +116,7 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
         this.screenShakeComponent = new ScreenShakeComponent(this, DATA_SCREEN_SHAKE_AMOUNT, SHAKE_DECAY_PER_TICK);
         this.setPathfindingMalus(PathType.WATER, 0.0F);
         this.setPathfindingMalus(PathType.WATER_BORDER, 0.0F);
-        this.setMaxUpStep(VarasuchusStatProfile.Entity.MAX_UP_STEP);
+        com.leon.saintsdragons.util.compat.Compat.setMaxUpStep(this, VarasuchusStatProfile.Entity.MAX_UP_STEP);
         this.groundNavigation = new PathNavigateGround(this, level);
         this.landMoveControl = new MoveControl(this);
         this.landLookControl = new VarasuchusLookController(this);
@@ -1016,13 +1016,12 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
         return super.canUseResolvedRidingAbility(abilityType);
     }
 
-    @Override
-    public double getPassengersRidingOffset() {
+        public double getPassengersRidingOffset() {
         return riderController.getPassengersRidingOffset();
     }
 
     @Override
-    protected void positionRider(@NotNull @NotNull Entity passenger, @NotNull @NotNull Entity.MoveFunction moveFunction) {
+    protected void positionRider(@NotNull Entity passenger, @NotNull Entity.MoveFunction moveFunction) {
         riderController.positionRider(passenger, moveFunction);
     }
 

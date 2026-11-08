@@ -16,7 +16,8 @@ public final class DragonGriefingRules {
         if (level == null) {
             return false;
         }
-        if (!level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
+        if (!(level instanceof ServerLevel serverLevel)
+                || !serverLevel.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING)) {
             return false;
         }
         return SaintsDragonsConfig.DRAGON_GRIEFING_ENABLED == null

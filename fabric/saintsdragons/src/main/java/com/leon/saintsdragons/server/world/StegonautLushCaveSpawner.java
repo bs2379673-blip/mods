@@ -185,7 +185,7 @@ public final class StegonautLushCaveSpawner {
         if (!level.noCollision(stegonaut, stegonaut.getBoundingBox())) {
             return false;
         }
-        stegonaut.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), spawnType, null, null);
+        stegonaut.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), spawnType, null);
         if (!level.noCollision(stegonaut, stegonaut.getBoundingBox())) {
             return false;
         }

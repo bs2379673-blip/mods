@@ -41,7 +41,7 @@ public class ArrowOfVenomEntity extends AbstractArrow implements GeoEntity {
     }
 
     public ArrowOfVenomEntity(Level level, LivingEntity owner) {
-        super(ModEntities.ARROW_OF_VENOM.get(), owner, level);
+        super(ModEntities.ARROW_OF_VENOM.get(), owner, level, new ItemStack(ModItems.ARROW_OF_VENOM.get()), null);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class ArrowOfVenomEntity extends AbstractArrow implements GeoEntity {
     }
 
     @Override
-    protected ItemStack getPickupItem() {
+    protected ItemStack getDefaultPickupItem() {
         return new ItemStack(ModItems.ARROW_OF_VENOM.get());
     }
 
@@ -97,7 +97,7 @@ public class ArrowOfVenomEntity extends AbstractArrow implements GeoEntity {
         controllers.add(new AnimationController<>("controller", 0, this::animationPredicate));
     }
 
-    private <E extends GeoEntity> PlayState animationPredicate(AnimationTest<E> state) {
+    private PlayState animationPredicate(AnimationTest<ArrowOfVenomEntity> state) {
         if (entityData.get(IMPACTED)) {
             state.controller().setAnimation(IMPACT);
             return PlayState.CONTINUE;

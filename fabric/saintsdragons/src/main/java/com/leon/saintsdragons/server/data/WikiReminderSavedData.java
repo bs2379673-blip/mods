@@ -11,16 +11,16 @@ import java.util.Set;
 import java.util.UUID;
 
 public class WikiReminderSavedData extends SavedData {
+    // port 1.21.11
+    private static final net.minecraft.world.level.saveddata.SavedDataType<WikiReminderSavedData> SD_TYPE =
+            com.leon.saintsdragons.util.compat.Compat.savedData("saintsdragons_wiki_reminders", WikiReminderSavedData::new, WikiReminderSavedData::load, WikiReminderSavedData::save);
+
     private static final String DATA_NAME = "saintsdragons_wiki_reminders";
     private final Set<UUID> shownPlayers = new HashSet<>();
 
     public static WikiReminderSavedData get(ServerLevel level) {
         ServerLevel storageLevel = level.getServer().overworld();
-        return storageLevel.getDataStorage().computeIfAbsent(
-                WikiReminderSavedData::load,
-                WikiReminderSavedData::new,
-                DATA_NAME
-        );
+        return storageLevel.getDataStorage().computeIfAbsent(SD_TYPE);
     }
 
     public boolean markShownIfFirst(UUID playerId) {
@@ -31,7 +31,6 @@ public class WikiReminderSavedData extends SavedData {
         return added;
     }
 
-    @Override
     public CompoundTag save(CompoundTag tag) {
         ListTag players = new ListTag();
         for (UUID playerId : shownPlayers) {

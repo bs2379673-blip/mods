@@ -254,7 +254,7 @@ public class StegonautAmethystPillarEntity extends Entity implements GeoEntity {
         controllers.add(new AnimationController<>("controller", 1, this::animationPredicate));
     }
 
-    private <E extends GeoEntity> PlayState animationPredicate(AnimationTest<E> state) {
+    private PlayState animationPredicate(AnimationTest<StegonautAmethystPillarEntity> state) {
         state.controller().setTransitionTicks(1);
         state.controller().setAnimation(isSubsiding() ? SUBSIDE : EMERGE);
         return PlayState.CONTINUE;

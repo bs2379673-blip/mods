@@ -34,9 +34,9 @@ public final class DragonSpawnRules {
         // change eligibility. Our own spawns must not make an otherwise sparse pool qualify.
         long competingWeight = 0;
         for (var entry : level.getBiome(pos).value().getMobSettings().getMobs(MobCategory.CREATURE).unwrap()) {
-            int weight = entry.getWeight().asInt();
-            if (weight <= 0 || entry.maxCount <= 0
-                    || BuiltInRegistries.ENTITY_TYPE.getKey(entry.type).getNamespace().equals("saintsdragons")) continue;
+            int weight = entry.weight();
+            if (weight <= 0 || entry.value().maxCount() <= 0
+                    || BuiltInRegistries.ENTITY_TYPE.getKey(entry.value().type()).getNamespace().equals("saintsdragons")) continue;
             competingWeight += weight;
             if (competingWeight >= MIN_COMPETING_CREATURE_WEIGHT) return true;
         }

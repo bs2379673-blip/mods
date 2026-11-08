@@ -391,7 +391,7 @@ public class DragonBreedBehaviour<T extends DragonEntity> extends DragonBehaviou
         }
         level.playSound(null, eggPos, SoundEvents.TURTLE_LAY_EGG, SoundSource.BLOCKS, 0.8F, 1.0F);
         level.broadcastEntityEvent(female, (byte)18);
-        if (level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+        if (level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_DROPS)) {
             level.addFreshEntity(new ExperienceOrb(level, female.getX(), female.getY(), female.getZ(),
                     dragon.getRandom().nextInt(7) + 1));
         }

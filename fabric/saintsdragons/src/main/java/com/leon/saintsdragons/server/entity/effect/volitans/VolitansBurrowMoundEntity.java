@@ -155,7 +155,7 @@ public class VolitansBurrowMoundEntity extends Entity implements GeoEntity {
         controllers.add(new AnimationController<>("controller", 0, this::animationPredicate));
     }
 
-    private <E extends GeoEntity> PlayState animationPredicate(AnimationTest<E> state) {
+    private PlayState animationPredicate(AnimationTest<VolitansBurrowMoundEntity> state) {
         state.controller().setAnimation(SPAWN);
         return PlayState.CONTINUE;
     }

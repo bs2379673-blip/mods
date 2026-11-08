@@ -17,7 +17,7 @@ public final class DragonVisionDebugCommand {
     private DragonVisionDebugCommand() {}
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        var root = Commands.literal("dragonvision").requires(source -> source.hasPermission(2));
+        var root = Commands.literal("dragonvision").requires(com.leon.saintsdragons.util.compat.Compat::isOp);
         root.then(Commands.literal("select").then(Commands.argument("dragon", EntityArgument.entity())
                 .executes(context -> {
                     var player = context.getSource().getPlayerOrException();

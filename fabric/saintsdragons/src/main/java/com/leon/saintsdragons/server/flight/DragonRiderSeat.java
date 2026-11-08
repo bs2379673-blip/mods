@@ -16,7 +16,7 @@ public final class DragonRiderSeat {
         }
 
         double x = mount.getX();
-        double y = mount.getY() + seatYOffset + passenger.getMyRidingOffset();
+        double y = mount.getY() + seatYOffset + com.leon.saintsdragons.util.compat.Compat.myRidingOffset(passenger);
         double z = mount.getZ();
         moveFunction.accept(passenger, x, y, z);
     }
@@ -41,7 +41,7 @@ public final class DragonRiderSeat {
         moveFunction.accept(
                 passenger,
                 mount.getX() + worldX,
-                mount.getY() + localSeatOffset.y + passenger.getMyRidingOffset(),
+                mount.getY() + localSeatOffset.y + com.leon.saintsdragons.util.compat.Compat.myRidingOffset(passenger),
                 mount.getZ() + worldZ
         );
     }

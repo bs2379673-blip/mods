@@ -179,7 +179,7 @@ public abstract class AbstractDraconianSwarmEntity extends Monster implements Ti
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(
-                this, LivingEntity.class, 10, true, false, this::canTargetFromSwarm));
+                this, LivingEntity.class, 10, true, false, (sdTarget, sdLevel) -> this.canTargetFromSwarm(sdTarget)));
     }
 
     protected Goal createCombatMovementGoal() {

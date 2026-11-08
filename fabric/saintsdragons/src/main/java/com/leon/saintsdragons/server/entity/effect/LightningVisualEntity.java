@@ -34,7 +34,6 @@ public class LightningVisualEntity extends Entity {
         super(type, level);
         this.blocksBuilding = false;
         this.noPhysics = true;
-        this.noCulling = true;
     }
 
     public LightningVisualEntity(Level level, Vec3 start, Vec3 end, float visualScale, int maxAge, long seed) {
@@ -171,7 +170,6 @@ public class LightningVisualEntity extends Entity {
         this.setRenderSeed(tag.getIntOr("Seed", 0));
         this.setVisualStyle(VisualStyle.byId(tag.getIntOr("VisualStyle", 0)));
         this.noPhysics = true;
-        this.noCulling = true;
     }
 
     private static Rotations toRotations(Vec3 vec) {
@@ -179,7 +177,7 @@ public class LightningVisualEntity extends Entity {
     }
 
     private static Vec3 fromRotations(Rotations rotations) {
-        return new Vec3(rotations.getX(), rotations.getY(), rotations.getZ());
+        return new Vec3(rotations.x(), rotations.y(), rotations.z());
     }
 
     public enum VisualStyle {
@@ -205,5 +203,11 @@ public class LightningVisualEntity extends Entity {
     @Override
     protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
         sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
+    }
+
+    // port 1.21.11
+    @Override
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel sdLevel, net.minecraft.world.damagesource.DamageSource sdSource, float sdAmount) {
+        return false;
     }
 }

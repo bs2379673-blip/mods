@@ -343,7 +343,7 @@ public class RaevyxLightningChainEntity extends Entity {
             this.startPos = new Vec3(
                 compound.getDoubleOr("startX", 0.0D),
                 compound.getDoubleOr("startY", 0.0D),
-                compound.getDouble("startZ")
+                compound.getDoubleOr("startZ", 0.0D)
             );
         }
         
@@ -351,7 +351,7 @@ public class RaevyxLightningChainEntity extends Entity {
             this.endPos = new Vec3(
                 compound.getDoubleOr("endX", 0.0D),
                 compound.getDoubleOr("endY", 0.0D),
-                compound.getDouble("endZ")
+                compound.getDoubleOr("endZ", 0.0D)
             );
         }
     }
@@ -367,5 +367,11 @@ public class RaevyxLightningChainEntity extends Entity {
     @Override
     protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
         sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
+    }
+
+    // port 1.21.11
+    @Override
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel sdLevel, net.minecraft.world.damagesource.DamageSource sdSource, float sdAmount) {
+        return false;
     }
 }

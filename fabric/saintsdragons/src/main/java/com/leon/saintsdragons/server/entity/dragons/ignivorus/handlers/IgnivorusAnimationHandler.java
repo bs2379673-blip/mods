@@ -208,8 +208,8 @@ public record IgnivorusAnimationHandler(Ignivorus dragon) {
     public PlayState movementPredicate(AnimationTest<Ignivorus> state) {
         var previousAnimation = state.controller().getCurrentRawAnimation();
         boolean leavingSkyfall = previousAnimation != null
-                && ("animation.ignivorus.skyfall".equals(previousAnimation.animation().name())
-                    || "animation.ignivorus.skyfall_phase2".equals(previousAnimation.animation().name()));
+                && ("animation.ignivorus.skyfall".equals(com.leon.saintsdragons.util.compat.GeoCompat.name(previousAnimation))
+                    || "animation.ignivorus.skyfall_phase2".equals(com.leon.saintsdragons.util.compat.GeoCompat.name(previousAnimation)));
         PlayState result = selectMovementAnimation(state);
         // Apply after the next pose selects its normal blend duration.
         if (leavingSkyfall) {
@@ -370,7 +370,7 @@ public record IgnivorusAnimationHandler(Ignivorus dragon) {
         }
         var previous = state.controller().getCurrentRawAnimation();
         boolean leavingSkyfall = previous != null
-                && "animation.ignivorus.skyfall_air".equals(previous.animation().name());
+                && "animation.ignivorus.skyfall_air".equals(com.leon.saintsdragons.util.compat.GeoCompat.name(previous));
         PlayState result = selectFlightAnimation(state);
         if (leavingSkyfall) state.controller().setTransitionTicks(0);
         return result;

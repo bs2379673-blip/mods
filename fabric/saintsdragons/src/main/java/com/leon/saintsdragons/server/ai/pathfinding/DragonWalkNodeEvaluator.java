@@ -71,13 +71,13 @@ public class DragonWalkNodeEvaluator extends WalkNodeEvaluator implements Dragon
     }
 
     @Override
-    public @NotNull Target getGoal(double x, double y, double z) {
+    public @NotNull Target getTarget(double x, double y, double z) {
         int footprintOffset = getFootprintOffset();
-        return getTargetFromNode(getNode(
+        return getTargetNodeAt(
                 Mth.floor(x) - footprintOffset,
                 Mth.floor(y),
                 Mth.floor(z) - footprintOffset
-        ));
+        );
     }
 
     private int getFootprintOffset() {
@@ -85,7 +85,8 @@ public class DragonWalkNodeEvaluator extends WalkNodeEvaluator implements Dragon
     }
 
     @Override
-    public @NotNull PathType getBlockPathType(BlockGetter level, int x, int y, int z) {
+    public @NotNull PathType getPathType(net.minecraft.world.level.pathfinder.PathfindingContext sdContext, int x, int y, int z) {
+        BlockGetter level = sdContext.level();
         BlockPos pos = new BlockPos(x, y, z);
         BlockState state = level.getBlockState(pos);
         if (state.is(Blocks.LADDER)) {
@@ -95,7 +96,7 @@ public class DragonWalkNodeEvaluator extends WalkNodeEvaluator implements Dragon
                 && DragonDestructionManager.isPassivelyBreakableTreeBlock(state)) {
             return PathType.OPEN;
         }
-        PathType pathType = super.getBlockPathType(level, x, y, z);
+        PathType pathType = super.getPathType(sdContext, x, y, z);
         if (avoidWater && (pathType == PathType.WATER || pathType == PathType.WATER_BORDER)) {
             return PathType.BLOCKED;
         }

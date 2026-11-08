@@ -138,7 +138,7 @@ public class Stegonaut extends RideableGroundDragon implements PackMember<Stegon
 
     public Stegonaut(EntityType<? extends Stegonaut> entityType, Level level) {
         super(entityType, level);
-        this.setMaxUpStep(MAX_UP_STEP);
+        com.leon.saintsdragons.util.compat.Compat.setMaxUpStep(this, MAX_UP_STEP);
         this.movementController = new EntityAnimationController<>(this, "movement", 2, animationController::handleMovementAnimation);
         this.actionController = new EntityAnimationController<>(this, StegonautAnimationHandler.ACTION_CONTROLLER, 5, animationController::actionPredicate);
         this.vocalController = new EntityAnimationController<>(this, AnimationHelper.VOCAL_CONTROLLER, 2, AnimationHelper::vocalIdle);
@@ -873,7 +873,7 @@ public class Stegonaut extends RideableGroundDragon implements PackMember<Stegon
         tag.putBoolean("StegonautHasChest", hasStegonautChest());
         tag.putBoolean("StegonautSaddled", hasSaddle());
         if (hasStegonautChest()) {
-            tag.put("StegonautChestItems", stegonautChestInventory.createTag());
+            tag.put("StegonautChestItems", com.leon.saintsdragons.util.compat.Compat.containerToTag(stegonautChestInventory));
         }
         saveSitProgress(tag);
         saveRideableData(tag);
@@ -908,7 +908,7 @@ public class Stegonaut extends RideableGroundDragon implements PackMember<Stegon
         setSaddle(restoredSaddle);
         setStegonautChest(restoredChest);
         if (hasStegonautChest() && tag.contains("StegonautChestItems")) {
-            stegonautChestInventory.fromTag(tag.getListOrEmpty("StegonautChestItems"));
+            com.leon.saintsdragons.util.compat.Compat.containerFromTag(stegonautChestInventory, tag.getListOrEmpty("StegonautChestItems"));
         }
         if (tag.contains("SitProgress")) {
             setSitProgress(tag.getFloatOr("SitProgress", 0.0F));
@@ -1025,8 +1025,8 @@ public class Stegonaut extends RideableGroundDragon implements PackMember<Stegon
     }
 
     @Override
-    protected void positionRider(@NotNull @NotNull Entity passenger,
-                                 @NotNull @NotNull Entity.MoveFunction moveFunction) {
+    protected void positionRider(@NotNull Entity passenger,
+                                 @NotNull Entity.MoveFunction moveFunction) {
         riderController.positionRider(passenger, moveFunction);
     }
 

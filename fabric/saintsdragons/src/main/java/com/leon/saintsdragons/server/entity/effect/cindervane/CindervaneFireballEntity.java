@@ -202,7 +202,7 @@ public class CindervaneFireballEntity extends Entity implements GeoEntity {
 
         Vec3 impact = position();
         spawnImpactEffects(server, impact);
-        server.playSound(null, blockPosition(), SoundEvents.GENERIC_EXPLODE, getSoundSource(), 0.7F, 1.1F);
+        server.playSound(null, blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), getSoundSource(), 0.7F, 1.1F);
 
         AABB area = new AABB(impact.x - impactRadius, impact.y - impactRadius, impact.z - impactRadius,
                 impact.x + impactRadius, impact.y + impactRadius, impact.z + impactRadius);
@@ -284,7 +284,7 @@ public class CindervaneFireballEntity extends Entity implements GeoEntity {
     public void recreateFromPacket(@NotNull ClientboundAddEntityPacket packet) {
         super.recreateFromPacket(packet);
         // Restore velocity from packet
-        this.setDeltaMovement(packet.getXa(), packet.getYa(), packet.getZa());
+        this.setDeltaMovement(packet.getMovement());
     }
 
     @Override
@@ -310,13 +310,12 @@ public class CindervaneFireballEntity extends Entity implements GeoEntity {
     @Override
     public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            return super.hurtServer(saintsdragons$level, source, amount);
+            return false; // port 1.21.11: Entity.hurtServer es abstracto
         }
         return false;
     }
 
-    @Override
-    public double getPassengersRidingOffset() {
+        public double getPassengersRidingOffset() {
         return -0.2D;
     }
 

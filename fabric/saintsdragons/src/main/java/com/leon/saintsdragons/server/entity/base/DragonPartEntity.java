@@ -16,8 +16,8 @@ public interface DragonPartEntity {
         Entity part = (Entity) this;
         if (parent == null || !parent.isAlive() || parent.isRemoved() || part.isRemoved()
                 || parent.level() != part.level() || !Float.isFinite(amount) || amount <= 0
-                || (part.level() instanceof net.minecraft.server.level.ServerLevel saintsdragons$sl ? part.isInvulnerableTo(saintsdragons$sl, source) : part.isInvulnerable())) return false;
-        if (part.level().isClientSide()) return !(parent.level() instanceof net.minecraft.server.level.ServerLevel saintsdragons$sl ? parent.isInvulnerableTo(saintsdragons$sl, source) : parent.isInvulnerable());
+                || (part.isInvulnerable() && !source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY))) return false;
+        if (part.level().isClientSide()) return !(parent.isInvulnerable() && !source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY));
         return parent.hurtOrSimulate(source, amount * getDamageMultiplier());
     }
 }

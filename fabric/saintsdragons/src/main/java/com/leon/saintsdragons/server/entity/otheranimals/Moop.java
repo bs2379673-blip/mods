@@ -72,8 +72,8 @@ public class Moop extends AbstractFish implements GeoEntity {
     }
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource damageSource, int looting, boolean recentlyHit) {
-        super.dropCustomDeathLoot(damageSource, looting, recentlyHit);
+    protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel sdLevel, @NotNull DamageSource damageSource, boolean recentlyHit) {
+        super.dropCustomDeathLoot(sdLevel, damageSource, recentlyHit);
         this.spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), this.isOnFire() || this.getRemainingFireTicks() > 0
                 ? ModItems.COOKED_MOOP.get()
                 : ModItems.RAW_MOOP.get());
@@ -81,7 +81,7 @@ public class Moop extends AbstractFish implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, MOVEMENT_CONTROLLER, 4, this::movementPredicate));
+        controllers.add(new AnimationController<>(MOVEMENT_CONTROLLER, 4, this::movementPredicate));
     }
 
     @Override
