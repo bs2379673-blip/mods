@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved - propiedad de Starlevi"
+
+[[mods]]
+modId="starpackport"
+version="${version}"
+displayName="StarPackPort"
+authors="Starlevi"
+description='''Mod de Starlevi. Hace que los paquetes de recursos de 1.20.2 a 1.21.11 funcionen en Forge 1.20.1: modelos 3D de items, interfaz, armaduras, capas por version y giros de modelos de 1.21.11. Los packs convertidos se guardan en la carpeta starpackport/convertidos.'''
+
+[[dependencies.starpackport]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.starpackport]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"

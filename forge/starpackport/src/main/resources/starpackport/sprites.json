@@ -1,0 +1,954 @@
+{
+"hud/heart/full": [
+[
+"gui/icons.png",
+52,
+0,
+9,
+9
+]
+],
+"hud/heart/half": [
+[
+"gui/icons.png",
+61,
+0,
+9,
+9
+]
+],
+"hud/heart/full_blinking": [
+[
+"gui/icons.png",
+70,
+0,
+9,
+9
+]
+],
+"hud/heart/half_blinking": [
+[
+"gui/icons.png",
+79,
+0,
+9,
+9
+]
+],
+"hud/heart/poisoned_full": [
+[
+"gui/icons.png",
+88,
+0,
+9,
+9
+]
+],
+"hud/heart/poisoned_half": [
+[
+"gui/icons.png",
+97,
+0,
+9,
+9
+]
+],
+"hud/heart/poisoned_full_blinking": [
+[
+"gui/icons.png",
+106,
+0,
+9,
+9
+]
+],
+"hud/heart/poisoned_half_blinking": [
+[
+"gui/icons.png",
+115,
+0,
+9,
+9
+]
+],
+"hud/heart/withered_full": [
+[
+"gui/icons.png",
+124,
+0,
+9,
+9
+]
+],
+"hud/heart/withered_half": [
+[
+"gui/icons.png",
+133,
+0,
+9,
+9
+]
+],
+"hud/heart/withered_full_blinking": [
+[
+"gui/icons.png",
+142,
+0,
+9,
+9
+]
+],
+"hud/heart/withered_half_blinking": [
+[
+"gui/icons.png",
+151,
+0,
+9,
+9
+]
+],
+"hud/heart/absorbing_full": [
+[
+"gui/icons.png",
+160,
+0,
+9,
+9
+]
+],
+"hud/heart/absorbing_half": [
+[
+"gui/icons.png",
+169,
+0,
+9,
+9
+]
+],
+"hud/heart/frozen_full": [
+[
+"gui/icons.png",
+178,
+0,
+9,
+9
+]
+],
+"hud/heart/frozen_half": [
+[
+"gui/icons.png",
+187,
+0,
+9,
+9
+]
+],
+"hud/heart/container": [
+[
+"gui/icons.png",
+16,
+0,
+9,
+9
+]
+],
+"hud/heart/container_blinking": [
+[
+"gui/icons.png",
+25,
+0,
+9,
+9
+]
+],
+"hud/heart/hardcore_full": [
+[
+"gui/icons.png",
+52,
+45,
+9,
+9
+]
+],
+"hud/heart/hardcore_half": [
+[
+"gui/icons.png",
+61,
+45,
+9,
+9
+]
+],
+"hud/heart/hardcore_full_blinking": [
+[
+"gui/icons.png",
+70,
+45,
+9,
+9
+]
+],
+"hud/heart/hardcore_half_blinking": [
+[
+"gui/icons.png",
+79,
+45,
+9,
+9
+]
+],
+"hud/heart/poisoned_hardcore_full": [
+[
+"gui/icons.png",
+88,
+45,
+9,
+9
+]
+],
+"hud/heart/poisoned_hardcore_half": [
+[
+"gui/icons.png",
+97,
+45,
+9,
+9
+]
+],
+"hud/heart/poisoned_hardcore_full_blinking": [
+[
+"gui/icons.png",
+106,
+45,
+9,
+9
+]
+],
+"hud/heart/poisoned_hardcore_half_blinking": [
+[
+"gui/icons.png",
+115,
+45,
+9,
+9
+]
+],
+"hud/heart/withered_hardcore_full": [
+[
+"gui/icons.png",
+124,
+45,
+9,
+9
+]
+],
+"hud/heart/withered_hardcore_half": [
+[
+"gui/icons.png",
+133,
+45,
+9,
+9
+]
+],
+"hud/heart/withered_hardcore_full_blinking": [
+[
+"gui/icons.png",
+142,
+45,
+9,
+9
+]
+],
+"hud/heart/withered_hardcore_half_blinking": [
+[
+"gui/icons.png",
+151,
+45,
+9,
+9
+]
+],
+"hud/heart/absorbing_hardcore_full": [
+[
+"gui/icons.png",
+160,
+45,
+9,
+9
+]
+],
+"hud/heart/absorbing_hardcore_half": [
+[
+"gui/icons.png",
+169,
+45,
+9,
+9
+]
+],
+"hud/heart/frozen_hardcore_full": [
+[
+"gui/icons.png",
+178,
+45,
+9,
+9
+]
+],
+"hud/heart/frozen_hardcore_half": [
+[
+"gui/icons.png",
+187,
+45,
+9,
+9
+]
+],
+"hud/heart/container_hardcore": [
+[
+"gui/icons.png",
+16,
+45,
+9,
+9
+]
+],
+"hud/heart/container_hardcore_blinking": [
+[
+"gui/icons.png",
+25,
+45,
+9,
+9
+]
+],
+"hud/heart/vehicle_container": [
+[
+"gui/icons.png",
+52,
+9,
+9,
+9
+]
+],
+"hud/heart/vehicle_full": [
+[
+"gui/icons.png",
+88,
+9,
+9,
+9
+]
+],
+"hud/heart/vehicle_half": [
+[
+"gui/icons.png",
+97,
+9,
+9,
+9
+]
+],
+"hud/armor_empty": [
+[
+"gui/icons.png",
+16,
+9,
+9,
+9
+]
+],
+"hud/armor_half": [
+[
+"gui/icons.png",
+25,
+9,
+9,
+9
+]
+],
+"hud/armor_full": [
+[
+"gui/icons.png",
+34,
+9,
+9,
+9
+]
+],
+"hud/air": [
+[
+"gui/icons.png",
+16,
+18,
+9,
+9
+]
+],
+"hud/air_bursting": [
+[
+"gui/icons.png",
+25,
+18,
+9,
+9
+]
+],
+"hud/food_empty": [
+[
+"gui/icons.png",
+16,
+27,
+9,
+9
+]
+],
+"hud/food_full": [
+[
+"gui/icons.png",
+52,
+27,
+9,
+9
+]
+],
+"hud/food_half": [
+[
+"gui/icons.png",
+61,
+27,
+9,
+9
+]
+],
+"hud/food_empty_hunger": [
+[
+"gui/icons.png",
+133,
+27,
+9,
+9
+]
+],
+"hud/food_full_hunger": [
+[
+"gui/icons.png",
+88,
+27,
+9,
+9
+]
+],
+"hud/food_half_hunger": [
+[
+"gui/icons.png",
+97,
+27,
+9,
+9
+]
+],
+"hud/crosshair": [
+[
+"gui/icons.png",
+0,
+0,
+15,
+15
+]
+],
+"hud/crosshair_attack_indicator_background": [
+[
+"gui/icons.png",
+36,
+94,
+16,
+4
+]
+],
+"hud/crosshair_attack_indicator_progress": [
+[
+"gui/icons.png",
+52,
+94,
+16,
+4
+]
+],
+"hud/crosshair_attack_indicator_full": [
+[
+"gui/icons.png",
+68,
+94,
+16,
+16
+]
+],
+"hud/hotbar_attack_indicator_background": [
+[
+"gui/icons.png",
+0,
+94,
+18,
+18
+]
+],
+"hud/hotbar_attack_indicator_progress": [
+[
+"gui/icons.png",
+18,
+94,
+18,
+18
+]
+],
+"hud/experience_bar_background": [
+[
+"gui/icons.png",
+0,
+64,
+182,
+5
+]
+],
+"hud/experience_bar_progress": [
+[
+"gui/icons.png",
+0,
+69,
+182,
+5
+]
+],
+"hud/jump_bar_cooldown": [
+[
+"gui/icons.png",
+0,
+74,
+182,
+5
+]
+],
+"hud/jump_bar_background": [
+[
+"gui/icons.png",
+0,
+84,
+182,
+5
+]
+],
+"hud/jump_bar_progress": [
+[
+"gui/icons.png",
+0,
+89,
+182,
+5
+]
+],
+"hud/hotbar": [
+[
+"gui/widgets.png",
+0,
+0,
+182,
+22
+]
+],
+"hud/hotbar_selection": [
+[
+"gui/widgets.png",
+0,
+22,
+24,
+23
+]
+],
+"hud/hotbar_offhand_left": [
+[
+"gui/widgets.png",
+24,
+22,
+29,
+24
+]
+],
+"hud/hotbar_offhand_right": [
+[
+"gui/widgets.png",
+53,
+22,
+29,
+24
+]
+],
+"widget/button_disabled": [
+[
+"gui/widgets.png",
+0,
+46,
+200,
+20
+]
+],
+"widget/button": [
+[
+"gui/widgets.png",
+0,
+66,
+200,
+20
+]
+],
+"widget/button_highlighted": [
+[
+"gui/widgets.png",
+0,
+86,
+200,
+20
+]
+],
+"widget/slider": [
+[
+"gui/slider.png",
+0,
+0,
+200,
+20
+]
+],
+"widget/slider_highlighted": [
+[
+"gui/slider.png",
+0,
+20,
+200,
+20
+]
+],
+"widget/slider_handle": [
+[
+"gui/slider.png",
+0,
+40,
+8,
+20
+]
+],
+"widget/slider_handle_highlighted": [
+[
+"gui/slider.png",
+0,
+60,
+8,
+20
+]
+],
+"widget/checkbox": [
+[
+"gui/checkbox.png",
+0,
+0,
+20,
+20
+]
+],
+"widget/checkbox_highlighted": [
+[
+"gui/checkbox.png",
+20,
+0,
+20,
+20
+]
+],
+"widget/checkbox_selected": [
+[
+"gui/checkbox.png",
+0,
+20,
+20,
+20
+]
+],
+"widget/checkbox_selected_highlighted": [
+[
+"gui/checkbox.png",
+20,
+20,
+20,
+20
+]
+],
+"widget/tab_selected": [
+[
+"gui/tab_button.png",
+0,
+0,
+130,
+24
+]
+],
+"widget/tab_selected_highlighted": [
+[
+"gui/tab_button.png",
+0,
+24,
+130,
+24
+]
+],
+"widget/tab": [
+[
+"gui/tab_button.png",
+0,
+48,
+130,
+24
+]
+],
+"widget/tab_highlighted": [
+[
+"gui/tab_button.png",
+0,
+72,
+130,
+24
+]
+],
+"hud/effect_background": [
+[
+"gui/container/inventory.png",
+141,
+166,
+24,
+24
+]
+],
+"hud/effect_background_ambient": [
+[
+"gui/container/inventory.png",
+165,
+166,
+24,
+24
+]
+],
+"container/inventory/effect_background": [
+[
+"gui/container/inventory.png",
+0,
+166,
+120,
+32
+],
+[
+"gui/container/inventory.png",
+0,
+198,
+32,
+32
+]
+],
+"boss_bar/pink_background": [
+[
+"gui/bars.png",
+0,
+0,
+182,
+5
+]
+],
+"boss_bar/pink_progress": [
+[
+"gui/bars.png",
+0,
+5,
+182,
+5
+]
+],
+"boss_bar/blue_background": [
+[
+"gui/bars.png",
+0,
+10,
+182,
+5
+]
+],
+"boss_bar/blue_progress": [
+[
+"gui/bars.png",
+0,
+15,
+182,
+5
+]
+],
+"boss_bar/red_background": [
+[
+"gui/bars.png",
+0,
+20,
+182,
+5
+]
+],
+"boss_bar/red_progress": [
+[
+"gui/bars.png",
+0,
+25,
+182,
+5
+]
+],
+"boss_bar/green_background": [
+[
+"gui/bars.png",
+0,
+30,
+182,
+5
+]
+],
+"boss_bar/green_progress": [
+[
+"gui/bars.png",
+0,
+35,
+182,
+5
+]
+],
+"boss_bar/yellow_background": [
+[
+"gui/bars.png",
+0,
+40,
+182,
+5
+]
+],
+"boss_bar/yellow_progress": [
+[
+"gui/bars.png",
+0,
+45,
+182,
+5
+]
+],
+"boss_bar/purple_background": [
+[
+"gui/bars.png",
+0,
+50,
+182,
+5
+]
+],
+"boss_bar/purple_progress": [
+[
+"gui/bars.png",
+0,
+55,
+182,
+5
+]
+],
+"boss_bar/white_background": [
+[
+"gui/bars.png",
+0,
+60,
+182,
+5
+]
+],
+"boss_bar/white_progress": [
+[
+"gui/bars.png",
+0,
+65,
+182,
+5
+]
+],
+"boss_bar/notched_6_background": [
+[
+"gui/bars.png",
+0,
+80,
+182,
+5
+]
+],
+"boss_bar/notched_6_progress": [
+[
+"gui/bars.png",
+0,
+85,
+182,
+5
+]
+],
+"boss_bar/notched_10_background": [
+[
+"gui/bars.png",
+0,
+90,
+182,
+5
+]
+],
+"boss_bar/notched_10_progress": [
+[
+"gui/bars.png",
+0,
+95,
+182,
+5
+]
+],
+"boss_bar/notched_12_background": [
+[
+"gui/bars.png",
+0,
+100,
+182,
+5
+]
+],
+"boss_bar/notched_12_progress": [
+[
+"gui/bars.png",
+0,
+105,
+182,
+5
+]
+],
+"boss_bar/notched_20_background": [
+[
+"gui/bars.png",
+0,
+110,
+182,
+5
+]
+],
+"boss_bar/notched_20_progress": [
+[
+"gui/bars.png",
+0,
+115,
+182,
+5
+]
+]
+}

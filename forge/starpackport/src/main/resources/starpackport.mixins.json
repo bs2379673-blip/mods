@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.starlevi.starpackport.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "FolderRepositorySourceMixin"
+  ],
+  "client": [
+    "client.BlockElementDeserializerMixin",
+    "client.FaceBakeryMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "starpackport.refmap.json"
+}

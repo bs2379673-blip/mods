@@ -57,6 +57,13 @@ jobs:
             grep -E "error:|What went wrong|FAILED|Execution failed" -A3 build.log | head -80
             exit 1
           }
+      - name: Publicar StarPackPort (release forge-ci)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for j in forge/starpackport/build/libs/starpackport-forge-1.20.1-*.jar; do
+            case "$j" in *-sources.jar|*-dev.jar) ;; *) gh release upload forge-ci "$j" --clobber -R "$GITHUB_REPOSITORY" ;; esac
+          done
       - name: Jars finales y paquete de animaciones
         run: |
           mkdir -p out
