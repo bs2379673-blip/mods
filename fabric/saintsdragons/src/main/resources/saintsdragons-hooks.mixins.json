@@ -11,9 +11,7 @@
     "ItemPropertiesMixin",
     "BlockPropertiesMixin"
   ],
-  "client": [
-    "ClientLevelEntityMapAccessor"
-  ],
+  "client": [],
   "injectors": {
     "defaultRequire": 1
   }
