@@ -83,7 +83,6 @@ public class Empty extends Item implements GeoItem {
          .get("eat");
       if (controller != null) {
          controller.stopTriggeredAnimation();
-         controller.reset();
       }
    }
 
@@ -114,7 +113,6 @@ public class Empty extends Item implements GeoItem {
             .get(controllerName);
          if (controller != null) {
             controller.stopTriggeredAnimation();
-            controller.reset();
          }
       }
    }
@@ -129,7 +127,7 @@ public class Empty extends Item implements GeoItem {
             .get(controllerName);
          if (controller != null) {
             clientSoundStopHandler.run();
-            controller.reset();
+            // triggerAnimation restarts it from the beginning (no reset: it may be called while GeckoLib updates controllers)
             controller.triggerAnimation(controllerName);
          }
       }
@@ -170,8 +168,9 @@ public class Empty extends Item implements GeoItem {
          controller.setCustomInstructionKeyframeHandler(keyFrames -> {
             if (keyFrames.keyframeData().getInstructions().contains("finished")) {
                ItemStack animationStack = clientAnimationStackSupplier.get();
+               // GeckoLib 5 is still advancing this controller here: only end the triggered animation
+               // (a reset now would clear its timeline mid-update and crash)
                controller.stopTriggeredAnimation();
-               controller.reset();
                if (animationStack != null && !animationStack.isEmpty()) {
                   clientAnimationStackClearHandler.run();
                   UUID sessionId = clientAnimationSessionSupplier.get();

@@ -217,7 +217,8 @@ public class CustomRenderer extends GeoItemRenderer<Empty> {
 
    @Override
    public @Nullable RenderType getRenderType(GeoRenderState renderState, Identifier texture) {
-      return RenderTypes.entityTranslucent(texture);
+      // like the original (entityTranslucentCull): back faces culled, so the dish does not look see-through
+      return RenderTypes.itemEntityTranslucentCull(texture);
    }
 
    private static String getModelId(String id) {
