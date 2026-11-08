@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class NameTagItemMixin {
     @Inject(method = "interactLivingEntity", at = @At("HEAD"), cancellable = true)
     private void saintsdragons$refuseIvyRename(ItemStack itemStack, Player player, LivingEntity livingEntity, InteractionHand interactionHand, CallbackInfoReturnable<InteractionResult> cir) {
-        if (!(livingEntity instanceof IvyTheDragonMerchant ivy) || !itemStack.hasCustomHoverName()) {
+        if (!(livingEntity instanceof IvyTheDragonMerchant ivy) || !itemStack.has(net.minecraft.core.component.DataComponents.CUSTOM_NAME)) {
             return;
         }
 

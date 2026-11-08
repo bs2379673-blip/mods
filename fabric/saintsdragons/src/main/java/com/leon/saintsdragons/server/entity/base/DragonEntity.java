@@ -520,7 +520,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         animationManager.clearSnapshotCache();
         animationManager.getAnimationControllers().values().forEach(controller -> {
             controller.stop();
-            controller.forceAnimationReset();
+            controller.reset();
         });
     }
 

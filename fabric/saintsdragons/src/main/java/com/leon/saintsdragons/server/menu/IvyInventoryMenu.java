@@ -166,7 +166,7 @@ public class IvyInventoryMenu extends AbstractContainerMenu {
 
     private static boolean isWeaponStack(ItemStack stack) {
         return !stack.isEmpty()
-                && !stack.getAttributeModifiers(EquipmentSlot.MAINHAND).get(Attributes.ATTACK_DAMAGE).isEmpty();
+                && !com.leon.saintsdragons.util.compat.Compat.attributeModifiers(stack, net.minecraft.world.entity.EquipmentSlot.MAINHAND).get(Attributes.ATTACK_DAMAGE).isEmpty();
     }
 
     private static final class ArmorSlot extends Slot {

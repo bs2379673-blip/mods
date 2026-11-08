@@ -83,7 +83,7 @@ public final class AnimationHelper {
     @SafeVarargs
     public static <T extends DragonEntity> void registerSoundKeyframes(T dragon, AnimationController<T>... controllers) {
         for (AnimationController<T> controller : controllers) {
-            controller.setSoundKeyframeHandler(event -> dragon.playAnimationKeyframeSound(event.getKeyframeData().getSound()));
+            controller.setSoundKeyframeHandler(event -> dragon.playAnimationKeyframeSound(event.keyframeData().getSound()));
         }
     }
 
@@ -96,7 +96,7 @@ public final class AnimationHelper {
 
         for (AnimationController<T> controller : controllers) {
             controller.setSoundKeyframeHandler(event -> {
-                String soundKey = event.getKeyframeData().getSound();
+                String soundKey = event.keyframeData().getSound();
                 Identifier soundId = "step".equals(soundKey)
                         ? Identifier.fromNamespaceAndPath(entityTypeId.getNamespace(), entityTypeId.getPath() + "_step")
                         : soundKey != null && soundKey.endsWith("_step")
@@ -128,17 +128,17 @@ public final class AnimationHelper {
     }
 
     public static PlayState idle(AnimationTest<?> state) {
-        state.controller().transitionLength(1);
+        state.controller().setTransitionTicks(1);
         return PlayState.STOP;
     }
 
     public static <T extends DragonEntity> PlayState vocalIdle(AnimationTest<T> state) {
-        state.controller().transitionLength(2);
+        state.controller().setTransitionTicks(2);
         return PlayState.STOP;
     }
 
     public static PlayState interactionIdle(AnimationTest<?> state) {
-        state.controller().transitionLength(1);
+        state.controller().setTransitionTicks(1);
         return PlayState.STOP;
     }
 
@@ -156,7 +156,7 @@ public final class AnimationHelper {
         }
 
         if (specialStates.tamingStunned(dragon)) {
-            controller.transitionLength(transitions.idle());
+            controller.setTransitionTicks(transitions.idle());
             setAndContinue(state, animations.stunned());
             return PlayState.CONTINUE;
         }
@@ -170,7 +170,7 @@ public final class AnimationHelper {
         }
 
         if (specialStates.inWater(dragon)) {
-            controller.transitionLength(transitions.water());
+            controller.setTransitionTicks(transitions.water());
             setAndContinue(state, animations.swim());
             return PlayState.CONTINUE;
         }
@@ -180,14 +180,14 @@ public final class AnimationHelper {
         }
 
         if (dragon.isSleeping()) {
-            controller.transitionLength(transitions.sleep());
+            controller.setTransitionTicks(transitions.sleep());
             setAndContinue(state, animations.sleep());
             return PlayState.CONTINUE;
         }
 
         float sitProgress = dragon.getSitProgress();
         if (sitProgress >= dragon.maxSitTicks()) {
-            controller.transitionLength(transitions.sit());
+            controller.setTransitionTicks(transitions.sit());
             setAndContinue(state, animations.sit());
             return PlayState.CONTINUE;
         }
@@ -206,7 +206,7 @@ public final class AnimationHelper {
         }
 
         if (specialStates.falling(dragon)) {
-            controller.transitionLength(transitions.falling());
+            controller.setTransitionTicks(transitions.falling());
             setAndContinue(state, animations.falling());
             return PlayState.CONTINUE;
         }
@@ -238,7 +238,7 @@ public final class AnimationHelper {
 
         for (RawAnimation animation : acceleratedAnimations) {
             if (triggeredAnimation.equals(animation)) {
-                state.controller().transitionLength(Math.max(0, transitionTicks));
+                state.controller().setTransitionTicks(Math.max(0, transitionTicks));
                 break;
             }
         }
@@ -268,7 +268,7 @@ public final class AnimationHelper {
                                                                                         Function<AnimationTest<T>, PlayState> predicate) {
         int safeTransitionTicks = Math.max(0, transitionTicks);
         return new EntityAnimationController<>(dragon, FLIGHT_CONTROLLER, safeTransitionTicks, state -> {
-            state.controller().transitionLength(safeTransitionTicks);
+            state.controller().setTransitionTicks(safeTransitionTicks);
             return predicate.apply(state);
         });
     }
@@ -297,7 +297,7 @@ public final class AnimationHelper {
             return PlayState.STOP;
         }
 
-        state.controller().transitionLength(getFlightTransitionTicks(visualState, transitions));
+        state.controller().setTransitionTicks(getFlightTransitionTicks(visualState, transitions));
         setAndContinue(state, animation);
         return PlayState.CONTINUE;
     }
@@ -312,7 +312,7 @@ public final class AnimationHelper {
         if (animation == null) {
             return PlayState.STOP;
         }
-        state.controller().transitionLength(transitions.takeoff());
+        state.controller().setTransitionTicks(transitions.takeoff());
         setAndContinue(state, animation);
         return PlayState.CONTINUE;
     }
@@ -375,7 +375,7 @@ public final class AnimationHelper {
             if (sleepAnimation == null) {
                 return PlayState.STOP;
             }
-            state.controller().transitionLength(sleepTransitionTicks);
+            state.controller().setTransitionTicks(sleepTransitionTicks);
             setAndContinue(state, sleepAnimation);
             return PlayState.CONTINUE;
         }
@@ -391,7 +391,7 @@ public final class AnimationHelper {
             if (sitAnimation == null) {
                 return PlayState.STOP;
             }
-            state.controller().transitionLength(sitTransitionTicks);
+            state.controller().setTransitionTicks(sitTransitionTicks);
             setAndContinue(state, sitAnimation);
             return PlayState.CONTINUE;
         }
@@ -410,7 +410,7 @@ public final class AnimationHelper {
         if (animation == null) {
             return PlayState.STOP;
         }
-        state.controller().transitionLength(transitionTicks);
+        state.controller().setTransitionTicks(transitionTicks);
         setAndContinue(state, animation);
         return PlayState.CONTINUE;
     }
@@ -473,26 +473,26 @@ public final class AnimationHelper {
         int groundState = dragon.getEffectiveGroundState();
         if (dragon.isVehicle()) {
             if (groundState == 2 || dragon.isRunning()) {
-                state.controller().transitionLength(movingTransitionTicks);
+                state.controller().setTransitionTicks(movingTransitionTicks);
                 setAndContinue(state, runAnimation);
             } else if (groundState == 1 || dragon.isWalking() || (treatAnimationStateMovingAsWalk && state.isMoving())) {
-                state.controller().transitionLength(movingTransitionTicks);
+                state.controller().setTransitionTicks(movingTransitionTicks);
                 setAndContinue(state, walkAnimation);
             } else {
-                state.controller().transitionLength(idleTransitionTicks);
+                state.controller().setTransitionTicks(idleTransitionTicks);
                 setAndContinue(state, idleAnimation);
             }
             return PlayState.CONTINUE;
         }
 
         if (groundState == 2 || (state.isMoving() && dragon.shouldUseRunAnimation())) {
-            state.controller().transitionLength(movingTransitionTicks);
+            state.controller().setTransitionTicks(movingTransitionTicks);
             setAndContinue(state, runAnimation);
         } else if (groundState == 1 || state.isMoving()) {
-            state.controller().transitionLength(movingTransitionTicks);
+            state.controller().setTransitionTicks(movingTransitionTicks);
             setAndContinue(state, walkAnimation);
         } else {
-            state.controller().transitionLength(idleTransitionTicks);
+            state.controller().setTransitionTicks(idleTransitionTicks);
             setAndContinue(state, idleAnimation);
         }
         return PlayState.CONTINUE;

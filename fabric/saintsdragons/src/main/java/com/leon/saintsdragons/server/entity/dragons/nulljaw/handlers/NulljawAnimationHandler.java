@@ -40,7 +40,7 @@ public final class NulljawAnimationHandler {
             return dance;
         }
 
-        state.controller().transitionLength(MOVEMENT_TRANSITION_TICKS);
+        state.controller().setTransitionTicks(MOVEMENT_TRANSITION_TICKS);
         if (dragon.isMovingForAnimation()) {
             AnimationHelper.setAndContinue(state, HOVER);
         } else {
@@ -50,17 +50,17 @@ public final class NulljawAnimationHandler {
     }
 
     public PlayState actionPredicate(AnimationTest<Nulljaw> state) {
-        state.controller().transitionLength(ACTION_TRANSITION_TICKS);
+        state.controller().setTransitionTicks(ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
 
     public PlayState instantPredicate(AnimationTest<Nulljaw> state) {
-        state.controller().transitionLength(INSTANT_TRANSITION_TICKS);
+        state.controller().setTransitionTicks(INSTANT_TRANSITION_TICKS);
         return PlayState.STOP;
     }
 
     public PlayState mountedPredicate(AnimationTest<Nulljaw> state) {
-        state.controller().transitionLength(MOUNTED_TRANSITION_TICKS);
+        state.controller().setTransitionTicks(MOUNTED_TRANSITION_TICKS);
         if (!dragon.isVehicle()) {
             return PlayState.STOP;
         }

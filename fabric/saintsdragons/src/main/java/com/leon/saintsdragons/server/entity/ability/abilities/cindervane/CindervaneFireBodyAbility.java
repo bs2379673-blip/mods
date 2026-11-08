@@ -174,7 +174,7 @@ public class CindervaneFireBodyAbility extends DragonAbility<Cindervane> {
         for (LivingEntity ally : level.getEntitiesOfClass(LivingEntity.class, expanded,
                 entity -> entity != dragon && entity.isAlive() && dragon.isAlly(entity))) {
             ally.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, ALLY_FIRE_RESIST_TICKS, 0, true, false, false));
-            ally.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, ALLY_DAMAGE_RESIST_TICKS, 4, true, false, false));
+            ally.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, ALLY_DAMAGE_RESIST_TICKS, 4, true, false, false));
             ally.setRemainingFireTicks(0);
         }
     }

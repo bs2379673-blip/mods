@@ -133,14 +133,14 @@ public class CindervaneAnimationHandler {
         boolean inWater = amphithere.isInWater() || amphithere.isInWater();
 
         if (!aerialState && inWater) {
-            state.controller().transitionLength(GROUND_TRANSITIONS.water());
+            state.controller().setTransitionTicks(GROUND_TRANSITIONS.water());
             state.setAndContinue(SWIM);
             state.controller().setAnimationSpeed(1.0f);
             return PlayState.CONTINUE;
         }
 
         if (!aerialState && amphithere.isFallingForAnimation()) {
-            state.controller().transitionLength(GROUND_TRANSITIONS.falling());
+            state.controller().setTransitionTicks(GROUND_TRANSITIONS.falling());
             state.setAndContinue(FALLING);
             state.controller().setAnimationSpeed(1.0f);
             return PlayState.CONTINUE;
@@ -159,13 +159,13 @@ public class CindervaneAnimationHandler {
         if (amphithere.isVehicle()) {
             int groundState = amphithere.getEffectiveGroundState();
             if (groundState == 2) {
-                state.controller().transitionLength(GROUND_TRANSITIONS.moving());
+                state.controller().setTransitionTicks(GROUND_TRANSITIONS.moving());
                 state.setAndContinue(RUN);
             } else if (groundState == 1) {
-                state.controller().transitionLength(GROUND_TRANSITIONS.moving());
+                state.controller().setTransitionTicks(GROUND_TRANSITIONS.moving());
                 state.setAndContinue(WALK);
             } else {
-                state.controller().transitionLength(GROUND_TRANSITIONS.idle());
+                state.controller().setTransitionTicks(GROUND_TRANSITIONS.idle());
                 state.setAndContinue(IDLE);
             }
             state.controller().setAnimationSpeed(1.0f);
@@ -191,11 +191,11 @@ public class CindervaneAnimationHandler {
                 false, false, current -> amphithere.getVisualFlightState(current.getPartialTick()));
     }
     public PlayState actionPredicate(AnimationTest<Cindervane> state) {
-        state.controller().transitionLength(ACTION_TRANSITION_TICKS);
+        state.controller().setTransitionTicks(ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
     public PlayState fastActionPredicate(AnimationTest<Cindervane> state) {
-        state.controller().transitionLength(FAST_ACTION_TRANSITION_TICKS);
+        state.controller().setTransitionTicks(FAST_ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
 }

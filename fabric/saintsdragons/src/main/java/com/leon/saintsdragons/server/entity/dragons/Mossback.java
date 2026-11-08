@@ -223,7 +223,7 @@ public class Mossback extends Animal implements TickingGeoEntity {
         AABB toxinArea = this.getBoundingBox().inflate(TOXIN_RADIUS, 1.4D, TOXIN_RADIUS);
         for (LivingEntity target : serverLevel.getEntitiesOfClass(LivingEntity.class, toxinArea, target -> target != this)) {
             target.addEffect(createToxinEffect(MobEffects.POISON));
-            target.addEffect(createToxinEffect(MobEffects.CONFUSION));
+            target.addEffect(createToxinEffect(MobEffects.NAUSEA));
             target.addEffect(createToxinEffect(MobEffects.BLINDNESS));
         }
 

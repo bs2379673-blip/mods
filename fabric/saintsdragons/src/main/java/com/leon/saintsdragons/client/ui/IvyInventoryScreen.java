@@ -181,7 +181,7 @@ public class IvyInventoryScreen extends AbstractContainerScreen<IvyInventoryMenu
             effects.addAll(ivy.getActiveEffects());
         }
         if (hasBoundStegonautBinder()) {
-            addMissingEffect(effects, MobEffects.DAMAGE_RESISTANCE);
+            addMissingEffect(effects, MobEffects.RESISTANCE);
             addMissingEffect(effects, MobEffects.ABSORPTION);
         }
         if (effects.isEmpty()) {

@@ -33,7 +33,7 @@ final class AtroxiiaFrostImpact {
         }
         int duration = Math.max(1, stunTicks);
         target.addEffect(new MobEffectInstance(
-                MobEffects.MOVEMENT_SLOWDOWN, duration, SLOWNESS_AMPLIFIER, false, true
+                MobEffects.SLOWNESS, duration, SLOWNESS_AMPLIFIER, false, true
         ));
         target.addEffect(new MobEffectInstance(
                 MobEffects.WEAKNESS, duration, WEAKNESS_AMPLIFIER, false, true

@@ -24,7 +24,7 @@ public final class ModPotions {
 
     public static final Supplier<Potion> SEARING =
             REGISTER.register("searing", () -> new Potion(
-                    new MobEffectInstance(MobEffects.DAMAGE_BOOST, 20 * 60 * 8, 2),
+                    new MobEffectInstance(MobEffects.STRENGTH, 20 * 60 * 8, 2),
                     new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 20 * 60 * 8)
             ));
 

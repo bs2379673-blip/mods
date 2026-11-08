@@ -266,7 +266,7 @@ public class StegonautBuffAbility {
 
     private static void applyBuffs(LivingEntity entity, boolean showIcon) {
         entity.addEffect(new MobEffectInstance(
-                MobEffects.DAMAGE_RESISTANCE,
+                MobEffects.RESISTANCE,
                 BUFF_DURATION_TICKS,
                 RESISTANCE_AMPLIFIER,
                 false,
@@ -307,7 +307,7 @@ public class StegonautBuffAbility {
         for (UUID uuid : targets) {
             Entity entity = level.getEntity(uuid);
             if (entity instanceof LivingEntity livingEntity) {
-                livingEntity.removeEffect(MobEffects.DAMAGE_RESISTANCE);
+                livingEntity.removeEffect(MobEffects.RESISTANCE);
                 livingEntity.removeEffect(MobEffects.ABSORPTION);
             }
         }

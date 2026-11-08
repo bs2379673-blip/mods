@@ -241,7 +241,7 @@ public class IvyCombatBrain {
             return true;
         }
         if (!lastAppliedCombatAnimation.isEmpty()) {
-            state.controller().forceAnimationReset();
+            state.controller().reset();
             lastAppliedCombatAnimation = "";
         }
         if (ivy.isBoxingBackingUp()) {
@@ -261,7 +261,7 @@ public class IvyCombatBrain {
             return false;
         }
         if (!animation.equals(lastAppliedCombatAnimation)) {
-            state.controller().forceAnimationReset();
+            state.controller().reset();
             lastAppliedCombatAnimation = animation;
         }
         AnimationHelper.setAndContinue(state, rawAnimation);

@@ -216,7 +216,7 @@ public class VolitansRoarAbility extends DragonAbility<Volitans> {
         mob.getNavigation().stop();
         target.setDeltaMovement(Vec3.ZERO);
         target.hurtMarked = true;
-        target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, durationTicks, 6, false, true));
+        target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, durationTicks, 6, false, true));
         target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, durationTicks, 1, false, true));
         target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, Math.min(durationTicks, 20), 0, false, true));
     }

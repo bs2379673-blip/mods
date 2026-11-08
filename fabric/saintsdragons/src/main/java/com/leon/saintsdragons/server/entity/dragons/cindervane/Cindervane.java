@@ -1201,7 +1201,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
         List<Entity> immune = new ArrayList<>(this.getPassengers());
         for (Entity passenger : immune) {
             if (passenger instanceof LivingEntity livingPassenger) {
-                livingPassenger.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 20, 4, true, false, false));
+                livingPassenger.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 20, 4, true, false, false));
             }
         }
 
@@ -1328,7 +1328,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
         }
 
         for (LivingEntity ally : allies) {
-            ally.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 40, 4, true, false, false));
+            ally.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 40, 4, true, false, false));
             ally.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 200, 0, true, false, false));
             ally.setRemainingFireTicks(0);
         }

@@ -369,7 +369,7 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
         if (output.isEmpty()) {
             return true;
         }
-        return ItemStack.isSameItemSameTags(output, result)
+        return ItemStack.isSameItemSameComponents(output, result)
                 && output.getCount() + result.getCount() <= output.getMaxStackSize();
     }
 
@@ -437,7 +437,7 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
             grid.setItem(slot, remainder);
             return;
         }
-        if (ItemStack.isSameItemSameTags(existing, remainder)) {
+        if (ItemStack.isSameItemSameComponents(existing, remainder)) {
             int transfer = Math.min(remainder.getCount(), existing.getMaxStackSize() - existing.getCount());
             if (transfer > 0) {
                 existing.grow(transfer);
@@ -552,7 +552,7 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
         tag.putInt("ReservedFuelHeatLevel", this.reservedFuelHeatLevel);
         tag.putInt("ThermalChargeModelVersion", THERMAL_CHARGE_MODEL_VERSION);
         if (!this.pendingResult.isEmpty()) {
-            tag.put("PendingResult", this.pendingResult.save(new CompoundTag()));
+            tag.put("PendingResult", com.leon.saintsdragons.util.compat.Compat.saveStack(this.pendingResult));
         }
         if (this.activeRecipeId != null) {
             tag.putString("ActiveRecipe", this.activeRecipeId.toString());
@@ -593,7 +593,7 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
             }
         }
         this.pendingResult = tag.contains("PendingResult")
-                ? ItemStack.of(tag.getCompound("PendingResult"))
+                ? com.leon.saintsdragons.util.compat.Compat.loadStack(tag.getCompound("PendingResult"))
                 : ItemStack.EMPTY;
         this.activeRecipeId = tag.contains("ActiveRecipe")
                 ? Identifier.tryParse(tag.getStringOr("ActiveRecipe", ""))

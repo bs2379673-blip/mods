@@ -1333,7 +1333,7 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
             tag.put("AtroxiiiaChestsItems", atroxiiaChestInventory.createTag());
         }
         ListTag overflow = new ListTag();
-        for (ItemStack stack : pendingChestOverflow) overflow.add(stack.save(new CompoundTag()));
+        for (ItemStack stack : pendingChestOverflow) overflow.add(com.leon.saintsdragons.util.compat.Compat.saveStack(stack));
         tag.put("AtroxiiaChestOverflow", overflow);
     }
 
@@ -1354,13 +1354,13 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
         if (hasAtroxiiaChest() && tag.contains("AtroxiiiaChestsItems")) {
             ListTag items = tag.getListOrEmpty("AtroxiiiaChestsItems");
             for (int i = 0; i < items.size(); i++) {
-                ItemStack remainder = atroxiiaChestInventory.addItem(ItemStack.of(items.getCompound(i)));
+                ItemStack remainder = atroxiiaChestInventory.addItem(com.leon.saintsdragons.util.compat.Compat.loadStack(items.getCompound(i)));
                 if (!remainder.isEmpty()) pendingChestOverflow.add(remainder);
             }
         }
         ListTag overflow = tag.getListOrEmpty("AtroxiiaChestOverflow");
         for (int i = 0; i < overflow.size(); i++) {
-            ItemStack stack = ItemStack.of(overflow.getCompound(i));
+            ItemStack stack = com.leon.saintsdragons.util.compat.Compat.loadStack(overflow.getCompound(i));
             if (!stack.isEmpty()) pendingChestOverflow.add(stack);
         }
         tamingController.load(tag);

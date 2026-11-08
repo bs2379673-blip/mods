@@ -399,7 +399,7 @@ public class ModItems {
                                             .nutrition(4)
                                             .saturationMod(0.3F)
                                             .effect(Mossback.createToxinEffect(MobEffects.POISON), 1.0F)
-                                            .effect(Mossback.createToxinEffect(MobEffects.CONFUSION), 1.0F)
+                                            .effect(Mossback.createToxinEffect(MobEffects.NAUSEA), 1.0F)
                                             .effect(Mossback.createToxinEffect(MobEffects.BLINDNESS), 1.0F)
                                             .build())
                     ));

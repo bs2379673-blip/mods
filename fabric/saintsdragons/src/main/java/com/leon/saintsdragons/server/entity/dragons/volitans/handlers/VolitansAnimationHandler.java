@@ -150,12 +150,12 @@ public final class VolitansAnimationHandler {
 
         var controller = state.controller();
         if (dragon.isTamingStunned()) {
-            controller.transitionLength(GROUND_TRANSITIONS.idle());
+            controller.setTransitionTicks(GROUND_TRANSITIONS.idle());
             state.setAndContinue(dragon.isInWater() ? UNDERWATER_STUNNED : STUNNED);
             return PlayState.CONTINUE;
         }
         if (dragon.isScentAssessing()) {
-            controller.transitionLength(GROUND_TRANSITIONS.idle());
+            controller.setTransitionTicks(GROUND_TRANSITIONS.idle());
             state.setAndContinue(INVESTIGATING);
             return PlayState.CONTINUE;
         }
@@ -176,10 +176,10 @@ public final class VolitansAnimationHandler {
         if (dragon.isBurrowing() && !aerialState) {
             int groundState = dragon.getEffectiveGroundState();
             if (groundState > 0 || state.isMoving()) {
-                controller.transitionLength(GROUND_TRANSITIONS.moving());
+                controller.setTransitionTicks(GROUND_TRANSITIONS.moving());
                 state.setAndContinue(BURROW_MOVE);
             } else {
-                controller.transitionLength(GROUND_TRANSITIONS.idle());
+                controller.setTransitionTicks(GROUND_TRANSITIONS.idle());
                 state.setAndContinue(BURROW_IDLE);
             }
             return PlayState.CONTINUE;
@@ -195,13 +195,13 @@ public final class VolitansAnimationHandler {
         }
 
         if (dragon.isFallingForAnimation()) {
-            controller.transitionLength(GROUND_TRANSITIONS.falling());
+            controller.setTransitionTicks(GROUND_TRANSITIONS.falling());
             state.setAndContinue(FALLING);
             return PlayState.CONTINUE;
         }
 
         if (dragon.isInWater() && !aerialState) {
-            controller.transitionLength(GROUND_TRANSITIONS.water());
+            controller.setTransitionTicks(GROUND_TRANSITIONS.water());
             if (dragon.isSwimmingMoving()) {
                 state.setAndContinue(SWIM);
             } else {
@@ -222,17 +222,17 @@ public final class VolitansAnimationHandler {
                         : dragon.evaluateMotionFlightState(-dragon.getFlightPitchRadians(current.getPartialTick())));
     }
     public PlayState actionPredicate(AnimationTest<Volitans> state) {
-        state.controller().transitionLength(ACTION_TRANSITION_TICKS);
+        state.controller().setTransitionTicks(ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
 
     public PlayState fastActionPredicate(AnimationTest<Volitans> state) {
-        state.controller().transitionLength(FAST_ACTION_TRANSITION_TICKS);
+        state.controller().setTransitionTicks(FAST_ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
 
     public PlayState airActionPredicate(AnimationTest<Volitans> state) {
-        state.controller().transitionLength(AIR_ACTION_TRANSITION_TICKS);
+        state.controller().setTransitionTicks(AIR_ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
 }

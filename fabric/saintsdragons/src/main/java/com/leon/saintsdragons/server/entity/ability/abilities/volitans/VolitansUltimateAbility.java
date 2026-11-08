@@ -248,7 +248,7 @@ public class VolitansUltimateAbility extends DragonAbility<Volitans> {
         mob.getNavigation().stop();
         target.setDeltaMovement(Vec3.ZERO);
         target.hurtMarked = true;
-        target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, STUN_TICKS, 6, false, true));
+        target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, STUN_TICKS, 6, false, true));
         target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, STUN_TICKS, 1, false, true));
         target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 20, 0, false, true));
     }

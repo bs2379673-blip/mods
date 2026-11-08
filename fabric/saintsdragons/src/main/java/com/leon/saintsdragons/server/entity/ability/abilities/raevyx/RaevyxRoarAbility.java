@@ -194,7 +194,7 @@ public class RaevyxRoarAbility extends DragonAbility<Raevyx> {
 private static void applyStun(LivingEntity target) {
     final int durationTicks = 30;
 
-        target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, durationTicks, 5, false, true));
+        target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, durationTicks, 5, false, true));
         target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, durationTicks, 0, false, true));
         target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, Math.min(durationTicks, 20), 0, false, true));
     }

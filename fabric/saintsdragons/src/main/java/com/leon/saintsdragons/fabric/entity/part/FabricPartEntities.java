@@ -14,7 +14,7 @@ public final class FabricPartEntities {
                     .clientTrackingRange(0)
                     .updateInterval(1)
                     .noSummon()
-                    .build("dragon_part");
+                    .build(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE, net.minecraft.resources.Identifier.fromNamespaceAndPath("saintsdragons", "dragon_part")));
 
     private FabricPartEntities() {
     }

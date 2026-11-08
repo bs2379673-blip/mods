@@ -255,7 +255,7 @@ public class StegonautAmethystPillarEntity extends Entity implements GeoEntity {
     }
 
     private <E extends GeoEntity> PlayState animationPredicate(AnimationTest<E> state) {
-        state.controller().transitionLength(1);
+        state.controller().setTransitionTicks(1);
         state.controller().setAnimation(isSubsiding() ? SUBSIDE : EMERGE);
         return PlayState.CONTINUE;
     }

@@ -55,7 +55,7 @@ public final class DragonFlightAnimationController<T extends RideableFlyingDrago
     public DragonFlightAnimationController(T dragon, int transitionTicks,
                                           AnimationStateHandler<T> predicate) {
         super(dragon, AnimationHelper.FLIGHT_CONTROLLER, Math.max(0, transitionTicks), state -> {
-            state.controller().transitionLength(Math.max(0, transitionTicks));
+            state.controller().setTransitionTicks(Math.max(0, transitionTicks));
             return predicate.handle(state);
         });
     }

@@ -50,7 +50,7 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.OwnableEntity;
-import net.minecraft.world.entity.RelativeMovement;
+import net.minecraft.world.entity.Relative;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -122,8 +122,6 @@ import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.state.AnimationTest;
 import software.bernie.geckolib.animation.object.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.core.keyframe.event.ParticleKeyframeEvent;
-import software.bernie.geckolib.core.keyframe.event.SoundKeyframeEvent;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -151,7 +149,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     private static final EntityDataAccessor<Boolean> DATA_TAME =
             SynchedEntityData.defineId(IvyTheDragonMerchant.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Optional<UUID>> DATA_OWNER_UUID =
-            SynchedEntityData.defineId(IvyTheDragonMerchant.class, EntityDataSerializers.OPTIONAL_UUID);
+            SynchedEntityData.defineId(IvyTheDragonMerchant.class, com.leon.saintsdragons.util.compat.Compat.OPTIONAL_UUID);
     private static final EntityDataAccessor<Integer> DATA_COMMAND =
             SynchedEntityData.defineId(IvyTheDragonMerchant.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<String> DATA_IDLE_CHATTER =
@@ -500,7 +498,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
 
         if (changingDimensions) {
             if (!teleportTo(destinationLevel, destinationPosition.x, destinationPosition.y, destinationPosition.z,
-                    Set.<RelativeMovement>of(), getYRot(), getXRot())) {
+                    Set.<Relative>of(), getYRot(), getXRot())) {
                 return false;
             }
         } else {
@@ -915,23 +913,23 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
 
         double damage = 1.0D;
         Multimap<Attribute, AttributeModifier> modifiers =
-                sword.getAttributeModifiers(EquipmentSlot.MAINHAND);
+                com.leon.saintsdragons.util.compat.Compat.attributeModifiers(sword, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
         for (AttributeModifier modifier : modifiers.get(Attributes.ATTACK_DAMAGE)) {
-            if (modifier.getOperation() == AttributeModifier.Operation.ADD_VALUE) {
-                damage += modifier.getAmount();
-            } else if (modifier.getOperation() == AttributeModifier.Operation.ADD_MULTIPLIED_BASE) {
-                damage += 1.0D * modifier.getAmount();
-            } else if (modifier.getOperation() == AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL) {
-                damage *= 1.0D + modifier.getAmount();
+            if (modifier.operation() == AttributeModifier.Operation.ADD_VALUE) {
+                damage += modifier.amount();
+            } else if (modifier.operation() == AttributeModifier.Operation.ADD_MULTIPLIED_BASE) {
+                damage += 1.0D * modifier.amount();
+            } else if (modifier.operation() == AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL) {
+                damage *= 1.0D + modifier.amount();
             }
         }
-        damage += EnchantmentHelper.getDamageBonus(sword, target.getMobType());
+        damage += EnchantmentHelper.getDamageBonus(sword, target.getType());
         return (float) Math.max(0.0D, damage);
     }
 
     int getEquippedSwordKnockbackBonus() {
         ItemStack sword = getEquippedSword();
-        return sword.isEmpty() ? 0 : EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, sword);
+        return sword.isEmpty() ? 0 : com.leon.saintsdragons.util.compat.Compat.enchantLevel(Enchantments.KNOCKBACK, sword);
     }
 
     void applyEquippedSwordPostHit(LivingEntity target) {
@@ -940,7 +938,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
             return;
         }
 
-        int fireAspect = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FIRE_ASPECT, sword);
+        int fireAspect = com.leon.saintsdragons.util.compat.Compat.enchantLevel(Enchantments.FIRE_ASPECT, sword);
         if (fireAspect > 0) {
             target.igniteForSeconds(fireAspect * 4);
         }
@@ -1024,7 +1022,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
             ItemStack stack = ivyInventory.getItem(slot);
             if (!stack.isEmpty()
                     && stack.isDamaged()
-                    && EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MENDING, stack) > 0) {
+                    && com.leon.saintsdragons.util.compat.Compat.enchantLevel(Enchantments.MENDING, stack) > 0) {
                 stacks.add(stack);
             }
         }
@@ -1137,7 +1135,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
 
     private void hurtArmorStack(DamageSource source, int slot, EquipmentSlot equipmentSlot, float amount) {
         ItemStack stack = ivyInventory.getItem(slot);
-        boolean fireResistant = source.is(DamageTypeTags.IS_FIRE) && stack.getItem().isFireResistant();
+        boolean fireResistant = source.is(DamageTypeTags.IS_FIRE) && stack.has(net.minecraft.core.component.DataComponents.DAMAGE_RESISTANT);
         if (!fireResistant && stack.getItem() instanceof ArmorItem) {
             stack.hurtAndBreak((int) amount, this, ivy -> ivy.broadcastBreakEvent(equipmentSlot));
         }
@@ -1210,7 +1208,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         if (stack.is(ModItems.IVY_THE_MERCHANT_SPAWN_EGG.get())) {
             return super.mobInteract(player, hand);
         }
-        if (stack.is(Items.NAME_TAG) && stack.hasCustomHoverName()) {
+        if (stack.is(Items.NAME_TAG) && stack.has(net.minecraft.core.component.DataComponents.CUSTOM_NAME)) {
             if (!level().isClientSide()) {
                 refuseRenameAttempt();
             }
@@ -1435,12 +1433,12 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         controllers.add(movementController, downedController, passiveUseController, instantController);
     }
 
-    private void handleSoundKeyframe(SoundKeyframeEvent<IvyTheDragonMerchant> event) {
-        soundHandler.handleAnimationSound(event.getKeyframeData(), event.controller());
+    private void handleSoundKeyframe(software.bernie.geckolib.animation.state.KeyFrameEvent<IvyTheDragonMerchant, software.bernie.geckolib.cache.animation.keyframeevent.SoundKeyframeData> event) {
+        soundHandler.handleAnimationSound(event.keyframeData(), event.controller());
     }
 
-    private void handleParticleKeyframe(ParticleKeyframeEvent<IvyTheDragonMerchant> event) {
-        String effect = event.getKeyframeData().getEffect();
+    private void handleParticleKeyframe(software.bernie.geckolib.animation.state.KeyFrameEvent<IvyTheDragonMerchant, software.bernie.geckolib.cache.animation.keyframeevent.ParticleKeyframeData> event) {
+        String effect = event.keyframeData().getEffect();
         if (!isBoxingRecovering()) {
             return;
         }
@@ -1455,7 +1453,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         locomotionBlendActive = false;
         if (deathTime > 0 || getDeathAnimation() != 0 || !isAlive()) {
             if (state.controller().isPlayingTriggeredAnimation()) {
-                state.controller().forceAnimationReset();
+                state.controller().reset();
             }
             return PlayState.STOP;
         }
@@ -1472,7 +1470,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         if (isRidingCompanionVehicle()) {
             clearMovementTriggerIfNeeded(state);
             AnimationHelper.setAndContinue(state, MOUNTING);
-            state.controller().transitionLength(2);
+            state.controller().setTransitionTicks(2);
             return PlayState.CONTINUE;
         }
         TradeAnimState tradeState = getTradeAnimState();
@@ -1490,7 +1488,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         }
 
         if (wasMovementStopped || wasDownedOrArisingAnimation) {
-            state.controller().forceAnimationReset();
+            state.controller().reset();
             wasMovementStopped = false;
             wasDownedOrArisingAnimation = false;
         }
@@ -1501,7 +1499,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         }
 
         if (getBoxingCombat().isActive()) {
-            state.controller().transitionLength(1);
+            state.controller().setTransitionTicks(1);
         }
 
         if (getBoxingCombat().applyMovementAnimation(state)) {
@@ -1510,7 +1508,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         }
 
         if (wasBoxingAnimation) {
-            state.controller().forceAnimationReset();
+            state.controller().reset();
             wasBoxingAnimation = false;
         }
 
@@ -1521,7 +1519,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
 
     private void clearMovementTriggerIfNeeded(AnimationTest<?> state) {
         if (state.controller().isPlayingTriggeredAnimation()) {
-            state.controller().forceAnimationReset();
+            state.controller().reset();
         }
     }
 
@@ -1529,19 +1527,19 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         if (deathTime > 0 || getDeathAnimation() != 0 || !isAlive()) {
             if (getDeathAnimation() == 1 || (getDeathAnimation() == 0 && isTame())) {
                 AnimationHelper.setAndContinue(state, DIE);
-                state.controller().transitionLength(1);
+                state.controller().setTransitionTicks(1);
                 return PlayState.CONTINUE;
             }
             return PlayState.STOP;
         }
         if (isDowned()) {
             AnimationHelper.setAndContinue(state, ABOUT_TO_DIE);
-            state.controller().transitionLength(1);
+            state.controller().setTransitionTicks(1);
             return PlayState.CONTINUE;
         }
         if (getDownedAriseTicks() > 0) {
             AnimationHelper.setAndContinue(state, ARISE);
-            state.controller().transitionLength(1);
+            state.controller().setTransitionTicks(1);
             return PlayState.CONTINUE;
         }
         return PlayState.STOP;
@@ -1549,7 +1547,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
 
     private <T extends GeoEntity> PlayState instantAnimationPredicate(AnimationTest<T> state) {
         if (deathTime > 0 && (getDeathAnimation() == 2 || !isTame())) {
-            state.controller().transitionLength(1);
+            state.controller().setTransitionTicks(1);
             AnimationHelper.setAndContinue(state, ACTUALLY_DIE);
             return PlayState.CONTINUE;
         }
@@ -1792,7 +1790,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         clearChatter();
         setDownedAriseTicks(DOWNED_ARISE_TICKS);
         setHealth(Math.max(6.0F, getMaxHealth() * 0.35F));
-        removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
+        removeEffect(MobEffects.SLOWNESS);
         setNoAi(true);
         getNavigation().stop();
         setTarget(null);
@@ -2259,7 +2257,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     }
 
     private static boolean isCookedRecoveryFood(ItemStack stack) {
-        if (stack.isEmpty() || !stack.isEdible()) {
+        if (stack.isEmpty() || !stack.has(net.minecraft.core.component.DataComponents.FOOD)) {
             return false;
         }
         Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
@@ -2288,7 +2286,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
                 ivyInventory.setChanged();
                 return;
             }
-            if (ItemStack.isSameItemSameTags(stack, remainder) && stack.getCount() < stack.getMaxStackSize()) {
+            if (ItemStack.isSameItemSameComponents(stack, remainder) && stack.getCount() < stack.getMaxStackSize()) {
                 int moved = Math.min(remainder.getCount(), stack.getMaxStackSize() - stack.getCount());
                 stack.grow(moved);
                 remainder.shrink(moved);
@@ -2498,7 +2496,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
             if (stack.isEmpty()) {
                 continue;
             }
-            CompoundTag itemTag = stack.save(new CompoundTag());
+            CompoundTag itemTag = com.leon.saintsdragons.util.compat.Compat.saveStack(stack);
             itemTag.putByte(IVY_INVENTORY_SLOT_TAG, (byte) slot);
             items.add(itemTag);
         }
@@ -2515,7 +2513,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
                     ? Byte.toUnsignedInt(itemTag.getByteOr(IVY_INVENTORY_SLOT_TAG, (byte) 0))
                     : index;
             if (slot >= 0 && slot < IvyInventoryMenu.IVY_SLOT_COUNT) {
-                ivyInventory.setItem(slot, ItemStack.of(itemTag));
+                ivyInventory.setItem(slot, com.leon.saintsdragons.util.compat.Compat.loadStack(itemTag));
             }
         }
         ivyInventory.setChanged();
@@ -2552,7 +2550,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
 
     private static boolean isWeaponStack(ItemStack stack) {
         return !stack.isEmpty()
-                && !stack.getAttributeModifiers(EquipmentSlot.MAINHAND).get(Attributes.ATTACK_DAMAGE).isEmpty();
+                && !com.leon.saintsdragons.util.compat.Compat.attributeModifiers(stack, net.minecraft.world.entity.EquipmentSlot.MAINHAND).get(Attributes.ATTACK_DAMAGE).isEmpty();
     }
 
     private boolean isArmorOfType(ItemStack stack, ArmorItem.Type type) {

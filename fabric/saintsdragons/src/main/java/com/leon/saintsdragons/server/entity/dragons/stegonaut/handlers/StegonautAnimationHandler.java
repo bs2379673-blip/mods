@@ -62,7 +62,7 @@ public class StegonautAnimationHandler {
             return PlayState.CONTINUE;
         }
         if (drake.isInWater()) {
-            state.controller().transitionLength(GROUND_TRANSITIONS.water());
+            state.controller().setTransitionTicks(GROUND_TRANSITIONS.water());
             state.setAndContinue(SWIM_ANIM);
             return PlayState.CONTINUE;
         }
@@ -131,7 +131,7 @@ public class StegonautAnimationHandler {
     }
 
     public PlayState actionPredicate(AnimationTest<Stegonaut> state) {
-        state.controller().transitionLength(ACTION_TRANSITION_TICKS);
+        state.controller().setTransitionTicks(ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
 }

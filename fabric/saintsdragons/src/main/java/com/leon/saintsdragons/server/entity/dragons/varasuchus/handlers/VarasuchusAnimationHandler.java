@@ -77,7 +77,7 @@ public record VarasuchusAnimationHandler(Varasuchus drake) {
         controller.setAnimationSpeed(1.0F);
 
         if (drake.isWildRideAnimationActive()) {
-            controller.transitionLength(GROUND_TRANSITIONS.stunned());
+            controller.setTransitionTicks(GROUND_TRANSITIONS.stunned());
             state.setAndContinue(drake.isInWater() ? THRASHING_UNDERWATER : BUCKING);
             return PlayState.CONTINUE;
         }
@@ -85,7 +85,7 @@ public record VarasuchusAnimationHandler(Varasuchus drake) {
             return PlayState.STOP;
         }
         if (drake.isScentAssessing()) {
-            controller.transitionLength(GROUND_TRANSITIONS.idle());
+            controller.setTransitionTicks(GROUND_TRANSITIONS.idle());
             state.setAndContinue(INVESTIGATING);
             return PlayState.CONTINUE;
         }
@@ -97,7 +97,7 @@ public record VarasuchusAnimationHandler(Varasuchus drake) {
         boolean isMovingLand = state.isMoving();
 
         if (isSwimming || isInWater) {
-            controller.transitionLength(GROUND_TRANSITIONS.water());
+            controller.setTransitionTicks(GROUND_TRANSITIONS.water());
 
             boolean isSwimmingMoving;
 
@@ -133,13 +133,13 @@ public record VarasuchusAnimationHandler(Varasuchus drake) {
             boolean isAggressive = drake.shouldUseRunAnimation() && isMovingLand;
 
             if (groundState == 2 || isAggressive) {
-                controller.transitionLength(GROUND_TRANSITIONS.moving());
+                controller.setTransitionTicks(GROUND_TRANSITIONS.moving());
                 AnimationHelper.setAndContinue(state, phaseTwo ? RUN2 : RUN);
             } else if (groundState == 1 || isMovingLand) {
-                controller.transitionLength(GROUND_TRANSITIONS.moving());
+                controller.setTransitionTicks(GROUND_TRANSITIONS.moving());
                 AnimationHelper.setAndContinue(state, phaseTwo ? WALK2 : WALK);
             } else {
-                controller.transitionLength(GROUND_TRANSITIONS.idle());
+                controller.setTransitionTicks(GROUND_TRANSITIONS.idle());
                 AnimationHelper.setAndContinue(state, phaseTwo ? IDLE2 : IDLE);
             }
         }
@@ -147,11 +147,11 @@ public record VarasuchusAnimationHandler(Varasuchus drake) {
     }
 
     public PlayState actionPredicate(AnimationTest<Varasuchus> state) {
-        state.controller().transitionLength(ACTION_TRANSITION_TICKS);
+        state.controller().setTransitionTicks(ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
     public PlayState fastActionPredicate(AnimationTest<Varasuchus> state) {
-        state.controller().transitionLength(FAST_ACTION_TRANSITION_TICKS);
+        state.controller().setTransitionTicks(FAST_ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
     public void setupMovementController(AnimationController<Varasuchus> controller) {
