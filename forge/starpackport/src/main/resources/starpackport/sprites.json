@@ -950,5 +950,1247 @@
 182,
 5
 ]
+],
+"recipe_book/filter_enabled": [
+[
+"gui/recipe_book.png",
+180,
+41,
+26,
+16
+]
+],
+"recipe_book/page_forward_highlighted": [
+[
+"gui/recipe_book.png",
+1,
+226,
+12,
+17
+]
+],
+"recipe_book/page_backward_highlighted": [
+[
+"gui/recipe_book.png",
+14,
+226,
+12,
+17
+]
+],
+"recipe_book/slot_craftable": [
+[
+"gui/recipe_book.png",
+29,
+206,
+25,
+25
+]
+],
+"recipe_book/furnace_overlay_disabled_highlighted": [
+[
+"gui/recipe_book.png",
+178,
+156,
+24,
+24
+]
+],
+"recipe_book/filter_disabled_highlighted": [
+[
+"gui/recipe_book.png",
+152,
+59,
+26,
+16
+]
+],
+"recipe_book/crafting_overlay": [
+[
+"gui/recipe_book.png",
+152,
+78,
+24,
+24
+]
+],
+"recipe_book/furnace_overlay_disabled": [
+[
+"gui/recipe_book.png",
+178,
+130,
+24,
+24
+]
+],
+"recipe_book/page_backward": [
+[
+"gui/recipe_book.png",
+14,
+208,
+12,
+17
+]
+],
+"recipe_book/tab": [
+[
+"gui/recipe_book.png",
+153,
+2,
+35,
+27
+]
+],
+"recipe_book/filter_enabled_highlighted": [
+[
+"gui/recipe_book.png",
+180,
+59,
+26,
+16
+]
+],
+"recipe_book/furnace_filter_enabled": [
+[
+"gui/recipe_book.png",
+180,
+182,
+26,
+16
+]
+],
+"recipe_book/button": [
+[
+"gui/recipe_button.png",
+0,
+0,
+20,
+18
+]
+],
+"recipe_book/button_highlighted": [
+[
+"gui/recipe_button.png",
+0,
+19,
+20,
+18
+]
+],
+"recipe_book/page_forward": [
+[
+"gui/recipe_book.png",
+1,
+208,
+12,
+17
+]
+],
+"recipe_book/furnace_filter_disabled": [
+[
+"gui/recipe_book.png",
+152,
+182,
+26,
+16
+]
+],
+"recipe_book/filter_disabled": [
+[
+"gui/recipe_book.png",
+152,
+41,
+26,
+16
+]
+],
+"recipe_book/furnace_overlay": [
+[
+"gui/recipe_book.png",
+152,
+130,
+24,
+24
+]
+],
+"recipe_book/crafting_overlay_highlighted": [
+[
+"gui/recipe_book.png",
+152,
+104,
+24,
+24
+]
+],
+"recipe_book/tab_selected": [
+[
+"gui/recipe_book.png",
+188,
+2,
+35,
+27
+]
+],
+"recipe_book/crafting_overlay_disabled_highlighted": [
+[
+"gui/recipe_book.png",
+178,
+104,
+24,
+24
+]
+],
+"recipe_book/furnace_overlay_highlighted": [
+[
+"gui/recipe_book.png",
+152,
+156,
+24,
+24
+]
+],
+"recipe_book/furnace_filter_disabled_highlighted": [
+[
+"gui/recipe_book.png",
+152,
+200,
+26,
+16
+]
+],
+"recipe_book/crafting_overlay_disabled": [
+[
+"gui/recipe_book.png",
+178,
+78,
+24,
+24
+]
+],
+"recipe_book/slot_many_craftable": [
+[
+"gui/recipe_book.png",
+29,
+231,
+25,
+25
+]
+],
+"recipe_book/furnace_filter_enabled_highlighted": [
+[
+"gui/recipe_book.png",
+180,
+200,
+26,
+16
+]
+],
+"advancements/task_frame_unobtained": [
+[
+"gui/advancements/widgets.png",
+0,
+154,
+26,
+26
+]
+],
+"advancements/challenge_frame_obtained": [
+[
+"gui/advancements/widgets.png",
+26,
+128,
+26,
+26
+]
+],
+"advancements/goal_frame_obtained": [
+[
+"gui/advancements/widgets.png",
+52,
+128,
+26,
+26
+]
+],
+"advancements/challenge_frame_unobtained": [
+[
+"gui/advancements/widgets.png",
+26,
+154,
+26,
+26
+]
+],
+"advancements/goal_frame_unobtained": [
+[
+"gui/advancements/widgets.png",
+52,
+154,
+26,
+26
+]
+],
+"advancements/task_frame_obtained": [
+[
+"gui/advancements/widgets.png",
+0,
+128,
+26,
+26
+]
+],
+"container/loom/pattern_highlighted": [
+[
+"gui/container/loom.png",
+0,
+194,
+14,
+14
+]
+],
+"container/loom/pattern_selected": [
+[
+"gui/container/loom.png",
+0,
+180,
+14,
+14
+]
+],
+"container/loom/pattern": [
+[
+"gui/container/loom.png",
+0,
+166,
+14,
+14
+]
+],
+"container/loom/scroller_disabled": [
+[
+"gui/container/loom.png",
+244,
+0,
+12,
+15
+]
+],
+"container/loom/scroller": [
+[
+"gui/container/loom.png",
+232,
+0,
+12,
+15
+]
+],
+"container/enchanting_table/enchantment_slot_disabled": [
+[
+"gui/container/enchanting_table.png",
+0,
+185,
+108,
+19
+]
+],
+"container/enchanting_table/level_2": [
+[
+"gui/container/enchanting_table.png",
+16,
+223,
+16,
+16
+]
+],
+"container/enchanting_table/level_3": [
+[
+"gui/container/enchanting_table.png",
+32,
+223,
+16,
+16
+]
+],
+"container/enchanting_table/level_3_disabled": [
+[
+"gui/container/enchanting_table.png",
+32,
+239,
+16,
+16
+]
+],
+"container/enchanting_table/level_1_disabled": [
+[
+"gui/container/enchanting_table.png",
+0,
+239,
+16,
+16
+]
+],
+"container/enchanting_table/level_1": [
+[
+"gui/container/enchanting_table.png",
+0,
+223,
+16,
+16
+]
+],
+"container/enchanting_table/enchantment_slot_highlighted": [
+[
+"gui/container/enchanting_table.png",
+0,
+204,
+108,
+19
+]
+],
+"container/enchanting_table/enchantment_slot": [
+[
+"gui/container/enchanting_table.png",
+0,
+166,
+108,
+19
+]
+],
+"container/enchanting_table/level_2_disabled": [
+[
+"gui/container/enchanting_table.png",
+16,
+239,
+16,
+16
+]
+],
+"container/furnace/burn_progress": [
+[
+"gui/container/furnace.png",
+176,
+14,
+24,
+16
+]
+],
+"container/furnace/lit_progress": [
+[
+"gui/container/furnace.png",
+176,
+0,
+14,
+14
+]
+],
+"container/anvil/error": [
+[
+"gui/container/anvil.png",
+176,
+0,
+28,
+21
+]
+],
+"container/anvil/text_field": [
+[
+"gui/container/anvil.png",
+0,
+166,
+110,
+16
+]
+],
+"container/anvil/text_field_disabled": [
+[
+"gui/container/anvil.png",
+0,
+182,
+110,
+16
+]
+],
+"container/villager/out_of_stock": [
+[
+"gui/container/villager2.png",
+311,
+0,
+28,
+21
+]
+],
+"container/villager/trade_arrow_out_of_stock": [
+[
+"gui/container/villager2.png",
+25,
+171,
+10,
+9
+]
+],
+"container/villager/experience_bar_current": [
+[
+"gui/container/villager2.png",
+0,
+191,
+102,
+5
+]
+],
+"container/villager/scroller_disabled": [
+[
+"gui/container/villager2.png",
+6,
+199,
+6,
+27
+]
+],
+"container/villager/discount_strikethrough": [
+[
+"gui/container/villager2.png",
+0,
+176,
+9,
+2
+]
+],
+"container/villager/experience_bar_background": [
+[
+"gui/container/villager2.png",
+0,
+186,
+102,
+5
+]
+],
+"container/villager/scroller": [
+[
+"gui/container/villager2.png",
+0,
+199,
+6,
+27
+]
+],
+"container/creative_inventory/scroller_disabled": [
+[
+"gui/container/creative_inventory/tabs.png",
+244,
+0,
+12,
+15
+]
+],
+"container/creative_inventory/scroller": [
+[
+"gui/container/creative_inventory/tabs.png",
+232,
+0,
+12,
+15
+]
+],
+"container/grindstone/error": [
+[
+"gui/container/grindstone.png",
+176,
+0,
+28,
+21
+]
+],
+"container/cartography_table/duplicated_map": [
+[
+"gui/container/cartography_table.png",
+176,
+132,
+50,
+66
+]
+],
+"container/cartography_table/map": [
+[
+"gui/container/cartography_table.png",
+176,
+0,
+66,
+66
+]
+],
+"container/cartography_table/error": [
+[
+"gui/container/cartography_table.png",
+226,
+132,
+28,
+21
+]
+],
+"container/cartography_table/locked": [
+[
+"gui/container/cartography_table.png",
+52,
+214,
+10,
+14
+]
+],
+"container/cartography_table/scaled_map": [
+[
+"gui/container/cartography_table.png",
+176,
+66,
+66,
+66
+]
+],
+"container/beacon/cancel": [
+[
+"gui/container/beacon.png",
+112,
+220,
+18,
+18
+]
+],
+"container/beacon/button": [
+[
+"gui/container/beacon.png",
+0,
+219,
+22,
+22
+]
+],
+"container/beacon/button_highlighted": [
+[
+"gui/container/beacon.png",
+66,
+219,
+22,
+22
+]
+],
+"container/beacon/button_disabled": [
+[
+"gui/container/beacon.png",
+44,
+219,
+22,
+22
+]
+],
+"container/beacon/confirm": [
+[
+"gui/container/beacon.png",
+90,
+220,
+18,
+18
+]
+],
+"container/beacon/button_selected": [
+[
+"gui/container/beacon.png",
+22,
+219,
+22,
+22
+]
+],
+"container/smoker/burn_progress": [
+[
+"gui/container/smoker.png",
+176,
+14,
+24,
+16
+]
+],
+"container/smoker/lit_progress": [
+[
+"gui/container/smoker.png",
+176,
+0,
+14,
+14
+]
+],
+"container/smithing/error": [
+[
+"gui/container/smithing.png",
+176,
+0,
+28,
+21
+]
+],
+"container/stonecutter/recipe_selected": [
+[
+"gui/container/stonecutter.png",
+0,
+184,
+16,
+18
+]
+],
+"container/stonecutter/scroller_disabled": [
+[
+"gui/container/stonecutter.png",
+188,
+0,
+12,
+15
+]
+],
+"container/stonecutter/recipe": [
+[
+"gui/container/stonecutter.png",
+0,
+166,
+16,
+18
+]
+],
+"container/stonecutter/recipe_highlighted": [
+[
+"gui/container/stonecutter.png",
+0,
+202,
+16,
+18
+]
+],
+"container/stonecutter/scroller": [
+[
+"gui/container/stonecutter.png",
+176,
+0,
+12,
+15
+]
+],
+"container/brewing_stand/fuel_length": [
+[
+"gui/container/brewing_stand.png",
+176,
+29,
+18,
+4
+]
+],
+"container/brewing_stand/brew_progress": [
+[
+"gui/container/brewing_stand.png",
+176,
+0,
+9,
+28
+]
+],
+"container/brewing_stand/bubbles": [
+[
+"gui/container/brewing_stand.png",
+185,
+0,
+12,
+29
+]
+],
+"container/horse/chest_slots": [
+[
+"gui/container/horse.png",
+7,
+83,
+90,
+54
+]
+],
+"container/blast_furnace/burn_progress": [
+[
+"gui/container/blast_furnace.png",
+176,
+14,
+24,
+16
+]
+],
+"container/blast_furnace/lit_progress": [
+[
+"gui/container/blast_furnace.png",
+176,
+0,
+14,
+14
+]
+],
+"advancements/tab_above_left": [
+[
+"gui/advancements/tabs.png",
+0,
+0,
+28,
+32
+]
+],
+"advancements/tab_above_left_selected": [
+[
+"gui/advancements/tabs.png",
+0,
+32,
+28,
+32
+]
+],
+"advancements/tab_above_middle": [
+[
+"gui/advancements/tabs.png",
+28,
+0,
+28,
+32
+]
+],
+"advancements/tab_above_middle_selected": [
+[
+"gui/advancements/tabs.png",
+28,
+32,
+28,
+32
+]
+],
+"advancements/tab_above_right": [
+[
+"gui/advancements/tabs.png",
+56,
+0,
+28,
+32
+]
+],
+"advancements/tab_above_right_selected": [
+[
+"gui/advancements/tabs.png",
+56,
+32,
+28,
+32
+]
+],
+"advancements/tab_below_left": [
+[
+"gui/advancements/tabs.png",
+84,
+0,
+28,
+32
+]
+],
+"advancements/tab_below_left_selected": [
+[
+"gui/advancements/tabs.png",
+84,
+32,
+28,
+32
+]
+],
+"advancements/tab_below_middle": [
+[
+"gui/advancements/tabs.png",
+112,
+0,
+28,
+32
+]
+],
+"advancements/tab_below_middle_selected": [
+[
+"gui/advancements/tabs.png",
+112,
+32,
+28,
+32
+]
+],
+"advancements/tab_below_right": [
+[
+"gui/advancements/tabs.png",
+140,
+0,
+28,
+32
+]
+],
+"advancements/tab_below_right_selected": [
+[
+"gui/advancements/tabs.png",
+140,
+32,
+28,
+32
+]
+],
+"advancements/tab_left_top": [
+[
+"gui/advancements/tabs.png",
+0,
+64,
+32,
+28
+]
+],
+"advancements/tab_left_top_selected": [
+[
+"gui/advancements/tabs.png",
+0,
+92,
+32,
+28
+]
+],
+"advancements/tab_left_middle": [
+[
+"gui/advancements/tabs.png",
+32,
+64,
+32,
+28
+]
+],
+"advancements/tab_left_middle_selected": [
+[
+"gui/advancements/tabs.png",
+32,
+92,
+32,
+28
+]
+],
+"advancements/tab_left_bottom": [
+[
+"gui/advancements/tabs.png",
+64,
+64,
+32,
+28
+]
+],
+"advancements/tab_left_bottom_selected": [
+[
+"gui/advancements/tabs.png",
+64,
+92,
+32,
+28
+]
+],
+"advancements/tab_right_top": [
+[
+"gui/advancements/tabs.png",
+96,
+64,
+32,
+28
+]
+],
+"advancements/tab_right_top_selected": [
+[
+"gui/advancements/tabs.png",
+96,
+92,
+32,
+28
+]
+],
+"advancements/tab_right_middle": [
+[
+"gui/advancements/tabs.png",
+128,
+64,
+32,
+28
+]
+],
+"advancements/tab_right_middle_selected": [
+[
+"gui/advancements/tabs.png",
+128,
+92,
+32,
+28
+]
+],
+"advancements/tab_right_bottom": [
+[
+"gui/advancements/tabs.png",
+160,
+64,
+32,
+28
+]
+],
+"advancements/tab_right_bottom_selected": [
+[
+"gui/advancements/tabs.png",
+160,
+92,
+32,
+28
+]
+],
+"container/creative_inventory/tab_top_unselected_1": [
+[
+"gui/container/creative_inventory/tabs.png",
+0,
+0,
+26,
+32
+]
+],
+"container/creative_inventory/tab_top_unselected_2": [
+[
+"gui/container/creative_inventory/tabs.png",
+26,
+0,
+26,
+32
+]
+],
+"container/creative_inventory/tab_top_unselected_3": [
+[
+"gui/container/creative_inventory/tabs.png",
+52,
+0,
+26,
+32
+]
+],
+"container/creative_inventory/tab_top_unselected_4": [
+[
+"gui/container/creative_inventory/tabs.png",
+78,
+0,
+26,
+32
+]
+],
+"container/creative_inventory/tab_top_unselected_5": [
+[
+"gui/container/creative_inventory/tabs.png",
+104,
+0,
+26,
+32
+]
+],
+"container/creative_inventory/tab_top_unselected_6": [
+[
+"gui/container/creative_inventory/tabs.png",
+130,
+0,
+26,
+32
+]
+],
+"container/creative_inventory/tab_top_unselected_7": [
+[
+"gui/container/creative_inventory/tabs.png",
+156,
+0,
+26,
+32
+]
+],
+"container/creative_inventory/tab_top_selected_1": [
+[
+"gui/container/creative_inventory/tabs.png",
+0,
+32,
+26,
+32
+]
+],
+"container/creative_inventory/tab_top_selected_2": [
+[
+"gui/container/creative_inventory/tabs.png",
+26,
+32,
+26,
+32
+]
+],
+"container/creative_inventory/tab_top_selected_3": [
+[
+"gui/container/creative_inventory/tabs.png",
+52,
+32,
+26,
+32
+]
+],
+"container/creative_inventory/tab_top_selected_4": [
+[
+"gui/container/creative_inventory/tabs.png",
+78,
+32,
+26,
+32
+]
+],
+"container/creative_inventory/tab_top_selected_5": [
+[
+"gui/container/creative_inventory/tabs.png",
+104,
+32,
+26,
+32
+]
+],
+"container/creative_inventory/tab_top_selected_6": [
+[
+"gui/container/creative_inventory/tabs.png",
+130,
+32,
+26,
+32
+]
+],
+"container/creative_inventory/tab_top_selected_7": [
+[
+"gui/container/creative_inventory/tabs.png",
+156,
+32,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_unselected_1": [
+[
+"gui/container/creative_inventory/tabs.png",
+0,
+64,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_unselected_2": [
+[
+"gui/container/creative_inventory/tabs.png",
+26,
+64,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_unselected_3": [
+[
+"gui/container/creative_inventory/tabs.png",
+52,
+64,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_unselected_4": [
+[
+"gui/container/creative_inventory/tabs.png",
+78,
+64,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_unselected_5": [
+[
+"gui/container/creative_inventory/tabs.png",
+104,
+64,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_unselected_6": [
+[
+"gui/container/creative_inventory/tabs.png",
+130,
+64,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_unselected_7": [
+[
+"gui/container/creative_inventory/tabs.png",
+156,
+64,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_selected_1": [
+[
+"gui/container/creative_inventory/tabs.png",
+0,
+96,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_selected_2": [
+[
+"gui/container/creative_inventory/tabs.png",
+26,
+96,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_selected_3": [
+[
+"gui/container/creative_inventory/tabs.png",
+52,
+96,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_selected_4": [
+[
+"gui/container/creative_inventory/tabs.png",
+78,
+96,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_selected_5": [
+[
+"gui/container/creative_inventory/tabs.png",
+104,
+96,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_selected_6": [
+[
+"gui/container/creative_inventory/tabs.png",
+130,
+96,
+26,
+32
+]
+],
+"container/creative_inventory/tab_bottom_selected_7": [
+[
+"gui/container/creative_inventory/tabs.png",
+156,
+96,
+26,
+32
+]
 ]
 }
