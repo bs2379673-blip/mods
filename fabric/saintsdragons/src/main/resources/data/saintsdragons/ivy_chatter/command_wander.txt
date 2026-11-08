@@ -1,3 +1,0 @@
-chatter.saintsdragons.ivy.command_wander.0
-chatter.saintsdragons.ivy.command_wander.1
-chatter.saintsdragons.ivy.command_wander.2

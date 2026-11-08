@@ -1,5 +1,3 @@
-build/
-.gradle/
-run/
-# arte y sonido del mod original (todos los derechos reservados, Leon Saint): se bajan al compilar con ci/bajar_mca.sh
+# arte y sonido del mod original (todos los derechos reservados, Leon Saint) y sus datos (MIT): se bajan y adaptan al compilar con ci/bajar_mca.sh
 src/main/resources/assets/
+src/main/resources/data/

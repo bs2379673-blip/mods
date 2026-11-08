@@ -1,3 +1,0 @@
-chatter.saintsdragons.ivy.command_stay.0
-chatter.saintsdragons.ivy.command_stay.1
-chatter.saintsdragons.ivy.command_stay.2

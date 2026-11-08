@@ -1,3 +1,0 @@
-chatter.saintsdragons.ivy.command_follow.0
-chatter.saintsdragons.ivy.command_follow.1
-chatter.saintsdragons.ivy.command_follow.2

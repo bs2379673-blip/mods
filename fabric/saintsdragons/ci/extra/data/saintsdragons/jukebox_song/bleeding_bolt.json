@@ -1,0 +1,6 @@
+{
+  "sound_event": "saintsdragons:bleeding_bolt",
+  "description": {"translate": "item.saintsdragons.bleeding_bolt_music_disc.desc"},
+  "length_in_seconds": 104,
+  "comparator_output": 1
+}
