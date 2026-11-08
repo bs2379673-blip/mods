@@ -1,0 +1,26 @@
+{
+	"required": true,
+	"package": "io.github.memorytoame.immersiveeating.fabric.client.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"plugin": "io.github.memorytoame.immersiveeating.fabric.plugin.Plugins",
+	"mixins": [],
+	"client": [
+      "accessor.ItemInHandRendererAccessor",
+		"accessor.CameraAccessor",
+		"CameraMixin",
+		"ClientPackSourceMixin",
+		"GuiMixin",
+		"ItemInHandRendererMixin",
+		"ItemRendererMixin",
+		"KeyboardHandlerMixin",
+		"MouseHandlerMixin",
+		"MinecraftMixin",
+		"PunchyConfigMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
