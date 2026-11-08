@@ -24,14 +24,8 @@ jobs:
         run: |
           set -e
           mkdir -p ref jars
-          python3 fabric/tools/bajar_modrinth.py "kaleidoscope immersive eating" 26.1.2 jars ie.jar | tee ref/LEEME.txt
+          echo "referencias" > ref/LEEME.txt
           python3 fabric/tools/bajar_modrinth.py "kaleidoscope cookery refabricated" 1.21.11 jars kc.jar | tee -a ref/LEEME.txt || true
-          curl -sSL -o vf.jar https://repo1.maven.org/maven2/org/vineflower/vineflower/1.11.1/vineflower-1.11.1.jar
-          mkdir -p ref/ie_src
-          java -jar vf.jar -dgs=1 jars/ie.jar ref/ie_src > /dev/null
-          rm -rf ref/ie_src/assets ref/ie_src/data
-          find ref/ie_src -type f ! -name "*.java" ! -name "*.json" -delete
-          unzip -l jars/ie.jar > ref/ie_lista.txt
           curl -sSL -o ref/geckolib-sources.jar https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/software/bernie/geckolib/geckolib-fabric-1.21.11/5.4.5/geckolib-fabric-1.21.11-5.4.5-sources.jar || true
           if [ -f jars/kc.jar ]; then
             unzip -l jars/kc.jar > ref/kc_lista.txt
