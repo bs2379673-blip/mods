@@ -35,7 +35,6 @@ import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionUtils;
 
 import java.util.List;
 
@@ -77,8 +76,8 @@ public final class SaintsDragonsFabric implements ModInitializer {
                 CommonModEvents.registerCommands(dispatcher));
     }
     private static void raiseVanillaAttributeCaps() {
-        raiseAttributeCap(Attributes.MAX_HEALTH, "MAX_HEALTH");
-        raiseAttributeCap(Attributes.ARMOR, "ARMOR");
+        raiseAttributeCap(Attributes.MAX_HEALTH.value(), "MAX_HEALTH");
+        raiseAttributeCap(Attributes.ARMOR.value(), "ARMOR");
     }
     private static void raiseAttributeCap(Attribute attribute, String name) {
         if (!(attribute instanceof RangedAttribute ranged)) {
@@ -111,7 +110,8 @@ public final class SaintsDragonsFabric implements ModInitializer {
             return false;
         }
 
-        Potion potion = PotionUtils.getPotion(stack);
+        net.minecraft.world.item.alchemy.PotionContents contents = stack.get(net.minecraft.core.component.DataComponents.POTION_CONTENTS);
+        Potion potion = contents == null ? null : contents.potion().map(net.minecraft.core.Holder::value).orElse(null);
         return potion == ModPotions.TIDEGUARD.get() || potion == ModPotions.SEARING.get();
     }
 }

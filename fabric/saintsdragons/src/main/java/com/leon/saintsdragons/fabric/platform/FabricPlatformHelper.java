@@ -2,7 +2,6 @@ package com.leon.saintsdragons.fabric.platform;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
 import com.leon.saintsdragons.common.item.DraconianSwarmSpawnEggSpawner;
 import com.leon.saintsdragons.common.item.tools.DragonheartSwordItem;
 import com.leon.saintsdragons.platform.ConfigHelper;
@@ -106,7 +105,7 @@ public final class FabricPlatformHelper implements PlatformHelper {
                                int primaryColor,
                                int secondaryColor,
                                Item.Properties properties) {
-        return new SpawnEggItem(entityType.get(), primaryColor, secondaryColor, properties);
+        return new SpawnEggItem(properties.spawnEgg(entityType.get()));
     }
 
     @Override
@@ -114,7 +113,7 @@ public final class FabricPlatformHelper implements PlatformHelper {
                                              int primaryColor,
                                              int secondaryColor,
                                              Item.Properties properties) {
-        return new SpawnEggItem(displayEntityType.get(), primaryColor, secondaryColor, properties) {
+        return new SpawnEggItem(properties.spawnEgg(displayEntityType.get())) {
             @Override
             public InteractionResult useOn(UseOnContext context) {
                 return DraconianSwarmSpawnEggSpawner.useOn(context);
@@ -178,6 +177,6 @@ public final class FabricPlatformHelper implements PlatformHelper {
     }
     @Override
     public double getPlayerAttackReach(Player player) {
-        return ReachEntityAttributes.getAttackRange(player, player.isCreative() ? 6.0D : 3.0D);
+        return player.entityInteractionRange();
     }
 }

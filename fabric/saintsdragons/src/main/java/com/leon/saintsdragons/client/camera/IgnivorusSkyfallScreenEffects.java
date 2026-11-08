@@ -38,14 +38,13 @@ public final class IgnivorusSkyfallScreenEffects {
         return 1.0D + sample(partialTick)[0];
     }
 
-    public static void renderFlash(float partialTick) {
+    /** Port 1.21.11: se dibuja desde la capa de interfaz (con su GuiGraphics). */
+    public static void renderFlash(GuiGraphics graphics, float partialTick) {
         Minecraft mc = Minecraft.getInstance();
         float[] effects = sample(partialTick);
         int alpha = (int) (effects[1] * 255.0F);
         float afterglow = effects[2];
         if (alpha <= 0 && afterglow <= 0.001F) return;
-        GuiGraphics graphics = new GuiGraphics(mc, mc.renderBuffers().bufferSource());
-        graphics.pose().translate(0.0D, 0.0D, 1000.0D);
         int width = mc.getWindow().getGuiScaledWidth();
         int height = mc.getWindow().getGuiScaledHeight();
         if (afterglow > 0.001F) {
@@ -67,7 +66,6 @@ public final class IgnivorusSkyfallScreenEffects {
             }
         }
         if (alpha > 0) graphics.fill(0, 0, width, height, (alpha << 24) | 0xFFFFFF);
-        graphics.flush();
     }
 
     private static float smooth(float value) {

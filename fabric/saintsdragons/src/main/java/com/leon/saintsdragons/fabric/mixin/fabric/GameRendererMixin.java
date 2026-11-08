@@ -26,83 +26,11 @@ import java.util.function.Predicate;
 public abstract class GameRendererMixin {
     @ModifyArg(method = "pick", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/projectile/ProjectileUtil;getEntityHitResult(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;D)Lnet/minecraft/world/phys/EntityHitResult;"),
-            index = 4)
+            index = 4, require = 0)
     private Predicate<Entity> saintsdragons$filterInteractionParts(Predicate<Entity> predicate) {
         return DragonPartInteractionTargeting.filter(predicate);
     }
 
     @Shadow
     private Minecraft minecraft;
-
-    @Inject(
-            method = "renderLevel",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lcom/mojang/math/Axis;rotationDegrees(F)Lorg/joml/Quaternionf;",
-                    ordinal = 2
-            ),
-            require = 0
-    )
-    private void saintsdragons$applyDragonCameraRoll(float partialTick, long finishNanoTime, PoseStack poseStack, CallbackInfo ci) {
-        if (this.minecraft == null || this.minecraft.options == null) {
-            return;
-        }
-
-        Entity cameraEntity = this.minecraft.getCameraEntity();
-        if (cameraEntity == null) {
-            return;
-        }
-
-        Entity vehicle = cameraEntity.getVehicle();
-        if (!(vehicle instanceof RideableDragonBase dragon)) {
-            return;
-        }
-
-        if (dragon instanceof Raevyx raevyx && raevyx.isBeaming()
-                && FabricClientConfigAccess.isRaevyxBeamFirstPersonEnabled()) {
-            return;
-        }
-
-        float roll = DragonCameraState.getDiveRoll();
-        if (this.minecraft.options.getCameraType() == CameraType.FIRST_PERSON
-                && FabricClientConfigAccess.isFirstPersonBankingCameraEnabled()
-                && saintsdragons$usesFirstPersonDragonRoll(dragon)) {
-            roll += DragonCameraState.getCurrentRoll();
-        }
-        if (Math.abs(roll) < 0.01f) {
-            return;
-        }
-
-        poseStack.mulPose(Axis.ZP.rotationDegrees(roll));
-    }
-
-    @Inject(
-            method = "render",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiGraphics;flush()V"
-            ),
-            require = 0
-    )
-    private void saintsdragons$renderSpeedLinesWithHiddenGui(float partialTick, long nanoTime, boolean renderLevel, CallbackInfo ci) {
-        if (!renderLevel
-                || this.minecraft.player == null
-                || this.minecraft.screen != null
-                || !this.minecraft.options.hideGui
-                || !FabricClientConfigAccess.isDiveSpeedLinesEnabled()) {
-            return;
-        }
-
-        GuiGraphics graphics = new GuiGraphics(this.minecraft, this.minecraft.renderBuffers().bufferSource());
-        SpeedLineOverlay.INSTANCE.render(
-                graphics,
-                this.minecraft.getWindow().getGuiScaledWidth(),
-                this.minecraft.getWindow().getGuiScaledHeight(),
-                partialTick
-        );
-    }
-
-    private static boolean saintsdragons$usesFirstPersonDragonRoll(RideableDragonBase dragon) {
-        return com.leon.saintsdragons.client.renderer.DragonSeatAnchoredCamera.supports(dragon);
-    }
 }

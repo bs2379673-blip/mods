@@ -88,7 +88,7 @@ public abstract class CameraMixin implements CameraAccessor {
 
     @Inject(method = "setup", at = @At("HEAD"), require = 0)
     private void saintsdragons$preSetupSyncRoll(
-            BlockGetter area,
+            net.minecraft.world.level.Level area,
             Entity focusedEntity,
             boolean thirdPerson,
             boolean inverseView,
@@ -137,7 +137,7 @@ public abstract class CameraMixin implements CameraAccessor {
 
     @Inject(method = "setup", at = @At("RETURN"), require = 0)
     private void saintsdragons$onCameraSetup(
-            BlockGetter area,
+            net.minecraft.world.level.Level area,
             Entity focusedEntity,
             boolean thirdPerson,
             boolean inverseView,
@@ -182,8 +182,8 @@ public abstract class CameraMixin implements CameraAccessor {
 
     // Set the orbit origin before vanilla performs its third-person obstruction checks.
     @Inject(method = "setup", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/Camera;getMaxZoom(D)D"), require = 0)
-    private void saintsdragons$thirdPersonSeatPivot(BlockGetter level, Entity rider, boolean detached,
+            target = "Lnet/minecraft/client/Camera;getMaxZoom(F)F"), require = 0)
+    private void saintsdragons$thirdPersonSeatPivot(net.minecraft.world.level.Level level, Entity rider, boolean detached,
                                                     boolean inverseView, float partialTick, CallbackInfo ci) {
         if (detached && rider != null && rider.getVehicle() instanceof RideableDragonBase dragon) {
             var seat = DragonSeatAnchoredCamera.resolve(dragon, rider, partialTick);

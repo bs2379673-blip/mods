@@ -34,14 +34,14 @@ public abstract class PathfinderMobMixin {
 
             if (mob instanceof TamableAnimal tamable && tamable.isInSittingPose()) {
                 if (distance > dragon.getLeashBreakDistance()) {
-                    mob.dropLeash(true, true);
+                    mob.dropLeash();
                 }
                 ci.cancel();
                 return;
             }
 
             if (distance > dragon.getLeashBreakDistance()) {
-                mob.dropLeash(true, true);
+                mob.dropLeash();
             }
         }
 

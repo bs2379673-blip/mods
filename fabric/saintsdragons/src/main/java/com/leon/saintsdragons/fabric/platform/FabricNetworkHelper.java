@@ -38,6 +38,42 @@ public final class FabricNetworkHelper implements NetworkHelper {
 
     private final Map<Class<?>, Binding<?>> bindings = new ConcurrentHashMap<>();
 
+    /** Port 1.21.11: cada mensaje viaja como un CustomPacketPayload con sus bytes (el formato de siempre). */
+    public record RawPayload(net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<RawPayload> type, byte[] data)
+            implements net.minecraft.network.protocol.common.custom.CustomPacketPayload {
+    }
+
+    private static final Map<Identifier, net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<RawPayload>> TYPES = new ConcurrentHashMap<>();
+
+    private static net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<RawPayload> type(Identifier id, boolean toClient) {
+        return TYPES.computeIfAbsent(id, i -> {
+            net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<RawPayload> t =
+                    new net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<>(i);
+            net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, RawPayload> codec =
+                    net.minecraft.network.codec.StreamCodec.of((buf, p) -> buf.writeBytes(p.data()), buf -> {
+                        byte[] b = new byte[buf.readableBytes()];
+                        buf.readBytes(b);
+                        return new RawPayload(t, b);
+                    });
+            if (toClient) {
+                net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playS2C().register(t, codec);
+            } else {
+                net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playC2S().register(t, codec);
+            }
+            return t;
+        });
+    }
+
+    private static FriendlyByteBuf wrap(byte[] data) {
+        return new FriendlyByteBuf(io.netty.buffer.Unpooled.wrappedBuffer(data));
+    }
+
+    private static byte[] bytes(FriendlyByteBuf buf) {
+        byte[] b = new byte[buf.readableBytes()];
+        buf.getBytes(buf.readerIndex(), b);
+        return b;
+    }
+
     @Override
     public <T> void registerServerbound(Class<T> type,
                                         Identifier id,
@@ -45,9 +81,9 @@ public final class FabricNetworkHelper implements NetworkHelper {
                                         PacketDecoder<T> decoder,
                                         ServerboundHandler<T> handler) {
         bindings.put(type, new Binding<>(id, encoder, Direction.SERVERBOUND));
-        ServerPlayNetworking.registerGlobalReceiver(id, (server, player, handlerAccessor, buf, responseSender) -> {
-            T message = decoder.decode(buf);
-            server.execute(() -> handler.handle(message, player));
+        ServerPlayNetworking.registerGlobalReceiver(type(id, false), (payload, context) -> {
+            T message = decoder.decode(wrap(payload.data()));
+            context.server().execute(() -> handler.handle(message, context.player()));
         });
     }
 
@@ -58,6 +94,7 @@ public final class FabricNetworkHelper implements NetworkHelper {
                                         PacketDecoder<T> decoder,
                                         ClientboundHandler<T> handler) {
         bindings.put(type, new Binding<>(id, encoder, Direction.CLIENTBOUND));
+        type(id, true);
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             ClientAccess.register(id, decoder, handler);
         }
@@ -83,7 +120,7 @@ public final class FabricNetworkHelper implements NetworkHelper {
             throw new IllegalStateException("Attempted to send serverbound packet to player: " + message.getClass());
         }
         FriendlyByteBuf buffer = createBuffer(binding, message);
-        ServerPlayNetworking.send(player, binding.id, buffer);
+        ServerPlayNetworking.send(player, new RawPayload(type(binding.id, true), bytes(buffer)));
     }
 
     @Override
@@ -94,7 +131,7 @@ public final class FabricNetworkHelper implements NetworkHelper {
         }
         for (ServerPlayer tracking : PlayerLookup.tracking(entity)) {
             FriendlyByteBuf buffer = createBuffer(binding, message);
-            ServerPlayNetworking.send(tracking, binding.id, buffer);
+            ServerPlayNetworking.send(tracking, new RawPayload(type(binding.id, true), bytes(buffer)));
         }
     }
 
@@ -109,7 +146,7 @@ public final class FabricNetworkHelper implements NetworkHelper {
         }
         for (ServerPlayer player : PlayerLookup.world(serverLevel)) {
             FriendlyByteBuf buffer = createBuffer(binding, message);
-            ServerPlayNetworking.send(player, binding.id, buffer);
+            ServerPlayNetworking.send(player, new RawPayload(type(binding.id, true), bytes(buffer)));
         }
     }
 
@@ -138,14 +175,14 @@ public final class FabricNetworkHelper implements NetworkHelper {
         private static <T> void register(Identifier id,
                                          PacketDecoder<T> decoder,
                                          ClientboundHandler<T> handler) {
-            ClientPlayNetworking.registerGlobalReceiver(id, (client, handlerAccessor, buf, responseSender) -> {
-                T message = decoder.decode(buf);
-                client.execute(() -> handler.handle(message));
+            ClientPlayNetworking.registerGlobalReceiver(type(id, true), (payload, context) -> {
+                T message = decoder.decode(wrap(payload.data()));
+                context.client().execute(() -> handler.handle(message));
             });
         }
 
         private static void send(Identifier id, FriendlyByteBuf buffer) {
-            ClientPlayNetworking.send(id, buffer);
+            ClientPlayNetworking.send(new RawPayload(type(id, false), bytes(buffer)));
         }
     }
 }

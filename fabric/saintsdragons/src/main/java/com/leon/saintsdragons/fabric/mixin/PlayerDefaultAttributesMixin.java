@@ -16,7 +16,7 @@ public abstract class PlayerDefaultAttributesMixin {
     ) {
         callback.getReturnValue()
                 .add(net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.wrapAsHolder(ModAttributes.DOUBLE_JUMP.get()))
-                .add(ModAttributes.FIRE_RESISTANCE.get())
-                .add(ModAttributes.BLAST_RESISTANCE.get());
+                .add(net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.wrapAsHolder(ModAttributes.FIRE_RESISTANCE.get()))
+                .add(net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.wrapAsHolder(ModAttributes.BLAST_RESISTANCE.get()));
     }
 }

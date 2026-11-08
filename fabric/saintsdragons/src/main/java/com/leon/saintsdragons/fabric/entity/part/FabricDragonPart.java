@@ -91,7 +91,7 @@ public class FabricDragonPart extends Entity implements DragonPartEntity {
     }
 
     @Override
-    public boolean startRiding(@NotNull Entity entity, boolean force) {
+    public boolean startRiding(@NotNull Entity entity, boolean force, boolean sdEvents) {
         return false;
     }
 
@@ -155,7 +155,7 @@ public class FabricDragonPart extends Entity implements DragonPartEntity {
     }
 
     @Override
-    public boolean canBeCollidedWith() {
+    public boolean canBeCollidedWith(@org.jetbrains.annotations.Nullable Entity sdOther) {
         return false;
     }
 

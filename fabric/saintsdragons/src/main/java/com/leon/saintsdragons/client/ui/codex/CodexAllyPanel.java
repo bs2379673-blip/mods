@@ -54,7 +54,8 @@ public class CodexAllyPanel {
                 0, 0, 0,
                 addIcon,
                 16, 16,
-                button -> addAllyFromInput(addCallback)
+                button -> addAllyFromInput(addCallback),
+                Component.translatable("saintsdragons.gui.draconic_codex.ally.add")
         );
         addAllyButton.setTooltip(Tooltip.create(
                 Component.translatable("saintsdragons.gui.draconic_codex.ally.add")));
@@ -65,7 +66,8 @@ public class CodexAllyPanel {
                 0, 0, 0,
                 removeIcon,
                 16, 16,
-                button -> removeAllyFromInput(removeCallback)
+                button -> removeAllyFromInput(removeCallback),
+                Component.translatable("saintsdragons.gui.draconic_codex.ally.remove")
         );
         removeAllyButton.setTooltip(Tooltip.create(
                 Component.translatable("saintsdragons.gui.draconic_codex.ally.remove")));

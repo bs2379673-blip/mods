@@ -3,8 +3,6 @@ package com.leon.saintsdragons.client.model.block;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.animation.AnimationDefinition;
-import net.minecraft.client.animation.KeyframeAnimations;
-import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -14,13 +12,12 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
-public class DraconicCrucibleEntity extends HierarchicalModel<Entity> {
+public class DraconicCrucibleEntity {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath("saintsdragons", "draconic_crucible"), "main");
 	private final ModelPart root;
 	private final ModelPart neck;
 	private final ModelPart upperjaw;
 	private final ModelPart lowerjaw;
-	private final Vector3f animationVector = new Vector3f();
 
 	public DraconicCrucibleEntity(ModelPart root) {
 		this.root = root.getChild("root");
@@ -55,27 +52,19 @@ public class DraconicCrucibleEntity extends HierarchicalModel<Entity> {
 		return LayerDefinition.create(meshdefinition, 128, 128);
 	}
 
-	@Override
-	public @NotNull ModelPart root() {
+	// port 1.21.11: las animaciones de bloques se "hornean" sobre las partes del modelo
+	private final java.util.Map<AnimationDefinition, net.minecraft.client.animation.KeyframeAnimation> baked = new java.util.IdentityHashMap<>();
+
+	public void animate(AnimationDefinition animation, long timeMillis) {
+		this.root.getAllParts().forEach(ModelPart::resetPose);
+		this.baked.computeIfAbsent(animation, a -> a.bake(this.root)).apply(timeMillis, 1.0F);
+	}
+
+	public ModelPart root() {
 		return this.root;
 	}
 
-	@Override
-	public void setupAnim(@NotNull Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-
-	}
-
-	public void resetPose() {
-		this.root.getAllParts().forEach(ModelPart::resetPose);
-	}
-
-	public void animate(AnimationDefinition animation, long timeMillis) {
-		resetPose();
-		KeyframeAnimations.animate(this, animation, timeMillis, 1.0F, this.animationVector);
-	}
-
-	@Override
-	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		root.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+	public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+		this.root.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
 	}
 }

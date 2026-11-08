@@ -74,7 +74,8 @@ public final class FabricDragonUI {
             volitansBreathMeterIndicator.tick();
         });
 
-        HudRenderCallback.EVENT.register((graphics, tickDelta) -> {
+        HudRenderCallback.EVENT.register((graphics, sdDelta) -> {
+            float tickDelta = sdDelta.getGameTimeDeltaPartialTick(true);
             Minecraft client = Minecraft.getInstance();
             if (client.player == null) {
                 return;
@@ -84,6 +85,7 @@ public final class FabricDragonUI {
             int height = client.getWindow().getGuiScaledHeight();
 
             SwarmWaveBarOverlay.render(graphics, width, tickDelta);
+            com.leon.saintsdragons.client.camera.IgnivorusSkyfallScreenEffects.renderFlash(graphics, tickDelta);
 
             if (FabricClientConfigAccess.isDiveSpeedLinesEnabled()) {
                 diveSpeedLineOverlay.render(graphics, width, height, tickDelta);
