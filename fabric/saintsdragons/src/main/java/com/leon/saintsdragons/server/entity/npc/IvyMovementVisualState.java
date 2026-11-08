@@ -26,7 +26,7 @@ final class IvyMovementVisualState {
                RawAnimation swimFast,
                RawAnimation waterWadeIdle,
                RawAnimation waterWading) {
-        state.getController().transitionLength(4);
+        state.controller().transitionLength(4);
         State resolved = resolve(state, ivy);
         switch (resolved) {
             case SWIM_FAST -> AnimationHelper.setAndContinue(state, swimFast);

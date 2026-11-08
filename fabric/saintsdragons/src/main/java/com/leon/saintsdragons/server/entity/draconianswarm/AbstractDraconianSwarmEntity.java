@@ -190,8 +190,7 @@ public abstract class AbstractDraconianSwarmEntity extends Monster implements Ti
     public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level,
                                                  @NotNull DifficultyInstance difficulty,
                                                  @NotNull EntitySpawnReason spawnType,
-                                                 @Nullable SpawnGroupData spawnGroupData,
-                                                 @Nullable CompoundTag tag) {
+                                                 @Nullable SpawnGroupData spawnGroupData) {
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData, tag);
         applyInitialConfiguredAttributes();
         return data;
@@ -254,7 +253,7 @@ public abstract class AbstractDraconianSwarmEntity extends Monster implements Ti
     }
 
     @Override
-    public boolean causeFallDamage(float distance, float damageMultiplier, @NotNull DamageSource source) {
+    public boolean causeFallDamage(double distance, float damageMultiplier, @NotNull DamageSource source) {
         return false;
     }
 
@@ -291,8 +290,8 @@ public abstract class AbstractDraconianSwarmEntity extends Monster implements Ti
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
-        boolean hurt = super.hurt(source, amount);
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
+        boolean hurt = super.hurtServer(saintsdragons$level, source, amount);
         if (hurt && isAlive() && retreatsAfterTakingDamage()) {
             requestCombatRetreat();
         }
@@ -397,10 +396,10 @@ public abstract class AbstractDraconianSwarmEntity extends Monster implements Ti
     }
 
     @Override
-    public boolean doHurtTarget(@NotNull Entity target) {
+    public boolean doHurtTarget(net.minecraft.server.level.ServerLevel saintsdragons$level, Entity target) {
         return target instanceof LivingEntity livingEntity
                 && canHitWithSwarmAttack(livingEntity)
-                && super.doHurtTarget(target);
+                && super.doHurtTarget(saintsdragons$level, target);
     }
 
     private boolean isNeutralToward(@Nullable LivingEntity target) {
@@ -415,35 +414,33 @@ public abstract class AbstractDraconianSwarmEntity extends Monster implements Ti
     }
 
     @Override
-    protected void dropFromLootTable(@NotNull DamageSource source, boolean recentlyHit) {
+    protected void dropFromLootTable(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, boolean recentlyHit) {
         if (!this.controllerSummoned) {
-            super.dropFromLootTable(source, recentlyHit);
+            super.dropFromLootTable(saintsdragons$level, source, recentlyHit);
         }
     }
 
-    @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    
+    protected void sdSave(CompoundTag tag) {
         if (this.nucleusPos != null && this.encounterId != null) {
             tag.putLong("NucleusPos", this.nucleusPos.asLong());
-            tag.putUUID("NucleusEncounter", this.encounterId);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "NucleusEncounter", this.encounterId);
             tag.putInt("NucleusWave", this.encounterWave);
             tag.putBoolean("NucleusDeathReported", this.nucleusDeathReported);
             tag.putBoolean("ControllerSummoned", this.controllerSummoned);
         }
     }
 
-    @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    
+    protected void sdLoad(CompoundTag tag) {
         this.initialConfiguredAttributesApplied = true;
         applyConfiguredAttributes();
-        if (tag.contains("NucleusPos") && tag.hasUUID("NucleusEncounter")) {
-            this.nucleusPos = BlockPos.of(tag.getLong("NucleusPos"));
-            this.encounterId = tag.getUUID("NucleusEncounter");
-            this.encounterWave = tag.getInt("NucleusWave");
-            this.nucleusDeathReported = tag.getBoolean("NucleusDeathReported");
-            this.controllerSummoned = tag.getBoolean("ControllerSummoned");
+        if (tag.contains("NucleusPos") && com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, "NucleusEncounter")) {
+            this.nucleusPos = BlockPos.of(tag.getLongOr("NucleusPos", 0L));
+            this.encounterId = com.leon.saintsdragons.util.compat.Compat.getUUID(tag, "NucleusEncounter");
+            this.encounterWave = tag.getIntOr("NucleusWave", 0);
+            this.nucleusDeathReported = tag.getBooleanOr("NucleusDeathReported", false);
+            this.controllerSummoned = tag.getBooleanOr("ControllerSummoned", false);
             this.setPersistenceRequired();
         }
     }
@@ -595,5 +592,20 @@ public abstract class AbstractDraconianSwarmEntity extends Monster implements Ti
         if (Math.abs(this.tailDragYawDeg) < 0.01F) {
             this.tailDragYawDeg = 0.0F;
         }
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        super.addAdditionalSaveData(saintsdragonsOut);
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        super.readAdditionalSaveData(saintsdragonsIn);
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

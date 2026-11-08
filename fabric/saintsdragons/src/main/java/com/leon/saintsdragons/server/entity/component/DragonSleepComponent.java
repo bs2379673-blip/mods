@@ -730,9 +730,9 @@ public final class DragonSleepComponent {
 
     public void loadFromNBT(CompoundTag tag) {
         if (tag.contains("SleepPressure")) {
-            sleepPressure = Math.max(0.0F, Math.min(MAX_SLEEP_PRESSURE, tag.getFloat("SleepPressure")));
+            sleepPressure = Math.max(0.0F, Math.min(MAX_SLEEP_PRESSURE, tag.getFloatOr("SleepPressure", 0.0F)));
         }
-        sleepCommandSnapshot = tag.contains("SleepCommandSnapshot") ? tag.getInt("SleepCommandSnapshot") : -1;
+        sleepCommandSnapshot = tag.contains("SleepCommandSnapshot") ? tag.getIntOr("SleepCommandSnapshot", 0) : -1;
 
         sleepTransitionTicks = 0;
         sleepTransitioning = false;

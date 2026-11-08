@@ -31,6 +31,6 @@ public final class SwordAbilityTargeting {
             return false;
         }
 
-        return !(target instanceof OwnableEntity ownable) || ownable.getOwnerUUID() == null;
+        return !(target instanceof OwnableEntity ownable) || com.leon.saintsdragons.util.compat.Compat.ownerUUID(ownable) == null;
     }
 }

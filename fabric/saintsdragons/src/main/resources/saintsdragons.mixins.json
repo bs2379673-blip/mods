@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "com.leon.saintsdragons.fabric.mixin.fabric",
   "refmap": "saintsdragons-fabric-fabric-refmap.json",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "client": [
     "AirDismountInputMixin",
     "CameraMixin",
@@ -31,7 +31,9 @@
     "PathfinderMobMixin",
     "PlayerMixin",
     "RedStoneWireBlockMixin",
-    "StructureTemplateEntityMixin"
+    "StructureTemplateEntityMixin",
+    "ItemPropertiesMixin",
+    "BlockPropertiesMixin"
   ],
   "injectors": {
     "defaultRequire": 1

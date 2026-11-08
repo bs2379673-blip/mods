@@ -173,7 +173,7 @@ public class VolitansPoisonBallAbility extends DragonAbility<Volitans> {
         );
         projectile.setVisualScale(PROJECTILE_SCALE);
         projectile.setDeltaMovement(direction.scale(PROJECTILE_SPEED));
-        projectile.hasImpulse = true;
+        projectile.needsSync = true;
         if (server.addFreshEntity(projectile)) dragon.markPoisonBallFired();
     }
 

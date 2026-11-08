@@ -25,7 +25,7 @@ public class BloodTempestArmorRenderer extends GeoArmorRenderer<BloodTempestArmo
     public RenderType getRenderType(BloodTempestArmorItem animatable, Identifier texture,
                                     @Nullable MultiBufferSource bufferSource, float partialTick) {
         if (BloodTempestAfterimageRenderContext.isActive()) {
-            return RenderType.entityTranslucent(texture);
+            return net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture);
         }
         return super.getRenderType(animatable, texture, bufferSource, partialTick);
     }

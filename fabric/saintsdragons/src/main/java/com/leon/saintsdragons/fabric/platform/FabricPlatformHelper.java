@@ -182,20 +182,16 @@ public final class FabricPlatformHelper implements PlatformHelper {
             builder.putAll(modifiers);
             builder.put(
                     ReachEntityAttributes.REACH,
-                    new AttributeModifier(
-                            TARGETING_REACH_MODIFIER_UUID,
-                            "Dragonheart weapon targeting reach",
+                    new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(TARGETING_REACH_MODIFIER_UUID),
                             this.getTargetingReachBonus() + REACH_ALIGNMENT,
-                            AttributeModifier.Operation.ADDITION
+                            AttributeModifier.Operation.ADD_VALUE
                     )
             );
             builder.put(
                     ReachEntityAttributes.ATTACK_RANGE,
-                    new AttributeModifier(
-                            ENTITY_REACH_MODIFIER_UUID,
-                            "Dragonheart weapon reach",
+                    new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(ENTITY_REACH_MODIFIER_UUID),
                             this.getEntityReachBonus() + REACH_ALIGNMENT,
-                            AttributeModifier.Operation.ADDITION
+                            AttributeModifier.Operation.ADD_VALUE
                     )
             );
             return builder.build();

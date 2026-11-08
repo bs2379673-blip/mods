@@ -55,7 +55,7 @@ public final class SaintsDragonsFabricClient implements ClientModInitializer {
         RealCameraCompatibility.register();
         CommonClientModEvents.registerEntityRenderers(EntityRendererRegistry::register);
         CommonClientModEvents.registerMenuScreens();
-        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.DRACONIAN_NUCLEUS.get(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.DRACONIAN_NUCLEUS.get(), net.minecraft.client.renderer.rendertype.RenderTypes.translucent());
         EntityModelLayerRegistry.registerModelLayer(
                 DraconianNucleusModel.LAYER_LOCATION,
                 DraconianNucleusModel::createBodyLayer);

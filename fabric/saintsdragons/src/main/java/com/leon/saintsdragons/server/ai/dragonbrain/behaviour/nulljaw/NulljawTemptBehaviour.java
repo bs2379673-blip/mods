@@ -109,6 +109,6 @@ public final class NulljawTemptBehaviour extends DragonBehaviour<Nulljaw> {
 
     @Override
     public Map<String, String> getDragonBrainDebugDetails() {
-        return Map.of("player", player == null ? "none" : player.getGameProfile().getName());
+        return Map.of("player", player == null ? "none" : player.getGameProfile().name());
     }
 }

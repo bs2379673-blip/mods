@@ -164,7 +164,7 @@ public class StegonautAmethystPillarEntity extends Entity implements GeoEntity {
         DamageSource source = owner != null ? damageSources().mobAttack(owner) : damageSources().generic();
         for (LivingEntity target : targets) {
             hitEntities.add(target.getUUID());
-            target.hurt(source, damage);
+            target.hurtOrSimulate(source, damage);
             Vec3 knockDir = target.position().subtract(position());
             knockDir = new Vec3(knockDir.x, 0.0D, knockDir.z);
             if (knockDir.lengthSqr() < 1.0E-4D) {
@@ -192,7 +192,7 @@ public class StegonautAmethystPillarEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         return false;
     }
 
@@ -206,25 +206,25 @@ public class StegonautAmethystPillarEntity extends Entity implements GeoEntity {
         return false;
     }
 
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        livedTicks = tag.getInt("Lived");
-        lifetimeTicks = tag.getInt("Lifetime");
-        warmupTicks = tag.getInt("Warmup");
-        damage = tag.getFloat("Damage");
-        knockbackStrength = tag.contains("Knockback") ? tag.getDouble("Knockback") : DEFAULT_KNOCKBACK_STRENGTH;
-        if (tag.hasUUID("Owner")) {
-            ownerUUID = tag.getUUID("Owner");
+    
+    protected void sdLoad(CompoundTag tag) {
+        livedTicks = tag.getIntOr("Lived", 0);
+        lifetimeTicks = tag.getIntOr("Lifetime", 0);
+        warmupTicks = tag.getIntOr("Warmup", 0);
+        damage = tag.getFloatOr("Damage", 0.0F);
+        knockbackStrength = tag.contains("Knockback") ? tag.getDoubleOr("Knockback", 0.0D) : DEFAULT_KNOCKBACK_STRENGTH;
+        if (com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, "Owner")) {
+            ownerUUID = com.leon.saintsdragons.util.compat.Compat.getUUID(tag, "Owner");
         }
         if (tag.contains("Yaw")) {
-            initializeRotation(tag.getFloat("Yaw"));
+            initializeRotation(tag.getFloatOr("Yaw", 0.0F));
         }
-        this.entityData.set(DATA_SUBSIDING, tag.getBoolean("Subsiding"));
-        subsideTicks = Math.max(0, tag.getInt("SubsideTicks"));
+        this.entityData.set(DATA_SUBSIDING, tag.getBooleanOr("Subsiding", false));
+        subsideTicks = Math.max(0, tag.getIntOr("SubsideTicks", 0));
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
         tag.putInt("Lived", livedTicks);
         tag.putInt("Lifetime", lifetimeTicks);
         tag.putInt("Warmup", warmupTicks);
@@ -234,13 +234,8 @@ public class StegonautAmethystPillarEntity extends Entity implements GeoEntity {
         tag.putBoolean("Subsiding", isSubsiding());
         tag.putInt("SubsideTicks", subsideTicks);
         if (ownerUUID != null) {
-            tag.putUUID("Owner", ownerUUID);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "Owner", ownerUUID);
         }
-    }
-
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
     }
 
     @Override
@@ -260,8 +255,8 @@ public class StegonautAmethystPillarEntity extends Entity implements GeoEntity {
     }
 
     private <E extends GeoEntity> PlayState animationPredicate(AnimationTest<E> state) {
-        state.getController().transitionLength(1);
-        state.getController().setAnimation(isSubsiding() ? SUBSIDE : EMERGE);
+        state.controller().transitionLength(1);
+        state.controller().setAnimation(isSubsiding() ? SUBSIDE : EMERGE);
         return PlayState.CONTINUE;
     }
 
@@ -276,5 +271,18 @@ public class StegonautAmethystPillarEntity extends Entity implements GeoEntity {
         setYHeadRot(yaw);
         this.yRotO = yaw;
         this.xRotO = 0.0F;
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

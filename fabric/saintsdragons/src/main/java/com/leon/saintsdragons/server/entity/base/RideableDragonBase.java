@@ -591,16 +591,16 @@ public abstract class RideableDragonBase extends DragonEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void sdSave(CompoundTag tag) {
+        super.sdSave(tag);
         tag.putInt("MeleeMode", getMeleeMode());
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void sdLoad(CompoundTag tag) {
+        super.sdLoad(tag);
         if (tag.contains("MeleeMode")) {
-            setMeleeMode(tag.getInt("MeleeMode"));
+            setMeleeMode(tag.getIntOr("MeleeMode", 0));
         }
     }
 
@@ -1034,34 +1034,34 @@ public abstract class RideableDragonBase extends DragonEntity {
     }
 
     protected void loadRideableData(CompoundTag tag) {
-        boolean savedFlying = tag.getBoolean("Flying");
-        boolean savedTakeoff = tag.getBoolean("Takeoff");
-        boolean savedHovering = tag.getBoolean("Hovering");
-        boolean savedLanding = tag.getBoolean("Landing");
+        boolean savedFlying = tag.getBooleanOr("Flying", false);
+        boolean savedTakeoff = tag.getBooleanOr("Takeoff", false);
+        boolean savedHovering = tag.getBooleanOr("Hovering", false);
+        boolean savedLanding = tag.getBooleanOr("Landing", false);
         if (savedTakeoff || savedLanding) {
             savedTakeoff = false;
             savedLanding = false;
         }
         applyLoadedFlightState(savedFlying, savedTakeoff, savedHovering, savedLanding);
 
-        this.setRunning(tag.getBoolean("Running"));
-        this.setAccelerating(tag.getBoolean("Accelerating"));
-        this.setGoingUp(savedFlying && tag.getBoolean("GoingUp"));
-        this.setGoingDown(savedFlying && tag.getBoolean("GoingDown"));
+        this.setRunning(tag.getBooleanOr("Running", false));
+        this.setAccelerating(tag.getBooleanOr("Accelerating", false));
+        this.setGoingUp(savedFlying && tag.getBooleanOr("GoingUp", false));
+        this.setGoingDown(savedFlying && tag.getBooleanOr("GoingDown", false));
 
-        int groundState = tag.contains("GroundMoveState") ? tag.getInt("GroundMoveState") : 0;
+        int groundState = tag.contains("GroundMoveState") ? tag.getIntOr("GroundMoveState", 0) : 0;
         this.entityData.set(getGroundMoveStateAccessor(), Mth.clamp(groundState, 0, 2));
 
-        int flightMode = tag.contains("FlightMode") ? tag.getInt("FlightMode") : -1;
+        int flightMode = tag.contains("FlightMode") ? tag.getIntOr("FlightMode", 0) : -1;
         this.entityData.set(getFlightModeAccessor(), savedFlying ? Mth.clamp(flightMode, -1, MAX_PERSISTED_FLIGHT_MODE) : -1);
 
-        float riderForward = tag.contains("RiderForward") ? tag.getFloat("RiderForward") : 0f;
-        float riderStrafe = tag.contains("RiderStrafe") ? tag.getFloat("RiderStrafe") : 0f;
+        float riderForward = tag.contains("RiderForward") ? tag.getFloatOr("RiderForward", 0.0F) : 0f;
+        float riderStrafe = tag.contains("RiderStrafe") ? tag.getFloatOr("RiderStrafe", 0.0F) : 0f;
         this.entityData.set(getRiderForwardAccessor(), riderForward);
         this.entityData.set(getRiderStrafeAccessor(), riderStrafe);
 
         boolean savedSitting = tag.contains("IsSitting")
-                ? tag.getBoolean("IsSitting")
+                ? tag.getBooleanOr("IsSitting", false)
                 : this.isOrderedToSit();
         this.setOrderedToSit(savedSitting);
         loadSitProgress(tag, savedSitting);

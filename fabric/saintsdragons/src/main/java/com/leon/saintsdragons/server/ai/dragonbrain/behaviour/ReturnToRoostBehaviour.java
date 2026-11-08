@@ -1074,14 +1074,14 @@ public class ReturnToRoostBehaviour<T extends RideableDragonBase> extends Dragon
         Vec3 velocity = dragon.getDeltaMovement();
         if (!dragon.isInWater()) {
             dragon.setDeltaMovement(velocity.x * 0.8D, Math.min(velocity.y, -0.04D), velocity.z * 0.8D);
-            dragon.hasImpulse = true;
+            dragon.needsSync = true;
             return;
         }
         double upward = dragon.getFluidHeight(FluidTags.WATER) > dragon.getBbHeight() * 0.65D
                 ? 0.10D
                 : 0.04D;
         dragon.setDeltaMovement(velocity.x * 0.8D, Math.max(velocity.y, upward), velocity.z * 0.8D);
-        dragon.hasImpulse = true;
+        dragon.needsSync = true;
     }
 
     private boolean hasBodyClearance(DragonBrainContext<T> context, Vec3 feetPosition) {

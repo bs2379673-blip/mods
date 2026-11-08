@@ -101,7 +101,7 @@ public final class StegonautInteractionHandler extends AbstractDragonInteraction
             }
         }
 
-        return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -207,12 +207,12 @@ public final class StegonautInteractionHandler extends AbstractDragonInteraction
             }
         }
 
-        return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     private void awardTamingAdvancement(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
-            var advancement = serverPlayer.server.getAdvancements()
+            var advancement = serverPlayer.level().getServer().getAdvancements()
                     .getAdvancement(SaintsDragonsCommon.rl("tame_stegonaut"));
             if (advancement != null) {
                 serverPlayer.getAdvancements().award(advancement, "tame_stegonaut");

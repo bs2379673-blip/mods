@@ -160,7 +160,7 @@ public class StegonautGroundEatingAbility extends DragonAbility<Stegonaut> {
         );
         projectile.setVisualScale(PROJECTILE_SCALE);
         projectile.setDeltaMovement(direction.scale(PROJECTILE_SPEED));
-        projectile.hasImpulse = true;
+        projectile.needsSync = true;
         server.addFreshEntity(projectile);
     }
 

@@ -25,6 +25,6 @@ public final class JadeCrucibleTooltipHelper {
         }
         return Component.translatable(
                 "jade.saintsdragons.draconic_crucible.processing",
-                JadeEggTooltipHelper.formatTicks(serverData.getInt(TAG_REMAINING_TICKS)));
+                JadeEggTooltipHelper.formatTicks(serverData.getIntOr(TAG_REMAINING_TICKS, 0)));
     }
 }

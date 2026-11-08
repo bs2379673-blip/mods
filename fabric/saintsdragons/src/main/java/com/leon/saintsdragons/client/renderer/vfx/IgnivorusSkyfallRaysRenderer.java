@@ -31,7 +31,7 @@ public final class IgnivorusSkyfallRaysRenderer {
         float collapse = Mth.clamp(remaining / COLLAPSE_TICKS, 0.0F, 1.0F);
         float intensity = Mth.clamp(progress * 5.0F, 0.0F, 1.0F) * collapse;
         RandomSource random = RandomSource.create(dragon.getUUID().getLeastSignificantBits() ^ 432L);
-        VertexConsumer buffer = buffers.getBuffer(RenderType.lightning());
+        VertexConsumer buffer = buffers.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lightning());
         Vec3 offset = origin.subtract(dragon.getPosition(partialTick));
         poses.pushPose();
         poses.translate(offset.x, offset.y, offset.z);

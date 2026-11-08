@@ -108,7 +108,7 @@ public class IgnivorusStompAbility extends DragonAbility<Ignivorus> {
 
     private void applyHit(Ignivorus dragon, LivingEntity target) {
         DamageSource physicalSource = dragon.level().damageSources().mobAttack(dragon);
-        target.hurt(physicalSource, resolveDamage() * dragon.getHungerMeleeDamageMultiplier());
+        target.hurtOrSimulate(physicalSource, resolveDamage() * dragon.getHungerMeleeDamageMultiplier());
         target.push(0, UPWARD_FORCE, 0);
         target.hurtMarked = true; // Force velocity sync to client
     }

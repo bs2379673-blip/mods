@@ -268,14 +268,14 @@ public class CindervaneSlashGrabAbility extends DragonAbility<Cindervane> {
                 .abilityDamage(damageKey, fallback);
         damage *= dragon.getHungerMeleeDamageMultiplier();
         DamageSource source = dragon.level().damageSources().mobAttack(dragon);
-        target.hurt(source, damage);
+        target.hurtOrSimulate(source, damage);
     }
 
     private void releaseAndFling(LivingEntity target) {
         // Simple release: drop straight downward only.
         target.setDeltaMovement(0.0D, RELEASE_DROP_Y, 0.0D);
         target.hurtMarked = true;
-        target.hasImpulse = true;
+        target.needsSync = true;
         clearGrabState();
     }
 
@@ -302,7 +302,7 @@ public class CindervaneSlashGrabAbility extends DragonAbility<Cindervane> {
         Vec3 minus = holdPos.subtract(target.position());
         target.setDeltaMovement(minus);
         target.hurtMarked = true;
-        target.hasImpulse = true;
+        target.needsSync = true;
         target.fallDistance = 0.0F;
     }
 }

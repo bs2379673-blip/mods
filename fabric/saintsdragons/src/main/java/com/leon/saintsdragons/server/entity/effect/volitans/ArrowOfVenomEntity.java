@@ -99,7 +99,7 @@ public class ArrowOfVenomEntity extends AbstractArrow implements GeoEntity {
 
     private <E extends GeoEntity> PlayState animationPredicate(AnimationTest<E> state) {
         if (entityData.get(IMPACTED)) {
-            state.getController().setAnimation(IMPACT);
+            state.controller().setAnimation(IMPACT);
             return PlayState.CONTINUE;
         }
         return PlayState.STOP;

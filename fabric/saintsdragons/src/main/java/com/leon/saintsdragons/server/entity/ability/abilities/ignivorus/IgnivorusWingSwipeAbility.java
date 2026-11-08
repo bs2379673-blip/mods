@@ -88,7 +88,7 @@ public class IgnivorusWingSwipeAbility extends DragonAbility<Ignivorus> {
 
     private void applyHit(Ignivorus dragon, LivingEntity target) {
         DamageSource physicalSource = dragon.level().damageSources().mobAttack(dragon);
-        target.hurt(physicalSource, resolveDamage() * dragon.getHungerMeleeDamageMultiplier());
+        target.hurtOrSimulate(physicalSource, resolveDamage() * dragon.getHungerMeleeDamageMultiplier());
         Vec3 knockbackDir = target.position().subtract(dragon.position()).normalize();
         Vec3 push = knockbackDir.scale(KNOCKBACK_STRENGTH);
         target.push(push.x, 0.5, push.z);

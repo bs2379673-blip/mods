@@ -52,8 +52,8 @@ public class IgnivorusFlameRenderer extends EntityRenderer<IgnivorusFlameEntity>
         poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix4f = pose.pose();
-        Matrix3f matrix3f = pose.setNormal();
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(texture));
+        Matrix3f matrix3f = pose.normal();
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutNoCull(texture));
         renderBillboard(vertexConsumer, matrix4f, matrix3f, packedLight, alpha);
         poseStack.popPose();
         super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);

@@ -857,7 +857,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
             }
 
             for (int i = 0; i < spawnCount; i++) {
-                T baby = babyType.create(serverLevel);
+                T baby = babyType.create(serverLevel, net.minecraft.world.entity.EntitySpawnReason.BREEDING);
                 if (baby == null) {
                     continue;
                 }
@@ -886,16 +886,16 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
     }
 
     protected <T extends DragonEntity> T createBreedOffspring(ServerLevel level, AgeableMob otherParent, EntityType<T> babyType, Consumer<T> configureBaby) {
-        T baby = babyType.create(level);
+        T baby = babyType.create(level, net.minecraft.world.entity.EntitySpawnReason.BREEDING);
         if (baby == null) {
             return null;
         }
 
         baby.setGender(this.random.nextBoolean() ? DragonGender.FEMALE : DragonGender.MALE);
         assignMotherToBaby(baby, otherParent);
-        UUID ownerId = this.getOwnerUUID();
+        UUID ownerId = com.leon.saintsdragons.util.compat.Compat.ownerUUID(this);
         if (ownerId != null) {
-            baby.setOwnerUUID(ownerId);
+            com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(baby, ownerId);
             baby.setTame(true);
         }
 
@@ -1173,7 +1173,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
 
     @Override
     public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor levelAccessor, @NotNull DifficultyInstance difficulty, @NotNull EntitySpawnReason reason,
-                                                 @Nullable SpawnGroupData spawnData, @Nullable CompoundTag spawnTag) {
+                                                 @Nullable SpawnGroupData spawnData) {
         SpawnGroupData data = super.finalizeSpawn(levelAccessor, difficulty, reason, spawnData, spawnTag);
         ensureGenderInitialized();
         Identifier chosenVariant = chooseSpawnTextureVariantId(levelAccessor, difficulty, reason, spawnData, spawnTag);
@@ -1355,19 +1355,19 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
     }
 
     @Override
-    public boolean causeFallDamage(float fallDistance, float damageMultiplier, @NotNull DamageSource source) {
+    public boolean causeFallDamage(double fallDistance, float damageMultiplier, @NotNull DamageSource source) {
         this.fallDistance = 0.0F;
         return false;
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         if (isDamageFromCurrentRider(source) && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             return false;
         }
 
         rememberIncomingProjectile(source);
-        boolean result = super.hurt(source, amount);
+        boolean result = super.hurtServer(saintsdragons$level, source, amount);
         if (result) {
             if (isSleeping() || isSleepingEntering() || isSleepTransitioning()) {
                 startSleepExit();
@@ -1394,9 +1394,9 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
             }
             onSuccessfulDamage(source, amount);
         }
-        if (result && !level().isClientSide() && this.isTame() && this.getOwnerUUID() != null) {
+        if (result && !level().isClientSide() && this.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(this) != null) {
             ServerLevel serverLevel = (ServerLevel) level();
-            DragonCodexSavedData.get(serverLevel).updateDragonStats(this.getOwnerUUID(), this);
+            DragonCodexSavedData.get(serverLevel).updateDragonStats(com.leon.saintsdragons.util.compat.Compat.ownerUUID(this), this);
             applyHappinessHitPenalty(serverLevel);
         }
         return result;
@@ -1455,9 +1455,9 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
                 combatManager.forceUseAbility(deathAbility);
             }
         }
-        if (!level().isClientSide() && this.isTame() && this.getOwnerUUID() != null) {
+        if (!level().isClientSide() && this.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(this) != null) {
             ServerLevel serverLevel = (ServerLevel) level();
-            DragonCodexSavedData.get(serverLevel).removeDragon(this.getOwnerUUID(), this.getUUID());
+            DragonCodexSavedData.get(serverLevel).removeDragon(com.leon.saintsdragons.util.compat.Compat.ownerUUID(this), this.getUUID());
         }
         super.die(cause);
     }
@@ -1466,26 +1466,26 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
     public void tame(@NotNull Player player) {
         super.tame(player);
         if (!level().isClientSide() && player instanceof ServerPlayer serverPlayer) {
-            DragonCodexSavedData.get(serverPlayer.serverLevel()).addDragon(serverPlayer, this);
+            DragonCodexSavedData.get(serverPlayer.level()).addDragon(serverPlayer, this);
         }
     }
 
     @Override
     public void setCustomName(@Nullable Component name) {
         super.setCustomName(name);
-        if (!level().isClientSide() && this.isTame() && this.getOwnerUUID() != null) {
+        if (!level().isClientSide() && this.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(this) != null) {
            ServerLevel serverLevel = (ServerLevel) level();
-            DragonCodexSavedData.get(serverLevel).updateDragonName(this.getOwnerUUID(), this.getUUID(), this.getName().getString());
-            DragonCodexSavedData.get(serverLevel).updateDragonStats(this.getOwnerUUID(), this);
+            DragonCodexSavedData.get(serverLevel).updateDragonName(com.leon.saintsdragons.util.compat.Compat.ownerUUID(this), this.getUUID(), this.getName().getString());
+            DragonCodexSavedData.get(serverLevel).updateDragonStats(com.leon.saintsdragons.util.compat.Compat.ownerUUID(this), this);
         }
     }
 
     @Override
     public void heal(float amount) {
         super.heal(amount);
-        if (!level().isClientSide() && this.isTame() && this.getOwnerUUID() != null) {
+        if (!level().isClientSide() && this.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(this) != null) {
             ServerLevel serverLevel = (ServerLevel) level();
-            DragonCodexSavedData.get(serverLevel).updateDragonStats(this.getOwnerUUID(), this);
+            DragonCodexSavedData.get(serverLevel).updateDragonStats(com.leon.saintsdragons.util.compat.Compat.ownerUUID(this), this);
         }
     }
 
@@ -1523,7 +1523,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
                     + " dying=" + this.isDying()
                     + " vehicle=" + this.isVehicle()
                     + " passenger=" + this.isPassenger()
-                    + " owner=" + this.getOwnerUUID()
+                    + " owner=" + com.leon.saintsdragons.util.compat.Compat.ownerUUID(this)
                     + " command=" + this.getCommand());
             new Exception("[SD-DRAGON-REMOVE stack]").printStackTrace(System.out);
         }
@@ -1531,7 +1531,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
     }
 
     private void removeCodexEntryForTerminalRemoval(Entity.RemovalReason reason) {
-        if (this.level().isClientSide() || !this.isTame() || this.getOwnerUUID() == null) {
+        if (this.level().isClientSide() || !this.isTame() || com.leon.saintsdragons.util.compat.Compat.ownerUUID(this) == null) {
             return;
         }
         if (reason != Entity.RemovalReason.KILLED && reason != Entity.RemovalReason.DISCARDED) {
@@ -1541,7 +1541,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         if (reason == Entity.RemovalReason.DISCARDED && this.isBoundInBinder()) {
             return;
         }
-        DragonCodexSavedData.get((ServerLevel) this.level()).removeDragon(this.getOwnerUUID(), this.getUUID());
+        DragonCodexSavedData.get((ServerLevel) this.level()).removeDragon(com.leon.saintsdragons.util.compat.Compat.ownerUUID(this), this.getUUID());
     }
 
     private boolean shouldLogDragonRemoval(Entity.RemovalReason reason) {
@@ -1622,7 +1622,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
 
         UUID ownerUUID = resolveEggOwnerUUID(partner);
         if (ownerUUID != null) {
-            eggEntity.setOwnerUUID(ownerUUID);
+            com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(eggEntity, ownerUUID);
         }
 
         eggEntity.setBabyGender(this.getRandom().nextBoolean() ? DragonGender.FEMALE : DragonGender.MALE);
@@ -1633,7 +1633,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         if (babyComponent != null) {
             return babyComponent.resolveEggOwnerUUID(partner);
         }
-        if (this.isTame() && this.getOwnerUUID() != null) return this.getOwnerUUID();
+        if (this.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(this) != null) return com.leon.saintsdragons.util.compat.Compat.ownerUUID(this);
         return null;
     }
 
@@ -1645,8 +1645,8 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         if (dragon == null || level == null || level.isClientSide()) {
             return;
         }
-        if (dragon.isTame() && dragon.getOwnerUUID() != null) {
-            DragonCodexSavedData.get(level).addDragon(dragon.getOwnerUUID(), dragon);
+        if (dragon.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon) != null) {
+            DragonCodexSavedData.get(level).addDragon(com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon), dragon);
         }
     }
 
@@ -2425,7 +2425,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
     public boolean isAlly(Entity entity) {
         return entity != null
                 && (DragonTargetingHelper.isVillageDefender(entity)
-                || CompanionCombatRules.isTrusted(entity, getOwnerUUID(), level())
+                || CompanionCombatRules.isTrusted(entity, com.leon.saintsdragons.util.compat.Compat.ownerUUID(this), level())
                 || super.isAlliedTo(entity));
     }
 
@@ -2513,7 +2513,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return;
         }
-        var advancement = serverPlayer.server.getAdvancements()
+        var advancement = serverPlayer.level().getServer().getAdvancements()
                 .getAdvancement(SaintsDragonsCommon.rl("encounter_dragon"));
         if (advancement != null) {
             serverPlayer.getAdvancements().award(advancement, "encounter_dragon");
@@ -2553,9 +2553,8 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         }
     }
 
-    @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    
+    protected void sdSave(CompoundTag tag) {
         if (commandComponent != null) {
             commandComponent.saveToNBT(tag);
         }
@@ -2584,7 +2583,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         tag.putBoolean("BoundInBinder", this.boundInBinder);
         tag.putBoolean("GrowthStunted", this.growthStunted);
         if (assignedParentUuid != null) {
-            tag.putUUID("AssignedParentUuid", assignedParentUuid);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "AssignedParentUuid", assignedParentUuid);
         }
         if (hasPendingFamilyBabies()) {
             tag.putBoolean("FamilySpawnPending", true);
@@ -2594,9 +2593,8 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         allyManager.saveToNBT(tag);
     }
 
-    @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    
+    protected void sdLoad(CompoundTag tag) {
 
         if (commandComponent != null) {
             commandComponent.loadFromNBT(tag);
@@ -2618,32 +2616,32 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         }
         Identifier storedTextureVariant = null;
         if (tag.contains("TextureVariantId")) {
-            storedTextureVariant = parseVariantId(tag.getString("TextureVariantId"), SaintsDragonVariantRegistry.defaultVariantId(getDragonVariantTypeId()));
+            storedTextureVariant = parseVariantId(tag.getStringOr("TextureVariantId", ""), SaintsDragonVariantRegistry.defaultVariantId(getDragonVariantTypeId()));
             setTextureVariantId(storedTextureVariant);
         } else if (tag.contains("TextureVariant")) {
-            storedTextureVariant = SaintsDragonVariantRegistry.legacyToVariantId(getDragonVariantTypeId(), tag.getInt("TextureVariant"));
+            storedTextureVariant = SaintsDragonVariantRegistry.legacyToVariantId(getDragonVariantTypeId(), tag.getIntOr("TextureVariant", 0));
             setTextureVariantId(storedTextureVariant);
         }
         if (tag.contains("PendingAdultTextureVariantId")) {
-            setPendingAdultTextureVariantId(parseVariantId(tag.getString("PendingAdultTextureVariantId"), null));
+            setPendingAdultTextureVariantId(parseVariantId(tag.getStringOr("PendingAdultTextureVariantId", ""), null));
         } else if (tag.contains("PendingAdultTextureVariant")) {
-            setPendingAdultTextureVariant(tag.getInt("PendingAdultTextureVariant"));
+            setPendingAdultTextureVariant(tag.getIntOr("PendingAdultTextureVariant", 0));
         }
         Identifier defaultVariant = SaintsDragonVariantRegistry.defaultVariantId(getDragonVariantTypeId());
         if (isBaby() && storedTextureVariant != null && !storedTextureVariant.equals(defaultVariant)) {
             setPendingAdultTextureVariantId(storedTextureVariant);
             setCurrentTextureVariantId(defaultVariant);
         }
-        this.assignedParentUuid = tag.hasUUID("AssignedParentUuid") ? tag.getUUID("AssignedParentUuid") : null;
-        this.boundInBinder = tag.getBoolean("BoundInBinder");
-        this.growthStunted = tag.getBoolean("GrowthStunted");
+        this.assignedParentUuid = com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, "AssignedParentUuid") ? com.leon.saintsdragons.util.compat.Compat.getUUID(tag, "AssignedParentUuid") : null;
+        this.boundInBinder = tag.getBooleanOr("BoundInBinder", false);
+        this.growthStunted = tag.getBooleanOr("GrowthStunted", false);
         if (this.growthStunted && !this.isBaby()) {
             this.setAge(-24000);
             this.setBaby(true);
         }
         if (tag.contains("FamilySpawnPending")) {
-            this.familySpawnPending = tag.getBoolean("FamilySpawnPending");
-            this.pendingFamilyBabyCount = Math.max(0, tag.getInt("FamilySpawnCount"));
+            this.familySpawnPending = tag.getBooleanOr("FamilySpawnPending", false);
+            this.pendingFamilyBabyCount = Math.max(0, tag.getIntOr("FamilySpawnCount", 0));
         } else {
             this.familySpawnPending = false;
             this.pendingFamilyBabyCount = 0;
@@ -2689,8 +2687,8 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
 
         if (wasBaby != isNowBaby && !level().isClientSide() && this.tickCount > 0) {
             level().broadcastEntityEvent(this, (byte) 7);
-            if (this.isTame() && this.getOwnerUUID() != null) {
-                DragonCodexSavedData.get((ServerLevel) level()).updateDragonStats(this.getOwnerUUID(), this);
+            if (this.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(this) != null) {
+                DragonCodexSavedData.get((ServerLevel) level()).updateDragonStats(com.leon.saintsdragons.util.compat.Compat.ownerUUID(this), this);
             }
         }
     }
@@ -2767,5 +2765,20 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
             return false;
         }
         return state.isSolidRender(level, pos) || state.isFaceSturdy(level, pos, Direction.UP);
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        super.addAdditionalSaveData(saintsdragonsOut);
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        super.readAdditionalSaveData(saintsdragonsIn);
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

@@ -162,14 +162,14 @@ public class Winged extends AbstractDraconianSwarmEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void sdSave(CompoundTag tag) {
+        super.sdSave(tag);
         tag.putInt("PullAttackHits", this.pullAttackHits);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        this.pullAttackHits = Mth.clamp(tag.getInt("PullAttackHits"), 0, 2);
+    public void sdLoad(CompoundTag tag) {
+        super.sdLoad(tag);
+        this.pullAttackHits = Mth.clamp(tag.getIntOr("PullAttackHits", 0), 0, 2);
     }
 }

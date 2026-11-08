@@ -70,8 +70,7 @@ public class StegonautBinderItem extends AbstractDragonBinderItem<Stegonaut> {
 
     @Override
     @Environment(EnvType.CLIENT)
-    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip,
-                                @NotNull TooltipFlag flag) {
-        super.appendHoverText(stack, level, tooltip, flag);
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext saintsdragons$ctx, net.minecraft.world.item.component.TooltipDisplay saintsdragons$display, java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, saintsdragons$ctx, saintsdragons$display, tooltip, flag);
     }
 }

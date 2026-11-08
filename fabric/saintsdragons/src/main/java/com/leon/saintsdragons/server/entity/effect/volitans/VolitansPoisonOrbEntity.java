@@ -87,7 +87,7 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
         this.lifetimeTicks = lifetimeTicks;
         this.setDeltaMovement(Vec3.ZERO);
         this.setVisualScale(1.0F);
-        this.hasImpulse = true;
+        this.needsSync = true;
     }
 
     @Override
@@ -215,13 +215,13 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
         for (var viewer : server.players()) {
             if (viewer.distanceToSqr(impact) > 128.0D * 128.0D) continue;
-            server.sendParticles(viewer, ModParticles.VOLITANS_POISON_CLOUD.get(), true,
+            server.sendParticles(viewer, ModParticles.VOLITANS_POISON_CLOUD.get(), true, false,
                     impact.x, impact.y + 0.35D * scale, impact.z, 0, scale, 0, 0, 1.0D);
-            server.sendParticles(viewer, ModParticles.VOLITANS_POISON_EXPLOSION.get(), true,
+            server.sendParticles(viewer, ModParticles.VOLITANS_POISON_EXPLOSION.get(), true, false,
                     impact.x, impact.y + 0.35D * scale, impact.z, 0, scale, 0, 0, 1.0D);
             if (groundHit.getType() == HitResult.Type.BLOCK && groundHit.getDirection().getStepY() > 0) {
                 Vec3 ground = groundHit.getLocation();
-                server.sendParticles(viewer, ModParticles.VOLITANS_POISON_GROUND_BURST.get(), true,
+                server.sendParticles(viewer, ModParticles.VOLITANS_POISON_GROUND_BURST.get(), true, false,
                         ground.x, ground.y + 0.04D, ground.z, 0, scale, 0, 0, 1.0D);
             }
         }
@@ -244,9 +244,9 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
 
         for (LivingEntity target : hits) {
             if (ownerEntity != null) {
-                target.hurt(server.damageSources().mobAttack(ownerEntity), impactDamage);
+                target.hurtOrSimulate(server.damageSources().mobAttack(ownerEntity), impactDamage);
             } else {
-                target.hurt(server.damageSources().magic(), impactDamage);
+                target.hurtOrSimulate(server.damageSources().magic(), impactDamage);
             }
             if (poisonActive && poisonDurationTicks > 0) {
                 target.addEffect(new MobEffectInstance(MobEffects.POISON, poisonDurationTicks, poisonAmplifier));
@@ -256,7 +256,7 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
             if (knockback.lengthSqr() > 1.0E-6) {
                 knockback = knockback.normalize().scale(0.18D * scale);
                 target.push(knockback.x, 0.05D, knockback.z);
-                target.hasImpulse = true;
+                target.needsSync = true;
             }
         }
 
@@ -287,24 +287,24 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
         return owner;
     }
 
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        livedTicks = tag.getInt("Lived");
-        lifetimeTicks = tag.getInt("Lifetime");
-        impactRadius = tag.getDouble("ImpactRadius");
-        impactDamage = tag.getFloat("ImpactDamage");
-        poisonDurationTicks = tag.getInt("PoisonDuration");
-        poisonAmplifier = tag.getInt("PoisonAmplifier");
+    
+    protected void sdLoad(CompoundTag tag) {
+        livedTicks = tag.getIntOr("Lived", 0);
+        lifetimeTicks = tag.getIntOr("Lifetime", 0);
+        impactRadius = tag.getDoubleOr("ImpactRadius", 0.0D);
+        impactDamage = tag.getFloatOr("ImpactDamage", 0.0F);
+        poisonDurationTicks = tag.getIntOr("PoisonDuration", 0);
+        poisonAmplifier = tag.getIntOr("PoisonAmplifier", 0);
         if (tag.contains("Scale")) {
-            setVisualScale(tag.getFloat("Scale"));
+            setVisualScale(tag.getFloatOr("Scale", 0.0F));
         }
-        if (tag.hasUUID("Owner")) {
-            ownerUUID = tag.getUUID("Owner");
+        if (com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, "Owner")) {
+            ownerUUID = com.leon.saintsdragons.util.compat.Compat.getUUID(tag, "Owner");
         }
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
         tag.putInt("Lived", livedTicks);
         tag.putInt("Lifetime", lifetimeTicks);
         tag.putDouble("ImpactRadius", impactRadius);
@@ -313,13 +313,8 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
         tag.putInt("PoisonAmplifier", poisonAmplifier);
         tag.putFloat("Scale", getVisualScale());
         if (ownerUUID != null) {
-            tag.putUUID("Owner", ownerUUID);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "Owner", ownerUUID);
         }
-    }
-
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
     }
 
     @Override
@@ -344,15 +339,15 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            return super.hurt(source, amount);
+            return super.hurtServer(saintsdragons$level, source, amount);
         }
         return false;
     }
 
     @Override
-    public boolean isInvulnerableTo(DamageSource source) {
+    public boolean isInvulnerableTo(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source) {
         return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY);
     }
 
@@ -365,5 +360,18 @@ public class VolitansPoisonOrbEntity extends Entity implements GeoEntity {
     public EntityDimensions getDimensions(@NotNull Pose pose) {
         float scale = getVisualScale();
         return EntityDimensions.fixed(0.98F * scale, 0.98F * scale);
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

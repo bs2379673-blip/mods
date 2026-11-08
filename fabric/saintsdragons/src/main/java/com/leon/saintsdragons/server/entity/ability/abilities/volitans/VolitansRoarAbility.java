@@ -201,7 +201,7 @@ public class VolitansRoarAbility extends DragonAbility<Volitans> {
             if (!hitTargetIds.add(target.getId())) {
                 continue;
             }
-            target.hurt(source, roarDamage);
+            target.hurtOrSimulate(source, roarDamage);
             if (poisonActive && poisonDuration > 0 && poisonAmplifier >= 0) {
                 target.addEffect(new MobEffectInstance(MobEffects.POISON, poisonDuration, poisonAmplifier));
             }

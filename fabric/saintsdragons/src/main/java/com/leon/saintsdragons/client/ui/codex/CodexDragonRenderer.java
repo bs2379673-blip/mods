@@ -214,7 +214,7 @@ public class CodexDragonRenderer {
 
             Lighting.setupForEntityInInventory();
             MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
-            RenderType renderType = RenderType.entityCutoutNoCull(texture);
+            RenderType renderType = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutNoCull(texture);
             staticPortraitRenderer.render(poseStack, portrait, buffers, renderType,
                     buffers.getBuffer(renderType), LightTexture.FULL_BRIGHT);
             guiGraphics.flush();

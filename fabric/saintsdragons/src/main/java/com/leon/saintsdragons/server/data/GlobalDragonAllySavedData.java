@@ -77,11 +77,11 @@ public class GlobalDragonAllySavedData extends SavedData {
         ListTag playerList = new ListTag();
         for (Map.Entry<UUID, Map<UUID, String>> entry : alliesByOwner.entrySet()) {
             CompoundTag playerTag = new CompoundTag();
-            playerTag.putUUID("Owner", entry.getKey());
+            com.leon.saintsdragons.util.compat.Compat.putUUID(playerTag, "Owner", entry.getKey());
             ListTag allyList = new ListTag();
             for (Map.Entry<UUID, String> allyEntry : entry.getValue().entrySet()) {
                 CompoundTag allyTag = new CompoundTag();
-                allyTag.putUUID("UUID", allyEntry.getKey());
+                com.leon.saintsdragons.util.compat.Compat.putUUID(allyTag, "UUID", allyEntry.getKey());
                 allyTag.putString("Username", allyEntry.getValue());
                 allyList.add(allyTag);
             }
@@ -94,21 +94,21 @@ public class GlobalDragonAllySavedData extends SavedData {
 
     public static GlobalDragonAllySavedData load(CompoundTag tag) {
         GlobalDragonAllySavedData data = new GlobalDragonAllySavedData();
-        if (tag.contains("Players", Tag.TAG_LIST)) {
-            ListTag playerList = tag.getList("Players", Tag.TAG_COMPOUND);
+        if (tag.contains("Players")) {
+            ListTag playerList = tag.getListOrEmpty("Players");
             for (int i = 0; i < playerList.size(); i++) {
-                CompoundTag playerTag = playerList.getCompound(i);
-                if (!playerTag.hasUUID("Owner")) {
+                CompoundTag playerTag = playerList.getCompoundOrEmpty(i);
+                if (!com.leon.saintsdragons.util.compat.Compat.hasUUID(playerTag, "Owner")) {
                     continue;
                 }
-                UUID ownerId = playerTag.getUUID("Owner");
+                UUID ownerId = com.leon.saintsdragons.util.compat.Compat.getUUID(playerTag, "Owner");
                 Map<UUID, String> allies = new HashMap<>();
-                if (playerTag.contains("Allies", Tag.TAG_LIST)) {
-                    ListTag allyList = playerTag.getList("Allies", Tag.TAG_COMPOUND);
+                if (playerTag.contains("Allies")) {
+                    ListTag allyList = playerTag.getListOrEmpty("Allies");
                     for (int j = 0; j < allyList.size(); j++) {
-                        CompoundTag allyTag = allyList.getCompound(j);
-                        if (allyTag.hasUUID("UUID") && allyTag.contains("Username", Tag.TAG_STRING)) {
-                            allies.put(allyTag.getUUID("UUID"), allyTag.getString("Username"));
+                        CompoundTag allyTag = allyList.getCompoundOrEmpty(j);
+                        if (com.leon.saintsdragons.util.compat.Compat.hasUUID(allyTag, "UUID") && allyTag.contains("Username")) {
+                            allies.put(com.leon.saintsdragons.util.compat.Compat.getUUID(allyTag, "UUID"), allyTag.getStringOr("Username", ""));
                         }
                     }
                 }

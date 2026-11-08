@@ -61,23 +61,31 @@ public class IgnivorusSkyfallRingEntity extends Entity {
         }
     }
 
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        this.age = tag.getInt("Age");
+    
+    protected void sdLoad(CompoundTag tag) {
+        this.age = tag.getIntOr("Age", 0);
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
         tag.putInt("Age", this.age);
-    }
-
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
     }
 
     @Override
     public boolean shouldRenderAtSqrDistance(double distance) {
         return distance < 16384.0;
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

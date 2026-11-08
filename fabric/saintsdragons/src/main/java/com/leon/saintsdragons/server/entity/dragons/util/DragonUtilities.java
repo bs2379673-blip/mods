@@ -251,7 +251,7 @@ public final class DragonUtilities {
     }
 
     public static void awardAdvancement(ServerPlayer player, String advancementId, String criterion) {
-        var advancement = player.server.getAdvancements().getAdvancement(SaintsDragonsCommon.rl(advancementId));
+        var advancement = player.level().getServer().getAdvancements().getAdvancement(SaintsDragonsCommon.rl(advancementId));
         if (advancement != null) {
             player.getAdvancements().award(advancement, criterion);
         }
@@ -303,7 +303,7 @@ public final class DragonUtilities {
         if (owner instanceof ServerPlayer serverPlayer) {
             return serverPlayer;
         }
-        UUID ownerUUID = dragon.getOwnerUUID();
+        UUID ownerUUID = com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon);
         if (ownerUUID != null && dragon.level() instanceof ServerLevel serverLevel) {
             return serverLevel.getServer().getPlayerList().getPlayer(ownerUUID);
         }

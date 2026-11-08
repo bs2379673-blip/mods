@@ -94,7 +94,7 @@ public class VarasuchusBiteAbility extends DragonAbility<Varasuchus> {
 
         damage *= dragon.getHungerMeleeDamageMultiplier();
         DamageSource source = dragon.level().damageSources().mobAttack(dragon);
-        target.hurt(source, damage);
+        target.hurtOrSimulate(source, damage);
 
         Vec3 push = dragon.getLookAngle().scale(0.3);
         target.push(push.x, dragon.isSwimming() ? 0.15 : 0.05, push.z);

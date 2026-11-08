@@ -78,7 +78,7 @@ public final class DragonPathDebugTracker {
             player.displayClientMessage(Component.literal("Dragon debug: OFF"), true);
             SaintsDragonsCommon.LOGGER.info(
                     "[Dragon Path Debug] event=unselected player={} id={} uuid={}",
-                    player.getGameProfile().getName(),
+                    player.getGameProfile().name(),
                     dragon.getId(),
                     dragon.getUUID()
             );
@@ -93,7 +93,7 @@ public final class DragonPathDebugTracker {
         );
         SaintsDragonsCommon.LOGGER.info(
                 "[Dragon Path Debug] event=selected player={} id={} uuid={} type={} pos={}",
-                player.getGameProfile().getName(),
+                player.getGameProfile().name(),
                 dragon.getId(),
                 dragon.getUUID(),
                 dragon.getType(),
@@ -119,7 +119,7 @@ public final class DragonPathDebugTracker {
                 continue;
             }
 
-            Entity entity = player.serverLevel().getEntity(tracked.getValue().dragonId);
+            Entity entity = player.level().getEntity(tracked.getValue().dragonId);
             if (!(entity instanceof DragonEntity dragon) || dragon.isRemoved() || !dragon.isAlive()) {
                 NetworkHandler.sendToPlayer(player, MessageDragonPathDebug.clear());
                 NetworkHandler.sendToPlayer(player, MessageDragonBrainDebug.clear());
@@ -148,7 +148,7 @@ public final class DragonPathDebugTracker {
         TrackingEntry tracking = TRACKED_DRAGONS.get(player.getUUID());
         if (tracking == null) return false;
         tracking.visionLayers = enabled ? tracking.visionLayers | layer : tracking.visionLayers & ~layer;
-        Entity entity = player.serverLevel().getEntity(tracking.dragonId);
+        Entity entity = player.level().getEntity(tracking.dragonId);
         if (entity instanceof DragonEntity dragon) {
             NetworkHandler.sendToPlayer(player, MessageDragonVisionDebug.capture(dragon, tracking.visionLayers));
         }
@@ -184,7 +184,7 @@ public final class DragonPathDebugTracker {
                         + "navigationDone={} navigationStuck={} "
                         + "search={}#{} reached={} closed={} open={} candidates={} searchMicros={} "
                         + "perception={} tactical={} pursuit={} flightExecution={} coordination={} activity={} behaviours={}",
-                player.getGameProfile().getName(),
+                player.getGameProfile().name(),
                 dragon.getId(),
                 dragon.blockPosition(),
                 snapshot.locomotionMode(),

@@ -26,17 +26,13 @@ public final class ConfiguredItemAttributes {
         base.entries().stream()
                 .filter(entry -> entry.getKey() != Attributes.ATTACK_DAMAGE && entry.getKey() != Attributes.ATTACK_SPEED)
                 .forEach(entry -> builder.put(entry.getKey(), entry.getValue()));
-        builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(
-                damageUuid,
-                "Configured weapon damage",
+        builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(damageUuid),
                 attackDamage - 1.0D,
-                AttributeModifier.Operation.ADDITION
+                AttributeModifier.Operation.ADD_VALUE
         ));
-        builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(
-                speedUuid,
-                "Configured weapon speed",
+        builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(speedUuid),
                 attackSpeed - 4.0D,
-                AttributeModifier.Operation.ADDITION
+                AttributeModifier.Operation.ADD_VALUE
         ));
         return builder.build();
     }
@@ -58,14 +54,11 @@ public final class ConfiguredItemAttributes {
                         && entry.getKey() != Attributes.ARMOR_TOUGHNESS
                         && entry.getKey() != Attributes.KNOCKBACK_RESISTANCE)
                 .forEach(entry -> builder.put(entry.getKey(), entry.getValue()));
-        builder.put(Attributes.ARMOR, new AttributeModifier(
-                slotUuid, "Configured armor", armor, AttributeModifier.Operation.ADDITION));
-        builder.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(
-                slotUuid, "Configured armor toughness", toughness, AttributeModifier.Operation.ADDITION));
+        builder.put(Attributes.ARMOR, new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(slotUuid), armor, AttributeModifier.Operation.ADD_VALUE));
+        builder.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(slotUuid), toughness, AttributeModifier.Operation.ADD_VALUE));
         if (knockbackResistance != 0.0D) {
-            builder.put(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(
-                    slotUuid, "Configured armor knockback resistance", knockbackResistance,
-                    AttributeModifier.Operation.ADDITION));
+            builder.put(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(slotUuid), knockbackResistance,
+                    AttributeModifier.Operation.ADD_VALUE));
         }
         return builder.build();
     }

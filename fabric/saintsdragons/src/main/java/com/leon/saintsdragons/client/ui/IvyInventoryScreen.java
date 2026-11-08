@@ -188,7 +188,7 @@ public class IvyInventoryScreen extends AbstractContainerScreen<IvyInventoryMenu
             return;
         }
 
-        effects.sort(Comparator.comparing(effect -> effect.getEffect().getDescriptionId()));
+        effects.sort(Comparator.comparing(effect -> effect.getEffect().value().getDescriptionId()));
 
         int x = this.leftPos - EFFECT_ICON_SIZE - EFFECTS_LEFT_GAP;
         int y = this.topPos + EFFECTS_TOP_Y;
@@ -214,7 +214,7 @@ public class IvyInventoryScreen extends AbstractContainerScreen<IvyInventoryMenu
 
     private List<Component> getEffectTooltip(MobEffectInstance effect) {
         List<Component> lines = new ArrayList<>();
-        Component name = effect.getEffect().getDisplayName();
+        Component name = effect.getEffect().value().getDisplayName();
         if (effect.getAmplifier() > 0) {
             name = Component.translatable(
                     "potion.withAmplifier",

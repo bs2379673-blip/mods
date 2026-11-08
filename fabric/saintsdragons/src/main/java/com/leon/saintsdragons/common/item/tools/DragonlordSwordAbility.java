@@ -42,7 +42,7 @@ public final class DragonlordSwordAbility {
         }
         forward = forward.normalize();
 
-        ServerLevel level = player.serverLevel();
+        ServerLevel level = player.level();
         float pillarYaw = (float) Math.toDegrees(Math.atan2(forward.z, forward.x)) - 90.0F;
 
         for (int index = 0; index < PILLAR_COUNT; index++) {

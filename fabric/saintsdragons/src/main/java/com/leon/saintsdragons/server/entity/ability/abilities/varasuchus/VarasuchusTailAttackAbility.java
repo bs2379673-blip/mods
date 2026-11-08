@@ -97,7 +97,7 @@ public class VarasuchusTailAttackAbility extends DragonAbility<Varasuchus> {
         float rawToDeal = solveRawDamageForPostArmor(desiredDamage, armor, toughness);
 
         DamageSource source = dragon.level().damageSources().mobAttack(dragon);
-        target.hurt(source, rawToDeal);
+        target.hurtOrSimulate(source, rawToDeal);
 
         Vec3 knockbackDir = target.position().subtract(dragon.position()).normalize();
         Vec3 push = knockbackDir.scale(KNOCKBACK_STRENGTH);

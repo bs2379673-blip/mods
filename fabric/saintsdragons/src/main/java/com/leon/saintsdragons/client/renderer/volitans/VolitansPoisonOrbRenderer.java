@@ -31,6 +31,6 @@ public class VolitansPoisonOrbRenderer extends GeoEntityRenderer<VolitansPoisonO
     @Override
     public RenderType getRenderType(VolitansPoisonOrbEntity animatable, Identifier texture,
                                     @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityCutout(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture);
     }
 }

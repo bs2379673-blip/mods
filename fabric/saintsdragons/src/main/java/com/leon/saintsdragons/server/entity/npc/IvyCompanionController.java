@@ -554,7 +554,7 @@ final class IvyCompanionController {
                         centerOnLadder(plan.exitLadder());
                         faceLadder(plan.exitLadder());
                         ivy.setDeltaMovement(0.0D, 0.0D, 0.0D);
-                        ivy.hasImpulse = true;
+                        ivy.needsSync = true;
                         return;
                     }
                     targetY = plan.exitLadder().getY();
@@ -575,7 +575,7 @@ final class IvyCompanionController {
 
             double climb = Math.copySign(LADDER_CLIMB_SPEED, deltaY);
             ivy.setDeltaMovement(0.0D, climb, 0.0D);
-            ivy.hasImpulse = true;
+            ivy.needsSync = true;
         }
 
         private void tickExit() {
@@ -586,7 +586,7 @@ final class IvyCompanionController {
                 Vec3 horizontal = new Vec3(toExit.x, 0.0D, toExit.z).normalize().scale(LADDER_EXIT_SPEED);
                 double vertical = Mth.clamp(toExit.y * 0.25D, -0.12D, 0.18D);
                 ivy.setDeltaMovement(horizontal.x, vertical, horizontal.z);
-                ivy.hasImpulse = true;
+                ivy.needsSync = true;
                 exitTicks--;
             } else {
                 ivy.getNavigation().stop();

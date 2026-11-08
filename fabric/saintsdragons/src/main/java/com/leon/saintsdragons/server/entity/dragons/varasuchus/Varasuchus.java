@@ -171,8 +171,7 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
     public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor levelAccessor,
                                                  @NotNull DifficultyInstance difficulty,
                                                  @NotNull EntitySpawnReason reason,
-                                                 @Nullable SpawnGroupData spawnData,
-                                                 @Nullable CompoundTag spawnTag) {
+                                                 @Nullable SpawnGroupData spawnData) {
         SpawnGroupData data = super.finalizeSpawn(levelAccessor, difficulty, reason, spawnData, spawnTag);
         roostComponent.initializeHomeFromSpawn(levelAccessor, reason);
         return data;
@@ -553,7 +552,7 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
 
             for (LivingEntity target : entities) {
                 float damage = phaseTwo ? resolveDashClawDamage() : resolveDashTailSwipeDamage();
-                target.hurt(this.damageSources().mobAttack(this), damage);
+                target.hurtOrSimulate(this.damageSources().mobAttack(this), damage);
 
                 if (!phaseTwo) {
                     Vec3 knockbackDir = target.position().subtract(this.position()).normalize();
@@ -796,9 +795,9 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
     }
 
     @Override
-    protected void customServerAiStep() {
+    protected void customServerAiStep(net.minecraft.server.level.ServerLevel saintsdragons$level) {
         DragonBrain.tick(DRAGON_BRAIN, this);
-        super.customServerAiStep();
+        super.customServerAiStep(saintsdragons$level);
     }
 
     @Override
@@ -887,7 +886,7 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
 
     public void awardTamingAdvancement(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
-            var advancement = serverPlayer.server.getAdvancements()
+            var advancement = serverPlayer.level().getServer().getAdvancements()
                     .getAdvancement(SaintsDragonsCommon.rl("tame_varasuchus"));
             if (advancement != null) {
                 serverPlayer.getAdvancements().award(advancement, "tame_varasuchus");
@@ -1672,7 +1671,7 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
             rider.setDeltaMovement(away.scale(VarasuchusStatProfile.Entity.WILD_RIDE_BUCK_HORIZONTAL_SPEED)
                     .add(0.0D, VarasuchusStatProfile.Entity.WILD_RIDE_BUCK_UPWARD_SPEED, 0.0D));
             rider.hurtMarked = true;
-            rider.hasImpulse = true;
+            rider.needsSync = true;
         }
         rider.fallDistance = 0.0F;
         this.level().broadcastEntityEvent(this, (byte) 6);
@@ -1969,7 +1968,7 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource damageSource, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource damageSource, float amount) {
         if (super.isDying()) {
             return false;
         }
@@ -1985,7 +1984,7 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
         if (damageSource.is(DamageTypeTags.IS_DROWNING)) {
             amount *= 0.5F;
         }
-        return super.hurt(damageSource, amount);
+        return super.hurtServer(saintsdragons$level, damageSource, amount);
     }
 
     @Override
@@ -2009,25 +2008,25 @@ public class Varasuchus extends RideableGroundDragon implements SemiAquaticDrago
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void sdSave(CompoundTag tag) {
+        super.sdSave(tag);
         saveRideableData(tag);
         tag.putBoolean("PhaseTwo", isPhaseTwoActive());
         tag.putInt("FeedingCooldownTicks", Math.max(0, this.entityData.get(DATA_FEEDING_COOLDOWN)));
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void sdLoad(CompoundTag tag) {
+        super.sdLoad(tag);
         if (!level().isClientSide()) {
             roostComponent.restoreMemories();
         }
         loadRideableData(tag);
         if (tag.contains("FeedingCooldownTicks")) {
-            this.entityData.set(DATA_FEEDING_COOLDOWN, Math.max(0, tag.getInt("FeedingCooldownTicks")));
+            this.entityData.set(DATA_FEEDING_COOLDOWN, Math.max(0, tag.getIntOr("FeedingCooldownTicks", 0)));
         }
         if (tag.contains("PhaseTwo")) {
-            setPhaseTwoActive(tag.getBoolean("PhaseTwo"), false);
+            setPhaseTwoActive(tag.getBooleanOr("PhaseTwo", false), false);
         }
         applyConfiguredAttributes();
     }

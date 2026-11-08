@@ -62,9 +62,9 @@ public final class DragonHappinessComponent {
         }
         this.happiness = clamped;
         dragon.getEntityData().set(dataAccessor, clamped);
-        if (!dragon.level().isClientSide() && dragon.isTame() && dragon.getOwnerUUID() != null) {
+        if (!dragon.level().isClientSide() && dragon.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon) != null) {
             ServerLevel serverLevel = (ServerLevel) dragon.level();
-            DragonCodexSavedData.get(serverLevel).updateDragonStats(dragon.getOwnerUUID(), dragon);
+            DragonCodexSavedData.get(serverLevel).updateDragonStats(com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon), dragon);
         }
     }
 
@@ -149,22 +149,20 @@ public final class DragonHappinessComponent {
         float mult = getSpeedMultiplier();
         AttributeInstance move = dragon.getAttribute(Attributes.MOVEMENT_SPEED);
         if (move != null) {
-            AttributeModifier existing = move.getModifier(HAPPINESS_SLOW_GROUND_UUID);
+            AttributeModifier existing = move.getModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_GROUND_UUID));
             if (mult >= 0.999f) {
                 if (existing != null) {
-                    move.removeModifier(HAPPINESS_SLOW_GROUND_UUID);
+                    move.removeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_GROUND_UUID));
                 }
             } else {
                 double amount = mult - 1.0;
                 if (existing == null || Math.abs(existing.getAmount() - amount) > MODIFIER_EPSILON) {
                     if (existing != null) {
-                        move.removeModifier(HAPPINESS_SLOW_GROUND_UUID);
+                        move.removeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_GROUND_UUID));
                     }
-                    move.addPermanentModifier(new AttributeModifier(
-                            HAPPINESS_SLOW_GROUND_UUID,
-                            "Happiness slow (ground)",
+                    move.addPermanentModifier(new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_GROUND_UUID),
                             amount,
-                            AttributeModifier.Operation.MULTIPLY_TOTAL
+                            AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
                     ));
                 }
             }
@@ -172,22 +170,20 @@ public final class DragonHappinessComponent {
 
         AttributeInstance fly = dragon.getAttribute(Attributes.FLYING_SPEED);
         if (fly != null) {
-            AttributeModifier existing = fly.getModifier(HAPPINESS_SLOW_FLY_UUID);
+            AttributeModifier existing = fly.getModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_FLY_UUID));
             if (mult >= 0.999f) {
                 if (existing != null) {
-                    fly.removeModifier(HAPPINESS_SLOW_FLY_UUID);
+                    fly.removeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_FLY_UUID));
                 }
             } else {
                 double amount = mult - 1.0;
                 if (existing == null || Math.abs(existing.getAmount() - amount) > MODIFIER_EPSILON) {
                     if (existing != null) {
-                        fly.removeModifier(HAPPINESS_SLOW_FLY_UUID);
+                        fly.removeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_FLY_UUID));
                     }
-                    fly.addPermanentModifier(new AttributeModifier(
-                            HAPPINESS_SLOW_FLY_UUID,
-                            "Happiness slow (fly)",
+                    fly.addPermanentModifier(new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_FLY_UUID),
                             amount,
-                            AttributeModifier.Operation.MULTIPLY_TOTAL
+                            AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
                     ));
                 }
             }
@@ -196,12 +192,12 @@ public final class DragonHappinessComponent {
 
     public void clearSpeedModifiers() {
         AttributeInstance move = dragon.getAttribute(Attributes.MOVEMENT_SPEED);
-        if (move != null && move.getModifier(HAPPINESS_SLOW_GROUND_UUID) != null) {
-            move.removeModifier(HAPPINESS_SLOW_GROUND_UUID);
+        if (move != null && move.getModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_GROUND_UUID)) != null) {
+            move.removeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_GROUND_UUID));
         }
         AttributeInstance fly = dragon.getAttribute(Attributes.FLYING_SPEED);
-        if (fly != null && fly.getModifier(HAPPINESS_SLOW_FLY_UUID) != null) {
-            fly.removeModifier(HAPPINESS_SLOW_FLY_UUID);
+        if (fly != null && fly.getModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_FLY_UUID)) != null) {
+            fly.removeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(HAPPINESS_SLOW_FLY_UUID));
         }
     }
 
@@ -211,8 +207,8 @@ public final class DragonHappinessComponent {
     }
 
     public void loadFromNBT(CompoundTag tag) {
-        this.happiness = tag.contains("Happiness") ? Mth.clamp(tag.getInt("Happiness"), 0, HAPPINESS_MAX) : HAPPINESS_MAX;
-        this.happinessDecayTicks = tag.contains("HappinessDecayTicks") ? Math.max(0, tag.getInt("HappinessDecayTicks")) : 0;
+        this.happiness = tag.contains("Happiness") ? Mth.clamp(tag.getIntOr("Happiness", 0), 0, HAPPINESS_MAX) : HAPPINESS_MAX;
+        this.happinessDecayTicks = tag.contains("HappinessDecayTicks") ? Math.max(0, tag.getIntOr("HappinessDecayTicks", 0)) : 0;
         dragon.getEntityData().set(dataAccessor, this.happiness);
     }
 }

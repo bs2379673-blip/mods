@@ -127,7 +127,7 @@ class AsyncFlightMovementExecutor {
             this.smoothedVelocity = this.steering.checkedVelocity(this.smoothedVelocity);
         }
         this.dragon.setDeltaMovement(this.smoothedVelocity);
-        this.dragon.hasImpulse = true;
+        this.dragon.needsSync = true;
         this.updateRotation(false,
                 diving ? DIVE_MAX_PITCH_STEP : MAX_PITCH_STEP);
     }
@@ -146,7 +146,7 @@ class AsyncFlightMovementExecutor {
         }
         this.smoothedVelocity = velocity;
         this.dragon.setDeltaMovement(velocity);
-        this.dragon.hasImpulse = true;
+        this.dragon.needsSync = true;
         this.updateRotation(true, MAX_PITCH_STEP);
     }
 

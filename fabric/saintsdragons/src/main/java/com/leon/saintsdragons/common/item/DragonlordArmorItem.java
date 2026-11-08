@@ -77,29 +77,23 @@ public class DragonlordArmorItem extends ArmorItem implements GeoItem {
         ));
         builder.put(
                 Attributes.MAX_HEALTH,
-                new AttributeModifier(
-                        maxHealthUuid(),
-                        "Dragonlord max health",
+                new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(maxHealthUuid()),
                         maxHealthMultiplier(),
-                        AttributeModifier.Operation.MULTIPLY_BASE
+                        AttributeModifier.Operation.ADD_MULTIPLIED_BASE
                 )
         );
         builder.put(
                 ModAttributes.FIRE_RESISTANCE.get(),
-                new AttributeModifier(
-                        fireResistanceUuid(),
-                        "Dragonlord fire resistance",
+                new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(fireResistanceUuid()),
                         ToolsArmorConfig.DRAGONLORD_FIRE_RESISTANCE.get(),
-                        AttributeModifier.Operation.ADDITION
+                        AttributeModifier.Operation.ADD_VALUE
                 )
         );
         builder.put(
                 ModAttributes.BLAST_RESISTANCE.get(),
-                new AttributeModifier(
-                        blastResistanceUuid(),
-                        "Dragonlord blast resistance",
+                new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(blastResistanceUuid()),
                         ToolsArmorConfig.DRAGONLORD_BLAST_RESISTANCE.get(),
-                        AttributeModifier.Operation.ADDITION
+                        AttributeModifier.Operation.ADD_VALUE
                 )
         );
         return builder.build();
@@ -152,24 +146,24 @@ public class DragonlordArmorItem extends ArmorItem implements GeoItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, level, tooltip, flag);
-        tooltip.add(Component.empty());
-        tooltip.add(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.double_jump.title")
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext saintsdragons$ctx, net.minecraft.world.item.component.TooltipDisplay saintsdragons$display, java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, saintsdragons$ctx, saintsdragons$display, tooltip, flag);
+        tooltip.accept(Component.empty());
+        tooltip.accept(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.double_jump.title")
                 .withStyle(ChatFormatting.GOLD));
-        tooltip.add(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.double_jump.description")
+        tooltip.accept(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.double_jump.description")
                 .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.empty());
-        tooltip.add(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.dragonfall.title")
+        tooltip.accept(Component.empty());
+        tooltip.accept(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.dragonfall.title")
                 .withStyle(ChatFormatting.GOLD));
-        tooltip.add(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.dragonfall.description")
+        tooltip.accept(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.dragonfall.description")
                 .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.empty());
-        tooltip.add(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.aerial_dominion.title")
+        tooltip.accept(Component.empty());
+        tooltip.accept(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.aerial_dominion.title")
                 .withStyle(ChatFormatting.GOLD));
-        tooltip.add(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.aerial_dominion.enter")
+        tooltip.accept(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.aerial_dominion.enter")
                 .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.aerial_dominion.boost")
+        tooltip.accept(Component.translatable("item.saintsdragons.dragonlord_armor.tooltip.aerial_dominion.boost")
                 .withStyle(ChatFormatting.GRAY));
     }
 

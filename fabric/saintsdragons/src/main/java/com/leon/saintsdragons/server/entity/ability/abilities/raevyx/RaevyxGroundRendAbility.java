@@ -359,7 +359,7 @@ public class RaevyxGroundRendAbility extends DragonAbility<Raevyx> {
             float toughness = (float) target.getAttributeValue(Attributes.ARMOR_TOUGHNESS);
             float desiredDamage = wyvern.isSupercharged() ? SUPERCHARGED_HIT_DAMAGE : HIT_DAMAGE;
             float rawDamage = rawDamageForDesiredPostArmor(desiredDamage, Math.max(0f, armor), toughness);
-            target.hurt(wyvern.damageSources().mobAttack(wyvern), rawDamage);
+            target.hurtOrSimulate(wyvern.damageSources().mobAttack(wyvern), rawDamage);
             if (wyvern.isSupercharged()) {
                 spawnSuperchargedGroundRendLightning(wyvern, target);
             }
@@ -374,7 +374,7 @@ public class RaevyxGroundRendAbility extends DragonAbility<Raevyx> {
             return;
         }
 
-        var bolt = EntityType.LIGHTNING_BOLT.create(server);
+        var bolt = EntityType.LIGHTNING_BOLT.create(server, net.minecraft.world.entity.EntitySpawnReason.BREEDING);
         if (bolt == null) {
             return;
         }
@@ -484,7 +484,7 @@ public class RaevyxGroundRendAbility extends DragonAbility<Raevyx> {
         double maxDistanceSqr = DUST_VIEW_DISTANCE * DUST_VIEW_DISTANCE;
         for (ServerPlayer player : server.players()) {
             if (player.distanceToSqr(x, y, z) <= maxDistanceSqr || player.distanceToSqr(wyvern) <= maxDistanceSqr) {
-                server.sendParticles(player, ModParticles.DRAGON_DUST.get(), true,
+                server.sendParticles(player, ModParticles.DRAGON_DUST.get(), true, false,
                         x, y, z, 0, xSpeed, ySpeed, zSpeed, 1.0D);
             }
         }

@@ -54,7 +54,7 @@ public class RaevyxGlowLayer extends GeoRenderLayer<Raevyx> {
             texture = animatable.isFemale() ? FEMALE_GLOW_TEXTURE : GLOW_TEXTURE;
         }
 
-        RenderType glowType = RenderType.entityTranslucent(texture);
+        RenderType glowType = net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture);
         VertexConsumer glowBuffer = bufferSource.getBuffer(glowType);
 
         getRenderer().reRender(

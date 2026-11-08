@@ -33,7 +33,7 @@ public final class BeamRibbonRenderer {
 
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix = pose.pose();
-        Matrix3f normalMatrix = pose.setNormal();
+        Matrix3f normalMatrix = pose.normal();
         Matrix3f worldToLocal = new Matrix3f(normalMatrix).invert();
         Vec3 midpoint = beamStartWorld.add(beamEndWorld).scale(0.5D);
         var camera = Minecraft.getInstance().gameRenderer.getMainCamera();

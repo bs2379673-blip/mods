@@ -121,7 +121,7 @@ public final class AtroxiiaUnderwaterBiteAbility extends DragonAbility<Atroxiia>
         damage *= dragon.getHungerMeleeDamageMultiplier();
 
         DamageSource source = dragon.level().damageSources().mobAttack(dragon);
-        target.hurt(source, damage);
+        target.hurtOrSimulate(source, damage);
 
         Vec3 push = DragonMeleeGeometry.forwardAttack(dragon).forward().scale(0.2D);
         target.push(push.x, 0.05D, push.z);

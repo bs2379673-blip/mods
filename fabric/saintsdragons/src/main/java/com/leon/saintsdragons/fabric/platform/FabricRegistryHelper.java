@@ -28,7 +28,14 @@ public final class FabricRegistryHelper implements RegistryHelper {
         @Override
         public <I extends T> Supplier<I> register(String name, Supplier<I> supplier) {
             Identifier id = Identifier.fromNamespaceAndPath(modId, name);
-            I value = supplier.get();
+            // port 1.21.11: los items y bloques necesitan su id antes de crearse (lo pone un mixin en sus Properties)
+            com.leon.saintsdragons.util.compat.RegistryContext.push(ResourceKey.create(registry.key(), id));
+            I value;
+            try {
+                value = supplier.get();
+            } finally {
+                com.leon.saintsdragons.util.compat.RegistryContext.pop();
+            }
             Registry.register(registry, id, value);
             return () -> value;
         }

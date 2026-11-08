@@ -83,10 +83,10 @@ public abstract class AbstractDragonEggBlockEntity extends BlockEntity {
         super.saveAdditional(tag);
         tag.putDouble("HatchProgress", this.hatchProgress);
         if (this.ownerUUID != null) {
-            tag.putUUID("OwnerUUID", this.ownerUUID);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "OwnerUUID", this.ownerUUID);
         }
         if (this.hatchAdvancementOwnerUUID != null) {
-            tag.putUUID("HatchAdvancementOwnerUUID", this.hatchAdvancementOwnerUUID);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "HatchAdvancementOwnerUUID", this.hatchAdvancementOwnerUUID);
         }
         if (this.babyGender != null) {
             tag.putByte("BabyGender", this.babyGender.getId());
@@ -98,20 +98,20 @@ public abstract class AbstractDragonEggBlockEntity extends BlockEntity {
     public void load(@NotNull CompoundTag tag) {
         super.load(tag);
         if (tag.contains("HatchProgress")) {
-            this.hatchProgress = Math.max(0.0D, Math.min(1.0D, tag.getDouble("HatchProgress")));
+            this.hatchProgress = Math.max(0.0D, Math.min(1.0D, tag.getDoubleOr("HatchProgress", 0.0D)));
         } else {
-            double legacyTicks = Math.max(0, tag.getInt("HatchProgressTicks"));
+            double legacyTicks = Math.max(0, tag.getIntOr("HatchProgressTicks", 0));
             this.hatchProgress = Math.max(0.0D, Math.min(1.0D, legacyTicks / LEGACY_NORMAL_HATCH_TICKS));
         }
-        if (tag.hasUUID("OwnerUUID")) {
-            this.ownerUUID = tag.getUUID("OwnerUUID");
+        if (com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, "OwnerUUID")) {
+            this.ownerUUID = com.leon.saintsdragons.util.compat.Compat.getUUID(tag, "OwnerUUID");
         }
-        if (tag.hasUUID("HatchAdvancementOwnerUUID")) {
-            this.hatchAdvancementOwnerUUID = tag.getUUID("HatchAdvancementOwnerUUID");
+        if (com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, "HatchAdvancementOwnerUUID")) {
+            this.hatchAdvancementOwnerUUID = com.leon.saintsdragons.util.compat.Compat.getUUID(tag, "HatchAdvancementOwnerUUID");
         }
         if (tag.contains("BabyGender")) {
-            this.babyGender = DragonGender.fromId(tag.getByte("BabyGender"));
+            this.babyGender = DragonGender.fromId(tag.getByteOr("BabyGender", (byte) 0));
         }
-        this.pausedHatchingParticlesShown = tag.getBoolean("PausedHatchingParticlesShown");
+        this.pausedHatchingParticlesShown = tag.getBooleanOr("PausedHatchingParticlesShown", false);
     }
 }

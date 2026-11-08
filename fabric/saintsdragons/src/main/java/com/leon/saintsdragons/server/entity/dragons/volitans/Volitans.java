@@ -495,9 +495,7 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
             @NotNull ServerLevelAccessor level,
             @NotNull DifficultyInstance difficulty,
             @NotNull EntitySpawnReason spawnReason,
-            @Nullable SpawnGroupData spawnData,
-            @Nullable CompoundTag dataTag
-    ) {
+            @Nullable SpawnGroupData spawnData) {
         spawnData = super.finalizeSpawn(level, difficulty, spawnReason, spawnData, dataTag);
         applyConfiguredAttributes();
         this.setHealth(this.getMaxHealth());
@@ -732,7 +730,7 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
     protected void afterSwitchToGroundNavigation() {
         if (onGround()) {
             setDeltaMovement(Vec3.ZERO);
-            hasImpulse = false;
+            needsSync = false;
         }
     }
 
@@ -1117,9 +1115,9 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
     }
 
     @Override
-    protected void customServerAiStep() {
+    protected void customServerAiStep(net.minecraft.server.level.ServerLevel saintsdragons$level) {
         DragonBrain.tick(DRAGON_BRAIN, this);
-        super.customServerAiStep();
+        super.customServerAiStep(saintsdragons$level);
     }
 
     @Override
@@ -1222,7 +1220,7 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
             Vec3 slamMotion = new Vec3(current.x, verticalMotion, current.z);
             this.setDeltaMovement(slamMotion);
             this.move(MoverType.SELF, slamMotion);
-            this.hasImpulse = true;
+            this.needsSync = true;
             this.hurtMarked = true;
             return;
         }
@@ -1527,36 +1525,36 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void sdLoad(CompoundTag tag) {
+        super.sdLoad(tag);
         loadRideableData(tag);
         tamingController.load(tag);
         if (tag.contains("VolitansBreathMode")) {
-            setBreathMode(tag.getInt("VolitansBreathMode"));
+            setBreathMode(tag.getIntOr("VolitansBreathMode", 0));
         }
         if (tag.contains("VolitansWaterBreathEnergy")) {
-            setWaterBreathEnergy(tag.getFloat("VolitansWaterBreathEnergy"));
+            setWaterBreathEnergy(tag.getFloatOr("VolitansWaterBreathEnergy", 0.0F));
         } else {
             setWaterBreathEnergy(1.0F);
         }
         if (tag.contains("VolitansPoisonBreathEnergy")) {
-            setPoisonBreathEnergy(tag.getFloat("VolitansPoisonBreathEnergy"));
+            setPoisonBreathEnergy(tag.getFloatOr("VolitansPoisonBreathEnergy", 0.0F));
         } else {
             setPoisonBreathEnergy(1.0F);
         }
         if (tag.contains("VolitansWaterBreathDepleted")) {
-            setWaterBreathDepleted(tag.getBoolean("VolitansWaterBreathDepleted"));
+            setWaterBreathDepleted(tag.getBooleanOr("VolitansWaterBreathDepleted", false));
         }
         if (tag.contains("VolitansPoisonBreathDepleted")) {
-            setPoisonBreathDepleted(tag.getBoolean("VolitansPoisonBreathDepleted"));
+            setPoisonBreathDepleted(tag.getBooleanOr("VolitansPoisonBreathDepleted", false));
         }
         if (tag.contains("FeedingCooldownTicks")) {
-            this.entityData.set(DATA_FEEDING_COOLDOWN, Math.max(0, tag.getInt("FeedingCooldownTicks")));
+            this.entityData.set(DATA_FEEDING_COOLDOWN, Math.max(0, tag.getIntOr("FeedingCooldownTicks", 0)));
         }
         if (tag.contains("VenomNeutralizedTicks")) {
-            this.entityData.set(DATA_VENOM_NEUTRALIZED_TICKS, Math.max(0, tag.getInt("VenomNeutralizedTicks")));
+            this.entityData.set(DATA_VENOM_NEUTRALIZED_TICKS, Math.max(0, tag.getIntOr("VenomNeutralizedTicks", 0)));
         }
-        tempInvulnTicks = Math.max(0, tag.getInt("VolitansTempInvulnTicks"));
+        tempInvulnTicks = Math.max(0, tag.getIntOr("VolitansTempInvulnTicks", 0));
         if (tempInvulnTicks > 0) {
             setInvulnerable(true);
         } else if (!isDying()) {
@@ -1574,8 +1572,8 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void sdSave(CompoundTag tag) {
+        super.sdSave(tag);
         saveRideableData(tag);
         tag.putInt("VolitansBreathMode", getBreathMode());
         tag.putFloat("VolitansWaterBreathEnergy", getWaterBreathEnergy());
@@ -1796,7 +1794,7 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         if (isDying() || !isAlive()) {
             return false;
         }
@@ -1813,7 +1811,7 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
         if (tryReactiveHitEvade(source, amount)) {
             return false;
         }
-        boolean hurt = super.hurt(source, amount);
+        boolean hurt = super.hurtServer(saintsdragons$level, source, amount);
         if (hurt && shouldDropCombatSpine(source, amount)) {
             if (DragonLootTables.dropEntityLoot(this, DragonLootTables.VOLITANS_HIT, source)) {
                 spineDropCooldownTicks = SPINE_DROP_COOLDOWN_TICKS;
@@ -2406,7 +2404,7 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
             horizontalZ *= 0.90D;
         }
         this.setDeltaMovement(horizontalX, yVel, horizontalZ);
-        this.hasImpulse = true;
+        this.needsSync = true;
         riderBackDashVec = riderBackDashVec.multiply(
                 RIDER_BACK_DASH_RECOVERY_DRAG,
                 RIDER_BACK_DASH_VERTICAL_DRAG,
@@ -2439,7 +2437,7 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
             horizontalZ *= 0.88D;
         }
         this.setDeltaMovement(horizontalX, yVel, horizontalZ);
-        this.hasImpulse = true;
+        this.needsSync = true;
         riderSideDodgeVec = riderSideDodgeVec.multiply(
                 RIDER_SIDE_DODGE_RECOVERY_DRAG,
                 RIDER_SIDE_DODGE_VERTICAL_DRAG,
@@ -2534,7 +2532,7 @@ public class Volitans extends RideableFlyingDragon implements DragonCombatLearne
                         && entity.isAlive()
                         && entity.attackable()
                         && !this.isAlly(entity))) {
-            target.hurt(this.damageSources().mobAttack(this), RIDER_FORWARD_DASH_DAMAGE);
+            target.hurtOrSimulate(this.damageSources().mobAttack(this), RIDER_FORWARD_DASH_DAMAGE);
         }
     }
 

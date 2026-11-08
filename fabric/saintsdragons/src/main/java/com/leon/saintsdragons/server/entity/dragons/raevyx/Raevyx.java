@@ -501,9 +501,9 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
     }
 
     @Override
-    protected void customServerAiStep() {
+    protected void customServerAiStep(net.minecraft.server.level.ServerLevel saintsdragons$level) {
         DragonBrain.tick(DRAGON_BRAIN, this);
-        super.customServerAiStep();
+        super.customServerAiStep(saintsdragons$level);
     }
 
     @Override
@@ -583,7 +583,7 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
         if (!(rider instanceof ServerPlayer serverPlayer)) {
             return;
         }
-        var advancement = serverPlayer.server.getAdvancements()
+        var advancement = serverPlayer.level().getServer().getAdvancements()
                 .getAdvancement(SaintsDragonsCommon.rl("raevyx_dive_exit"));
         if (advancement != null) {
             serverPlayer.getAdvancements().award(advancement, "raevyx_dive_exit");
@@ -1625,7 +1625,7 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
                     continue;
                 }
 
-                target.hurt(this.damageSources().mobAttack(this), getConfiguredDashDamage());
+                target.hurtOrSimulate(this.damageSources().mobAttack(this), getConfiguredDashDamage());
                 double knockbackStrength = 1.5D;
                 double dx = target.getX() - damageCenter.x;
                 double dz = target.getZ() - damageCenter.z;
@@ -2428,9 +2428,7 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
             @NotNull ServerLevelAccessor level,
             @NotNull DifficultyInstance difficulty,
             @NotNull EntitySpawnReason spawnReason,
-            @Nullable SpawnGroupData spawnData,
-            @Nullable CompoundTag dataTag
-    ) {
+            @Nullable SpawnGroupData spawnData) {
         spawnData = super.finalizeSpawn(level, difficulty, spawnReason, spawnData, dataTag);
         if (spawnReason == EntitySpawnReason.CHUNK_GENERATION) {
             if (!(spawnData instanceof RaevyxFamilyData)) {
@@ -2492,7 +2490,7 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource damageSource, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource damageSource, float amount) {
         if (isDying()) {
             return false;
         }
@@ -2520,7 +2518,7 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
 
         if (isTamingStunned() && !isTame()) {
 
-            return super.hurt(damageSource, amount);
+            return super.hurtServer(saintsdragons$level, damageSource, amount);
         }
 
         if (tryReactiveHitDodge(damageSource, amount)) {
@@ -2529,7 +2527,7 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
 
         boolean wasFlying = isFlying();
         boolean wasRidden = isVehicle();
-        boolean result = super.hurt(damageSource, amount);
+        boolean result = super.hurtServer(saintsdragons$level, damageSource, amount);
 
         if (result && wasRidden && wasFlying && isVehicle()) {
             setFlying(true);
@@ -2613,12 +2611,11 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
         var health = getAttribute(Attributes.MAX_HEALTH);
         if (health == null) return;
         if (isSupercharged()) {
-            if (health.getModifier(SUPERCHARGE_HEALTH_ID) == null) {
-                health.addTransientModifier(new AttributeModifier(SUPERCHARGE_HEALTH_ID,
-                        "Raevyx supercharge health", 1.0D, AttributeModifier.Operation.MULTIPLY_BASE));
+            if (health.getModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(SUPERCHARGE_HEALTH_ID)) == null) {
+                health.addTransientModifier(new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(SUPERCHARGE_HEALTH_ID), 1.0D, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
             }
         } else {
-            health.removeModifier(SUPERCHARGE_HEALTH_ID);
+            health.removeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(SUPERCHARGE_HEALTH_ID));
         }
     }
 
@@ -2980,8 +2977,8 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void sdSave(CompoundTag tag) {
+        super.sdSave(tag);
         saveRideableData(tag);
         tag.putInt("TimeFlying", timeFlying);
         tag.putBoolean("UsingAirNav", isUsingAirNavigation());
@@ -3001,17 +2998,17 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void sdLoad(CompoundTag tag) {
+        super.sdLoad(tag);
         loadRideableData(tag);
-        boolean savedFlying = tag.getBoolean("Flying");
-        this.timeFlying = tag.getInt("TimeFlying");
-        boolean savedUsingAirNav = tag.getBoolean("UsingAirNav");
-        this.lastLandingGameTime = tag.contains("LastLandingGameTime") ? tag.getLong("LastLandingGameTime") : Long.MIN_VALUE;
-        this.landingFlag = tag.contains("LandingFlag") && tag.getBoolean("LandingFlag");
-        this.landingTimer = tag.contains("LandingTimer") ? tag.getInt("LandingTimer") : 0;
-        this.landedFlag = tag.contains("LandedFlag") && tag.getBoolean("LandedFlag");
-        this.landedTimer = tag.contains("LandedTimer") ? tag.getInt("LandedTimer") : 0;
+        boolean savedFlying = tag.getBooleanOr("Flying", false);
+        this.timeFlying = tag.getIntOr("TimeFlying", 0);
+        boolean savedUsingAirNav = tag.getBooleanOr("UsingAirNav", false);
+        this.lastLandingGameTime = tag.contains("LastLandingGameTime") ? tag.getLongOr("LastLandingGameTime", 0L) : Long.MIN_VALUE;
+        this.landingFlag = tag.contains("LandingFlag") && tag.getBooleanOr("LandingFlag", false);
+        this.landingTimer = tag.contains("LandingTimer") ? tag.getIntOr("LandingTimer", 0) : 0;
+        this.landedFlag = tag.contains("LandedFlag") && tag.getBooleanOr("LandedFlag", false);
+        this.landedTimer = tag.contains("LandedTimer") ? tag.getIntOr("LandedTimer", 0) : 0;
         if (!savedFlying) {
             landingTimer = 0;
         }
@@ -3019,28 +3016,28 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
         this.takeoffLockTicks = 0;
         this.combatManager.loadFromNBT(tag);
         if (tag.contains("SuperchargeTicks")) {
-            this.superchargeTicks = Math.max(0, tag.getInt("SuperchargeTicks"));
+            this.superchargeTicks = Math.max(0, tag.getIntOr("SuperchargeTicks", 0));
         }
         if (tag.contains("TempInvulnTicks")) {
-            this.tempInvulnTicks = Math.max(0, tag.getInt("TempInvulnTicks"));
+            this.tempInvulnTicks = Math.max(0, tag.getIntOr("TempInvulnTicks", 0));
             if (this.tempInvulnTicks > 0) {
                 this.setInvulnerable(true);
             }
         }
 
         if (tag.contains("AllowGroundBeamStorm")) {
-            this.allowGroundBeamDuringStorm = tag.getBoolean("AllowGroundBeamStorm");
+            this.allowGroundBeamDuringStorm = tag.getBooleanOr("AllowGroundBeamStorm", false);
         }
         if (tag.contains("FeedingCooldownTicks")) {
-            this.entityData.set(DATA_FEEDING_COOLDOWN, Math.max(0, tag.getInt("FeedingCooldownTicks")));
+            this.entityData.set(DATA_FEEDING_COOLDOWN, Math.max(0, tag.getIntOr("FeedingCooldownTicks", 0)));
         }
         if (tag.contains("BeamEnergy")) {
-            setBeamEnergy(tag.getFloat("BeamEnergy"));
+            setBeamEnergy(tag.getFloatOr("BeamEnergy", 0.0F));
         } else {
             setBeamEnergy(1.0f);
         }
         if (tag.contains("BeamDepleted")) {
-            setBeamDepleted(tag.getBoolean("BeamDepleted"));
+            setBeamDepleted(tag.getBooleanOr("BeamDepleted", false));
         } else {
             setBeamDepleted(false);
         }
@@ -3072,7 +3069,7 @@ public class Raevyx extends RideableFlyingDragon implements ShakesScreen, Dragon
         applyConfiguredAttributes();
         if (isSupercharged() && tag.contains("Health")) {
             // Transient modifiers are rebuilt after vanilla loads (and may clamp) saved health.
-            setHealth(Math.min(tag.getFloat("Health"), getMaxHealth()));
+            setHealth(Math.min(tag.getFloatOr("Health", 0.0F), getMaxHealth()));
         }
         syncStormAura();
     }

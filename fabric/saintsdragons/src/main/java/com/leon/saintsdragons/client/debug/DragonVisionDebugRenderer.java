@@ -28,7 +28,7 @@ public final class DragonVisionDebugRenderer {
         Minecraft minecraft = Minecraft.getInstance();
         if (snapshot == null || minecraft.level == null) return;
         var buffers = minecraft.renderBuffers().bufferSource();
-        VertexConsumer lines = buffers.getBuffer(RenderType.lines());
+        VertexConsumer lines = buffers.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lines());
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         stack.pushPose();
@@ -66,7 +66,7 @@ public final class DragonVisionDebugRenderer {
             sphere(stack, lines, projectile.origin(), projectile.uncertainty(), MAGENTA);
         }
         stack.popPose();
-        buffers.endBatch(RenderType.lines());
+        buffers.endBatch(net.minecraft.client.renderer.rendertype.RenderTypes.lines());
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
 
@@ -144,7 +144,7 @@ public final class DragonVisionDebugRenderer {
         var pose = stack.last();
         for (Vec3 p : new Vec3[]{from, to}) {
             lines.addVertex(pose.pose(), (float)p.x, (float)p.y, (float)p.z).setColor(color >> 16 & 255, color >> 8 & 255, color & 255, 255)
-                    .setNormal(pose.setNormal(), (float)direction.x, (float)direction.y, (float)direction.z);
+                    .setNormal(pose, (float)direction.x, (float)direction.y, (float)direction.z);
         }
     }
 }

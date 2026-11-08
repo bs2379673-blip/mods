@@ -171,11 +171,9 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
     private static final int PHASE2_LANDED_RECOVERY_TICKS = 20;
     private static final UUID PHASE2_FOLLOW_RANGE_MODIFIER_UUID =
             UUID.fromString("9bc2f319-58d7-47b7-84e8-bb0ed524030f");
-    private static final AttributeModifier PHASE2_FOLLOW_RANGE_MODIFIER = new AttributeModifier(
-            PHASE2_FOLLOW_RANGE_MODIFIER_UUID,
-            "Ignivorus phase 2 follow range",
+    private static final AttributeModifier PHASE2_FOLLOW_RANGE_MODIFIER = new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(PHASE2_FOLLOW_RANGE_MODIFIER_UUID),
             32.0D,
-            AttributeModifier.Operation.ADDITION
+            AttributeModifier.Operation.ADD_VALUE
     );
     public static final EntityDataAccessor<Boolean> DATA_RIDER_LANDING_BLEND =
             SynchedEntityData.defineId(Ignivorus.class, EntityDataSerializers.BOOLEAN);
@@ -616,8 +614,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
     public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level,
                                                  @NotNull DifficultyInstance difficulty,
                                                  @NotNull EntitySpawnReason spawnType,
-                                                 @Nullable SpawnGroupData spawnData,
-                                                 @Nullable CompoundTag dataTag) {
+                                                 @Nullable SpawnGroupData spawnData) {
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnType, spawnData, dataTag);
         roostComponent.initializeHomeFromSpawn(level, spawnType);
         applyConfiguredAttributes();
@@ -766,7 +763,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource damageSource, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource damageSource, float amount) {
         if (isDying()) {
             return false;
         }
@@ -792,7 +789,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
         if (tamingController.tryEnterHoldStateFromDamage(damageSource, amount)) {
             return true;
         }
-        boolean hurt = super.hurt(damageSource, amount);
+        boolean hurt = super.hurtServer(saintsdragons$level, damageSource, amount);
         if (hurt
                 && !level().isClientSide()
                 && amount > 0.0F
@@ -1023,7 +1020,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
                         continue;
                     }
 
-                    target.hurt(this.damageSources().mobAttack(this), resolveBulldozeDamage());
+                    target.hurtOrSimulate(this.damageSources().mobAttack(this), resolveBulldozeDamage());
                     double knockbackStrength = 2.0D;
                     double dx = this.getX() - target.getX();
                     double dz = this.getZ() - target.getZ();
@@ -1123,12 +1120,12 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
                 && isAbilityActive(ModAbilities.IGNIVORUS_ULTIMATE);
         boolean shouldExtendRange = !isTame() && (phase2Active || wildTransitionUltimate
                 || wildPhase2PendingLanding || wildPhase2IdleTicks > 0);
-        boolean hasModifier = followRange.getModifier(PHASE2_FOLLOW_RANGE_MODIFIER_UUID) != null;
+        boolean hasModifier = followRange.getModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(PHASE2_FOLLOW_RANGE_MODIFIER_UUID)) != null;
 
         if (shouldExtendRange && !hasModifier) {
             followRange.addTransientModifier(PHASE2_FOLLOW_RANGE_MODIFIER);
         } else if (!shouldExtendRange && hasModifier) {
-            followRange.removeModifier(PHASE2_FOLLOW_RANGE_MODIFIER_UUID);
+            followRange.removeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(PHASE2_FOLLOW_RANGE_MODIFIER_UUID));
         }
     }
 
@@ -1182,7 +1179,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
         this.getNavigation().stop();
         this.getMoveControl().setWantedPosition(getX(), getY(), getZ(), 0.0D);
         setDeltaMovement(Vec3.ZERO);
-        hasImpulse = true;
+        needsSync = true;
 
         leapWindupTicks--;
         if (leapWindupTicks > 0) {
@@ -1190,7 +1187,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
         }
 
         setDeltaMovement(Vec3.ZERO);
-        hasImpulse = true;
+        needsSync = true;
         leapGroundedTicks = 0;
         leapMovement.startContinuous(leapVelocity, 3);
     }
@@ -1289,14 +1286,14 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
         DamageSource source = server.damageSources().mobAttack(this);
 
         for (LivingEntity target : targets) {
-            target.hurt(source, damage);
+            target.hurtOrSimulate(source, damage);
             Vec3 push = target.position().subtract(landPos);
             if (push.lengthSqr() < 1.0E-4) {
                 push = new Vec3(0, 0, 1);
             }
             push = push.normalize();
             target.push(push.x * LEAP_KNOCKBACK, LEAP_LIFT, push.z * LEAP_KNOCKBACK);
-            target.hasImpulse = true;
+            target.needsSync = true;
         }
     }
 
@@ -1948,7 +1945,7 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
         this.setDeltaMovement(Vec3.ZERO);
         this.getNavigation().stop();
         this.getMoveControl().setWantedPosition(getX(), getY(), getZ(), 0.0D);
-        this.hasImpulse = true;
+        this.needsSync = true;
         leapGroundedTicks = 0;
         getSoundHandler().playMovingEntitySound(ModSounds.IGNIVORUS_LEAP.get(), 1.0f, 1.0f, 58);
         return true;
@@ -2196,9 +2193,9 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
     }
 
     @Override
-    protected void customServerAiStep() {
+    protected void customServerAiStep(net.minecraft.server.level.ServerLevel saintsdragons$level) {
         DragonBrain.tick(DRAGON_BRAIN, this);
-        super.customServerAiStep();
+        super.customServerAiStep(saintsdragons$level);
     }
 
     @Override
@@ -3292,8 +3289,8 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void sdSave(CompoundTag tag) {
+        super.sdSave(tag);
         saveRideableData(tag);
         tag.putInt("TimeFlying", timeFlying);
         this.combatManager.saveToNBT(tag);
@@ -3311,41 +3308,41 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void sdLoad(CompoundTag tag) {
+        super.sdLoad(tag);
         if (!level().isClientSide()) {
             roostComponent.restoreMemories();
         }
         loadRideableData(tag);
-        this.timeFlying = tag.getInt("TimeFlying");
+        this.timeFlying = tag.getIntOr("TimeFlying", 0);
         this.combatManager.loadFromNBT(tag);
         if (tag.contains("FeedingCooldownTicks")) {
-            this.entityData.set(DATA_FEEDING_COOLDOWN, Math.max(0, tag.getInt("FeedingCooldownTicks")));
+            this.entityData.set(DATA_FEEDING_COOLDOWN, Math.max(0, tag.getIntOr("FeedingCooldownTicks", 0)));
         }
         if (tag.contains("Bulldozing")) {
-            bulldozing = tag.getBoolean("Bulldozing");
+            bulldozing = tag.getBooleanOr("Bulldozing", false);
             this.entityData.set(DATA_BULLDOZING, bulldozing);
         }
         if (tag.contains("BulldozeCooldownTicks")) {
-            bulldozeCooldownTicks = Math.max(0, tag.getInt("BulldozeCooldownTicks"));
+            bulldozeCooldownTicks = Math.max(0, tag.getIntOr("BulldozeCooldownTicks", 0));
         }
         if (tag.contains("Phase2Active")) {
-            phase2Active = tag.getBoolean("Phase2Active");
+            phase2Active = tag.getBooleanOr("Phase2Active", false);
             this.entityData.set(DATA_PHASE2, phase2Active);
         }
         if (tag.contains("WildLowHealthUltimateTriggered")) {
-            wildLowHealthUltimateTriggered = tag.getBoolean("WildLowHealthUltimateTriggered");
+            wildLowHealthUltimateTriggered = tag.getBooleanOr("WildLowHealthUltimateTriggered", false);
         } else if (tag.contains("WildPhase2UltimateTriggered")) {
-            wildLowHealthUltimateTriggered = tag.getBoolean("WildPhase2UltimateTriggered");
+            wildLowHealthUltimateTriggered = tag.getBooleanOr("WildPhase2UltimateTriggered", false);
         } else {
             wildLowHealthUltimateTriggered = phase2Active;
         }
-        wildPhase2PendingLanding = !phase2Active && !isTame() && tag.getBoolean("WildPhase2PendingLanding");
+        wildPhase2PendingLanding = !phase2Active && !isTame() && tag.getBooleanOr("WildPhase2PendingLanding", false);
         if (tag.contains("Phase2CooldownTicks")) {
-            phase2CooldownTicks = Math.max(0, tag.getInt("Phase2CooldownTicks"));
+            phase2CooldownTicks = Math.max(0, tag.getIntOr("Phase2CooldownTicks", 0));
         }
         boolean interruptedLeap = tag.getBoolean("Leaping")
-                || tag.getInt("LeapAnimState") != LEAP_STATE_NONE;
+                || tag.getIntOr("LeapAnimState", 0) != LEAP_STATE_NONE;
         leaping = false;
         leapWasVehicle = false;
         leapAnimState = LEAP_STATE_NONE;
@@ -3365,15 +3362,15 @@ public class Ignivorus extends RideableFlyingDragon implements ShakesScreen, Dra
             setDeltaMovement(Vec3.ZERO);
         }
         if (tag.contains("LeapCooldownTicks")) {
-            leapCooldownTicks = Math.max(0, tag.getInt("LeapCooldownTicks"));
+            leapCooldownTicks = Math.max(0, tag.getIntOr("LeapCooldownTicks", 0));
         }
         if (tag.contains("FireBreathEnergy")) {
-            setFireBreathEnergy(tag.getFloat("FireBreathEnergy"));
+            setFireBreathEnergy(tag.getFloatOr("FireBreathEnergy", 0.0F));
         } else {
             setFireBreathEnergy(1.0f);
         }
         if (tag.contains("FireBreathDepleted")) {
-            setFireBreathDepleted(tag.getBoolean("FireBreathDepleted"));
+            setFireBreathDepleted(tag.getBooleanOr("FireBreathDepleted", false));
         } else {
             setFireBreathDepleted(false);
         }

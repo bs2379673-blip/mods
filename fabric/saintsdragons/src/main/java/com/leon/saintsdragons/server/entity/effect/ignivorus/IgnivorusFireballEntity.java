@@ -256,7 +256,7 @@ public class IgnivorusFireballEntity extends Entity implements GeoEntity {
                 if (owner != null) owner.getCombatLearning().recordContact(learningTrial, target);
                 continue;
             }
-            boolean damaged = target.hurt(server.damageSources().explosion(this, owner != null ? owner : this), impactDamage);
+            boolean damaged = target.hurtOrSimulate(server.damageSources().explosion(this, owner != null ? owner : this), impactDamage);
             if (owner != null) {
                 if (damaged) owner.getCombatLearning().recordHit(learningTrial, target);
                 else owner.getCombatLearning().recordContact(learningTrial, target);
@@ -290,19 +290,19 @@ public class IgnivorusFireballEntity extends Entity implements GeoEntity {
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
         for (var player : server.players()) {
             if (player.distanceToSqr(impact) > 256.0D * 256.0D) continue;
-            server.sendParticles(player, ModParticles.CINDERVANE_IMPACT_EMITTER.get(), true,
+            server.sendParticles(player, ModParticles.CINDERVANE_IMPACT_EMITTER.get(), true, false,
                     impact.x, impact.y + 0.9D, impact.z, 72, 0.3D, 0.18D, 0.3D, 0);
-            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_TWO_IMPACT_EXPLOSION.get(), true,
+            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_TWO_IMPACT_EXPLOSION.get(), true, false,
                     impact.x, impact.y + 2.7D, impact.z, 1, 0, 0, 0, 0);
-            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_TWO_IMPACT_SMALL_EXPLOSION.get(), true,
+            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_TWO_IMPACT_SMALL_EXPLOSION.get(), true, false,
                     impact.x, impact.y + 1.35D, impact.z, 1, 0, 0, 0, 0);
-            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_TWO_IMPACT_TOON.get(), true,
+            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_TWO_IMPACT_TOON.get(), true, false,
                     impact.x, impact.y + 2.0D, impact.z, 1, 0, 0, 0, 0);
             if (ground.getType() == HitResult.Type.BLOCK) {
                 Vec3 point = ground.getLocation();
-                server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_TWO_IMPACT_GROUND.get(), true,
+                server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_TWO_IMPACT_GROUND.get(), true, false,
                         point.x, point.y + 0.04D, point.z, 1, 0, 0, 0, 0);
-                server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_TWO_IMPACT_CIRCLE.get(), true,
+                server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_TWO_IMPACT_CIRCLE.get(), true, false,
                         point.x, point.y + 0.07D, point.z, 1, 0, 0, 0, 0);
             }
         }
@@ -315,17 +315,17 @@ public class IgnivorusFireballEntity extends Entity implements GeoEntity {
         Vec3 point = ground.getLocation();
         for (var player : server.players()) {
             if (player.distanceToSqr(point) > 256.0D * 256.0D) continue;
-            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_THREE_GROUND_SMOKE.get(), true,
+            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_THREE_GROUND_SMOKE.get(), true, false,
                     point.x, point.y + 0.04D, point.z, 1, 0, 0, 0, 0);
-            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_THREE_GROUND_RING.get(), true,
+            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_THREE_GROUND_RING.get(), true, false,
                     point.x, point.y + 0.07D, point.z, 1, 0, 0, 0, 0);
-            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_THREE_GROUND_GLITTER.get(), true,
+            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_THREE_GROUND_GLITTER.get(), true, false,
                     point.x, point.y + 0.10D, point.z, 1, 0, 0, 0, 0);
-            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_THREE_SPLATTER_LARGE.get(), true,
+            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_THREE_SPLATTER_LARGE.get(), true, false,
                     point.x, point.y + 3.0D, point.z, 1, 0, 0, 0, 0);
-            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_THREE_SPLATTER_SMALL.get(), true,
+            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_THREE_SPLATTER_SMALL.get(), true, false,
                     point.x, point.y + 1.5D, point.z, 1, 0, 0, 0, 0);
-            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_THREE_TOON_EXPLOSION.get(), true,
+            server.sendParticles(player, ModParticles.IGNIVORUS_LEVEL_THREE_TOON_EXPLOSION.get(), true, false,
                     point.x, point.y + 4.0D, point.z, 1, 0, 0, 0, 0);
         }
     }
@@ -335,15 +335,15 @@ public class IgnivorusFireballEntity extends Entity implements GeoEntity {
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
         for (var player : server.players()) {
             if (player.distanceToSqr(impact) > 256.0D * 256.0D) continue;
-            server.sendParticles(player, ModParticles.CINDERVANE_IMPACT_EMITTER.get(), true,
+            server.sendParticles(player, ModParticles.CINDERVANE_IMPACT_EMITTER.get(), true, false,
                     impact.x, impact.y + 0.6D, impact.z, 48, 0.18D, 0.12D, 0.18D, 0);
-            server.sendParticles(player, ModParticles.IGNIVORUS_FIREBALL_EXPLOSION.get(), true,
+            server.sendParticles(player, ModParticles.IGNIVORUS_FIREBALL_EXPLOSION.get(), true, false,
                     impact.x, impact.y + 1.8D, impact.z, 1, 0, 0, 0, 0);
-            server.sendParticles(player, ModParticles.IGNIVORUS_FIREBALL_SMALL_EXPLOSION.get(), true,
+            server.sendParticles(player, ModParticles.IGNIVORUS_FIREBALL_SMALL_EXPLOSION.get(), true, false,
                     impact.x, impact.y + 0.9D, impact.z, 1, 0, 0, 0, 0);
             if (ground.getType() == HitResult.Type.BLOCK) {
                 Vec3 point = ground.getLocation();
-                server.sendParticles(player, ModParticles.IGNIVORUS_FIREBALL_GROUND_IMPACT.get(), true,
+                server.sendParticles(player, ModParticles.IGNIVORUS_FIREBALL_GROUND_IMPACT.get(), true, false,
                         point.x, point.y + 0.04D, point.z, 1, 0, 0, 0, 0);
             }
         }
@@ -435,24 +435,24 @@ public class IgnivorusFireballEntity extends Entity implements GeoEntity {
     }
 
 
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        this.livedTicks = tag.getInt("Lived");
-        this.distanceTravelled = tag.getDouble("DistanceTravelled");
-        this.lifetimeTicks = tag.getInt("Lifetime");
-        this.impactRadius = tag.getDouble("ImpactRadius");
-        this.impactDamage = tag.getFloat("ImpactDamage");
-        if (tag.contains("BlockState", CompoundTag.TAG_COMPOUND) && level() instanceof ServerLevel server) {
-            BlockState state = NbtUtils.readBlockState(server.holderLookup(Registries.BLOCK), tag.getCompound("BlockState"));
+    
+    protected void sdLoad(CompoundTag tag) {
+        this.livedTicks = tag.getIntOr("Lived", 0);
+        this.distanceTravelled = tag.getDoubleOr("DistanceTravelled", 0.0D);
+        this.lifetimeTicks = tag.getIntOr("Lifetime", 0);
+        this.impactRadius = tag.getDoubleOr("ImpactRadius", 0.0D);
+        this.impactDamage = tag.getFloatOr("ImpactDamage", 0.0F);
+        if (tag.contains("BlockState") && level() instanceof ServerLevel server) {
+            BlockState state = NbtUtils.readBlockState(server.holderLookup(Registries.BLOCK), tag.getCompoundOrEmpty("BlockState"));
             setBlockState(state.isAir() ? Blocks.MAGMA_BLOCK.defaultBlockState() : state);
         }
         if (tag.contains("Scale")) {
-            setVisualScale(tag.getFloat("Scale"));
+            setVisualScale(tag.getFloatOr("Scale", 0.0F));
         }
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
         tag.putInt("Lived", livedTicks);
         tag.putDouble("DistanceTravelled", distanceTravelled);
         tag.putInt("Lifetime", lifetimeTicks);
@@ -460,11 +460,6 @@ public class IgnivorusFireballEntity extends Entity implements GeoEntity {
         tag.putFloat("ImpactDamage", impactDamage);
         tag.put("BlockState", NbtUtils.writeBlockState(getBlockState()));
         tag.putFloat("Scale", getVisualScale());
-    }
-
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
     }
 
     @Override
@@ -494,9 +489,9 @@ public class IgnivorusFireballEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            return super.hurt(source, amount);
+            return super.hurtServer(saintsdragons$level, source, amount);
         }
         return false;
     }
@@ -507,7 +502,7 @@ public class IgnivorusFireballEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    public boolean isInvulnerableTo(DamageSource source) {
+    public boolean isInvulnerableTo(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source) {
         return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY);
     }
 
@@ -568,5 +563,18 @@ public class IgnivorusFireballEntity extends Entity implements GeoEntity {
             }
             return new SphereOffsets(dx, dy, dz, distance, count);
         }
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

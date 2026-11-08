@@ -35,14 +35,14 @@ public abstract class AbstractDragonInteractionHandler<T extends RideableDragonB
             if (!dragon.level().isClientSide()) {
                 dragon.tryBrush(player, heldItem);
             }
-            return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+            return InteractionResult.SUCCESS;
         }
 
         if (ModItems.isScalePlucker(heldItem)) {
             if (!dragon.level().isClientSide()) {
                 dragon.tryPluckScale(player, heldItem);
             }
-            return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+            return InteractionResult.SUCCESS;
         }
 
         if (isInteractionItem(heldItem)) {
@@ -96,7 +96,7 @@ public abstract class AbstractDragonInteractionHandler<T extends RideableDragonB
 
     protected InteractionResult handleStandardMounting(Player player) {
         if (!dragon.canOwnerMount(player) || dragon.isVehicle()) {
-            return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+            return InteractionResult.SUCCESS;
         }
         if (!dragon.level().isClientSide()) {
             dragon.prepareForMounting();
@@ -104,7 +104,7 @@ public abstract class AbstractDragonInteractionHandler<T extends RideableDragonB
                 return InteractionResult.FAIL;
             }
         }
-        return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     protected InteractionResult tryHandleGrowthStuntingFood(Player player,

@@ -320,7 +320,7 @@ public class AsyncWaterChaseTargetBehaviour<T extends RideableDragonBase> extend
                 verticalVelocity,
                 velocity.z + direction.z * correction
         );
-        dragon.hasImpulse = true;
+        dragon.needsSync = true;
     }
 
     private void resetShoreExit() {

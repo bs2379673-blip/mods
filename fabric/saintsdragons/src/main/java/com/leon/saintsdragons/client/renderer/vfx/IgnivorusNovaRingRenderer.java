@@ -48,11 +48,11 @@ public class IgnivorusNovaRingRenderer extends EntityRenderer<IgnivorusSkyfallRi
         frame = Math.min(frame, TOTAL_FRAMES - 1);
         Identifier texture = TEXTURES[frame];
 
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityTranslucent(texture));
+        VertexConsumer consumer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture));
 
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix = pose.pose();
-        Matrix3f normalMatrix = pose.setNormal();
+        Matrix3f normalMatrix = pose.normal();
 
         float size = scale * 16.0F;
 

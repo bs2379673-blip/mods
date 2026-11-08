@@ -123,7 +123,7 @@ public class FabricDragonPart extends Entity implements DragonPartEntity {
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         return isPickable() && hurtParent(source, amount);
     }
 
@@ -136,12 +136,12 @@ public class FabricDragonPart extends Entity implements DragonPartEntity {
     protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
     }
 
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
+    
+    protected void sdLoad(CompoundTag tag) {
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
     }
 
     @Override
@@ -152,11 +152,6 @@ public class FabricDragonPart extends Entity implements DragonPartEntity {
     @Override
     public boolean shouldBeSaved() {
         return false;
-    }
-
-    @Override
-    public @Nullable Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return null;
     }
 
     @Override
@@ -177,5 +172,18 @@ public class FabricDragonPart extends Entity implements DragonPartEntity {
     @Override
     public boolean isPushable() {
         return false;
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

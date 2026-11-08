@@ -110,11 +110,11 @@ public class VarasuchusSlashBarrageAbility extends DragonAbility<Varasuchus> {
         Vec3 push = dragon.getLookAngle().scale(0.25);
 
         for (LivingEntity target : targets) {
-            target.hurt(source, damage);
+            target.hurtOrSimulate(source, damage);
             target.setDeltaMovement(Vec3.ZERO);
             target.push(push.x * 0.1D, 0.0D, push.z * 0.1D);
             target.hurtMarked = true;
-            target.hasImpulse = true;
+            target.needsSync = true;
         }
     }
 

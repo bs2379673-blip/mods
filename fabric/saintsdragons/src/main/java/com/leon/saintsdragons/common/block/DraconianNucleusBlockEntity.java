@@ -238,7 +238,7 @@ public class DraconianNucleusBlockEntity extends BlockEntity {
         }
 
         EntityType<? extends AbstractDraconianSwarmEntity> type = getNextSwarmType();
-        AbstractDraconianSwarmEntity swarm = type.create(level);
+        AbstractDraconianSwarmEntity swarm = type.create(level, net.minecraft.world.entity.EntitySpawnReason.BREEDING);
         if (swarm != null && spawnSwarm(level, pos, swarm)) {
             if (this.currentWave == 1 && this.spawnedThisWave == 0) {
                 awardNearbyAdvancement(level, pos, "encounter_draconian_swarm", "encounter_draconian_swarm");
@@ -439,7 +439,7 @@ public class DraconianNucleusBlockEntity extends BlockEntity {
         super.saveAdditional(tag);
         tag.putString("EncounterState", this.encounterState.name());
         if (this.encounterId != null) {
-            tag.putUUID("EncounterId", this.encounterId);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "EncounterId", this.encounterId);
         }
         tag.putInt("CurrentWave", this.currentWave);
         tag.putInt("SpawnedThisWave", this.spawnedThisWave);
@@ -453,7 +453,7 @@ public class DraconianNucleusBlockEntity extends BlockEntity {
         tag.putBoolean("DeactivatedByController", this.deactivatedByController);
         tag.putBoolean("SummonEffectsActive", this.summonEffectsActive);
         if (this.ownerId != null) {
-            tag.putUUID("OwnerId", this.ownerId);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "OwnerId", this.ownerId);
         }
         long[] swarmIds = new long[this.activeSwarms.size() * 2];
         int index = 0;
@@ -468,25 +468,25 @@ public class DraconianNucleusBlockEntity extends BlockEntity {
     public void load(@NotNull CompoundTag tag) {
         super.load(tag);
         try {
-            this.encounterState = EncounterState.valueOf(tag.getString("EncounterState"));
+            this.encounterState = EncounterState.valueOf(tag.getStringOr("EncounterState", ""));
         } catch (IllegalArgumentException ignored) {
             this.encounterState = EncounterState.DORMANT;
         }
-        this.encounterId = tag.hasUUID("EncounterId") ? tag.getUUID("EncounterId") : null;
-        this.currentWave = tag.getInt("CurrentWave");
-        this.spawnedThisWave = tag.getInt("SpawnedThisWave");
-        this.remainingThisWave = tag.getInt("RemainingThisWave");
-        this.nextActionGameTime = tag.getLong("NextActionGameTime");
-        this.summonEffectsGameTime = tag.getLong("SummonEffectsGameTime");
-        this.controllerCooldownUntilGameTime = tag.getLong("ControllerCooldownUntilGameTime");
-        this.battleMusicStartGameTime = tag.getLong("BattleMusicStartGameTime");
-        this.controllerActivationOnly = tag.getBoolean("ControllerActivationOnly");
-        this.harvestUnlocked = tag.getBoolean("HarvestUnlocked") || this.encounterState == EncounterState.COMPLETE;
-        this.deactivatedByController = tag.getBoolean("DeactivatedByController");
-        this.summonEffectsActive = tag.getBoolean("SummonEffectsActive");
-        this.ownerId = tag.hasUUID("OwnerId") ? tag.getUUID("OwnerId") : null;
+        this.encounterId = com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, "EncounterId") ? com.leon.saintsdragons.util.compat.Compat.getUUID(tag, "EncounterId") : null;
+        this.currentWave = tag.getIntOr("CurrentWave", 0);
+        this.spawnedThisWave = tag.getIntOr("SpawnedThisWave", 0);
+        this.remainingThisWave = tag.getIntOr("RemainingThisWave", 0);
+        this.nextActionGameTime = tag.getLongOr("NextActionGameTime", 0L);
+        this.summonEffectsGameTime = tag.getLongOr("SummonEffectsGameTime", 0L);
+        this.controllerCooldownUntilGameTime = tag.getLongOr("ControllerCooldownUntilGameTime", 0L);
+        this.battleMusicStartGameTime = tag.getLongOr("BattleMusicStartGameTime", 0L);
+        this.controllerActivationOnly = tag.getBooleanOr("ControllerActivationOnly", false);
+        this.harvestUnlocked = tag.getBooleanOr("HarvestUnlocked", false) || this.encounterState == EncounterState.COMPLETE;
+        this.deactivatedByController = tag.getBooleanOr("DeactivatedByController", false);
+        this.summonEffectsActive = tag.getBooleanOr("SummonEffectsActive", false);
+        this.ownerId = com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, "OwnerId") ? com.leon.saintsdragons.util.compat.Compat.getUUID(tag, "OwnerId") : null;
         this.activeSwarms.clear();
-        long[] swarmIds = tag.getLongArray("ActiveSwarms");
+        long[] swarmIds = tag.getLongArray("ActiveSwarms").orElse(new long[0]);
         for (int index = 0; index + 1 < swarmIds.length; index += 2) {
             this.activeSwarms.add(new UUID(swarmIds[index], swarmIds[index + 1]));
         }

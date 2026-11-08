@@ -85,7 +85,7 @@ public class IgnivorusGlowLayer extends GeoRenderLayer<Ignivorus> {
         }
 
         Identifier glowTexture = getGlowTexture(animatable);
-        RenderType glowType = RenderType.entityTranslucent(glowTexture);
+        RenderType glowType = net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(glowTexture);
         VertexConsumer glowBuffer = bufferSource.getBuffer(glowType);
 
         getRenderer().reRender(

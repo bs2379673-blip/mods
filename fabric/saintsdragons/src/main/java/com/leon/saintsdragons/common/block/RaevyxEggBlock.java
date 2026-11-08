@@ -93,8 +93,8 @@ public class RaevyxEggBlock extends BaseEntityBlock {
         Raevyx baby = ModEntities.RAEVYX.get().create(level);
         if (baby != null) {
             if (eggEntity != null) {
-                if (eggEntity.getOwnerUUID() != null) {
-                    baby.setOwnerUUID(eggEntity.getOwnerUUID());
+                if (com.leon.saintsdragons.util.compat.Compat.ownerUUID(eggEntity) != null) {
+                    com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(baby, com.leon.saintsdragons.util.compat.Compat.ownerUUID(eggEntity));
                     baby.setTame(true);
                 }
                 if (eggEntity.getBabyGender() != null) {
@@ -112,8 +112,8 @@ public class RaevyxEggBlock extends BaseEntityBlock {
             baby.setHealth(baby.getMaxHealth());
             baby.snapTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, 0.0F, 0.0F);
             if (level.addFreshEntity(baby)) {
-                if (baby.isTame() && baby.getOwnerUUID() != null) {
-                    DragonCodexSavedData.get(level).addDragon(baby.getOwnerUUID(), baby);
+                if (baby.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(baby) != null) {
+                    DragonCodexSavedData.get(level).addDragon(com.leon.saintsdragons.util.compat.Compat.ownerUUID(baby), baby);
                 }
                 level.gameEvent(GameEvent.ENTITY_PLACE, pos, GameEvent.Context.of(baby));
             }

@@ -231,8 +231,8 @@ public class Mossback extends Animal implements TickingGeoEntity {
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
-        boolean hurt = super.hurt(source, amount);
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
+        boolean hurt = super.hurtServer(saintsdragons$level, source, amount);
         if (hurt && amount > 0.0F && !this.level().isClientSide()) {
             releaseToxin();
         }
@@ -273,11 +273,11 @@ public class Mossback extends Animal implements TickingGeoEntity {
             this.discard();
         }
 
-        return InteractionResult.sidedSuccess(this.level().isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public boolean causeFallDamage(float fallDistance, float damageMultiplier, @NotNull DamageSource source) {
+    public boolean causeFallDamage(double fallDistance, float damageMultiplier, @NotNull DamageSource source) {
         return false;
     }
 
@@ -286,9 +286,9 @@ public class Mossback extends Animal implements TickingGeoEntity {
     }
 
     @Override
-    protected void dropFromLootTable(@NotNull DamageSource source, boolean recentlyHit) {
+    protected void dropFromLootTable(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, boolean recentlyHit) {
         if (!isBaby()) {
-            super.dropFromLootTable(source, recentlyHit);
+            super.dropFromLootTable(saintsdragons$level, source, recentlyHit);
         }
     }
 
@@ -338,23 +338,21 @@ public class Mossback extends Animal implements TickingGeoEntity {
         }
     }
 
-    @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    
+    protected void sdSave(CompoundTag tag) {
         tag.putBoolean("Thrown", isThrown());
         tag.putBoolean("ThrownAirborne", isThrownAirborne());
         tag.putInt("LandedTicks", getLandedTicks());
     }
 
-    @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    
+    protected void sdLoad(CompoundTag tag) {
         if (!level().isClientSide()) {
             applyAgeAttributes(false);
         }
-        setThrown(tag.getBoolean("Thrown"));
-        setThrownAirborne(tag.getBoolean("ThrownAirborne"));
-        setLandedTicks(tag.getInt("LandedTicks"));
+        setThrown(tag.getBooleanOr("Thrown", false));
+        setThrownAirborne(tag.getBooleanOr("ThrownAirborne", false));
+        setLandedTicks(tag.getIntOr("LandedTicks", 0));
     }
 
     @Override
@@ -418,4 +416,19 @@ public class Mossback extends Animal implements TickingGeoEntity {
         }
     }
 
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        super.addAdditionalSaveData(saintsdragonsOut);
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        super.readAdditionalSaveData(saintsdragonsIn);
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
+    }
 }

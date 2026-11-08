@@ -18,6 +18,6 @@ public interface DragonPartEntity {
                 || parent.level() != part.level() || !Float.isFinite(amount) || amount <= 0
                 || part.isInvulnerableTo(source)) return false;
         if (part.level().isClientSide()) return !parent.isInvulnerableTo(source);
-        return parent.hurt(source, amount * getDamageMultiplier());
+        return parent.hurtOrSimulate(source, amount * getDamageMultiplier());
     }
 }

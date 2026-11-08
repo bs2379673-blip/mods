@@ -113,7 +113,7 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
         ItemStack copied = stack.copy();
         CompoundTag tag = copied.getOrCreateTag();
 
-        tag.putUUID(BinderComponentUtil.BOUND_DRAGON_UUID, dragon.getUUID());
+        com.leon.saintsdragons.util.compat.Compat.putUUID(tag, BinderComponentUtil.BOUND_DRAGON_UUID, dragon.getUUID());
         tag.putString(BinderComponentUtil.BOUND_DRAGON_NAME, dragon.getName().getString());
 
         if (dragon.hasCustomName()) {
@@ -130,7 +130,7 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
 
         LivingEntity owner = dragon.getOwner();
         if (owner instanceof Player ownerPlayer) {
-            tag.putUUID(BinderComponentUtil.BOUND_OWNER_UUID, ownerPlayer.getUUID());
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, BinderComponentUtil.BOUND_OWNER_UUID, ownerPlayer.getUUID());
             tag.putString(BinderComponentUtil.BOUND_OWNER_NAME, ownerPlayer.getName().getString());
         } else {
             tag.remove(BinderComponentUtil.BOUND_OWNER_UUID);
@@ -162,7 +162,7 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return;
         }
-        var advancement = serverPlayer.server.getAdvancements()
+        var advancement = serverPlayer.level().getServer().getAdvancements()
                 .getAdvancement(SaintsDragonsCommon.rl("pocket_dragon"));
         if (advancement != null) {
             serverPlayer.getAdvancements().award(advancement, "bind_dragon");
@@ -185,13 +185,13 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
             return false;
         }
 
-        String dragonName = tag.getString(BinderComponentUtil.BOUND_DRAGON_NAME);
+        String dragonName = tag.getStringOr(BinderComponentUtil.BOUND_DRAGON_NAME, "");
         UUID originalUUID = tag.getUUID(BinderComponentUtil.BOUND_DRAGON_UUID);
         T newDragon = createDragon(serverLevel);
 
         if (tag.contains(getDragonDataKey())) {
             try {
-                CompoundTag dragonData = tag.getCompound(getDragonDataKey());
+                CompoundTag dragonData = tag.getCompoundOrEmpty(getDragonDataKey());
                 newDragon.load(dragonData);
                 newDragon.setBoundInBinder(false);
             } catch (Exception e) {
@@ -206,11 +206,11 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
 
         if (ownerUUID != null) {
             newDragon.setTame(true);
-            newDragon.setOwnerUUID(ownerUUID);
+            com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(newDragon, ownerUUID);
         } else {
             // Do not register a Codex entry until the reconstructed entity is actually accepted by the level.
             newDragon.setTame(true);
-            newDragon.setOwnerUUID(player.getUUID());
+            com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(newDragon, player.getUUID());
         }
 
         if (tag.contains(BinderComponentUtil.BOUND_CUSTOM_NAME)) {
@@ -303,21 +303,20 @@ public abstract class AbstractDragonBinderItem<T extends DragonEntity> extends I
 
     @Override
     @Environment(EnvType.CLIENT)
-    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip,
-                                @NotNull TooltipFlag flag) {
-        tooltip.add(Component.translatable(getTooltipDescriptionKey()));
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext saintsdragons$ctx, net.minecraft.world.item.component.TooltipDisplay saintsdragons$display, java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip, TooltipFlag flag) {
+        tooltip.accept(Component.translatable(getTooltipDescriptionKey()));
         if (BinderComponentUtil.isBound(stack)) {
             String dragonName = BinderComponentUtil.getBoundDragonName(stack);
             if (dragonName != null && !dragonName.isEmpty()) {
-                tooltip.add(Component.translatable(getTooltipBoundKey(), dragonName));
+                tooltip.accept(Component.translatable(getTooltipBoundKey(), dragonName));
             }
             appendExtraBoundTooltip(tooltip, dragonName);
             if (shouldShowReleaseTooltipWhenBound()) {
-                tooltip.add(Component.translatable(getBoundReleaseTooltipKey()));
+                tooltip.accept(Component.translatable(getBoundReleaseTooltipKey()));
             }
         } else {
-            tooltip.add(Component.translatable(getTooltipEmptyKey()));
-            tooltip.add(Component.translatable(getTooltipBindHintKey()));
+            tooltip.accept(Component.translatable(getTooltipEmptyKey()));
+            tooltip.accept(Component.translatable(getTooltipBindHintKey()));
         }
     }
 

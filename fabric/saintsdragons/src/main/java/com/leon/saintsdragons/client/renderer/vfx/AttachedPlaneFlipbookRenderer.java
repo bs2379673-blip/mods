@@ -78,14 +78,14 @@ public final class AttachedPlaneFlipbookRenderer {
         }
         PoseStack.Pose pose = poseStack.last();
         int frame = Math.min(textures.length - 1, Mth.floor(age / frameTicks));
-        VertexConsumer consumer = buffers.getBuffer(RenderType.entityTranslucent(textures[frame]));
+        VertexConsumer consumer = buffers.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(textures[frame]));
         float cos = Mth.cos(angle);
         float sin = Mth.sin(angle);
         // Same plane, winding and unculled render type as the attached wind effects.
-        vertex(consumer, pose.pose(), pose.setNormal(), -size, -size, style.forwardOffset(), cos, sin, 0, 1, red, green, blue, alpha);
-        vertex(consumer, pose.pose(), pose.setNormal(), size, -size, style.forwardOffset(), cos, sin, 1, 1, red, green, blue, alpha);
-        vertex(consumer, pose.pose(), pose.setNormal(), size, size, style.forwardOffset(), cos, sin, 1, 0, red, green, blue, alpha);
-        vertex(consumer, pose.pose(), pose.setNormal(), -size, size, style.forwardOffset(), cos, sin, 0, 0, red, green, blue, alpha);
+        vertex(consumer, pose.pose(), pose.normal(), -size, -size, style.forwardOffset(), cos, sin, 0, 1, red, green, blue, alpha);
+        vertex(consumer, pose.pose(), pose.normal(), size, -size, style.forwardOffset(), cos, sin, 1, 1, red, green, blue, alpha);
+        vertex(consumer, pose.pose(), pose.normal(), size, size, style.forwardOffset(), cos, sin, 1, 0, red, green, blue, alpha);
+        vertex(consumer, pose.pose(), pose.normal(), -size, size, style.forwardOffset(), cos, sin, 0, 0, red, green, blue, alpha);
     }
 
     private static void vertex(VertexConsumer consumer, Matrix4f matrix, Matrix3f normal,

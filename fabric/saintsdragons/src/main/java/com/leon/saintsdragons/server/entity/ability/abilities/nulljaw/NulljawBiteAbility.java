@@ -91,7 +91,7 @@ public final class NulljawBiteAbility extends DragonAbility<Nulljaw> {
         DamageSource source = dragon.level().damageSources().mobAttack(dragon);
         float damage = dragon.getConfiguredAbilityDamage("bite", BASE_DAMAGE)
                 * dragon.getHungerMeleeDamageMultiplier();
-        if (target.hurt(source, damage)) {
+        if (target.hurtOrSimulate(source, damage)) {
             Vec3 push = dragon.getLookAngle().scale(0.2D);
             target.push(push.x, 0.05D, push.z);
         }

@@ -51,8 +51,8 @@ public final class RaevyxStormSavedData extends SavedData {
 
     private static RaevyxStormSavedData load(CompoundTag tag) {
         RaevyxStormSavedData state = new RaevyxStormSavedData();
-        state.summonedStorm = tag.getBoolean("SummonedStorm");
-        state.naturalThunderTicks = Math.max(0, tag.getInt("NaturalThunderTicks"));
+        state.summonedStorm = tag.getBooleanOr("SummonedStorm", false);
+        state.naturalThunderTicks = Math.max(0, tag.getIntOr("NaturalThunderTicks", 0));
         return state;
     }
 

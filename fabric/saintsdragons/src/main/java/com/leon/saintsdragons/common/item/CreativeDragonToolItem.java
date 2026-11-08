@@ -84,12 +84,12 @@ public final class CreativeDragonToolItem extends Item {
                         ? message : Component.literal(exception.getMessage()), true);
             }
         }
-        return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("item.saintsdragons.creative_dragon_tool.creative_only").withStyle(ChatFormatting.GOLD));
-        tooltip.add(Component.translatable(getDescriptionId() + ".desc").withStyle(ChatFormatting.GRAY));
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext saintsdragons$ctx, net.minecraft.world.item.component.TooltipDisplay saintsdragons$display, java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip, TooltipFlag flag) {
+        tooltip.accept(Component.translatable("item.saintsdragons.creative_dragon_tool.creative_only").withStyle(ChatFormatting.GOLD));
+        tooltip.accept(Component.translatable(getDescriptionId() + ".desc").withStyle(ChatFormatting.GRAY));
     }
 }

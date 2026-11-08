@@ -120,7 +120,7 @@ public class IgnivorusBodySlamAbility extends DragonAbility<Ignivorus> {
         DamageSource source = server.damageSources().mobAttack(dragon);
 
         for (LivingEntity target : targets) {
-            target.hurt(source, damage);
+            target.hurtOrSimulate(source, damage);
 
             Vec3 push = target.position().subtract(dragon.position());
             if (push.lengthSqr() < 1.0E-4) {
@@ -129,7 +129,7 @@ public class IgnivorusBodySlamAbility extends DragonAbility<Ignivorus> {
             push = push.normalize();
             double scaledPush = PUSH_STRENGTH + dragon.getBbWidth() * 0.15D;
             target.push(push.x * scaledPush, LIFT_FORCE, push.z * scaledPush);
-            target.hasImpulse = true;
+            target.needsSync = true;
         }
     }
 

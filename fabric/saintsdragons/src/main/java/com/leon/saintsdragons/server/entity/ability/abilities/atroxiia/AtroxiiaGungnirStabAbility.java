@@ -117,7 +117,7 @@ public class AtroxiiaGungnirStabAbility extends DragonAbility<Atroxiia> {
                 target -> !dragon.isAlly(target)
         );
         for (LivingEntity target : targets) {
-            target.hurt(dragon.level().damageSources().magic(), damage);
+            target.hurtOrSimulate(dragon.level().damageSources().magic(), damage);
             AtroxiiaFrostImpact.apply(dragon, target, stunTicks);
         }
     }

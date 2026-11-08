@@ -61,7 +61,7 @@ public final class IgnivorusBreathStream {
         FireBreathParticleData particle = new FireBreathParticleData((float) section.range(), 1.0F, 1.0F, dragon.getId());
         for (ServerPlayer viewer : level.players()) {
             if (viewer.position().distanceToSqr(origin) <= VFX_VIEWER_RANGE * VFX_VIEWER_RANGE) {
-                level.sendParticles(viewer, particle, true, origin.x, origin.y, origin.z, 0,
+                level.sendParticles(viewer, particle, true, false, origin.x, origin.y, origin.z, 0,
                         velocity.x, velocity.y, velocity.z, 1);
             }
         }
@@ -86,7 +86,7 @@ public final class IgnivorusBreathStream {
                 return false;
             }
             // Preserve vanilla hurt immunity, shields, armor and damage-event cancellation.
-            if (damage > 0 && target.hurt(level.damageSources().mobAttack(dragon), damage)) {
+            if (damage > 0 && target.hurtOrSimulate(level.damageSources().mobAttack(dragon), damage)) {
                 dragon.getCombatLearning().recordHit(payload.learningTrial, target);
                 target.igniteForSeconds(3);
                 return true;

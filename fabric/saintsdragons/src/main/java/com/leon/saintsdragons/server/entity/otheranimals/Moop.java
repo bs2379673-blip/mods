@@ -74,7 +74,7 @@ public class Moop extends AbstractFish implements GeoEntity {
     @Override
     protected void dropCustomDeathLoot(@NotNull DamageSource damageSource, int looting, boolean recentlyHit) {
         super.dropCustomDeathLoot(damageSource, looting, recentlyHit);
-        this.spawnAtLocation(this.isOnFire() || this.getRemainingFireTicks() > 0
+        this.spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), this.isOnFire() || this.getRemainingFireTicks() > 0
                 ? ModItems.COOKED_MOOP.get()
                 : ModItems.RAW_MOOP.get());
     }

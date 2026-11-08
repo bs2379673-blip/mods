@@ -74,7 +74,7 @@ public final class NulljawBreedBehaviour extends DragonBreedBehaviour<Nulljaw> {
             return;
         }
 
-        Nulljaw parentForOffspring = dragon.getOwnerUUID() != null ? dragon : partner;
+        Nulljaw parentForOffspring = com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon) != null ? dragon : partner;
         Nulljaw otherParent = parentForOffspring == dragon ? partner : dragon;
         AgeableMob offspring = parentForOffspring.getBreedOffspring(level, otherParent);
         if (!(offspring instanceof Nulljaw baby)) {
@@ -100,8 +100,8 @@ public final class NulljawBreedBehaviour extends DragonBreedBehaviour<Nulljaw> {
         if (!level.addFreshEntity(baby)) {
             return;
         }
-        if (baby.isTame() && baby.getOwnerUUID() != null) {
-            DragonCodexSavedData.get(level).addDragon(baby.getOwnerUUID(), baby);
+        if (baby.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(baby) != null) {
+            DragonCodexSavedData.get(level).addDragon(com.leon.saintsdragons.util.compat.Compat.ownerUUID(baby), baby);
         }
         level.broadcastEntityEvent(dragon, (byte)18);
 

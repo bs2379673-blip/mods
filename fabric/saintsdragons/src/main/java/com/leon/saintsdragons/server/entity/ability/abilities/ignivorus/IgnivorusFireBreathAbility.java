@@ -263,7 +263,7 @@ public class IgnivorusFireBreathAbility extends DragonAbility<Ignivorus> {
             openingBurstEmitted = true;
             for (ServerPlayer viewer : level.players()) {
                 if (viewer.distanceToSqr(origin) <= 128.0 * 128.0) {
-                    level.sendParticles(viewer, new FireBreathBurstData(dragon.getId()), true,
+                    level.sendParticles(viewer, new FireBreathBurstData(dragon.getId()), true, false,
                             origin.x, origin.y, origin.z, 1, 0, 0, 0, 0);
                 }
             }

@@ -137,7 +137,7 @@ public abstract class RideableGroundDragon extends RideableDragonBase implements
                     getRiderJumpForwardBoost() * Mth.cos(yawRad) * charge
             ));
         }
-        hasImpulse = true;
+        needsSync = true;
         hurtMarked = true;
         fallDistance = 0.0F;
         riderJumping = true;

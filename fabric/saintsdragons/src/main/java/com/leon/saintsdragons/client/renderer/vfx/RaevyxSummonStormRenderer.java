@@ -143,7 +143,7 @@ public final class RaevyxSummonStormRenderer {
         double halfX = bounds.getXsize() * 0.5D;
         double halfY = bounds.getYsize() * 0.5D;
         double halfZ = bounds.getZsize() * 0.5D;
-        var vertices = buffers.getBuffer(RenderType.lightning());
+        var vertices = buffers.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lightning());
         for (int slot = 0; slot < OUTWARD_BOLT_COUNT; slot++) {
             float time = age - slot * 0.45F;
             if (time < 0) continue;

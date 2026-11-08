@@ -419,7 +419,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
 
     @Override
     public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull EntitySpawnReason spawnType,
-                                                 @Nullable SpawnGroupData spawnData, @Nullable CompoundTag dataTag) {
+                                                 @Nullable SpawnGroupData spawnData) {
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnType, spawnData, dataTag);
 
         if (spawnType == EntitySpawnReason.CHUNK_GENERATION || spawnType == EntitySpawnReason.NATURAL) {
@@ -432,7 +432,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
             }
         }
         if (!this.isTame()) {
-            this.setOwnerUUID(null);
+            com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(this, null);
             this.setCommand(2);
             this.setOrderedToSit(false);
         }
@@ -809,9 +809,9 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
     }
 
     @Override
-    protected void customServerAiStep() {
+    protected void customServerAiStep(net.minecraft.server.level.ServerLevel saintsdragons$level) {
         DragonBrain.tick(DRAGON_BRAIN, this);
-        super.customServerAiStep();
+        super.customServerAiStep(saintsdragons$level);
     }
 
     @Override
@@ -873,7 +873,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
         }
         if (passenger instanceof IvyTheDragonMerchant ivy
                 && ivy.isTame()
-                && Objects.equals(ivy.getOwnerUUID(), getOwnerUUID())) {
+                && Objects.equals(com.leon.saintsdragons.util.compat.Compat.ownerUUID(ivy), com.leon.saintsdragons.util.compat.Compat.ownerUUID(this))) {
             return hasSaddle() && this.getPassengers().size() < getMaxPassengers();
         }
         if (autoGrabPassengerMountAllowed && passenger instanceof LivingEntity) {
@@ -1297,17 +1297,17 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
                 ClipContext.Fluid.NONE, this));
         for (ServerPlayer player : server.players()) {
             if (player.distanceToSqr(impact) > 256.0D * 256.0D) continue;
-            server.sendParticles(player, ModParticles.CINDERVANE_CRASH_SPLATTER.get(), true,
+            server.sendParticles(player, ModParticles.CINDERVANE_CRASH_SPLATTER.get(), true, false,
                     impact.x, impact.y + 3.1D, impact.z, 1, 0, 0, 0, 0);
-            server.sendParticles(player, ModParticles.CINDERVANE_CRASH_FIRE.get(), true,
+            server.sendParticles(player, ModParticles.CINDERVANE_CRASH_FIRE.get(), true, false,
                     impact.x, impact.y + 3.0D, impact.z, 1, 0, 0, 0, 0);
-            server.sendParticles(player, ModParticles.CINDERVANE_IMPACT_EMITTER.get(), true,
+            server.sendParticles(player, ModParticles.CINDERVANE_IMPACT_EMITTER.get(), true, false,
                     impact.x, impact.y + 0.8D, impact.z, 64, 1.5D, 0.4D, 1.5D, 0);
             if (ground.getType() == HitResult.Type.BLOCK) {
                 Vec3 point = ground.getLocation();
-                server.sendParticles(player, ModParticles.CINDERVANE_CRASH_GROUND.get(), true,
+                server.sendParticles(player, ModParticles.CINDERVANE_CRASH_GROUND.get(), true, false,
                         point.x, point.y + 0.04D, point.z, 1, 0, 0, 0, 0);
-                server.sendParticles(player, ModParticles.CINDERVANE_CRASH_CIRCLE.get(), true,
+                server.sendParticles(player, ModParticles.CINDERVANE_CRASH_CIRCLE.get(), true, false,
                         point.x, point.y + 0.07D, point.z, 1, 0, 0, 0, 0);
             }
         }
@@ -1361,7 +1361,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
         }
 
         for (LivingEntity target : targets) {
-            if (target.hurt(server.damageSources().explosion(this, this), blastDamage)) {
+            if (target.hurtOrSimulate(server.damageSources().explosion(this, this), blastDamage)) {
                 target.igniteForSeconds(8);
             }
         }
@@ -1375,7 +1375,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
         if (selfDamage <= 0.0F) {
             return;
         }
-        this.hurt(server.damageSources().explosion(this, this), selfDamage);
+        this.hurtOrSimulate(server.damageSources().explosion(this, this), selfDamage);
     }
 
     private void carveFireBodyImprint(ServerLevel server, BlockPos center) {
@@ -1529,7 +1529,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         if (isDying()) {
             return false;
         }
@@ -1554,7 +1554,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
             suppressSleep(200);
         }
 
-        return super.hurt(source, amount);
+        return super.hurtServer(saintsdragons$level, source, amount);
     }
 
     @Override
@@ -1594,7 +1594,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
     }
 
     @Override
-    public boolean doHurtTarget(@NotNull Entity target) {
+    public boolean doHurtTarget(net.minecraft.server.level.ServerLevel saintsdragons$level, Entity target) {
         if (!this.isVehicle() && !this.isOrderedToSit()) {
             combatManager.tryUseAbility(getPrimaryAttackAbility());
         }
@@ -1637,7 +1637,7 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
         for (int slot = 0; slot < cindervaneChestInventory.getContainerSize(); slot++) {
             ItemStack stack = cindervaneChestInventory.getItem(slot);
             if (!stack.isEmpty()) {
-                this.spawnAtLocation(stack.copy());
+                this.spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), stack.copy());
                 cindervaneChestInventory.setItem(slot, ItemStack.EMPTY);
             }
         }
@@ -1719,11 +1719,11 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
     private void dropEquipmentOnDeath() {
         if (hasCindervaneChest()) {
             dropCindervaneChestContents();
-            spawnAtLocation(Items.CHEST);
+            spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), Items.CHEST);
             setCindervaneChest(false);
         }
         if (hasSaddle()) {
-            spawnAtLocation(Items.SADDLE);
+            spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), Items.SADDLE);
             setSaddle(false);
         }
     }
@@ -1735,14 +1735,14 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void sdSave(CompoundTag tag) {
+        super.sdSave(tag);
         tag.putInt("TimeFlying", timeFlying);
         saveRideableData(tag);
         tag.putInt("FeedingCooldownTicks", Math.max(0, this.entityData.get(DATA_FEEDING_COOLDOWN)));
 
         if (this.packLeaderUuid != null) {
-            tag.putUUID("PackLeaderUuid", this.packLeaderUuid);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "PackLeaderUuid", this.packLeaderUuid);
         }
         tag.putBoolean("CindervaneHasChest", hasCindervaneChest());
         tag.putBoolean("CindervaneSaddled", hasSaddle());
@@ -1752,13 +1752,13 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void sdLoad(CompoundTag tag) {
+        super.sdLoad(tag);
 
         loadRideableData(tag);
-        boolean savedFlying = tag.getBoolean("Flying");
-        this.timeFlying = tag.getInt("TimeFlying");
-        this.packLeaderUuid = tag.hasUUID("PackLeaderUuid") ? tag.getUUID("PackLeaderUuid") : null;
+        boolean savedFlying = tag.getBooleanOr("Flying", false);
+        this.timeFlying = tag.getIntOr("TimeFlying", 0);
+        this.packLeaderUuid = com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, "PackLeaderUuid") ? com.leon.saintsdragons.util.compat.Compat.getUUID(tag, "PackLeaderUuid") : null;
         if (this.isTame()) {
             this.packLeaderUuid = null;
         }
@@ -1771,15 +1771,15 @@ public class Cindervane extends RideableFlyingDragon implements ShakesScreen, Pa
 
         this.setNoGravity(isFlying() || isHovering());
         if (tag.contains("FeedingCooldownTicks")) {
-            this.entityData.set(DATA_FEEDING_COOLDOWN, Math.max(0, tag.getInt("FeedingCooldownTicks")));
+            this.entityData.set(DATA_FEEDING_COOLDOWN, Math.max(0, tag.getIntOr("FeedingCooldownTicks", 0)));
         }
-        boolean restoredChest = tag.getBoolean("CindervaneHasChest");
+        boolean restoredChest = tag.getBooleanOr("CindervaneHasChest", false);
         boolean restoredSaddle = restoredChest
-                || tag.contains("CindervaneSaddled") && tag.getBoolean("CindervaneSaddled");
+                || tag.contains("CindervaneSaddled") && tag.getBooleanOr("CindervaneSaddled", false);
         setSaddle(restoredSaddle);
         setCindervaneChest(restoredChest);
-        if (hasCindervaneChest() && tag.contains("CindervaneChestItems", Tag.TAG_LIST)) {
-            cindervaneChestInventory.fromTag(tag.getList("CindervaneChestItems", Tag.TAG_COMPOUND));
+        if (hasCindervaneChest() && tag.contains("CindervaneChestItems")) {
+            cindervaneChestInventory.fromTag(tag.getListOrEmpty("CindervaneChestItems"));
         }
         if (!level().isClientSide()) {
             this.tickCount = 0;

@@ -183,51 +183,59 @@ public class GroundFissureEntity extends Entity {
                 continue;
             }
 
-            if (target.hurt(server.damageSources().playerAttack(owner), damage)) {
+            if (target.hurtOrSimulate(server.damageSources().playerAttack(owner), damage)) {
                 nextDamageTicks.put(targetId, age + DAMAGE_INTERVAL);
             }
         }
     }
 
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        age = tag.getInt("Age");
-        duration = tag.contains("Duration") ? Math.max(1, tag.getInt("Duration")) : 1;
-        if (tag.hasUUID("Owner")) {
-            ownerUuid = tag.getUUID("Owner");
+    
+    protected void sdLoad(CompoundTag tag) {
+        age = tag.getIntOr("Age", 0);
+        duration = tag.contains("Duration") ? Math.max(1, tag.getIntOr("Duration", 0)) : 1;
+        if (com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, "Owner")) {
+            ownerUuid = com.leon.saintsdragons.util.compat.Compat.getUUID(tag, "Owner");
         }
-        damageRadius = tag.getFloat("DamageRadius");
-        damage = tag.getFloat("Damage");
+        damageRadius = tag.getFloatOr("DamageRadius", 0.0F);
+        damage = tag.getFloatOr("Damage", 0.0F);
         nextDamageTicks.clear();
-        int cooldownCount = tag.getInt("CooldownCount");
+        int cooldownCount = tag.getIntOr("CooldownCount", 0);
         for (int i = 0; i < cooldownCount; i++) {
             String key = "CooldownTarget" + i;
-            if (tag.hasUUID(key)) {
-                nextDamageTicks.put(tag.getUUID(key), tag.getInt("CooldownTick" + i));
+            if (com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, key)) {
+                nextDamageTicks.put(com.leon.saintsdragons.util.compat.Compat.getUUID(tag, key), tag.getIntOr("CooldownTick" + i, 0));
             }
         }
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
         tag.putInt("Age", age);
         tag.putInt("Duration", duration);
         if (ownerUuid != null) {
-            tag.putUUID("Owner", ownerUuid);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "Owner", ownerUuid);
         }
         tag.putFloat("DamageRadius", damageRadius);
         tag.putFloat("Damage", damage);
         tag.putInt("CooldownCount", nextDamageTicks.size());
         int index = 0;
         for (Map.Entry<UUID, Integer> cooldown : nextDamageTicks.entrySet()) {
-            tag.putUUID("CooldownTarget" + index, cooldown.getKey());
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "CooldownTarget" + index, cooldown.getKey());
             tag.putInt("CooldownTick" + index, cooldown.getValue());
             index++;
         }
     }
 
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
     @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

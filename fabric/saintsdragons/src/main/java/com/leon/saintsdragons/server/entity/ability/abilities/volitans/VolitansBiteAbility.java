@@ -112,7 +112,7 @@ public class VolitansBiteAbility extends DragonAbility<Volitans> {
         float damage = dragon.getConfiguredAbilityDamage("bite", BASE_DAMAGE);
         damage *= dragon.getHungerMeleeDamageMultiplier();
 
-        target.hurt(source, damage);
+        target.hurtOrSimulate(source, damage);
         Vec3 push = dragon.getLookAngle().scale(0.30);
         target.push(push.x, 0.1, push.z);
     }

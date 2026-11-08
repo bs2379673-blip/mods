@@ -157,7 +157,7 @@ public final class AtroxiiaSlitherAbility extends DragonAbility<Atroxiia> {
             if (contactHitCooldowns.containsKey(target.getId())) {
                 continue;
             }
-            if (!target.hurt(dragon.level().damageSources().mobAttack(dragon), contactDamage)) {
+            if (!target.hurtOrSimulate(dragon.level().damageSources().mobAttack(dragon), contactDamage)) {
                 continue;
             }
 

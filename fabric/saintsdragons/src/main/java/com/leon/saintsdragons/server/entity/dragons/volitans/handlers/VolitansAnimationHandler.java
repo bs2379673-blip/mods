@@ -148,7 +148,7 @@ public final class VolitansAnimationHandler {
             return PlayState.STOP;
         }
 
-        var controller = state.getController();
+        var controller = state.controller();
         if (dragon.isTamingStunned()) {
             controller.transitionLength(GROUND_TRANSITIONS.idle());
             state.setAndContinue(dragon.isInWater() ? UNDERWATER_STUNNED : STUNNED);
@@ -222,17 +222,17 @@ public final class VolitansAnimationHandler {
                         : dragon.evaluateMotionFlightState(-dragon.getFlightPitchRadians(current.getPartialTick())));
     }
     public PlayState actionPredicate(AnimationTest<Volitans> state) {
-        state.getController().transitionLength(ACTION_TRANSITION_TICKS);
+        state.controller().transitionLength(ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
 
     public PlayState fastActionPredicate(AnimationTest<Volitans> state) {
-        state.getController().transitionLength(FAST_ACTION_TRANSITION_TICKS);
+        state.controller().transitionLength(FAST_ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
 
     public PlayState airActionPredicate(AnimationTest<Volitans> state) {
-        state.getController().transitionLength(AIR_ACTION_TRANSITION_TICKS);
+        state.controller().transitionLength(AIR_ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
 }

@@ -31,7 +31,7 @@ public final class DragonCommandComponent {
 
     public void loadFromNBT(CompoundTag tag) {
         if (tag.contains("Command")) {
-            setCommand(tag.getInt("Command"));
+            setCommand(tag.getIntOr("Command", 0));
         }
     }
 }

@@ -146,7 +146,7 @@ public class AtroxiiaHelheimQuakeAbility extends DragonAbility<Atroxiia> {
             Vec3 origin = new Vec3(dragon.getX(), dragon.getBoundingBox().minY + 0.12, dragon.getZ());
             for (var viewer : server.players()) {
                 if (viewer.distanceToSqr(origin) <= 256.0 * 256.0) {
-                    server.sendParticles(viewer, ModParticles.ATROXIIA_ICE_BURST.get(), true,
+                    server.sendParticles(viewer, ModParticles.ATROXIIA_ICE_BURST.get(), true, false,
                             origin.x, origin.y, origin.z, 0, 0, 0, 0, 0);
                 }
             }
@@ -188,7 +188,7 @@ public class AtroxiiaHelheimQuakeAbility extends DragonAbility<Atroxiia> {
 
         for (LivingEntity target : targets) {
             if (target.distanceToSqr(dragon) > radiusSqr
-                    || !target.hurt(server.damageSources().mobAttack(dragon), damage)) {
+                    || !target.hurtOrSimulate(server.damageSources().mobAttack(dragon), damage)) {
                 continue;
             }
 

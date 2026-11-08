@@ -334,7 +334,7 @@ public class RaevyxBeamAbility extends DragonAbility<Raevyx> {
 
             if (hit.isPresent() || pointBlankOverlap) {
                 var hitPos = hit.orElse(start);
-                if (!target.hurt(resolveBeamDamageSource(wyvern, target), DAMAGE)) {
+                if (!target.hurtOrSimulate(resolveBeamDamageSource(wyvern, target), DAMAGE)) {
                     continue;
                 }
                 var away = target.position().subtract(hitPos).normalize();
@@ -370,7 +370,7 @@ public class RaevyxBeamAbility extends DragonAbility<Raevyx> {
             interrupt();
             return;
         }
-        if (!target.hurt(resolveBeamDamageSource(wyvern, target), Math.min(damage, allowedDamage))) {
+        if (!target.hurtOrSimulate(resolveBeamDamageSource(wyvern, target), Math.min(damage, allowedDamage))) {
             wyvern.getCombatLearning().recordContact(learningTrial);
             return;
         }

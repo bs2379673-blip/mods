@@ -55,7 +55,7 @@ public final class VolitansBreathStream {
         var particle = new VolitansBreathParticleData(dragon.getId());
         for (var viewer : level.players()) {
             if (visibleArea.contains(viewer.position())) {
-                level.sendParticles(viewer, particle, true, origin.x, origin.y, origin.z,
+                level.sendParticles(viewer, particle, true, false, origin.x, origin.y, origin.z,
                         0, velocity.x, velocity.y, velocity.z, 1.0);
             }
         }
@@ -77,7 +77,7 @@ public final class VolitansBreathStream {
             if (payload.poison() && !dragon.isVenomNeutralized() && DragonElementalImmunity.isPoisonImmune(target)) {
                 return false;
             }
-            if (payload.damage() > 0 && target.hurt(level.damageSources().mobAttack(dragon), payload.damage())) {
+            if (payload.damage() > 0 && target.hurtOrSimulate(level.damageSources().mobAttack(dragon), payload.damage())) {
                 dragon.getCombatLearning().recordHit(payload.learningTrial(), target);
             }
             if (payload.poison() && !dragon.isVenomNeutralized()
@@ -89,7 +89,7 @@ public final class VolitansBreathStream {
                 if (push.lengthSqr() < 1.0E-6) push = sweep.end().subtract(sweep.start());
                 push = push.normalize().scale(payload.push());
                 target.push(push.x, 0.04, push.z);
-                target.hasImpulse = true;
+                target.needsSync = true;
             }
             return true;
         }, (payload, sweep) -> {

@@ -125,7 +125,7 @@ public class RaevyxRoarAbility extends DragonAbility<Raevyx> {
         double x = target.getX() + ox;
         double z = target.getZ() + oz;
         double y = target.getY();
-        var bolt = EntityType.LIGHTNING_BOLT.create(server);
+        var bolt = EntityType.LIGHTNING_BOLT.create(server, net.minecraft.world.entity.EntitySpawnReason.BREEDING);
         if (bolt != null) {
             bolt.snapTo(x, y, z);
             bolt.setVisualOnly(true);
@@ -147,7 +147,7 @@ public class RaevyxRoarAbility extends DragonAbility<Raevyx> {
         }
 
         DamageSource source = ModDamageTypes.raevyxLightning(dragon);
-        target.hurt(source, LIGHTNING_DAMAGE);
+        target.hurtOrSimulate(source, LIGHTNING_DAMAGE);
     }
 
 

@@ -49,7 +49,7 @@ public class DraconicCrucibleRenderer implements BlockEntityRenderer<DraconicCru
         poseStack.scale(1.0F, -1.0F, -1.0F);
 
         Identifier texture = active ? ACTIVE_TEXTURE : INACTIVE_TEXTURE;
-        VertexConsumer consumer = buffer.getBuffer(RenderType.entityCutoutNoCull(texture));
+        VertexConsumer consumer = buffer.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutNoCull(texture));
         this.model.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY,
                 1.0F, 1.0F, 1.0F, 1.0F);
         poseStack.popPose();

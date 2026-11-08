@@ -25,8 +25,8 @@ public final class DragonBabyComponent {
 
     @Nullable
     public UUID resolveEggOwnerUUID(@Nullable DragonEntity partner) {
-        if (dragon.isTame() && dragon.getOwnerUUID() != null) {
-            return dragon.getOwnerUUID();
+        if (dragon.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon) != null) {
+            return com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon);
         }
         return null;
     }
@@ -35,8 +35,8 @@ public final class DragonBabyComponent {
         if (offspring == null || level == null || level.isClientSide()) {
             return;
         }
-        if (offspring.isTame() && offspring.getOwnerUUID() != null) {
-            DragonCodexSavedData.get(level).addDragon(offspring.getOwnerUUID(), offspring);
+        if (offspring.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(offspring) != null) {
+            DragonCodexSavedData.get(level).addDragon(com.leon.saintsdragons.util.compat.Compat.ownerUUID(offspring), offspring);
         }
     }
 

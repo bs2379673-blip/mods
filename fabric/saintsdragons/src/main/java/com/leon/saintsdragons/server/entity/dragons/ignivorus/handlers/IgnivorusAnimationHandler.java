@@ -206,20 +206,20 @@ public record IgnivorusAnimationHandler(Ignivorus dragon) {
     }
 
     public PlayState movementPredicate(AnimationTest<Ignivorus> state) {
-        var previousAnimation = state.getController().getCurrentAnimation();
+        var previousAnimation = state.controller().getCurrentAnimation();
         boolean leavingSkyfall = previousAnimation != null
                 && ("animation.ignivorus.skyfall".equals(previousAnimation.animation().name())
                     || "animation.ignivorus.skyfall_phase2".equals(previousAnimation.animation().name()));
         PlayState result = selectMovementAnimation(state);
         // Apply after the next pose selects its normal blend duration.
         if (leavingSkyfall) {
-            state.getController().transitionLength(0);
+            state.controller().transitionLength(0);
         }
         return result;
     }
 
     private PlayState selectMovementAnimation(AnimationTest<Ignivorus> state) {
-        var controller = state.getController();
+        var controller = state.controller();
         boolean aerialState = dragon.isFlying() || dragon.isTakeoff() || dragon.isLanding() || dragon.isHovering();
 
         if (dragon.isDying()) {
@@ -368,11 +368,11 @@ public record IgnivorusAnimationHandler(Ignivorus dragon) {
                 RawAnimation.begin().thenPlay("animation.ignivorus.skyfall_air"))) {
             return PlayState.CONTINUE;
         }
-        var previous = state.getController().getCurrentAnimation();
+        var previous = state.controller().getCurrentAnimation();
         boolean leavingSkyfall = previous != null
                 && "animation.ignivorus.skyfall_air".equals(previous.animation().name());
         PlayState result = selectFlightAnimation(state);
-        if (leavingSkyfall) state.getController().transitionLength(0);
+        if (leavingSkyfall) state.controller().transitionLength(0);
         return result;
     }
 
@@ -384,12 +384,12 @@ public record IgnivorusAnimationHandler(Ignivorus dragon) {
     }
 
     public PlayState actionPredicate(AnimationTest<Ignivorus> state) {
-        state.getController().transitionLength(ACTION_TRANSITION_TICKS);
+        state.controller().transitionLength(ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
 
     public PlayState fastActionPredicate(AnimationTest<Ignivorus> state) {
-        state.getController().transitionLength(FAST_ACTION_TRANSITION_TICKS);
+        state.controller().transitionLength(FAST_ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
 }

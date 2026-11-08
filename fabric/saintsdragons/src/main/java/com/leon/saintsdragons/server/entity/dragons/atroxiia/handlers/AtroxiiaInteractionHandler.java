@@ -129,7 +129,7 @@ public final class AtroxiiaInteractionHandler extends AbstractDragonInteractionH
         boolean validFood = dragon.isFood(heldItem);
         if (baby == null) {
             return validFood
-                    ? InteractionResult.sidedSuccess(dragon.level().isClientSide())
+                    ? InteractionResult.SUCCESS
                     : InteractionResult.PASS;
         }
 
@@ -164,7 +164,7 @@ public final class AtroxiiaInteractionHandler extends AbstractDragonInteractionH
             return;
         }
 
-        var advancement = serverPlayer.server.getAdvancements()
+        var advancement = serverPlayer.level().getServer().getAdvancements()
                 .getAdvancement(SaintsDragonsCommon.rl("tame_atroxiia"));
         if (advancement != null) {
             serverPlayer.getAdvancements().award(advancement, "tame_atroxiia");
@@ -279,6 +279,6 @@ public final class AtroxiiaInteractionHandler extends AbstractDragonInteractionH
             }
         }
 
-        return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+        return InteractionResult.SUCCESS;
     }
 }

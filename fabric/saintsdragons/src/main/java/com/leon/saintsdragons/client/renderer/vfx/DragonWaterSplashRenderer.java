@@ -41,9 +41,9 @@ public class DragonWaterSplashRenderer extends EntityRenderer<DragonWaterSplashE
         poseStack.mulPose(Axis.YP.rotationDegrees(-entity.getYRot()));
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix = pose.pose();
-        Matrix3f normalMatrix = pose.setNormal();
+        Matrix3f normalMatrix = pose.normal();
         int frame = entity.getAnimationFrame(partialTicks);
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityTranslucent(TEXTURES[frame]));
+        VertexConsumer consumer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(TEXTURES[frame]));
         renderFrame(consumer, matrix, normalMatrix, frame, entity.getScale(partialTicks), opacity);
         poseStack.popPose();
         super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);

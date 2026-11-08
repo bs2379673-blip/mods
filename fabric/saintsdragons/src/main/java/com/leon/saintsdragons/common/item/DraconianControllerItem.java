@@ -31,14 +31,14 @@ public class DraconianControllerItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, level, tooltip, flag);
-        tooltip.add(Component.empty());
-        tooltip.add(Component.translatable("item.saintsdragons.draconian_controller.tooltip.passive.title")
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext saintsdragons$ctx, net.minecraft.world.item.component.TooltipDisplay saintsdragons$display, java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, saintsdragons$ctx, saintsdragons$display, tooltip, flag);
+        tooltip.accept(Component.empty());
+        tooltip.accept(Component.translatable("item.saintsdragons.draconian_controller.tooltip.passive.title")
                 .withStyle(ChatFormatting.WHITE));
-        tooltip.add(Component.translatable("item.saintsdragons.draconian_controller.tooltip.ability.description")
+        tooltip.accept(Component.translatable("item.saintsdragons.draconian_controller.tooltip.ability.description")
                 .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("item.saintsdragons.draconian_controller.tooltip.requirement")
+        tooltip.accept(Component.translatable("item.saintsdragons.draconian_controller.tooltip.requirement")
                 .withStyle(ChatFormatting.DARK_GRAY));
     }
 

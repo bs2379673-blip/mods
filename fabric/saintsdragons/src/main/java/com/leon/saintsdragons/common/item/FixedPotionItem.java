@@ -89,7 +89,7 @@ public class FixedPotionItem extends PotionItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext saintsdragons$ctx, net.minecraft.world.item.component.TooltipDisplay saintsdragons$display, java.util.function.Consumer<net.minecraft.network.chat.Component> tooltipComponents, TooltipFlag tooltipFlag) {
         PotionUtils.addPotionTooltip(this.potion.get().getEffects(), tooltipComponents, 1.0F);
     }
 }

@@ -86,7 +86,7 @@ public class CindervaneBiteAbility extends DragonAbility<Cindervane> {
                 .abilityDamage(damageKey, baseDamage);
         damage *= dragon.getHungerMeleeDamageMultiplier();
         DamageSource source = dragon.level().damageSources().mobAttack(dragon);
-        boolean hurt = target.hurt(source, damage);
+        boolean hurt = target.hurtOrSimulate(source, damage);
 
         Vec3 push = dragon.getLookAngle().scale(0.3);
         target.push(push.x, dragon.isFlying() ? 0.15 : 0.05, push.z);

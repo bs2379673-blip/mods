@@ -78,6 +78,6 @@ public abstract class CindervaneFireBodyActivationRenderer extends RenderType {
         float nz = Mth.cos(latitude) * Mth.sin(longitude);
         buffer.addVertex(pose.pose(), nx * radius, ny * radius, nz * radius).setColor(red, 0.65F, blue, alpha).setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY).setLight(0xF000F0)
-                .setNormal(pose.setNormal(), nx, ny, nz);
+                .setNormal(pose, nx, ny, nz);
     }
 }

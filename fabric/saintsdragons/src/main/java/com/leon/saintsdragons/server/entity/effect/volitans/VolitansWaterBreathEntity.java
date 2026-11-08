@@ -74,22 +74,30 @@ public class VolitansWaterBreathEntity extends Entity {
         return entityData.get(DATA_POISON_MODE);
     }
 
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        age = tag.getInt("Age");
-        entityData.set(DATA_LIFETIME, Math.max(1, tag.getInt("MaxAge")));
-        entityData.set(DATA_POISON_MODE, tag.getBoolean("PoisonMode"));
+    
+    protected void sdLoad(CompoundTag tag) {
+        age = tag.getIntOr("Age", 0);
+        entityData.set(DATA_LIFETIME, Math.max(1, tag.getIntOr("MaxAge", 0)));
+        entityData.set(DATA_POISON_MODE, tag.getBooleanOr("PoisonMode", false));
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
         tag.putInt("Age", age);
         tag.putInt("MaxAge", getMaxAge());
         tag.putBoolean("PoisonMode", isPoisonMode());
     }
 
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
     @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

@@ -252,7 +252,7 @@ public class VolitansBurrowAbility extends DragonAbility<Volitans> {
                         && entity.distanceToSqr(dragon) <= EXIT_RADIUS * EXIT_RADIUS
         );
         for (LivingEntity target : targets) {
-            target.hurt(source, damage);
+            target.hurtOrSimulate(source, damage);
             Vec3 motion = target.getDeltaMovement();
             target.setDeltaMovement(motion.x * 0.35D, Math.max(motion.y, EXIT_UPWARD_KNOCK), motion.z * 0.35D);
             target.hurtMarked = true;
@@ -387,7 +387,7 @@ public class VolitansBurrowAbility extends DragonAbility<Volitans> {
                     + random.nextDouble() * (EXIT_FALLING_BLOCK_UP_SPEED_MAX - EXIT_FALLING_BLOCK_UP_SPEED_MIN);
             block.setNoGravity(false);
             block.setDeltaMovement(Math.cos(angle) * speed, upSpeed, Math.sin(angle) * speed);
-            block.hasImpulse = true;
+            block.needsSync = true;
             server.addFreshEntity(block);
         }
     }

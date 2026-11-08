@@ -176,7 +176,7 @@ public final class RaevyxChainLightningAbility {
                 : target instanceof DragonEntity
                         ? caster.level().damageSources().mobAttack(caster)
                         : ModDamageTypes.raevyxLightning(caster);
-        target.hurt(source, scaledDamage);
+        target.hurtOrSimulate(source, scaledDamage);
     }
 
     private static boolean isAllied(LivingEntity caster, LivingEntity target) {
@@ -198,7 +198,7 @@ public final class RaevyxChainLightningAbility {
         if (entity instanceof TamableAnimal tamable && tamable.isTame()) {
             return true;
         }
-        return entity instanceof OwnableEntity ownable && ownable.getOwnerUUID() != null;
+        return entity instanceof OwnableEntity ownable && com.leon.saintsdragons.util.compat.Compat.ownerUUID(ownable) != null;
     }
 
     private static Vec3 centerOf(LivingEntity entity) {

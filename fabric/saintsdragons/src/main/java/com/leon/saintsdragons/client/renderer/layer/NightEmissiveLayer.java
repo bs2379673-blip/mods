@@ -51,7 +51,7 @@ public abstract class NightEmissiveLayer<T extends DragonEntity> extends GeoRend
             return;
         }
 
-        RenderType glowType = RenderType.entityTranslucent(texture);
+        RenderType glowType = net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture);
         VertexConsumer glowBuffer = bufferSource.getBuffer(glowType);
 
         getRenderer().reRender(

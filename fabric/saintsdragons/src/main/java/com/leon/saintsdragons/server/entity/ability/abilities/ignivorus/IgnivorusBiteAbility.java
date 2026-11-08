@@ -93,7 +93,7 @@ public class IgnivorusBiteAbility extends DragonAbility<Ignivorus> {
         DamageSource physicalSource = dragon.level().damageSources().mobAttack(dragon);
         float armorPenDamage = (damage + ARMOR_PENETRATION) * hungerMult;
 
-        target.hurt(physicalSource, armorPenDamage);
+        target.hurtOrSimulate(physicalSource, armorPenDamage);
         target.igniteForSeconds(3);
 
         Vec3 push = dragon.getLookAngle().scale(dragon.isFlying() ? 0.4 : 0.25);

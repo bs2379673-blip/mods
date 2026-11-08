@@ -233,11 +233,11 @@ public class DragonCodexSavedData extends SavedData {
         ListTag playerList = new ListTag();
         for (Map.Entry<UUID, List<DragonCodexEntry>> entry : entriesByOwner.entrySet()) {
             CompoundTag playerTag = new CompoundTag();
-            playerTag.putUUID("Owner", entry.getKey());
+            com.leon.saintsdragons.util.compat.Compat.putUUID(playerTag, "Owner", entry.getKey());
             ListTag dragonList = new ListTag();
             for (DragonCodexEntry dragonEntry : entry.getValue()) {
                 CompoundTag dragonTag = new CompoundTag();
-                dragonTag.putUUID("DragonId", dragonEntry.dragonId());
+                com.leon.saintsdragons.util.compat.Compat.putUUID(dragonTag, "DragonId", dragonEntry.dragonId());
                 dragonTag.putString("Name", dragonEntry.displayName());
                 dragonTag.putDouble("MaxHealth", dragonEntry.maxHealth());
                 dragonTag.putDouble("CurrentHealth", dragonEntry.currentHealth());
@@ -268,44 +268,44 @@ public class DragonCodexSavedData extends SavedData {
 
     public static DragonCodexSavedData load(CompoundTag tag) {
         DragonCodexSavedData data = new DragonCodexSavedData();
-        if (tag.contains("Players", Tag.TAG_LIST)) {
-            ListTag playerList = tag.getList("Players", Tag.TAG_COMPOUND);
+        if (tag.contains("Players")) {
+            ListTag playerList = tag.getListOrEmpty("Players");
             for (int i = 0; i < playerList.size(); i++) {
-                CompoundTag playerTag = playerList.getCompound(i);
-                if (!playerTag.hasUUID("Owner")) {
+                CompoundTag playerTag = playerList.getCompoundOrEmpty(i);
+                if (!com.leon.saintsdragons.util.compat.Compat.hasUUID(playerTag, "Owner")) {
                     continue;
                 }
-                UUID ownerId = playerTag.getUUID("Owner");
+                UUID ownerId = com.leon.saintsdragons.util.compat.Compat.getUUID(playerTag, "Owner");
                 List<DragonCodexEntry> entries = new ArrayList<>();
-                if (playerTag.contains("Dragons", Tag.TAG_LIST)) {
-                    ListTag dragonList = playerTag.getList("Dragons", Tag.TAG_COMPOUND);
+                if (playerTag.contains("Dragons")) {
+                    ListTag dragonList = playerTag.getListOrEmpty("Dragons");
                     for (int j = 0; j < dragonList.size(); j++) {
-                        CompoundTag dragonTag = dragonList.getCompound(j);
-                        if (!dragonTag.hasUUID("DragonId")) {
+                        CompoundTag dragonTag = dragonList.getCompoundOrEmpty(j);
+                        if (!com.leon.saintsdragons.util.compat.Compat.hasUUID(dragonTag, "DragonId")) {
                             continue;
                         }
-                        UUID dragonId = dragonTag.getUUID("DragonId");
-                        String name = dragonTag.getString("Name");
-                        double maxHealth = dragonTag.contains("MaxHealth") ? dragonTag.getDouble("MaxHealth") : 0.0;
-                        double currentHealth = dragonTag.contains("CurrentHealth") ? dragonTag.getDouble("CurrentHealth") : maxHealth;
-                        double armor = dragonTag.contains("Armor") ? dragonTag.getDouble("Armor") : 0.0;
-                        double hunger = dragonTag.contains("Hunger") ? dragonTag.getDouble("Hunger") : DragonEntity.HUNGER_MAX;
-                        double happiness = dragonTag.contains("Happiness") ? dragonTag.getDouble("Happiness") : DragonEntity.HAPPINESS_MAX;
-                        int variantId = dragonTag.contains("VariantId") ? dragonTag.getInt("VariantId") : 0;
-                        String variantResourceId = dragonTag.contains("VariantResourceId") ? dragonTag.getString("VariantResourceId") : legacyVariantResourceId(dragonTag, variantId);
-                        byte genderId = dragonTag.contains("GenderId") ? dragonTag.getByte("GenderId") : 0;
-                        boolean genderKnown = dragonTag.contains("GenderKnown") && dragonTag.getBoolean("GenderKnown");
-                        String dragonType = dragonTag.contains("DragonType") ? dragonTag.getString("DragonType") : "ignivorus";
-                        boolean isBaby = dragonTag.contains("IsBaby") && dragonTag.getBoolean("IsBaby");
-                        boolean boundInBinder = dragonTag.contains("BoundInBinder") && dragonTag.getBoolean("BoundInBinder");
-                        boolean brushingAvailable = !dragonTag.contains("BrushingAvailable") || dragonTag.getBoolean("BrushingAvailable");
+                        UUID dragonId = com.leon.saintsdragons.util.compat.Compat.getUUID(dragonTag, "DragonId");
+                        String name = dragonTag.getStringOr("Name", "");
+                        double maxHealth = dragonTag.contains("MaxHealth") ? dragonTag.getDoubleOr("MaxHealth", 0.0D) : 0.0;
+                        double currentHealth = dragonTag.contains("CurrentHealth") ? dragonTag.getDoubleOr("CurrentHealth", 0.0D) : maxHealth;
+                        double armor = dragonTag.contains("Armor") ? dragonTag.getDoubleOr("Armor", 0.0D) : 0.0;
+                        double hunger = dragonTag.contains("Hunger") ? dragonTag.getDoubleOr("Hunger", 0.0D) : DragonEntity.HUNGER_MAX;
+                        double happiness = dragonTag.contains("Happiness") ? dragonTag.getDoubleOr("Happiness", 0.0D) : DragonEntity.HAPPINESS_MAX;
+                        int variantId = dragonTag.contains("VariantId") ? dragonTag.getIntOr("VariantId", 0) : 0;
+                        String variantResourceId = dragonTag.contains("VariantResourceId") ? dragonTag.getStringOr("VariantResourceId", "") : legacyVariantResourceId(dragonTag, variantId);
+                        byte genderId = dragonTag.contains("GenderId") ? dragonTag.getByteOr("GenderId", (byte) 0) : 0;
+                        boolean genderKnown = dragonTag.contains("GenderKnown") && dragonTag.getBooleanOr("GenderKnown", false);
+                        String dragonType = dragonTag.contains("DragonType") ? dragonTag.getStringOr("DragonType", "") : "ignivorus";
+                        boolean isBaby = dragonTag.contains("IsBaby") && dragonTag.getBooleanOr("IsBaby", false);
+                        boolean boundInBinder = dragonTag.contains("BoundInBinder") && dragonTag.getBooleanOr("BoundInBinder", false);
+                        boolean brushingAvailable = !dragonTag.contains("BrushingAvailable") || dragonTag.getBooleanOr("BrushingAvailable", false);
                         int brushingProgress = dragonTag.contains("BrushingProgress")
-                                ? Mth.clamp(dragonTag.getInt("BrushingProgress"), 0, 100)
+                                ? Mth.clamp(dragonTag.getIntOr("BrushingProgress", 0), 0, 100)
                                 : brushingAvailable ? 100 : 0;
-                        double posX = dragonTag.contains("PosX") ? dragonTag.getDouble("PosX") : 0.0D;
-                        double posY = dragonTag.contains("PosY") ? dragonTag.getDouble("PosY") : 0.0D;
-                        double posZ = dragonTag.contains("PosZ") ? dragonTag.getDouble("PosZ") : 0.0D;
-                        String biomeId = dragonTag.contains("BiomeId") ? dragonTag.getString("BiomeId") : "minecraft:unknown";
+                        double posX = dragonTag.contains("PosX") ? dragonTag.getDoubleOr("PosX", 0.0D) : 0.0D;
+                        double posY = dragonTag.contains("PosY") ? dragonTag.getDoubleOr("PosY", 0.0D) : 0.0D;
+                        double posZ = dragonTag.contains("PosZ") ? dragonTag.getDoubleOr("PosZ", 0.0D) : 0.0D;
+                        String biomeId = dragonTag.contains("BiomeId") ? dragonTag.getStringOr("BiomeId", "") : "minecraft:unknown";
                         entries.add(new DragonCodexEntry(dragonId, name, maxHealth, currentHealth, armor, hunger, happiness,
                                 variantId, variantResourceId, genderId, genderKnown, dragonType, isBaby, boundInBinder,
                                 brushingAvailable, brushingProgress, posX, posY, posZ, biomeId));
@@ -527,7 +527,7 @@ public class DragonCodexSavedData extends SavedData {
     }
 
     private static String legacyVariantResourceId(CompoundTag dragonTag, int variantId) {
-        String dragonType = dragonTag.contains("DragonType") ? dragonTag.getString("DragonType") : "ignivorus";
+        String dragonType = dragonTag.contains("DragonType") ? dragonTag.getStringOr("DragonType", "") : "ignivorus";
         return switch (dragonType) {
             case "cindervane" -> variantId == 1 ? "saintsdragons:albino" : "saintsdragons:default";
             case "ignivorus" -> variantId == 1 ? "saintsdragons:crimson" : "saintsdragons:default";

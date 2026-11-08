@@ -56,14 +56,14 @@ public final class AnimationHelper {
     public static <T extends RideableFlyingDragon> PlayState handleFlightLocomotion(AnimationTest<T> state,
             FlightAnimations animations, FlightTransitions transitions) {
         return handleFlightLocomotion(state, animations, transitions, false, false,
-                current -> current.getAnimatable().evaluateMotionFlightState(
-                        current.getAnimatable().getFlightPitchRadians(current.getPartialTick())));
+                current -> current.animatable().evaluateMotionFlightState(
+                        current.animatable().getFlightPitchRadians(current.getPartialTick())));
     }
 
     public static <T extends RideableFlyingDragon> PlayState handleFlightLocomotion(AnimationTest<T> state,
             FlightAnimations animations, FlightTransitions transitions, boolean blocked, boolean riderTakeoff,
             Function<AnimationTest<T>, DragonFlightStateEvaluator.VisualState> resolvePose) {
-        T dragon = state.getAnimatable();
+        T dragon = state.animatable();
         if (blocked || dragon.isDying()
                 || !(dragon.isFlying() || dragon.isTakeoff() || dragon.isLanding() || dragon.isHovering())) {
             return PlayState.STOP;
@@ -128,17 +128,17 @@ public final class AnimationHelper {
     }
 
     public static PlayState idle(AnimationTest<?> state) {
-        state.getController().transitionLength(1);
+        state.controller().transitionLength(1);
         return PlayState.STOP;
     }
 
     public static <T extends DragonEntity> PlayState vocalIdle(AnimationTest<T> state) {
-        state.getController().transitionLength(2);
+        state.controller().transitionLength(2);
         return PlayState.STOP;
     }
 
     public static PlayState interactionIdle(AnimationTest<?> state) {
-        state.getController().transitionLength(1);
+        state.controller().transitionLength(1);
         return PlayState.STOP;
     }
 
@@ -148,7 +148,7 @@ public final class AnimationHelper {
                                                                           Animations animations,
                                                                           Transitions transitions,
                                                                           SpecialStates<T> specialStates) {
-        var controller = state.getController();
+        var controller = state.controller();
         boolean aerialState = dragon.isFlying() || dragon.isTakeoff() || dragon.isLanding() || dragon.isHovering();
 
         if (dragon.isDying()) {
@@ -231,14 +231,14 @@ public final class AnimationHelper {
     public static boolean holdTriggeredAnimation(AnimationTest<?> state,
                                                  int transitionTicks,
                                                  RawAnimation... acceleratedAnimations) {
-        RawAnimation triggeredAnimation = state.getController().getTriggeredAnimation();
+        RawAnimation triggeredAnimation = state.controller().getTriggeredAnimation();
         if (triggeredAnimation == null) {
             return false;
         }
 
         for (RawAnimation animation : acceleratedAnimations) {
             if (triggeredAnimation.equals(animation)) {
-                state.getController().transitionLength(Math.max(0, transitionTicks));
+                state.controller().transitionLength(Math.max(0, transitionTicks));
                 break;
             }
         }
@@ -268,7 +268,7 @@ public final class AnimationHelper {
                                                                                         Function<AnimationTest<T>, PlayState> predicate) {
         int safeTransitionTicks = Math.max(0, transitionTicks);
         return new EntityAnimationController<>(dragon, FLIGHT_CONTROLLER, safeTransitionTicks, state -> {
-            state.getController().transitionLength(safeTransitionTicks);
+            state.controller().transitionLength(safeTransitionTicks);
             return predicate.apply(state);
         });
     }
@@ -297,7 +297,7 @@ public final class AnimationHelper {
             return PlayState.STOP;
         }
 
-        state.getController().transitionLength(getFlightTransitionTicks(visualState, transitions));
+        state.controller().transitionLength(getFlightTransitionTicks(visualState, transitions));
         setAndContinue(state, animation);
         return PlayState.CONTINUE;
     }
@@ -312,7 +312,7 @@ public final class AnimationHelper {
         if (animation == null) {
             return PlayState.STOP;
         }
-        state.getController().transitionLength(transitions.takeoff());
+        state.controller().transitionLength(transitions.takeoff());
         setAndContinue(state, animation);
         return PlayState.CONTINUE;
     }
@@ -348,7 +348,7 @@ public final class AnimationHelper {
     public static void setAndContinue(AnimationTest<?> state, RawAnimation animation) {
         state.setAnimation(animation);
         if (animation != null
-                && state.getController().getCurrentAnimation() == null
+                && state.controller().getCurrentAnimation() == null
                 && state.isCurrentAnimation(animation)) {
             state.resetCurrentAnimation();
             state.setAnimation(animation);
@@ -375,7 +375,7 @@ public final class AnimationHelper {
             if (sleepAnimation == null) {
                 return PlayState.STOP;
             }
-            state.getController().transitionLength(sleepTransitionTicks);
+            state.controller().transitionLength(sleepTransitionTicks);
             setAndContinue(state, sleepAnimation);
             return PlayState.CONTINUE;
         }
@@ -391,7 +391,7 @@ public final class AnimationHelper {
             if (sitAnimation == null) {
                 return PlayState.STOP;
             }
-            state.getController().transitionLength(sitTransitionTicks);
+            state.controller().transitionLength(sitTransitionTicks);
             setAndContinue(state, sitAnimation);
             return PlayState.CONTINUE;
         }
@@ -410,7 +410,7 @@ public final class AnimationHelper {
         if (animation == null) {
             return PlayState.STOP;
         }
-        state.getController().transitionLength(transitionTicks);
+        state.controller().transitionLength(transitionTicks);
         setAndContinue(state, animation);
         return PlayState.CONTINUE;
     }
@@ -473,26 +473,26 @@ public final class AnimationHelper {
         int groundState = dragon.getEffectiveGroundState();
         if (dragon.isVehicle()) {
             if (groundState == 2 || dragon.isRunning()) {
-                state.getController().transitionLength(movingTransitionTicks);
+                state.controller().transitionLength(movingTransitionTicks);
                 setAndContinue(state, runAnimation);
             } else if (groundState == 1 || dragon.isWalking() || (treatAnimationStateMovingAsWalk && state.isMoving())) {
-                state.getController().transitionLength(movingTransitionTicks);
+                state.controller().transitionLength(movingTransitionTicks);
                 setAndContinue(state, walkAnimation);
             } else {
-                state.getController().transitionLength(idleTransitionTicks);
+                state.controller().transitionLength(idleTransitionTicks);
                 setAndContinue(state, idleAnimation);
             }
             return PlayState.CONTINUE;
         }
 
         if (groundState == 2 || (state.isMoving() && dragon.shouldUseRunAnimation())) {
-            state.getController().transitionLength(movingTransitionTicks);
+            state.controller().transitionLength(movingTransitionTicks);
             setAndContinue(state, runAnimation);
         } else if (groundState == 1 || state.isMoving()) {
-            state.getController().transitionLength(movingTransitionTicks);
+            state.controller().transitionLength(movingTransitionTicks);
             setAndContinue(state, walkAnimation);
         } else {
-            state.getController().transitionLength(idleTransitionTicks);
+            state.controller().transitionLength(idleTransitionTicks);
             setAndContinue(state, idleAnimation);
         }
         return PlayState.CONTINUE;

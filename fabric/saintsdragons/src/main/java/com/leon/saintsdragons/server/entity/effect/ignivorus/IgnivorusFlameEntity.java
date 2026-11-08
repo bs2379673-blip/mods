@@ -168,7 +168,7 @@ public class IgnivorusFlameEntity extends Entity {
             DamageSource damageSource = owner != null
                     ? level().damageSources().mobAttack(owner)
                     : level().damageSources().generic();
-            closestTarget.hurt(damageSource, damage);
+            closestTarget.hurtOrSimulate(damageSource, damage);
             if (!closestTarget.fireImmune()) {
                 closestTarget.igniteForSeconds(3);
             }
@@ -188,23 +188,23 @@ public class IgnivorusFlameEntity extends Entity {
         return owner;
     }
 
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        this.age = tag.getInt("Age");
-        this.maxAge = tag.getInt("MaxAge");
-        this.damage = tag.getFloat("Damage");
-        this.hasHitEntity = tag.getBoolean("HasHitEntity");
-        this.hasHitBlock = tag.getBoolean("HasHitBlock");
+    
+    protected void sdLoad(CompoundTag tag) {
+        this.age = tag.getIntOr("Age", 0);
+        this.maxAge = tag.getIntOr("MaxAge", 0);
+        this.damage = tag.getFloatOr("Damage", 0.0F);
+        this.hasHitEntity = tag.getBooleanOr("HasHitEntity", false);
+        this.hasHitBlock = tag.getBooleanOr("HasHitBlock", false);
         if (tag.contains("SpawnX")) {
-            this.spawnPos = new Vec3(tag.getDouble("SpawnX"), tag.getDouble("SpawnY"), tag.getDouble("SpawnZ"));
+            this.spawnPos = new Vec3(tag.getDoubleOr("SpawnX", 0.0D), tag.getDoubleOr("SpawnY", 0.0D), tag.getDoubleOr("SpawnZ", 0.0D));
         }
-        if (tag.hasUUID("Owner")) {
-            this.ownerUUID = tag.getUUID("Owner");
+        if (com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, "Owner")) {
+            this.ownerUUID = com.leon.saintsdragons.util.compat.Compat.getUUID(tag, "Owner");
         }
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
         tag.putInt("Age", this.age);
         tag.putInt("MaxAge", this.maxAge);
         tag.putFloat("Damage", this.damage);
@@ -216,17 +216,25 @@ public class IgnivorusFlameEntity extends Entity {
             tag.putDouble("SpawnZ", this.spawnPos.z);
         }
         if (this.ownerUUID != null) {
-            tag.putUUID("Owner", this.ownerUUID);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "Owner", this.ownerUUID);
         }
-    }
-
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
     }
 
     @Override
     public boolean shouldRenderAtSqrDistance(double distance) {
         return distance < 65536.0;
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

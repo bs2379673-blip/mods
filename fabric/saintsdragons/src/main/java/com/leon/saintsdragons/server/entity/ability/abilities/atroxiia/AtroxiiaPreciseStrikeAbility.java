@@ -149,7 +149,7 @@ public class AtroxiiaPreciseStrikeAbility extends DragonAbility<Atroxiia> {
             damage *= dragon.getHungerMeleeDamageMultiplier();
 
             DamageSource source = dragon.level().damageSources().mobAttack(dragon);
-            target.hurt(source, damage);
+            target.hurtOrSimulate(source, damage);
 
             applyComboStun(target);
             knockTargetBack(target);

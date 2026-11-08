@@ -101,7 +101,7 @@ public class CindervaneFireballRenderer extends GeoEntityRenderer<CindervaneFire
                               float green, float blue, float alpha) {
         Identifier texture = frames[(int) (age / ticksPerFrame) % frames.length];
         RenderType type = ShaderPassCompatibility.isShaderPackInUse()
-                ? RenderType.entityTranslucent(texture) : RenderType.entityTranslucentEmissive(texture);
+                ? net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture) : net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucentEmissive(texture);
         VertexConsumer vertices = buffers.getBuffer(type);
         vertex(vertices, poses.last(), x - halfSize, y - halfSize, z, 0, 1, green, blue, alpha);
         vertex(vertices, poses.last(), x + halfSize, y - halfSize, z, 1, 1, green, blue, alpha);
@@ -113,7 +113,7 @@ public class CindervaneFireballRenderer extends GeoEntityRenderer<CindervaneFire
                                float u, float v, float green, float blue, float alpha) {
         vertices.addVertex(pose.pose(), x, y, z).setColor(1.0F, green, blue, alpha).setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightTexture.FULL_BRIGHT)
-                .setNormal(pose.setNormal(), 0.0F, 0.0F, 1.0F);
+                .setNormal(pose, 0.0F, 0.0F, 1.0F);
     }
 
     public CindervaneFireballRenderer(EntityRendererProvider.Context context) {

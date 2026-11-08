@@ -17,7 +17,7 @@ import org.joml.Vector3f;
 
 public final class DragonWingTrailRenderer {
     private static final Identifier TEXTURE = SaintsDragonsCommon.rl("textures/particle/shared/wind/trail.png");
-    private static final RenderType RENDER_TYPE = RenderType.entityTranslucent(TEXTURE);
+    private static final RenderType RENDER_TYPE = net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(TEXTURE);
     private static final float WIDTH = 0.25F;
 
     private DragonWingTrailRenderer() {
@@ -32,7 +32,7 @@ public final class DragonWingTrailRenderer {
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         Vec3 cameraPos = camera.position();
         VertexConsumer consumer = bufferSource.getBuffer(RENDER_TYPE);
-        Matrix3f normal = pose.setNormal();
+        Matrix3f normal = pose.normal();
         int light = LightTexture.FULL_BRIGHT;
         int segments = count - 1;
 

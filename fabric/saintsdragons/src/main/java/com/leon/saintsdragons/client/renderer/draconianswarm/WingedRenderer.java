@@ -27,7 +27,7 @@ public class WingedRenderer extends GeoEntityRenderer<Winged> {
     @Override
     public RenderType getRenderType(Winged animatable, Identifier texture,
                                     @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityCutout(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture);
     }
 
     @Override

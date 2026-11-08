@@ -91,7 +91,7 @@ public class AtroxiiaSwipeAbility extends DragonAbility<Atroxiia> {
         damage *= dragon.getHungerMeleeDamageMultiplier();
 
         DamageSource source = dragon.level().damageSources().mobAttack(dragon);
-        target.hurt(source, damage);
+        target.hurtOrSimulate(source, damage);
 
         Vec3 push = DragonMeleeGeometry.forwardAttack(dragon).forward().scale(0.3D);
         target.push(push.x, 0.1D, push.z);

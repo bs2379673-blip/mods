@@ -58,7 +58,7 @@ public final class DragonSitComponent {
 
     public void loadFromNBT(CompoundTag tag, boolean orderedToSit) {
         float savedSitProgress = tag.contains("SitProgress")
-                ? tag.getFloat("SitProgress")
+                ? tag.getFloatOr("SitProgress", 0.0F)
                 : (orderedToSit ? dragon.maxSitTicks() : 0f);
         sitProgress = Mth.clamp(savedSitProgress, 0f, dragon.maxSitTicks());
         prevSitProgress = sitProgress;

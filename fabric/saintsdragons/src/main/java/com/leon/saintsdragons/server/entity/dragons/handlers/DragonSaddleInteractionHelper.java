@@ -32,25 +32,25 @@ public final class DragonSaddleInteractionHelper {
                 consumeOne(player, heldItem);
                 dragon.playSound(SoundEvents.HORSE_SADDLE, 1.0F, 1.0F);
             }
-            return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+            return InteractionResult.SUCCESS;
         }
 
         if (heldItem.is(Items.CHEST) && !carrier.hasAttachedChest()) {
             if (!carrier.hasSaddle()) {
                 sendMessage(player, "entity.saintsdragons.all.chest_requires_saddle", dragon.getName());
-                return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+                return InteractionResult.SUCCESS;
             }
             if (!dragon.level().isClientSide()) {
                 carrier.setAttachedChest(true);
                 consumeOne(player, heldItem);
                 dragon.playSound(SoundEvents.DONKEY_CHEST, 1.0F, 1.0F);
             }
-            return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+            return InteractionResult.SUCCESS;
         }
 
         if (!player.isCrouching() && !carrier.hasSaddle()) {
             sendMessage(player, "entity.saintsdragons.all.mount_requires_saddle", dragon.getName());
-            return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+            return InteractionResult.SUCCESS;
         }
 
         return InteractionResult.PASS;

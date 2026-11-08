@@ -213,7 +213,7 @@ public class CindervaneFireballEntity extends Entity implements GeoEntity {
                         && !DragonElementalImmunity.isFireImmune(target));
 
         for (LivingEntity target : hits) {
-            target.hurt(server.damageSources().explosion(this, owner != null ? owner : this), impactDamage);
+            target.hurtOrSimulate(server.damageSources().explosion(this, owner != null ? owner : this), impactDamage);
             target.igniteForSeconds(4);
         }
 
@@ -226,15 +226,15 @@ public class CindervaneFireballEntity extends Entity implements GeoEntity {
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
         for (var player : server.players()) {
             if (player.distanceToSqr(impact) > 256.0D * 256.0D) continue;
-            server.sendParticles(player, ModParticles.CINDERVANE_IMPACT_EMITTER.get(), true,
+            server.sendParticles(player, ModParticles.CINDERVANE_IMPACT_EMITTER.get(), true, false,
                     impact.x, impact.y + 0.4D, impact.z, 24, 0.12D, 0.08D, 0.12D, 0);
-            server.sendParticles(player, ModParticles.CINDERVANE_FIRE_EXPLOSION.get(), true,
+            server.sendParticles(player, ModParticles.CINDERVANE_FIRE_EXPLOSION.get(), true, false,
                     impact.x, impact.y + 1.2D, impact.z, 1, 0, 0, 0, 0);
-            server.sendParticles(player, ModParticles.CINDERVANE_SMALL_EXPLOSION.get(), true,
+            server.sendParticles(player, ModParticles.CINDERVANE_SMALL_EXPLOSION.get(), true, false,
                     impact.x, impact.y + 0.6D, impact.z, 1, 0, 0, 0, 0);
             if (ground.getType() == HitResult.Type.BLOCK) {
                 Vec3 point = ground.getLocation();
-                server.sendParticles(player, ModParticles.CINDERVANE_GROUND_IMPACT.get(), true,
+                server.sendParticles(player, ModParticles.CINDERVANE_GROUND_IMPACT.get(), true, false,
                         point.x, point.y + 0.04D, point.z, 1, 0, 0, 0, 0);
             }
         }
@@ -259,30 +259,25 @@ public class CindervaneFireballEntity extends Entity implements GeoEntity {
         }
     }
 
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        this.livedTicks = tag.getInt("Lived");
-        this.lifetimeTicks = tag.getInt("Lifetime");
-        this.impactRadius = tag.getDouble("ImpactRadius");
-        this.impactDamage = tag.getFloat("ImpactDamage");
-        if (tag.contains("BlockState", CompoundTag.TAG_COMPOUND) && level() instanceof ServerLevel server) {
-            BlockState state = NbtUtils.readBlockState(server.holderLookup(Registries.BLOCK), tag.getCompound("BlockState"));
+    
+    protected void sdLoad(CompoundTag tag) {
+        this.livedTicks = tag.getIntOr("Lived", 0);
+        this.lifetimeTicks = tag.getIntOr("Lifetime", 0);
+        this.impactRadius = tag.getDoubleOr("ImpactRadius", 0.0D);
+        this.impactDamage = tag.getFloatOr("ImpactDamage", 0.0F);
+        if (tag.contains("BlockState") && level() instanceof ServerLevel server) {
+            BlockState state = NbtUtils.readBlockState(server.holderLookup(Registries.BLOCK), tag.getCompoundOrEmpty("BlockState"));
             setBlockState(state.isAir() ? Blocks.MAGMA_BLOCK.defaultBlockState() : state);
         }
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
         tag.putInt("Lived", livedTicks);
         tag.putInt("Lifetime", lifetimeTicks);
         tag.putDouble("ImpactRadius", impactRadius);
         tag.putFloat("ImpactDamage", impactDamage);
         tag.put("BlockState", NbtUtils.writeBlockState(getBlockState()));
-    }
-
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
     }
 
     @Override
@@ -313,9 +308,9 @@ public class CindervaneFireballEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            return super.hurt(source, amount);
+            return super.hurtServer(saintsdragons$level, source, amount);
         }
         return false;
     }
@@ -326,7 +321,7 @@ public class CindervaneFireballEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    public boolean isInvulnerableTo(DamageSource source) {
+    public boolean isInvulnerableTo(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source) {
         return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY);
     }
 
@@ -343,5 +338,18 @@ public class CindervaneFireballEntity extends Entity implements GeoEntity {
     @Nullable
     public Cindervane getOwner() {
         return owner;
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

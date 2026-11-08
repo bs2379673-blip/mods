@@ -78,6 +78,6 @@ public final class VolitansWaterRingRenderer {
                                float u, float v, float alpha) {
         buffer.addVertex(pose.pose(), (float) point.x, (float) point.y, (float) point.z).setColor(0.55F, 0.90F, 1.0F, alpha).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(LightTexture.FULL_BRIGHT)
-                .setNormal(pose.setNormal(), (float) normal.x, (float) normal.y, (float) normal.z);
+                .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
     }
 }

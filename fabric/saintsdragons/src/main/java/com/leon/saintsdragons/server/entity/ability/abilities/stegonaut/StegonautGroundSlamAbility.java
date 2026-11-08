@@ -176,7 +176,7 @@ public class StegonautGroundSlamAbility extends DragonAbility<Stegonaut> {
             if (target.distanceToSqr(dragon) > SLAM_RADIUS * SLAM_RADIUS) {
                 continue;
             }
-            target.hurt(server.damageSources().mobAttack(dragon), damage);
+            target.hurtOrSimulate(server.damageSources().mobAttack(dragon), damage);
             Vec3 direction = target.position().subtract(dragon.position());
             direction = new Vec3(direction.x, 0.0D, direction.z);
             if (direction.lengthSqr() < 1.0E-4D) {
@@ -236,7 +236,7 @@ public class StegonautGroundSlamAbility extends DragonAbility<Stegonaut> {
             if (target.distanceToSqr(dragon) > radiusSqr) {
                 continue;
             }
-            target.hurt(server.damageSources().mobAttack(dragon), damage);
+            target.hurtOrSimulate(server.damageSources().mobAttack(dragon), damage);
             Vec3 direction = target.position().subtract(dragon.position());
             direction = new Vec3(direction.x, 0.0D, direction.z);
             if (direction.lengthSqr() < 1.0E-4D) {
@@ -359,7 +359,7 @@ public class StegonautGroundSlamAbility extends DragonAbility<Stegonaut> {
         double maxDistanceSqr = DUST_VIEW_DISTANCE * DUST_VIEW_DISTANCE;
         for (ServerPlayer player : server.players()) {
             if (player.distanceToSqr(x, y, z) <= maxDistanceSqr || player.distanceToSqr(dragon) <= maxDistanceSqr) {
-                server.sendParticles(player, ModParticles.DRAGON_DUST.get(), true,
+                server.sendParticles(player, ModParticles.DRAGON_DUST.get(), true, false,
                         x, y, z, 0, xSpeed, ySpeed, zSpeed, 1.0D);
             }
         }

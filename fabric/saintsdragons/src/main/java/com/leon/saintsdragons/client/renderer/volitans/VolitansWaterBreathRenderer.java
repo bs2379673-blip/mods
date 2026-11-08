@@ -54,8 +54,8 @@ public class VolitansWaterBreathRenderer extends EntityRenderer<VolitansWaterBre
 
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix4f = pose.pose();
-        Matrix3f matrix3f = pose.setNormal();
-        VertexConsumer vc = bufferSource.getBuffer(RenderType.entityTranslucent(texture));
+        Matrix3f matrix3f = pose.normal();
+        VertexConsumer vc = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture));
 
         float halfWidth = SPRITE_WIDTH_PX / 32.0F;
         float halfHeight = SPRITE_HEIGHT_PX / 32.0F;

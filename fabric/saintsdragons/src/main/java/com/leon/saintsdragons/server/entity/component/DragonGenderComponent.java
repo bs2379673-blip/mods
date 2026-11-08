@@ -56,14 +56,14 @@ public final class DragonGenderComponent {
     }
 
     public void loadFromNBT(CompoundTag tag) {
-        if (tag.contains("Gender", Tag.TAG_BYTE)) {
-            byte savedGenderId = tag.getByte("Gender");
-            boolean savedGenderInit = !tag.contains("GenderInitialized") || tag.getBoolean("GenderInitialized");
+        if (tag.contains("Gender")) {
+            byte savedGenderId = tag.getByteOr("Gender", (byte) 0);
+            boolean savedGenderInit = !tag.contains("GenderInitialized") || tag.getBooleanOr("GenderInitialized", false);
             setGender(DragonGender.fromId(savedGenderId));
             this.genderInitialized = savedGenderInit;
         } else if (tag.contains("IsFemale")) {
-            setFemale(tag.getBoolean("IsFemale"));
-            this.genderInitialized = !tag.contains("GenderInitialized") || tag.getBoolean("GenderInitialized");
+            setFemale(tag.getBooleanOr("IsFemale", false));
+            this.genderInitialized = !tag.contains("GenderInitialized") || tag.getBooleanOr("GenderInitialized", false);
         } else {
             this.genderInitialized = false;
             ensureInitialized();

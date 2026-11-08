@@ -27,7 +27,7 @@ public class LatcherRenderer extends GeoEntityRenderer<Latcher> {
     @Override
     public RenderType getRenderType(Latcher animatable, Identifier texture,
                                     @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityCutout(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture);
     }
 
     @Override

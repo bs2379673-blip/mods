@@ -40,11 +40,11 @@ public class ImpactRingRenderer extends EntityRenderer<ImpactRingEntity> {
 
         int frame = (entity.getAge() * TOTAL_FRAMES) / entity.getDuration();
         frame = Math.min(frame, TOTAL_FRAMES - 1);
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityTranslucent(TEXTURES[frame]));
+        VertexConsumer consumer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(TEXTURES[frame]));
 
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix = pose.pose();
-        Matrix3f normalMatrix = pose.setNormal();
+        Matrix3f normalMatrix = pose.normal();
         float size = entity.getScale(partialTicks) * 8.0F;
 
         renderHorizontalSquare(consumer, matrix, normalMatrix, size, opacity);

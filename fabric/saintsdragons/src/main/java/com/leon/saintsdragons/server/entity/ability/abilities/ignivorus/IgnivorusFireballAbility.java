@@ -280,7 +280,7 @@ public class IgnivorusFireballAbility extends DragonAbility<Ignivorus> {
                 radius, damage, MAGMA_LIFETIME_TICKS);
         fireball.setDeltaMovement(direction.scale(FIREBALL_SPEED));
         fireball.setVisualScale(scale);
-        fireball.hasImpulse = true;
+        fireball.needsSync = true;
         if (server.addFreshEntity(fireball)) {
             if (aiControlled) dragon.setAiFireballDecision("fired:stage-" + getChargeLevel(chargeAtRelease));
             if (learningTrial != 0) {

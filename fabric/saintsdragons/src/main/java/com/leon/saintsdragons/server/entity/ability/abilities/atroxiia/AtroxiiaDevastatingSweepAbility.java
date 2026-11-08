@@ -80,7 +80,7 @@ public class AtroxiiaDevastatingSweepAbility extends DragonAbility<Atroxiia> {
         damage *= dragon.getHungerMeleeDamageMultiplier();
 
         DamageSource source = dragon.level().damageSources().mobAttack(dragon);
-        target.hurt(source, damage);
+        target.hurtOrSimulate(source, damage);
 
         Vec3 direction = target.getBoundingBox().getCenter().subtract(dragon.getBoundingBox().getCenter());
         Vec3 horizontalDirection = new Vec3(direction.x, 0.0D, direction.z);

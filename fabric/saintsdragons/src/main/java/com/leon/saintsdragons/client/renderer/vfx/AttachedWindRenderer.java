@@ -69,7 +69,7 @@ public final class AttachedWindRenderer {
     public static void render(PoseStack poseStack, MultiBufferSource buffers,
                               Identifier[] textures, State state, float time) {
         Matrix4f matrix = poseStack.last().pose();
-        Vector3f normal = poseStack.last().setNormal().transform(new Vector3f(0, 0, 1)).normalize();
+        Vector3f normal = poseStack.last().normal().transform(new Vector3f(0, 0, 1)).normalize();
         for (Pulse pulse : state.pulses) {
             float life = Mth.clamp((time - pulse.birthTime()) / LIFETIME_TICKS, 0.0F, 1.0F);
             float alpha = MAX_ALPHA * smoothStep(life / 0.2F)
@@ -82,7 +82,7 @@ public final class AttachedWindRenderer {
             float cos = Mth.cos(pulse.angle());
             float sin = Mth.sin(pulse.angle());
             float z = FORWARD_OFFSET + pulse.textureIndex() * 0.025F;
-            VertexConsumer consumer = buffers.getBuffer(RenderType.entityTranslucent(textures[pulse.textureIndex()]));
+            VertexConsumer consumer = buffers.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(textures[pulse.textureIndex()]));
             vertex(consumer, matrix, normal, -halfSize, -halfSize, z, cos, sin, 0, 1, alpha);
             vertex(consumer, matrix, normal, halfSize, -halfSize, z, cos, sin, 1, 1, alpha);
             vertex(consumer, matrix, normal, halfSize, halfSize, z, cos, sin, 1, 0, alpha);

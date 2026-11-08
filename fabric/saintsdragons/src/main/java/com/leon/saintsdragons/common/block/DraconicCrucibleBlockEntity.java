@@ -567,18 +567,18 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
         if (!tryLoadLootTable(tag)) {
             ContainerHelper.loadAllItems(tag, this.items);
         }
-        this.burnTime = tag.getInt("BurnTime");
-        this.burnTimeTotal = tag.getInt("BurnTimeTotal");
-        this.activeHeatLevel = tag.getInt("ActiveHeatLevel");
-        this.processingProgress = tag.getInt("ProcessingProgress");
-        this.processingTimeTotal = tag.getInt("ProcessingTimeTotal");
-        this.processingLocked = tag.getBoolean("ProcessingLocked");
-        this.processingRequiredHeatLevel = tag.getInt("ProcessingRequiredHeatLevel");
-        this.processingFuelCost = tag.getInt("ProcessingFuelCost");
-        this.processingFuelSpent = tag.getInt("ProcessingFuelSpent");
-        this.reservedFuelCharge = tag.getInt("ReservedFuelCharge");
-        this.reservedFuelHeatLevel = tag.getInt("ReservedFuelHeatLevel");
-        if (tag.getInt("ThermalChargeModelVersion") < THERMAL_CHARGE_MODEL_VERSION) {
+        this.burnTime = tag.getIntOr("BurnTime", 0);
+        this.burnTimeTotal = tag.getIntOr("BurnTimeTotal", 0);
+        this.activeHeatLevel = tag.getIntOr("ActiveHeatLevel", 0);
+        this.processingProgress = tag.getIntOr("ProcessingProgress", 0);
+        this.processingTimeTotal = tag.getIntOr("ProcessingTimeTotal", 0);
+        this.processingLocked = tag.getBooleanOr("ProcessingLocked", false);
+        this.processingRequiredHeatLevel = tag.getIntOr("ProcessingRequiredHeatLevel", 0);
+        this.processingFuelCost = tag.getIntOr("ProcessingFuelCost", 0);
+        this.processingFuelSpent = tag.getIntOr("ProcessingFuelSpent", 0);
+        this.reservedFuelCharge = tag.getIntOr("ReservedFuelCharge", 0);
+        this.reservedFuelHeatLevel = tag.getIntOr("ReservedFuelHeatLevel", 0);
+        if (tag.getIntOr("ThermalChargeModelVersion", 0) < THERMAL_CHARGE_MODEL_VERSION) {
             migrateThermalCharge();
         } else {
             refreshActiveHeatLevel();
@@ -596,11 +596,11 @@ public class DraconicCrucibleBlockEntity extends RandomizableContainerBlockEntit
                 ? ItemStack.of(tag.getCompound("PendingResult"))
                 : ItemStack.EMPTY;
         this.activeRecipeId = tag.contains("ActiveRecipe")
-                ? Identifier.tryParse(tag.getString("ActiveRecipe"))
+                ? Identifier.tryParse(tag.getStringOr("ActiveRecipe", ""))
                 : null;
         this.activeInputSlot = this.activeRecipeId == null
                 ? NO_JOB_SLOT
-                : tag.getInt("ActiveInputSlot");
+                : tag.getIntOr("ActiveInputSlot", 0);
     }
 
     private void migrateThermalCharge() {

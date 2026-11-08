@@ -22,7 +22,7 @@ public abstract class BloodTempestAfterimageLivingRendererMixin<T extends Living
     private void saintsdragons$useAfterimageRenderType(T entity, boolean bodyVisible, boolean translucent,
                                                        boolean glowing, CallbackInfoReturnable<RenderType> cir) {
         if (BloodTempestAfterimageRenderContext.isActive() && entity instanceof AbstractClientPlayer player) {
-            cir.setReturnValue(RenderType.entityTranslucent(player.getSkinTextureLocation()));
+            cir.setReturnValue(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(player.getSkinTextureLocation()));
         }
     }
 

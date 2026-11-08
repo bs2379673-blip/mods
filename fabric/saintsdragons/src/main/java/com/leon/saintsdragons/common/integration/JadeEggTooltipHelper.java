@@ -41,12 +41,12 @@ public final class JadeEggTooltipHelper {
         if (!serverData.contains(TAG_REMAINING_TICKS)) {
             return null;
         }
-        return Component.translatable("jade.saintsdragons.egg_timer", formatTicks(serverData.getInt(TAG_REMAINING_TICKS)));
+        return Component.translatable("jade.saintsdragons.egg_timer", formatTicks(serverData.getIntOr(TAG_REMAINING_TICKS, 0)));
     }
 
     @Nullable
     public static Component buildEggPausedLine(CompoundTag serverData) {
-        if (!serverData.getBoolean(TAG_PAUSED)) {
+        if (!serverData.getBooleanOr(TAG_PAUSED, false)) {
             return null;
         }
         return Component.translatable("jade.saintsdragons.egg_timer_paused");

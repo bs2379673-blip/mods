@@ -43,14 +43,14 @@ public class DragonCombatHandler {
     }
 
     public void loadFromNBT(CompoundTag tag) {
-        this.globalCooldown = Math.max(0, tag.getInt("GlobalAbilityCooldown"));
+        this.globalCooldown = Math.max(0, tag.getIntOr("GlobalAbilityCooldown", 0));
         this.abilityCooldowns.clear();
-        if (tag.contains("AbilityCooldowns", Tag.TAG_COMPOUND)) {
-            CompoundTag cd = tag.getCompound("AbilityCooldowns");
+        if (tag.contains("AbilityCooldowns")) {
+            CompoundTag cd = tag.getCompoundOrEmpty("AbilityCooldowns");
             for (String key : cd.getAllKeys()) {
                 var type = AbilityRegistry.get(key);
                 if (type != null) {
-                    int val = Math.max(0, cd.getInt(key));
+                    int val = Math.max(0, cd.getIntOr(key, 0));
                     if (val > 0) this.abilityCooldowns.put(type, val);
                 }
             }

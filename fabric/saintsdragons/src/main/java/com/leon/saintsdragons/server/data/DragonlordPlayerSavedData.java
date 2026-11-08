@@ -61,7 +61,7 @@ public class DragonlordPlayerSavedData extends SavedData {
         ListTag players = new ListTag();
         for (Map.Entry<UUID, Float> entry : savedHealth.entrySet()) {
             CompoundTag playerTag = new CompoundTag();
-            playerTag.putUUID("UUID", entry.getKey());
+            com.leon.saintsdragons.util.compat.Compat.putUUID(playerTag, "UUID", entry.getKey());
             playerTag.putFloat("Health", entry.getValue());
             players.add(playerTag);
         }
@@ -71,12 +71,12 @@ public class DragonlordPlayerSavedData extends SavedData {
 
     public static DragonlordPlayerSavedData load(CompoundTag tag) {
         DragonlordPlayerSavedData data = new DragonlordPlayerSavedData();
-        if (tag.contains("Players", Tag.TAG_LIST)) {
-            ListTag players = tag.getList("Players", Tag.TAG_COMPOUND);
+        if (tag.contains("Players")) {
+            ListTag players = tag.getListOrEmpty("Players");
             for (int i = 0; i < players.size(); i++) {
-                CompoundTag playerTag = players.getCompound(i);
-                if (playerTag.hasUUID("UUID") && playerTag.contains("Health", Tag.TAG_FLOAT)) {
-                    data.savedHealth.put(playerTag.getUUID("UUID"), playerTag.getFloat("Health"));
+                CompoundTag playerTag = players.getCompoundOrEmpty(i);
+                if (com.leon.saintsdragons.util.compat.Compat.hasUUID(playerTag, "UUID") && playerTag.contains("Health")) {
+                    data.savedHealth.put(com.leon.saintsdragons.util.compat.Compat.getUUID(playerTag, "UUID"), playerTag.getFloatOr("Health", 0.0F));
                 }
             }
         }

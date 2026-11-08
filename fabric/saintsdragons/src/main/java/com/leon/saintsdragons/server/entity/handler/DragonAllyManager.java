@@ -50,7 +50,7 @@ public class DragonAllyManager {
         if (username.equalsIgnoreCase(ownerName)) {
                 return AllyResult.IS_OWNER;
         }
-        GlobalDragonAllySavedData data = GlobalDragonAllySavedData.get(owner.serverLevel());
+        GlobalDragonAllySavedData data = GlobalDragonAllySavedData.get(owner.level());
         UUID cachedUuid = USERNAME_CACHE.get(username.toLowerCase());
         if (cachedUuid != null && data.isAlly(owner.getUUID(), cachedUuid)) {
                 return AllyResult.ALREADY_ALLY;
@@ -69,7 +69,7 @@ public class DragonAllyManager {
         data.addAlly(owner.getUUID(), playerUuid, resolvedUsername);
         USERNAME_CACHE.put(resolvedUsername.toLowerCase(), playerUuid);
 
-        LOGGER.info("Added ally '{}' ({}) for owner {}", resolvedUsername, playerUuid, owner.getGameProfile().getName());
+        LOGGER.info("Added ally '{}' ({}) for owner {}", resolvedUsername, playerUuid, owner.getGameProfile().name());
         return AllyResult.SUCCESS;
     }
 
@@ -88,7 +88,7 @@ public class DragonAllyManager {
         
         username = username.trim().toLowerCase();
         
-        GlobalDragonAllySavedData data = GlobalDragonAllySavedData.get(owner.serverLevel());
+        GlobalDragonAllySavedData data = GlobalDragonAllySavedData.get(owner.level());
         UUID uuid = USERNAME_CACHE.get(username);
         if (uuid == null) {
             uuid = resolveAllyUuidByName(data, owner.getUUID(), username);
@@ -102,7 +102,7 @@ public class DragonAllyManager {
         }
         USERNAME_CACHE.remove(username);
 
-        LOGGER.info("Removed ally '{}' ({}) for owner {}", username, uuid, owner.getGameProfile().getName());
+        LOGGER.info("Removed ally '{}' ({}) for owner {}", username, uuid, owner.getGameProfile().name());
         return AllyResult.SUCCESS;
     }
 
@@ -133,7 +133,7 @@ public class DragonAllyManager {
     }
 
     public static List<String> getAllyUsernamesForOwner(ServerPlayer owner) {
-        GlobalDragonAllySavedData data = GlobalDragonAllySavedData.get(owner.serverLevel());
+        GlobalDragonAllySavedData data = GlobalDragonAllySavedData.get(owner.level());
         return new ArrayList<>(data.getAllies(owner.getUUID()).values());
     }
 
@@ -150,13 +150,13 @@ public class DragonAllyManager {
         if (owner == null) {
             return;
         }
-        GlobalDragonAllySavedData data = GlobalDragonAllySavedData.get(owner.serverLevel());
+        GlobalDragonAllySavedData data = GlobalDragonAllySavedData.get(owner.level());
         data.clearAllies(owner.getUUID());
-        LOGGER.info("Cleared all allies for owner {}", owner.getGameProfile().getName());
+        LOGGER.info("Cleared all allies for owner {}", owner.getGameProfile().name());
     }
 
     private static UUID resolveUsernameToUuid(ServerPlayer owner, String username) {
-        MinecraftServer server = owner.server;
+        MinecraftServer server = owner.level().getServer();
         if (server == null) return null;
         ServerPlayer onlinePlayer = server.getPlayerList().getPlayerByName(username);
         if (onlinePlayer != null) {
@@ -167,11 +167,11 @@ public class DragonAllyManager {
     }
 
     private static String resolveUuidToUsername(ServerPlayer owner, UUID uuid) {
-        MinecraftServer server = owner.server;
+        MinecraftServer server = owner.level().getServer();
         if (server == null) return null;
         ServerPlayer onlinePlayer = server.getPlayerList().getPlayer(uuid);
         if (onlinePlayer != null) {
-            return onlinePlayer.getGameProfile().getName();
+            return onlinePlayer.getGameProfile().name();
         }
         try {
             return server.getProfileCache().get(uuid).map(profile -> profile.getName()).orElse(null);
@@ -201,7 +201,7 @@ public class DragonAllyManager {
         if (!dragon.isTame()) {
             return null;
         }
-        return dragon.getOwnerUUID();
+        return com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon);
     }
 
     private ServerLevel getServerLevel() {

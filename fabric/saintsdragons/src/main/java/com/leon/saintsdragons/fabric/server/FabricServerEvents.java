@@ -48,9 +48,9 @@ public final class FabricServerEvents {
                         IvyTheDragonMerchant.followOwnerAcrossDimension(player, sourceLevel));
 
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
-            var sourceLevel = oldPlayer.serverLevel();
-            if (sourceLevel.dimension() != newPlayer.serverLevel().dimension()) {
-                newPlayer.server.execute(() ->
+            var sourceLevel = oldPlayer.level();
+            if (sourceLevel.dimension() != newPlayer.level().dimension()) {
+                newPlayer.level().getServer().execute(() ->
                         IvyTheDragonMerchant.followOwnerAcrossDimension(newPlayer, sourceLevel));
             }
         });
@@ -72,7 +72,7 @@ public final class FabricServerEvents {
             if (!(player instanceof ServerPlayer serverPlayer)) {
                 return InteractionResult.PASS;
             }
-            var advancement = serverPlayer.server.getAdvancements()
+            var advancement = serverPlayer.level().getServer().getAdvancements()
                 .getAdvancement(SaintsDragonsCommon.rl("why"));
             if (advancement != null) {
                 serverPlayer.getAdvancements().award(advancement, "hit_baby");

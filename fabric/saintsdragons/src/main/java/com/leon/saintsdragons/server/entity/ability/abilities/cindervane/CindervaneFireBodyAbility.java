@@ -127,7 +127,7 @@ public class CindervaneFireBodyAbility extends DragonAbility<Cindervane> {
             float damage = (float) DragonAttributeConfigLoader.getInstance()
                     .getConfig(DragonAttributeConfigLoader.CINDERVANE_ID)
                     .abilityDamage("fire_body", BASE_DAMAGE);
-            target.hurt(level.damageSources().dragonBreath(), damage);
+            target.hurtOrSimulate(level.damageSources().dragonBreath(), damage);
             target.igniteForSeconds(FIRE_SECONDS);
 
             Vec3 pushDir = target.position().subtract(center);

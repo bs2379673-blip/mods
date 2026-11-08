@@ -64,6 +64,6 @@ public abstract class IgnivorusSkyfallSphereRenderer extends RenderType {
         float nz = Mth.cos(latitude) * Mth.sin(longitude);
         buffer.addVertex(pose.pose(), nx * radius, ny * radius, nz * radius).setColor(1.0F, 0.65F, 0.18F, alpha).setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY).setLight(0xF000F0)
-                .setNormal(pose.setNormal(), nx, ny, nz);
+                .setNormal(pose, nx, ny, nz);
     }
 }

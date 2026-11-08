@@ -20,7 +20,7 @@ public abstract class BeamRenderTypes extends RenderType {
 
     public static RenderType translucent(Identifier texture) {
         if (ShaderPassCompatibility.isShaderPackInUse()) {
-            return RenderType.entityTranslucent(texture);
+            return net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture);
         }
         return UNLIT.computeIfAbsent(texture, BeamRenderTypes::createUnlit);
     }

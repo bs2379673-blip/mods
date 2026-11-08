@@ -40,9 +40,9 @@ public final class DragonHungerComponent {
             return;
         }
         this.hunger = clamped;
-        if (!dragon.level().isClientSide() && dragon.isTame() && dragon.getOwnerUUID() != null) {
+        if (!dragon.level().isClientSide() && dragon.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon) != null) {
             ServerLevel serverLevel = (ServerLevel) dragon.level();
-            DragonCodexSavedData.get(serverLevel).updateDragonStats(dragon.getOwnerUUID(), dragon);
+            DragonCodexSavedData.get(serverLevel).updateDragonStats(com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon), dragon);
         }
     }
 
@@ -106,7 +106,7 @@ public final class DragonHungerComponent {
         }
         while (hungerDecayTicks >= interval) {
             hungerDecayTicks -= interval;
-            dragon.hurt(dragon.damageSources().starve(), damage);
+            dragon.hurtOrSimulate(dragon.damageSources().starve(), damage);
             if (!dragon.isAlive()) {
                 break;
             }
@@ -140,8 +140,8 @@ public final class DragonHungerComponent {
     }
 
     public void loadFromNBT(CompoundTag tag) {
-        this.hunger = tag.contains("Hunger") ? Mth.clamp(tag.getInt("Hunger"), 0, HUNGER_MAX) : HUNGER_MAX;
-        this.hungerDecayTicks = tag.contains("HungerDecayTicks") ? Math.max(0, tag.getInt("HungerDecayTicks")) : 0;
-        this.hungerHealingTicks = Math.max(0, tag.getInt("HungerHealingTicks"));
+        this.hunger = tag.contains("Hunger") ? Mth.clamp(tag.getIntOr("Hunger", 0), 0, HUNGER_MAX) : HUNGER_MAX;
+        this.hungerDecayTicks = tag.contains("HungerDecayTicks") ? Math.max(0, tag.getIntOr("HungerDecayTicks", 0)) : 0;
+        this.hungerHealingTicks = Math.max(0, tag.getIntOr("HungerHealingTicks", 0));
     }
 }

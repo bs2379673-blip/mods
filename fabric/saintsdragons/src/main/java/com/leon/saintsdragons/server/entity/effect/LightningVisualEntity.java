@@ -144,8 +144,8 @@ public class LightningVisualEntity extends Entity {
         return distance < limit * limit;
     }
 
-    @Override
-    protected void addAdditionalSaveData(CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
         Vec3 startOffset = this.getStartOffset();
         Vec3 endOffset = this.getEndOffset();
         tag.putFloat("StartX", (float)startOffset.x);
@@ -160,23 +160,18 @@ public class LightningVisualEntity extends Entity {
         tag.putInt("VisualStyle", this.getVisualStyle().ordinal());
     }
 
-    @Override
-    protected void readAdditionalSaveData(CompoundTag tag) {
+    
+    protected void sdLoad(CompoundTag tag) {
         this.setSegment(
-                new Vec3(tag.getFloat("StartX"), tag.getFloat("StartY"), tag.getFloat("StartZ")),
-                new Vec3(tag.getFloat("EndX"), tag.getFloat("EndY"), tag.getFloat("EndZ"))
+                new Vec3(tag.getFloatOr("StartX", 0.0F), tag.getFloatOr("StartY", 0.0F), tag.getFloatOr("StartZ", 0.0F)),
+                new Vec3(tag.getFloatOr("EndX", 0.0F), tag.getFloatOr("EndY", 0.0F), tag.getFloatOr("EndZ", 0.0F))
         );
-        this.setVisualScale(tag.getFloat("Scale"));
-        this.setMaxAge(tag.getInt("MaxAge"));
-        this.setRenderSeed(tag.getInt("Seed"));
-        this.setVisualStyle(VisualStyle.byId(tag.getInt("VisualStyle")));
+        this.setVisualScale(tag.getFloatOr("Scale", 0.0F));
+        this.setMaxAge(tag.getIntOr("MaxAge", 0));
+        this.setRenderSeed(tag.getIntOr("Seed", 0));
+        this.setVisualStyle(VisualStyle.byId(tag.getIntOr("VisualStyle", 0)));
         this.noPhysics = true;
         this.noCulling = true;
-    }
-
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
     }
 
     private static Rotations toRotations(Vec3 vec) {
@@ -197,5 +192,18 @@ public class LightningVisualEntity extends Entity {
             VisualStyle[] values = values();
             return id >= 0 && id < values.length ? values[id] : RAEVYX;
         }
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

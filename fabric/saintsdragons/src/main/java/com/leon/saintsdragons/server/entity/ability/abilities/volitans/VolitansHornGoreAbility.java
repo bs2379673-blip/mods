@@ -115,7 +115,7 @@ public class VolitansHornGoreAbility extends DragonAbility<Volitans> {
         Volitans dragon = getUser();
         DamageSource source = dragon.level().damageSources().mobAttack(dragon);
         float damage = dragon.getConfiguredAbilityDamage("horn_gore", BASE_DAMAGE) * dragon.getHungerMeleeDamageMultiplier();
-        target.hurt(source, damage);
+        target.hurtOrSimulate(source, damage);
 
         Vec3 look = dragon.getLookAngle().normalize();
         target.knockback(1.4f, -look.x, -look.z);

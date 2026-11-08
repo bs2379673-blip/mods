@@ -359,7 +359,7 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
         for (int slot = 0; slot < atroxiiaChestInventory.getContainerSize(); slot++) {
             ItemStack stack = atroxiiaChestInventory.getItem(slot);
             if (!stack.isEmpty()) {
-                this.spawnAtLocation(stack.copy());
+                this.spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), stack.copy());
                 atroxiiaChestInventory.setItem(slot, ItemStack.EMPTY);
             }
         }
@@ -369,7 +369,7 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
         if (level().isClientSide()) return;
         var iterator = pendingChestOverflow.iterator();
         while (iterator.hasNext()) {
-            if (spawnAtLocation(iterator.next().copy()) != null) iterator.remove();
+            if (spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), iterator.next().copy()) != null) iterator.remove();
         }
     }
 
@@ -506,9 +506,9 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
     }
 
     @Override
-    protected void customServerAiStep() {
+    protected void customServerAiStep(net.minecraft.server.level.ServerLevel saintsdragons$level) {
         DragonBrain.tick(DRAGON_BRAIN, this);
-        super.customServerAiStep();
+        super.customServerAiStep(saintsdragons$level);
     }
 
     @Override
@@ -679,7 +679,7 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
         slitherMovement.cancelActive();
         Vec3 current = getDeltaMovement();
         setDeltaMovement(0.0D, current.y, 0.0D);
-        hasImpulse = true;
+        needsSync = true;
         hurtMarked = true;
     }
 
@@ -868,14 +868,14 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource damageSource, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource damageSource, float amount) {
         if (isDying()) {
             return false;
         }
         if (tamingController.tryEnterHoldStateFromDamage(damageSource, amount)) {
             return true;
         }
-        return super.hurt(damageSource, amount);
+        return super.hurtServer(saintsdragons$level, damageSource, amount);
     }
 
     @Override
@@ -892,11 +892,11 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
         dropPendingChestOverflow();
         if (hasAtroxiiaChest()) {
             dropAtroxiiaChestContent();
-            spawnAtLocation(Items.CHEST);
+            spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), Items.CHEST);
             setAtroxiiaChest(false);
         }
         if (hasSaddle()) {
-            spawnAtLocation(Items.SADDLE);
+            spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), Items.SADDLE);
             setSaddle(false);
         }
     }
@@ -1063,7 +1063,7 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
         this.entityData.set(DATA_PRECISE_STRIKE_NUDGE_TICKS, Math.max(1, durationTicks));
         if (isVehicle()) {
             setDeltaMovement(getDeltaMovement().add(nudgeVector.x, 0.0D, nudgeVector.z));
-            hasImpulse = true;
+            needsSync = true;
             hurtMarked = true;
         } else {
             getAIMovement().stopAndClearAllMovement();
@@ -1173,7 +1173,7 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
         );
         move(MoverType.SELF, nudgeDelta);
         setDeltaMovement(getDeltaMovement().add(nudgeDelta.x, 0.0D, nudgeDelta.z));
-        hasImpulse = true;
+        needsSync = true;
         hurtMarked = true;
     }
 
@@ -1187,7 +1187,7 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
         move(MoverType.SELF, nudgeDelta);
         Vec3 current = getDeltaMovement();
         setDeltaMovement(0.0D, current.y, 0.0D);
-        hasImpulse = true;
+        needsSync = true;
         hurtMarked = true;
     }
 
@@ -1322,8 +1322,8 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void sdSave(CompoundTag tag) {
+        super.sdSave(tag);
         saveRideableData(tag);
         tag.putInt("FeedingCooldownTicks", Math.max(0, this.entityData.get(DATA_FEEDING_COOLDOWN)));
         tamingController.save(tag);
@@ -1338,27 +1338,27 @@ public class Atroxiia extends RideableGroundDragon implements ShakesScreen, Pass
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void sdLoad(CompoundTag tag) {
+        super.sdLoad(tag);
         loadRideableData(tag);
         if (tag.contains("FeedingCooldownTicks")) {
-            setFeedingCooldown(tag.getInt("FeedingCooldownTicks"));
+            setFeedingCooldown(tag.getIntOr("FeedingCooldownTicks", 0));
         }
-        boolean restoredChest = tag.getBoolean("AtroxiiaHasChest");
+        boolean restoredChest = tag.getBooleanOr("AtroxiiaHasChest", false);
         boolean restoredSaddle = restoredChest
-                || tag.contains("AtroxiiaSaddled") && tag.getBoolean("AtroxiiaSaddled");
+                || tag.contains("AtroxiiaSaddled") && tag.getBooleanOr("AtroxiiaSaddled", false);
         setSaddle(restoredSaddle);
         setAtroxiiaChest(restoredChest);
         atroxiiaChestInventory.clearContent();
         pendingChestOverflow.clear();
-        if (hasAtroxiiaChest() && tag.contains("AtroxiiiaChestsItems", Tag.TAG_LIST)) {
-            ListTag items = tag.getList("AtroxiiiaChestsItems", Tag.TAG_COMPOUND);
+        if (hasAtroxiiaChest() && tag.contains("AtroxiiiaChestsItems")) {
+            ListTag items = tag.getListOrEmpty("AtroxiiiaChestsItems");
             for (int i = 0; i < items.size(); i++) {
                 ItemStack remainder = atroxiiaChestInventory.addItem(ItemStack.of(items.getCompound(i)));
                 if (!remainder.isEmpty()) pendingChestOverflow.add(remainder);
             }
         }
-        ListTag overflow = tag.getList("AtroxiiaChestOverflow", Tag.TAG_COMPOUND);
+        ListTag overflow = tag.getListOrEmpty("AtroxiiaChestOverflow");
         for (int i = 0; i < overflow.size(); i++) {
             ItemStack stack = ItemStack.of(overflow.getCompound(i));
             if (!stack.isEmpty()) pendingChestOverflow.add(stack);

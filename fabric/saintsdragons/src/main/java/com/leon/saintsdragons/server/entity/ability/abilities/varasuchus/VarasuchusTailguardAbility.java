@@ -192,7 +192,7 @@ public class VarasuchusTailguardAbility extends DragonAbility<Varasuchus> {
         if (target == null || !target.isAlive()) {
             return;
         }
-        target.hurt(dragon.damageSources().mobAttack(dragon), resolveParryDamage() * dragon.getHungerMeleeDamageMultiplier());
+        target.hurtOrSimulate(dragon.damageSources().mobAttack(dragon), resolveParryDamage() * dragon.getHungerMeleeDamageMultiplier());
 
         Vec3 direction = target.position().subtract(dragon.position());
         if (direction.lengthSqr() < 1.0E-4D) {

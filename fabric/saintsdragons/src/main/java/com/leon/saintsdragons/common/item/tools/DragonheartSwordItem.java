@@ -84,32 +84,32 @@ public class DragonheartSwordItem extends SwordItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, level, tooltip, flag);
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext saintsdragons$ctx, net.minecraft.world.item.component.TooltipDisplay saintsdragons$display, java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, saintsdragons$ctx, saintsdragons$display, tooltip, flag);
         if (!isBloodTempest()) {
-            tooltip.add(Component.empty());
-            tooltip.add(Component.translatable("item.saintsdragons.dragonlord_sword.tooltip.ability.title")
+            tooltip.accept(Component.empty());
+            tooltip.accept(Component.translatable("item.saintsdragons.dragonlord_sword.tooltip.ability.title")
                     .withStyle(ChatFormatting.GOLD));
-            tooltip.add(Component.translatable("item.saintsdragons.dragonlord_sword.tooltip.ability.description")
+            tooltip.accept(Component.translatable("item.saintsdragons.dragonlord_sword.tooltip.ability.description")
                     .withStyle(ChatFormatting.GRAY));
-            tooltip.add(Component.empty());
-            tooltip.add(Component.translatable("item.saintsdragons.dragonlord_sword.tooltip.description")
+            tooltip.accept(Component.empty());
+            tooltip.accept(Component.translatable("item.saintsdragons.dragonlord_sword.tooltip.description")
                     .withStyle(ChatFormatting.GOLD, ChatFormatting.ITALIC));
             return;
         }
 
-        tooltip.add(Component.empty());
-        tooltip.add(Component.translatable("item.saintsdragons.blood_tempest_katana.tooltip.passive.title")
+        tooltip.accept(Component.empty());
+        tooltip.accept(Component.translatable("item.saintsdragons.blood_tempest_katana.tooltip.passive.title")
                 .withStyle(ChatFormatting.DARK_RED));
-        tooltip.add(Component.translatable("item.saintsdragons.blood_tempest_katana.tooltip.passive.description")
+        tooltip.accept(Component.translatable("item.saintsdragons.blood_tempest_katana.tooltip.passive.description")
                 .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.empty());
-        tooltip.add(Component.translatable("item.saintsdragons.blood_tempest_katana.tooltip.ability.title")
+        tooltip.accept(Component.empty());
+        tooltip.accept(Component.translatable("item.saintsdragons.blood_tempest_katana.tooltip.ability.title")
                 .withStyle(ChatFormatting.DARK_RED));
-        tooltip.add(Component.translatable("item.saintsdragons.blood_tempest_katana.tooltip.ability.description")
+        tooltip.accept(Component.translatable("item.saintsdragons.blood_tempest_katana.tooltip.ability.description")
                 .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.empty());
-        tooltip.add(Component.translatable("item.saintsdragons.blood_tempest_katana.tooltip.quote")
+        tooltip.accept(Component.empty());
+        tooltip.accept(Component.translatable("item.saintsdragons.blood_tempest_katana.tooltip.quote")
                 .withStyle(ChatFormatting.DARK_RED, ChatFormatting.ITALIC));
     }
 

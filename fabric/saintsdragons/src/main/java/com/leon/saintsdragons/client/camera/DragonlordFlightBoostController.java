@@ -44,7 +44,7 @@ public final class DragonlordFlightBoostController {
                 look.y * DIRECT_ACCELERATION + (target.y - motion.y) * VELOCITY_BLEND,
                 look.z * DIRECT_ACCELERATION + (target.z - motion.z) * VELOCITY_BLEND
         ));
-        player.hasImpulse = true;
+        player.needsSync = true;
         player.resetFallDistance();
         boostTicks--;
     }

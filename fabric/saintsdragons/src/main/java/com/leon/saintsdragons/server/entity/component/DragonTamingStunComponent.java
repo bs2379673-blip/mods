@@ -133,14 +133,14 @@ public abstract class DragonTamingStunComponent<T extends DragonEntity> {
     }
 
     public void load(CompoundTag tag) {
-        failureCounter = Math.max(0, tag.getInt("TamingFailures"));
-        recoveryTargetHealth = tag.contains("TamingTargetHealth") ? tag.getFloat("TamingTargetHealth") : -1.0F;
-        stunGraceTicks = Math.max(0, tag.getInt("TamingStunGraceTicks"));
-        aiLocked = tag.getBoolean("TamingAiLocked");
-        awaitingFeed = tag.getBoolean("TamingAwaitingFeed");
-        stunTimeoutTicks = Math.max(0, tag.getInt("TamingStunTimeout"));
+        failureCounter = Math.max(0, tag.getIntOr("TamingFailures", 0));
+        recoveryTargetHealth = tag.contains("TamingTargetHealth") ? tag.getFloatOr("TamingTargetHealth", 0.0F) : -1.0F;
+        stunGraceTicks = Math.max(0, tag.getIntOr("TamingStunGraceTicks", 0));
+        aiLocked = tag.getBooleanOr("TamingAiLocked", false);
+        awaitingFeed = tag.getBooleanOr("TamingAwaitingFeed", false);
+        stunTimeoutTicks = Math.max(0, tag.getIntOr("TamingStunTimeout", 0));
 
-        if (tag.getBoolean("TamingStunned") && canUseTamingStun()) {
+        if (tag.getBooleanOr("TamingStunned", false) && canUseTamingStun()) {
             setTamingStunned(true);
             if (aiLocked && !dragon.level().isClientSide()) {
                 dragon.setNoAi(true);
@@ -167,7 +167,7 @@ public abstract class DragonTamingStunComponent<T extends DragonEntity> {
             } else {
                 dragon.setDeltaMovement(requestedMovement);
             }
-            dragon.hasImpulse = true;
+            dragon.needsSync = true;
             dragon.hurtMarked = true;
         } else {
             dragon.setDeltaMovement(Vec3.ZERO);
@@ -297,7 +297,7 @@ public abstract class DragonTamingStunComponent<T extends DragonEntity> {
         stopMovementControllersForStun();
 
         dragon.setDeltaMovement(0.0D, -FORCED_DESCENT_PER_TICK, 0.0D);
-        dragon.hasImpulse = true;
+        dragon.needsSync = true;
         return true;
     }
 

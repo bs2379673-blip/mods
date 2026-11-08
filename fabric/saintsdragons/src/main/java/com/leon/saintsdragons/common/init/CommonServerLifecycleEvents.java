@@ -82,7 +82,7 @@ public final class CommonServerLifecycleEvents {
             return;
         }
 
-        SaintsDragonsCommon.LOGGER.info("Restoring mounted dragon {} for player {}", dragon, player.getGameProfile().getName());
+        SaintsDragonsCommon.LOGGER.info("Restoring mounted dragon {} for player {}", dragon, player.getGameProfile().name());
         dragon.restoreMountedAnimationStateAfterLogin();
     }
 
@@ -91,7 +91,7 @@ public final class CommonServerLifecycleEvents {
             return;
         }
 
-        if (player == null || !WikiReminderSavedData.get(player.serverLevel()).markShownIfFirst(player.getUUID())) {
+        if (player == null || !WikiReminderSavedData.get(player.level()).markShownIfFirst(player.getUUID())) {
             return;
         }
 
@@ -114,7 +114,7 @@ public final class CommonServerLifecycleEvents {
             return;
         }
 
-        SaintsDragonsCommon.LOGGER.info("Preserving mounted dragon {} for player {} on disconnect", dragon, player.getGameProfile().getName());
+        SaintsDragonsCommon.LOGGER.info("Preserving mounted dragon {} for player {} on disconnect", dragon, player.getGameProfile().name());
         dragon.setPersistenceRequired();
         dragon.getNavigation().stop();
         dragon.setAccelerating(false);

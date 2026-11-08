@@ -25,7 +25,7 @@ public final class ProceduralBeamLightningRenderer {
             return;
         }
 
-        VertexConsumer vertices = buffers.getBuffer(RenderType.lightning());
+        VertexConsumer vertices = buffers.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lightning());
         Matrix4f matrix = poses.last().pose();
         for (int strand = 0; strand < STRANDS; strand++) {
             float clock = ageInTicks + strand * FLASH_TICKS / STRANDS;

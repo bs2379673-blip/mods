@@ -241,7 +241,7 @@ public class IvyCombatBrain {
             return true;
         }
         if (!lastAppliedCombatAnimation.isEmpty()) {
-            state.getController().forceAnimationReset();
+            state.controller().forceAnimationReset();
             lastAppliedCombatAnimation = "";
         }
         if (ivy.isBoxingBackingUp()) {
@@ -261,7 +261,7 @@ public class IvyCombatBrain {
             return false;
         }
         if (!animation.equals(lastAppliedCombatAnimation)) {
-            state.getController().forceAnimationReset();
+            state.controller().forceAnimationReset();
             lastAppliedCombatAnimation = animation;
         }
         AnimationHelper.setAndContinue(state, rawAnimation);
@@ -622,7 +622,7 @@ public class IvyCombatBrain {
 
         Vec3 step = away.normalize().scale(1.55D);
         ivy.setDeltaMovement(step.x, ivy.getDeltaMovement().y + 0.08D, step.z);
-        ivy.hasImpulse = true;
+        ivy.needsSync = true;
         ivy.setBoxingMovement(true, true);
         ivy.setBoxingActionTicks(DODGE_ACTION_TICKS);
         ivy.setBoxingAnimation(dodgeBackwardsTrigger());
@@ -883,7 +883,7 @@ public class IvyCombatBrain {
         Vec3 side = new Vec3(-away.z, 0.0D, away.x).normalize();
         Vec3 impulse = dodge == 2 ? away.normalize().scale(0.48D) : side.scale(dodge == 0 ? 0.42D : -0.42D);
         ivy.setDeltaMovement(ivy.getDeltaMovement().add(impulse.x, 0.08D, impulse.z));
-        ivy.hasImpulse = true;
+        ivy.needsSync = true;
     }
 
     private void startReactiveDodge(LivingEntity target, int counterChance) {
@@ -938,7 +938,7 @@ public class IvyCombatBrain {
 
         Vec3 step = tangent.scale(0.44D).add(radial.scale(-0.18D)).normalize().scale(0.54D);
         ivy.setDeltaMovement(step.x, ivy.getDeltaMovement().y + 0.08D, step.z);
-        ivy.hasImpulse = true;
+        ivy.needsSync = true;
     }
 
     private void applyImpact(AttackHit hit) {
@@ -961,7 +961,7 @@ public class IvyCombatBrain {
         }
         boolean swordDamage = hit.swordDamage;
         float damage = swordDamage ? ivy.getEquippedSwordDamageAgainst(target) : hit.damage;
-        boolean damaged = target.hurt(ivy.damageSources().mobAttack(ivy), damage);
+        boolean damaged = target.hurtOrSimulate(ivy.damageSources().mobAttack(ivy), damage);
         if (damaged && swordDamage) {
             ivy.applyEquippedSwordPostHit(target);
         }
@@ -1084,7 +1084,7 @@ public class IvyCombatBrain {
     private void setComboHorizontalImpulse(Vec3 step, double lift) {
         Vec3 current = ivy.getDeltaMovement();
         ivy.setDeltaMovement(step.x, current.y + lift, step.z);
-        ivy.hasImpulse = true;
+        ivy.needsSync = true;
     }
 
     private AttackType chooseAttack(double distanceSqr, boolean targetStill) {
@@ -1314,7 +1314,7 @@ public class IvyCombatBrain {
         if (away.horizontalDistanceSqr() > 1.0E-4D) {
             Vec3 step = away.normalize().scale(0.17D);
             ivy.setDeltaMovement(ivy.getDeltaMovement().add(step.x, 0.0D, step.z));
-            ivy.hasImpulse = true;
+            ivy.needsSync = true;
         }
     }
 
@@ -1343,7 +1343,7 @@ public class IvyCombatBrain {
         double radialCorrection = Mth.clamp(distance - preferred, -0.75D, 0.75D) * -0.035D;
         Vec3 step = tangent.scale(0.13D).add(radial.scale(radialCorrection));
         ivy.setDeltaMovement(ivy.getDeltaMovement().add(step.x, 0.0D, step.z));
-        ivy.hasImpulse = true;
+        ivy.needsSync = true;
     }
 
     private class BoxingGoal extends Goal {

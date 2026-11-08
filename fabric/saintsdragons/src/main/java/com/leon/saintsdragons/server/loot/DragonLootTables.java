@@ -78,7 +78,7 @@ public final class DragonLootTables {
         for (ItemStack drop : drops) {
             if (!drop.isEmpty()) {
                 drop.setCount(Math.max(1, scaleCount));
-                dragon.spawnAtLocation(drop);
+                dragon.spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), drop);
             }
         }
     }

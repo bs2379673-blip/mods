@@ -96,7 +96,7 @@ public record AtroxiiaRiderController(Atroxiia dragon) {
 
         dragon.setDeltaMovement(blended);
         dragon.move(MoverType.SELF, blended);
-        dragon.hasImpulse = true;
+        dragon.needsSync = true;
     }
 
     public double getPassengersRidingOffset() {

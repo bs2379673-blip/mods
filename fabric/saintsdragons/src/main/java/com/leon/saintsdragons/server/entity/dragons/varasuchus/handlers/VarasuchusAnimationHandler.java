@@ -73,7 +73,7 @@ public record VarasuchusAnimationHandler(Varasuchus drake) {
                 state, JUMP_TRANSITION_TICKS, JUMP, JUMP_LANDED, JUMP2, JUMP_LANDED2)) {
             return PlayState.CONTINUE;
         }
-        var controller = state.getController();
+        var controller = state.controller();
         controller.setAnimationSpeed(1.0F);
 
         if (drake.isWildRideAnimationActive()) {
@@ -147,11 +147,11 @@ public record VarasuchusAnimationHandler(Varasuchus drake) {
     }
 
     public PlayState actionPredicate(AnimationTest<Varasuchus> state) {
-        state.getController().transitionLength(ACTION_TRANSITION_TICKS);
+        state.controller().transitionLength(ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
     public PlayState fastActionPredicate(AnimationTest<Varasuchus> state) {
-        state.getController().transitionLength(FAST_ACTION_TRANSITION_TICKS);
+        state.controller().transitionLength(FAST_ACTION_TRANSITION_TICKS);
         return PlayState.STOP;
     }
     public void setupMovementController(AnimationController<Varasuchus> controller) {

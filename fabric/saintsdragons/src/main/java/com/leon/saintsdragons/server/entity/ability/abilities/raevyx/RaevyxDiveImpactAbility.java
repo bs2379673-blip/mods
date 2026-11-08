@@ -148,7 +148,7 @@ public final class RaevyxDiveImpactAbility {
                         && entity.attackable()
                         && !dragon.isAlly(entity)
                         && horizontalDistanceToSqr(entity.getBoundingBox(), origin) <= radius * radius)) {
-            target.hurt(server.damageSources().mobAttack(dragon), damage);
+            target.hurtOrSimulate(server.damageSources().mobAttack(dragon), damage);
             impactTargets.add(target);
             Vec3 outward = target.position().subtract(origin).multiply(1.0D, 0.0D, 1.0D);
             if (outward.lengthSqr() < 1.0E-4D) {
@@ -156,7 +156,7 @@ public final class RaevyxDiveImpactAbility {
             }
             outward = outward.normalize().scale(knockback);
             target.push(outward.x, 0.3D + power * 0.35D, outward.z);
-            target.hasImpulse = true;
+            target.needsSync = true;
         }
 
         RaevyxChainLightningAbility.chainFromImpact(dragon, origin, impactTargets, power);

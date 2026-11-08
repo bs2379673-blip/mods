@@ -69,16 +69,16 @@ public class VisualFallingBlockEntity extends Entity {
         }
     }
 
-    @Override
-    protected void addAdditionalSaveData(CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
         tag.put("BlockState", NbtUtils.writeBlockState(getBlockState()));
         tag.putInt("Lifetime", this.lifetime);
     }
 
-    @Override
-    protected void readAdditionalSaveData(CompoundTag tag) {
-        this.setBlockState(NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK), tag.getCompound("BlockState")));
-        this.lifetime = tag.getInt("Lifetime");
+    
+    protected void sdLoad(CompoundTag tag) {
+        this.setBlockState(NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK), tag.getCompoundOrEmpty("BlockState")));
+        this.lifetime = tag.getIntOr("Lifetime", 0);
     }
 
     @Override
@@ -92,12 +92,20 @@ public class VisualFallingBlockEntity extends Entity {
     }
 
     @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
+    public void recreateFromPacket(@NotNull ClientboundAddEntityPacket packet) {
+        super.recreateFromPacket(packet);
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
     }
 
     @Override
-    public void recreateFromPacket(@NotNull ClientboundAddEntityPacket packet) {
-        super.recreateFromPacket(packet);
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

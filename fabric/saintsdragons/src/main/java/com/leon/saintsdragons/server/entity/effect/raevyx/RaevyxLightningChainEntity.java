@@ -66,11 +66,6 @@ public class RaevyxLightningChainEntity extends Entity {
     }
 
     @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
-    }
-
-    @Override
     protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
         builder.define(DAMAGE, 0F);
         builder.define(SIZE, 1.0F);
@@ -228,7 +223,7 @@ public class RaevyxLightningChainEntity extends Entity {
                         this.damageSources().mobAttack(caster) : 
                         this.damageSources().magic();
                     
-                    entity.hurt(damageSource, getDamage());
+                    entity.hurtOrSimulate(damageSource, getDamage());
                     spawnImpactEffects(entity.position().add(0, entity.getBbHeight() / 2, 0));
                 }
             }
@@ -303,8 +298,8 @@ public class RaevyxLightningChainEntity extends Entity {
         return !caster.isAlliedTo(target);
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag compound) {
+    
+    protected void sdSave(CompoundTag compound) {
         compound.putInt("lifespan", this.getLifespan());
         compound.putInt("delay", this.getDelay());
         compound.putFloat("damage", this.getDamage());
@@ -314,7 +309,7 @@ public class RaevyxLightningChainEntity extends Entity {
         compound.putInt("maxChains", this.maxChains);
         
         if (this.ownerUUID != null) {
-            compound.putUUID("Owner", this.ownerUUID);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(compound, "Owner", this.ownerUUID);
         }
         
         if (startPos != null) {
@@ -330,23 +325,23 @@ public class RaevyxLightningChainEntity extends Entity {
         }
     }
 
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag compound) {
-        this.setLifespan(compound.getInt("lifespan"));
-        this.setDelay(compound.getInt("delay"));
-        this.setDamage(compound.getFloat("damage"));
-        this.setSize(compound.getFloat("size"));
-        this.setIsChain(compound.getBoolean("isChain"));
-        this.chainCount = compound.getInt("chainCount");
-        this.maxChains = compound.getInt("maxChains");
+    
+    protected void sdLoad(CompoundTag compound) {
+        this.setLifespan(compound.getIntOr("lifespan", 0));
+        this.setDelay(compound.getIntOr("delay", 0));
+        this.setDamage(compound.getFloatOr("damage", 0.0F));
+        this.setSize(compound.getFloatOr("size", 0.0F));
+        this.setIsChain(compound.getBooleanOr("isChain", false));
+        this.chainCount = compound.getIntOr("chainCount", 0);
+        this.maxChains = compound.getIntOr("maxChains", 0);
         
-        if (compound.hasUUID("Owner")) {
-            this.ownerUUID = compound.getUUID("Owner");
+        if (com.leon.saintsdragons.util.compat.Compat.hasUUID(compound, "Owner")) {
+            this.ownerUUID = com.leon.saintsdragons.util.compat.Compat.getUUID(compound, "Owner");
         }
         
         if (compound.contains("startX")) {
             this.startPos = new Vec3(
-                compound.getDouble("startX"),
+                compound.getDoubleOr("startX", 0.0D),
                 compound.getDouble("startY"),
                 compound.getDouble("startZ")
             );
@@ -354,10 +349,23 @@ public class RaevyxLightningChainEntity extends Entity {
         
         if (compound.contains("endX")) {
             this.endPos = new Vec3(
-                compound.getDouble("endX"),
+                compound.getDoubleOr("endX", 0.0D),
                 compound.getDouble("endY"),
                 compound.getDouble("endZ")
             );
         }
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

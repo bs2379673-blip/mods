@@ -168,9 +168,9 @@ public class StegonautGroundChunkEntity extends Entity {
                 target -> target.isAlive() && target != owner && (owner == null || !owner.isAlly(target)));
         for (LivingEntity target : hits) {
             if (owner != null) {
-                target.hurt(server.damageSources().mobAttack(owner), impactDamage);
+                target.hurtOrSimulate(server.damageSources().mobAttack(owner), impactDamage);
             } else {
-                target.hurt(server.damageSources().generic(), impactDamage);
+                target.hurtOrSimulate(server.damageSources().generic(), impactDamage);
             }
             Vec3 kb = target.position().subtract(impact).normalize().scale(0.55D * scale);
             target.push(kb.x, 0.16D, kb.z);
@@ -178,34 +178,29 @@ public class StegonautGroundChunkEntity extends Entity {
         discard();
     }
 
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        this.livedTicks = tag.getInt("Lived");
-        this.lifetimeTicks = tag.getInt("Lifetime");
-        this.impactRadius = tag.getDouble("ImpactRadius");
-        this.impactDamage = tag.getFloat("ImpactDamage");
-        if (tag.contains("BlockState", CompoundTag.TAG_COMPOUND) && level() instanceof ServerLevel server) {
-            BlockState state = NbtUtils.readBlockState(server.holderLookup(Registries.BLOCK), tag.getCompound("BlockState"));
+    
+    protected void sdLoad(CompoundTag tag) {
+        this.livedTicks = tag.getIntOr("Lived", 0);
+        this.lifetimeTicks = tag.getIntOr("Lifetime", 0);
+        this.impactRadius = tag.getDoubleOr("ImpactRadius", 0.0D);
+        this.impactDamage = tag.getFloatOr("ImpactDamage", 0.0F);
+        if (tag.contains("BlockState") && level() instanceof ServerLevel server) {
+            BlockState state = NbtUtils.readBlockState(server.holderLookup(Registries.BLOCK), tag.getCompoundOrEmpty("BlockState"));
             setBlockState(state.isAir() ? Blocks.DIRT.defaultBlockState() : state);
         }
         if (tag.contains("Scale")) {
-            setVisualScale(tag.getFloat("Scale"));
+            setVisualScale(tag.getFloatOr("Scale", 0.0F));
         }
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
         tag.putInt("Lived", livedTicks);
         tag.putInt("Lifetime", lifetimeTicks);
         tag.putDouble("ImpactRadius", impactRadius);
         tag.putFloat("ImpactDamage", impactDamage);
         tag.put("BlockState", NbtUtils.writeBlockState(getBlockState()));
         tag.putFloat("Scale", getVisualScale());
-    }
-
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
     }
 
     @Override
@@ -233,5 +228,18 @@ public class StegonautGroundChunkEntity extends Entity {
     public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
         float scale = getVisualScale();
         return EntityDimensions.fixed(0.98F * scale, 0.98F * scale);
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

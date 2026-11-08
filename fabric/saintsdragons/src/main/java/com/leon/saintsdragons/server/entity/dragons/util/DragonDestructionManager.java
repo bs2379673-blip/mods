@@ -345,7 +345,7 @@ public final class DragonDestructionManager {
                 e -> e.isAlive() && e != dragon && !dragon.isAlly(e))) {
 
             if (hit.add(entity)) {
-                entity.hurt(level.damageSources().dragonBreath(), damage);
+                entity.hurtOrSimulate(level.damageSources().dragonBreath(), damage);
                 entity.igniteForSeconds(fireSeconds);
             }
         }

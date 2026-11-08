@@ -79,7 +79,7 @@ public final class BeamStarFlashRenderer {
 
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix = pose.pose();
-        Matrix3f normalMatrix = pose.setNormal();
+        Matrix3f normalMatrix = pose.normal();
         Vector3f ribbonRight = new Vector3f(1.0F, 0.0F, 0.0F);
         if (billboardTransform == null) {
             Matrix3f worldToLocal = new Matrix3f(normalMatrix).invert();

@@ -120,6 +120,6 @@ public class VolitansClawAbility extends DragonAbility<Volitans> {
         Volitans dragon = getUser();
         DamageSource source = dragon.level().damageSources().mobAttack(dragon);
         float damage = dragon.getConfiguredAbilityDamage("claw", BASE_DAMAGE) * dragon.getHungerMeleeDamageMultiplier();
-        target.hurt(source, damage);
+        target.hurtOrSimulate(source, damage);
     }
 }

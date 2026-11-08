@@ -32,7 +32,7 @@ public final class BeamGrainRenderer {
 
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix = pose.pose();
-        Matrix3f normalMatrix = pose.setNormal();
+        Matrix3f normalMatrix = pose.normal();
         int frame = textures.length == 1
                 ? 0
                 : Mth.floor(Math.max(0.0F, ageInTicks)
@@ -101,7 +101,7 @@ public final class BeamGrainRenderer {
 
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix = pose.pose();
-        Matrix3f normalMatrix = pose.setNormal();
+        Matrix3f normalMatrix = pose.normal();
         Matrix3f worldToLocal = new Matrix3f(normalMatrix).invert();
         Vec3 midpoint = beamStartWorld.add(beamEndWorld).scale(0.5D);
         var camera = Minecraft.getInstance().gameRenderer.getMainCamera();

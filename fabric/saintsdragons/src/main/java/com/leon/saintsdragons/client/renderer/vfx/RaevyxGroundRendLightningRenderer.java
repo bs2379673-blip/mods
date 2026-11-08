@@ -92,7 +92,7 @@ public final class RaevyxGroundRendLightningRenderer {
             poses.translate(from.x, from.y, from.z);
             poses.mulPose(new Quaternionf().rotationTo(0, 0, 1,
                     (float) direction.x, (float) direction.y, (float) direction.z));
-            ProceduralBeamLightningRenderer.emitBolt(buffers.getBuffer(RenderType.lightning()), poses.last().pose(),
+            ProceduralBeamLightningRenderer.emitBolt(buffers.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lightning()), poses.last().pose(),
                     length, seed, 1.2F, alpha, 1, gold ? 0.72F : 0.06F, gold ? 0.12F : 0.08F);
         } finally {
             poses.popPose();

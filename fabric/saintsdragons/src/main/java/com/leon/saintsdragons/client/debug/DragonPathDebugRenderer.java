@@ -48,7 +48,7 @@ public final class DragonPathDebugRenderer {
         }
 
         MultiBufferSource.BufferSource bufferSource = minecraft.renderBuffers().bufferSource();
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.lines());
+        VertexConsumer consumer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lines());
 
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
@@ -106,7 +106,7 @@ public final class DragonPathDebugRenderer {
         renderMarker(poseStack, consumer, snapshot.combatTarget(), 0.42D, COMBAT_TARGET);
 
         poseStack.popPose();
-        bufferSource.endBatch(RenderType.lines());
+        bufferSource.endBatch(net.minecraft.client.renderer.rendertype.RenderTypes.lines());
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
     }
@@ -186,7 +186,7 @@ public final class DragonPathDebugRenderer {
 
         PoseStack.Pose pose = poseStack.last();
         Matrix4f positionMatrix = pose.pose();
-        Matrix3f normalMatrix = pose.setNormal();
+        Matrix3f normalMatrix = pose.normal();
         consumer.addVertex(positionMatrix, (float) from.x, (float) from.y, (float) from.z).setColor(color.red, color.green, color.blue, 1.0F)
                 .setNormal(normalMatrix, (float) direction.x, (float) direction.y, (float) direction.z);
         consumer.addVertex(positionMatrix, (float) to.x, (float) to.y, (float) to.z).setColor(color.red, color.green, color.blue, 1.0F)

@@ -19,7 +19,7 @@ public abstract class StructureTemplateEntityMixin {
             ServerLevelAccessor level,
             CompoundTag entityTag,
             CallbackInfoReturnable<Optional<Entity>> cir) {
-        if (saintsdragons$isStructureSpawnDisabled(entityTag.getString("id"))) {
+        if (saintsdragons$isStructureSpawnDisabled(entityTag.getStringOr("id", ""))) {
             cir.setReturnValue(Optional.empty());
         }
     }

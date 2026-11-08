@@ -444,7 +444,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     }
 
     public static void followOwnerAcrossDimension(ServerPlayer owner, ServerLevel sourceLevel) {
-        if (owner.serverLevel() == sourceLevel) {
+        if (owner.level() == sourceLevel) {
             return;
         }
 
@@ -468,7 +468,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         if (!isAlive() || !isTame() || !isOwnedBy(player)) {
             return false;
         }
-        ServerLevel destinationLevel = player.serverLevel();
+        ServerLevel destinationLevel = player.level();
         Vec3 destinationPosition = player.position();
 
         ServerLevel sourceLevel = level() instanceof ServerLevel serverLevel ? serverLevel : null;
@@ -917,11 +917,11 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         Multimap<Attribute, AttributeModifier> modifiers =
                 sword.getAttributeModifiers(EquipmentSlot.MAINHAND);
         for (AttributeModifier modifier : modifiers.get(Attributes.ATTACK_DAMAGE)) {
-            if (modifier.getOperation() == AttributeModifier.Operation.ADDITION) {
+            if (modifier.getOperation() == AttributeModifier.Operation.ADD_VALUE) {
                 damage += modifier.getAmount();
-            } else if (modifier.getOperation() == AttributeModifier.Operation.MULTIPLY_BASE) {
+            } else if (modifier.getOperation() == AttributeModifier.Operation.ADD_MULTIPLIED_BASE) {
                 damage += 1.0D * modifier.getAmount();
-            } else if (modifier.getOperation() == AttributeModifier.Operation.MULTIPLY_TOTAL) {
+            } else if (modifier.getOperation() == AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL) {
                 damage *= 1.0D + modifier.getAmount();
             }
         }
@@ -1214,7 +1214,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
             if (!level().isClientSide()) {
                 refuseRenameAttempt();
             }
-            return InteractionResult.sidedSuccess(level().isClientSide());
+            return InteractionResult.SUCCESS;
         }
         if (!isAlive()) {
             return InteractionResult.PASS;
@@ -1223,7 +1223,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
             if (!level().isClientSide() && player instanceof ServerPlayer serverPlayer && isOwnedBy(player)) {
                 handleDownedReviveInteraction(serverPlayer);
             }
-            return InteractionResult.sidedSuccess(level().isClientSide());
+            return InteractionResult.SUCCESS;
         }
         if (isBaby()) {
             return super.mobInteract(player, hand);
@@ -1436,7 +1436,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     }
 
     private void handleSoundKeyframe(SoundKeyframeEvent<IvyTheDragonMerchant> event) {
-        soundHandler.handleAnimationSound(event.getKeyframeData(), event.getController());
+        soundHandler.handleAnimationSound(event.getKeyframeData(), event.controller());
     }
 
     private void handleParticleKeyframe(ParticleKeyframeEvent<IvyTheDragonMerchant> event) {
@@ -1454,8 +1454,8 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     private <T extends GeoEntity> PlayState animationPredicate(AnimationTest<T> state) {
         locomotionBlendActive = false;
         if (deathTime > 0 || getDeathAnimation() != 0 || !isAlive()) {
-            if (state.getController().isPlayingTriggeredAnimation()) {
-                state.getController().forceAnimationReset();
+            if (state.controller().isPlayingTriggeredAnimation()) {
+                state.controller().forceAnimationReset();
             }
             return PlayState.STOP;
         }
@@ -1472,7 +1472,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         if (isRidingCompanionVehicle()) {
             clearMovementTriggerIfNeeded(state);
             AnimationHelper.setAndContinue(state, MOUNTING);
-            state.getController().transitionLength(2);
+            state.controller().transitionLength(2);
             return PlayState.CONTINUE;
         }
         TradeAnimState tradeState = getTradeAnimState();
@@ -1485,12 +1485,12 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
                 || isIdleVariantActive()) {
             return PlayState.CONTINUE;
         }
-        if (!getBoxingCombat().isActive() && state.getController().isPlayingTriggeredAnimation()) {
+        if (!getBoxingCombat().isActive() && state.controller().isPlayingTriggeredAnimation()) {
             return PlayState.CONTINUE;
         }
 
         if (wasMovementStopped || wasDownedOrArisingAnimation) {
-            state.getController().forceAnimationReset();
+            state.controller().forceAnimationReset();
             wasMovementStopped = false;
             wasDownedOrArisingAnimation = false;
         }
@@ -1501,7 +1501,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         }
 
         if (getBoxingCombat().isActive()) {
-            state.getController().transitionLength(1);
+            state.controller().transitionLength(1);
         }
 
         if (getBoxingCombat().applyMovementAnimation(state)) {
@@ -1510,7 +1510,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         }
 
         if (wasBoxingAnimation) {
-            state.getController().forceAnimationReset();
+            state.controller().forceAnimationReset();
             wasBoxingAnimation = false;
         }
 
@@ -1520,8 +1520,8 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     }
 
     private void clearMovementTriggerIfNeeded(AnimationTest<?> state) {
-        if (state.getController().isPlayingTriggeredAnimation()) {
-            state.getController().forceAnimationReset();
+        if (state.controller().isPlayingTriggeredAnimation()) {
+            state.controller().forceAnimationReset();
         }
     }
 
@@ -1529,19 +1529,19 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         if (deathTime > 0 || getDeathAnimation() != 0 || !isAlive()) {
             if (getDeathAnimation() == 1 || (getDeathAnimation() == 0 && isTame())) {
                 AnimationHelper.setAndContinue(state, DIE);
-                state.getController().transitionLength(1);
+                state.controller().transitionLength(1);
                 return PlayState.CONTINUE;
             }
             return PlayState.STOP;
         }
         if (isDowned()) {
             AnimationHelper.setAndContinue(state, ABOUT_TO_DIE);
-            state.getController().transitionLength(1);
+            state.controller().transitionLength(1);
             return PlayState.CONTINUE;
         }
         if (getDownedAriseTicks() > 0) {
             AnimationHelper.setAndContinue(state, ARISE);
-            state.getController().transitionLength(1);
+            state.controller().transitionLength(1);
             return PlayState.CONTINUE;
         }
         return PlayState.STOP;
@@ -1549,7 +1549,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
 
     private <T extends GeoEntity> PlayState instantAnimationPredicate(AnimationTest<T> state) {
         if (deathTime > 0 && (getDeathAnimation() == 2 || !isTame())) {
-            state.getController().transitionLength(1);
+            state.controller().transitionLength(1);
             AnimationHelper.setAndContinue(state, ACTUALLY_DIE);
             return PlayState.CONTINUE;
         }
@@ -1557,12 +1557,12 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         if (isDowned()) {
             return hurtDowned(source, amount);
         }
         if (source.getEntity() instanceof Player player) {
-            boolean hurt = super.hurt(source, amount);
+            boolean hurt = super.hurtServer(saintsdragons$level, source, amount);
             if (hurt && isTame() && isOwnedBy(player) && isAlive()) {
                 speakOwnerHurtChatter(player);
             }
@@ -1577,7 +1577,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
             return hurt;
         }
         if (source.getEntity() instanceof LivingEntity attacker && isCombatFriendly(attacker)) {
-            boolean hurt = super.hurt(source, amount);
+            boolean hurt = super.hurtServer(saintsdragons$level, source, amount);
             if (getTarget() == attacker) {
                 setTarget(null);
             }
@@ -1593,10 +1593,10 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         }
         boolean holdGround = source.getEntity() instanceof Player && getBoxingCombat().shouldHoldGroundAgainstKnockback();
         Vec3 preHitMotion = holdGround ? getDeltaMovement() : Vec3.ZERO;
-        boolean hurt = super.hurt(source, amount);
+        boolean hurt = super.hurtServer(saintsdragons$level, source, amount);
         if (hurt && holdGround) {
             setDeltaMovement(preHitMotion);
-            hasImpulse = true;
+            needsSync = true;
         }
         if (isDownedOrArising() || !isAlive()) {
             return hurt;
@@ -1677,7 +1677,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         setIdleVariantActive(false);
         setRunning(false);
         setDeltaMovement(0.0D, Math.min(getDeltaMovement().y, 0.0D), 0.0D);
-        hasImpulse = true;
+        needsSync = true;
     }
 
     private void holdDownedStill() {
@@ -1687,7 +1687,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         setIdleVariantActive(false);
         setRunning(false);
         setDeltaMovement(0.0D, Math.min(getDeltaMovement().y, 0.0D), 0.0D);
-        hasImpulse = true;
+        needsSync = true;
     }
 
     private void clearDownedMobAggro() {
@@ -2020,7 +2020,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
 
     boolean hasHarmfulEffect() {
         return getActiveEffects().stream()
-                .anyMatch(effect -> effect.getEffect().getCategory() == MobEffectCategory.HARMFUL);
+                .anyMatch(effect -> effect.getEffect().value().getCategory() == MobEffectCategory.HARMFUL);
     }
 
     boolean needsRecoveryFood() {
@@ -2054,7 +2054,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
             consumeOneInventoryItem(slot, new ItemStack(Items.BUCKET));
         }
         for (var effect : new ArrayList<>(getActiveEffects())) {
-            if (effect.getEffect().getCategory() == MobEffectCategory.HARMFUL) {
+            if (effect.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) {
                 removeEffect(effect.getEffect());
             }
         }
@@ -2298,7 +2298,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
                 }
             }
         }
-        spawnAtLocation(remainder);
+        spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), remainder);
     }
 
     void lockBoxingBodyToYaw(float yaw, float turnSpeed) {
@@ -2333,16 +2333,15 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         this.entityData.set(DATA_CLIMBING_LADDER, climbing);
     }
 
-    @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    
+    protected void sdSave(CompoundTag tag) {
         tag.putBoolean(TAME_TAG, isTame());
         tag.put(IVY_INVENTORY_TAG, saveIvyInventory());
         tag.putInt(IVY_TRADE_DATA_VERSION_TAG, IVY_TRADE_DATA_VERSION);
         tag.putLong(NEXT_TRADE_RESTOCK_GAME_TIME_TAG, this.nextRestockGameTime);
         UUID ownerUuid = getOwnerUUID();
         if (ownerUuid != null) {
-            tag.putUUID(OWNER_UUID_TAG, ownerUuid);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, OWNER_UUID_TAG, ownerUuid);
         }
         tag.putInt(COMMAND_TAG, getCommand());
         tag.putBoolean(DOWNED_TAG, isDowned());
@@ -2361,7 +2360,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         ListTag knownDialogueList = new ListTag();
         for (UUID playerUuid : knownDialoguePlayers) {
             CompoundTag knownTag = new CompoundTag();
-            knownTag.putUUID(KNOWN_DIALOGUE_UUID_TAG, playerUuid);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(knownTag, KNOWN_DIALOGUE_UUID_TAG, playerUuid);
             String name = rememberedDialogueNames.get(playerUuid);
             if (name != null && !name.isBlank()) {
                 knownTag.putString(REMEMBERED_NAME_TAG, name);
@@ -2389,55 +2388,54 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         tag.put(KNOWN_DIALOGUE_PLAYERS_TAG, knownDialogueList);
     }
 
-    @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        boolean hasCurrentTradeData = tag.getInt(IVY_TRADE_DATA_VERSION_TAG) >= IVY_TRADE_DATA_VERSION;
+    
+    protected void sdLoad(CompoundTag tag) {
+        boolean hasCurrentTradeData = tag.getIntOr(IVY_TRADE_DATA_VERSION_TAG, 0) >= IVY_TRADE_DATA_VERSION;
         if (!hasCurrentTradeData) {
             this.offers = null;
         }
         long scheduledRestockGameTime = hasCurrentTradeData
-                && tag.contains(NEXT_TRADE_RESTOCK_GAME_TIME_TAG, Tag.TAG_LONG)
-                ? tag.getLong(NEXT_TRADE_RESTOCK_GAME_TIME_TAG)
+                && tag.contains(NEXT_TRADE_RESTOCK_GAME_TIME_TAG)
+                ? tag.getLongOr(NEXT_TRADE_RESTOCK_GAME_TIME_TAG, 0L)
                 : level().getGameTime() + this.restockInterval;
         this.nextRestockGameTime = Math.min(
                 scheduledRestockGameTime,
                 level().getGameTime() + this.restockInterval);
-        if (tag.contains(IVY_INVENTORY_TAG, Tag.TAG_LIST)) {
-            loadIvyInventory(tag.getList(IVY_INVENTORY_TAG, Tag.TAG_COMPOUND));
+        if (tag.contains(IVY_INVENTORY_TAG)) {
+            loadIvyInventory(tag.getListOrEmpty(IVY_INVENTORY_TAG));
             sanitizeIvyInventoryAfterLoad();
         }
-        setTame(tag.getBoolean(TAME_TAG));
-        if (tag.hasUUID(OWNER_UUID_TAG)) {
-            setOwnerUUID(tag.getUUID(OWNER_UUID_TAG));
+        setTame(tag.getBooleanOr(TAME_TAG, false));
+        if (com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, OWNER_UUID_TAG)) {
+            setOwnerUUID(com.leon.saintsdragons.util.compat.Compat.getUUID(tag, OWNER_UUID_TAG));
             if (getOwnerUUID() != null) {
                 this.entityData.set(DATA_TAME, true);
             }
         } else if (!isTame()) {
             setOwnerUUID(null);
         }
-        setCommand(tag.contains(COMMAND_TAG, Tag.TAG_INT) ? tag.getInt(COMMAND_TAG) : CompanionCommand.WANDER.id);
+        setCommand(tag.contains(COMMAND_TAG) ? tag.getIntOr(COMMAND_TAG, 0) : CompanionCommand.WANDER.id);
         if (!isTame()
-                && tag.contains(HOUSE_HOME_X_TAG, Tag.TAG_INT)
-                && tag.contains(HOUSE_HOME_Y_TAG, Tag.TAG_INT)
-                && tag.contains(HOUSE_HOME_Z_TAG, Tag.TAG_INT)) {
+                && tag.contains(HOUSE_HOME_X_TAG)
+                && tag.contains(HOUSE_HOME_Y_TAG)
+                && tag.contains(HOUSE_HOME_Z_TAG)) {
             setHouseHome(new BlockPos(
-                    tag.getInt(HOUSE_HOME_X_TAG),
+                    tag.getIntOr(HOUSE_HOME_X_TAG, 0),
                     tag.getInt(HOUSE_HOME_Y_TAG),
                     tag.getInt(HOUSE_HOME_Z_TAG)
             ));
         } else {
             clearHouseHome();
         }
-        setDowned(tag.getBoolean(DOWNED_TAG));
-        downedBleedTicks = tag.contains(DOWNED_BLEED_TICKS_TAG, Tag.TAG_INT)
-                ? Math.max(0, tag.getInt(DOWNED_BLEED_TICKS_TAG))
+        setDowned(tag.getBooleanOr(DOWNED_TAG, false));
+        downedBleedTicks = tag.contains(DOWNED_BLEED_TICKS_TAG)
+                ? Math.max(0, tag.getIntOr(DOWNED_BLEED_TICKS_TAG, 0))
                 : DOWNED_BLEED_OUT_TICKS;
-        downedFinishHits = tag.contains(DOWNED_FINISH_HITS_TAG, Tag.TAG_INT)
-                ? Math.max(0, tag.getInt(DOWNED_FINISH_HITS_TAG))
+        downedFinishHits = tag.contains(DOWNED_FINISH_HITS_TAG)
+                ? Math.max(0, tag.getIntOr(DOWNED_FINISH_HITS_TAG, 0))
                 : 0;
-        downedReviveProgress = tag.contains(DOWNED_REVIVE_PROGRESS_TAG, Tag.TAG_INT)
-                ? Math.max(0, tag.getInt(DOWNED_REVIVE_PROGRESS_TAG))
+        downedReviveProgress = tag.contains(DOWNED_REVIVE_PROGRESS_TAG)
+                ? Math.max(0, tag.getIntOr(DOWNED_REVIVE_PROGRESS_TAG, 0))
                 : 0;
         downedReviveInteractionGraceTicks = 0;
         setDownedAriseTicks(0);
@@ -2451,26 +2449,26 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         rememberedDialogueImpressions.clear();
         rememberedDialogueFlags.clear();
         rememberedDialogueResumePoints.clear();
-        if (tag.contains(KNOWN_DIALOGUE_PLAYERS_TAG, Tag.TAG_LIST)) {
-            ListTag knownDialogueList = tag.getList(KNOWN_DIALOGUE_PLAYERS_TAG, Tag.TAG_COMPOUND);
+        if (tag.contains(KNOWN_DIALOGUE_PLAYERS_TAG)) {
+            ListTag knownDialogueList = tag.getListOrEmpty(KNOWN_DIALOGUE_PLAYERS_TAG);
             for (int i = 0; i < knownDialogueList.size(); i++) {
-                CompoundTag knownTag = knownDialogueList.getCompound(i);
-                if (knownTag.hasUUID(KNOWN_DIALOGUE_UUID_TAG)) {
-                    UUID uuid = knownTag.getUUID(KNOWN_DIALOGUE_UUID_TAG);
-                    if (knownTag.contains(REMEMBERED_NAME_TAG, Tag.TAG_STRING)) {
-                        String name = knownTag.getString(REMEMBERED_NAME_TAG);
+                CompoundTag knownTag = knownDialogueList.getCompoundOrEmpty(i);
+                if (com.leon.saintsdragons.util.compat.Compat.hasUUID(knownTag, KNOWN_DIALOGUE_UUID_TAG)) {
+                    UUID uuid = com.leon.saintsdragons.util.compat.Compat.getUUID(knownTag, KNOWN_DIALOGUE_UUID_TAG);
+                    if (knownTag.contains(REMEMBERED_NAME_TAG)) {
+                        String name = knownTag.getStringOr(REMEMBERED_NAME_TAG, "");
                         if (!name.isBlank()) {
                             rememberedDialogueNames.put(uuid, name);
                         }
                     }
-                    if (knownTag.contains(REMEMBERED_IMPRESSION_TAG, Tag.TAG_STRING)) {
-                        rememberedDialogueImpressions.put(uuid, knownTag.getString(REMEMBERED_IMPRESSION_TAG));
+                    if (knownTag.contains(REMEMBERED_IMPRESSION_TAG)) {
+                        rememberedDialogueImpressions.put(uuid, knownTag.getStringOr(REMEMBERED_IMPRESSION_TAG, ""));
                     }
-                    if (knownTag.contains(REMEMBERED_DIALOGUE_FLAGS_TAG, Tag.TAG_LIST)) {
+                    if (knownTag.contains(REMEMBERED_DIALOGUE_FLAGS_TAG)) {
                         Set<String> flags = new HashSet<>();
-                        ListTag flagsTag = knownTag.getList(REMEMBERED_DIALOGUE_FLAGS_TAG, Tag.TAG_STRING);
+                        ListTag flagsTag = knownTag.getListOrEmpty(REMEMBERED_DIALOGUE_FLAGS_TAG);
                         for (int flagIndex = 0; flagIndex < flagsTag.size(); flagIndex++) {
-                            String flag = flagsTag.getString(flagIndex);
+                            String flag = flagsTag.getStringOr(flagIndex, "");
                             if (!flag.isBlank()) {
                                 flags.add(flag);
                             }
@@ -2479,11 +2477,11 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
                             rememberedDialogueFlags.put(uuid, flags);
                         }
                     }
-                    if (knownTag.contains(REMEMBERED_DIALOGUE_RESUME_ID_TAG, Tag.TAG_STRING)
-                            && knownTag.contains(REMEMBERED_DIALOGUE_RESUME_NODE_TAG, Tag.TAG_STRING)) {
+                    if (knownTag.contains(REMEMBERED_DIALOGUE_RESUME_ID_TAG)
+                            && knownTag.contains(REMEMBERED_DIALOGUE_RESUME_NODE_TAG)) {
                         Identifier dialogueId = Identifier.tryParse(
-                                knownTag.getString(REMEMBERED_DIALOGUE_RESUME_ID_TAG));
-                        String nodeId = knownTag.getString(REMEMBERED_DIALOGUE_RESUME_NODE_TAG);
+                                knownTag.getStringOr(REMEMBERED_DIALOGUE_RESUME_ID_TAG, ""));
+                        String nodeId = knownTag.getStringOr(REMEMBERED_DIALOGUE_RESUME_NODE_TAG, "");
                         if (dialogueId != null && !nodeId.isBlank()) {
                             rememberedDialogueResumePoints.put(uuid, new DialogueResumePoint(dialogueId, nodeId));
                         }
@@ -2512,9 +2510,9 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
             ivyInventory.setItem(slot, ItemStack.EMPTY);
         }
         for (int index = 0; index < items.size(); index++) {
-            CompoundTag itemTag = items.getCompound(index);
-            int slot = itemTag.contains(IVY_INVENTORY_SLOT_TAG, Tag.TAG_BYTE)
-                    ? Byte.toUnsignedInt(itemTag.getByte(IVY_INVENTORY_SLOT_TAG))
+            CompoundTag itemTag = items.getCompoundOrEmpty(index);
+            int slot = itemTag.contains(IVY_INVENTORY_SLOT_TAG)
+                    ? Byte.toUnsignedInt(itemTag.getByteOr(IVY_INVENTORY_SLOT_TAG, (byte) 0))
                     : index;
             if (slot >= 0 && slot < IvyInventoryMenu.IVY_SLOT_COUNT) {
                 ivyInventory.setItem(slot, ItemStack.of(itemTag));
@@ -3182,4 +3180,19 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
         }
     }
 
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        super.addAdditionalSaveData(saintsdragonsOut);
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        super.readAdditionalSaveData(saintsdragonsIn);
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
+    }
 }

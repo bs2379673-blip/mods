@@ -40,7 +40,7 @@ public final class DragonEquipmentLayer<T extends DragonEntity> extends GeoRende
             return;
         }
 
-        RenderType equipmentRenderType = RenderType.entityCutoutNoCull(texture);
+        RenderType equipmentRenderType = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutNoCull(texture);
         VertexConsumer equipmentBuffer = bufferSource.getBuffer(equipmentRenderType);
         getRenderer().reRender(
                 bakedModel,

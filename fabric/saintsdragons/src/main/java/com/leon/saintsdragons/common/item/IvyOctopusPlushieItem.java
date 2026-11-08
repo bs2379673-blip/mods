@@ -64,8 +64,8 @@ public final class IvyOctopusPlushieItem extends Item {
 
     public static void bindTo(ItemStack stack, IvyTheDragonMerchant ivy, ServerPlayer owner) {
         CompoundTag tag = stack.getOrCreateTag();
-        tag.putUUID(BOUND_IVY_UUID_TAG, ivy.getUUID());
-        tag.putUUID(BOUND_OWNER_UUID_TAG, owner.getUUID());
+        com.leon.saintsdragons.util.compat.Compat.putUUID(tag, BOUND_IVY_UUID_TAG, ivy.getUUID());
+        com.leon.saintsdragons.util.compat.Compat.putUUID(tag, BOUND_OWNER_UUID_TAG, owner.getUUID());
     }
 
     public static boolean canRepresent(ItemStack stack, IvyTheDragonMerchant ivy, ServerPlayer owner) {
@@ -83,13 +83,13 @@ public final class IvyOctopusPlushieItem extends Item {
     @Nullable
     private static UUID getBoundIvyUuid(ItemStack stack) {
         CompoundTag tag = stack.getTag();
-        return tag != null && tag.hasUUID(BOUND_IVY_UUID_TAG) ? tag.getUUID(BOUND_IVY_UUID_TAG) : null;
+        return tag != null && com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, BOUND_IVY_UUID_TAG) ? com.leon.saintsdragons.util.compat.Compat.getUUID(tag, BOUND_IVY_UUID_TAG) : null;
     }
 
     @Nullable
     private static UUID getBoundOwnerUuid(ItemStack stack) {
         CompoundTag tag = stack.getTag();
-        return tag != null && tag.hasUUID(BOUND_OWNER_UUID_TAG) ? tag.getUUID(BOUND_OWNER_UUID_TAG) : null;
+        return tag != null && com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, BOUND_OWNER_UUID_TAG) ? com.leon.saintsdragons.util.compat.Compat.getUUID(tag, BOUND_OWNER_UUID_TAG) : null;
     }
 
     private static IvyTheDragonMerchant findLoadedIvy(ServerPlayer player, @Nullable UUID boundIvyUuid) {
@@ -97,12 +97,12 @@ public final class IvyOctopusPlushieItem extends Item {
         if (server == null) {
             return null;
         }
-        IvyTheDragonMerchant sameDimension = findLoadedIvy(player.serverLevel(), player, boundIvyUuid);
+        IvyTheDragonMerchant sameDimension = findLoadedIvy(player.level(), player, boundIvyUuid);
         if (sameDimension != null) {
             return sameDimension;
         }
         for (ServerLevel level : server.getAllLevels()) {
-            if (level == player.serverLevel()) {
+            if (level == player.level()) {
                 continue;
             }
             IvyTheDragonMerchant ivy = findLoadedIvy(level, player, boundIvyUuid);

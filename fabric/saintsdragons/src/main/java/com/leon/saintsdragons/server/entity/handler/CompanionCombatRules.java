@@ -33,7 +33,7 @@ public final class CompanionCombatRules {
         if (entity instanceof TamableAnimal tamable && !tamable.isTame()) {
             return null;
         }
-        return entity instanceof OwnableEntity ownable ? ownable.getOwnerUUID() : null;
+        return entity instanceof OwnableEntity ownable ? com.leon.saintsdragons.util.compat.Compat.ownerUUID(ownable) : null;
     }
 
     private static boolean isTrustedUuid(UUID candidateUuid, UUID ownerUuid, Level level) {

@@ -105,7 +105,7 @@ public abstract class DragonAbility<T extends LivingEntity> {
     public <E extends GeoEntity> PlayState animationPredicate(AnimationTest<E> e) {
         if (activeAnimation == null || activeAnimation.getAnimationStages().isEmpty())
             return PlayState.STOP;
-        e.getController().setAnimation(activeAnimation);
+        e.controller().setAnimation(activeAnimation);
         return PlayState.CONTINUE;
     }
     public void nextSection() {

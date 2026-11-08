@@ -36,7 +36,7 @@ public class WikiReminderSavedData extends SavedData {
         ListTag players = new ListTag();
         for (UUID playerId : shownPlayers) {
             CompoundTag playerTag = new CompoundTag();
-            playerTag.putUUID("UUID", playerId);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(playerTag, "UUID", playerId);
             players.add(playerTag);
         }
         tag.put("Players", players);
@@ -45,12 +45,12 @@ public class WikiReminderSavedData extends SavedData {
 
     public static WikiReminderSavedData load(CompoundTag tag) {
         WikiReminderSavedData data = new WikiReminderSavedData();
-        if (tag.contains("Players", Tag.TAG_LIST)) {
-            ListTag players = tag.getList("Players", Tag.TAG_COMPOUND);
+        if (tag.contains("Players")) {
+            ListTag players = tag.getListOrEmpty("Players");
             for (int i = 0; i < players.size(); i++) {
-                CompoundTag playerTag = players.getCompound(i);
-                if (playerTag.hasUUID("UUID")) {
-                    data.shownPlayers.add(playerTag.getUUID("UUID"));
+                CompoundTag playerTag = players.getCompoundOrEmpty(i);
+                if (com.leon.saintsdragons.util.compat.Compat.hasUUID(playerTag, "UUID")) {
+                    data.shownPlayers.add(com.leon.saintsdragons.util.compat.Compat.getUUID(playerTag, "UUID"));
                 }
             }
         }

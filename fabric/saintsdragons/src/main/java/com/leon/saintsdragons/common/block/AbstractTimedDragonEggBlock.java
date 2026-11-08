@@ -200,8 +200,8 @@ public abstract class AbstractTimedDragonEggBlock<E extends AbstractDragonEggBlo
             }
 
             if (eggEntity != null) {
-                if (eggEntity.getOwnerUUID() != null) {
-                    baby.setOwnerUUID(eggEntity.getOwnerUUID());
+                if (com.leon.saintsdragons.util.compat.Compat.ownerUUID(eggEntity) != null) {
+                    com.leon.saintsdragons.util.compat.Compat.setOwnerUUID(baby, com.leon.saintsdragons.util.compat.Compat.ownerUUID(eggEntity));
                     baby.setTame(true);
                 }
                 if (eggEntity.getBabyGender() != null) {
@@ -221,8 +221,8 @@ public abstract class AbstractTimedDragonEggBlock<E extends AbstractDragonEggBlo
             positionBaby(level, pos, baby, i, eggCount);
 
             if (level.addFreshEntity(baby)) {
-                if (baby.isTame() && baby.getOwnerUUID() != null) {
-                    DragonCodexSavedData.get(level).addDragon(baby.getOwnerUUID(), baby);
+                if (baby.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(baby) != null) {
+                    DragonCodexSavedData.get(level).addDragon(com.leon.saintsdragons.util.compat.Compat.ownerUUID(baby), baby);
                 }
                 level.gameEvent(GameEvent.ENTITY_PLACE, pos, GameEvent.Context.of(baby));
             }

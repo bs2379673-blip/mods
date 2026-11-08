@@ -23,6 +23,6 @@ public abstract class NameTagItemMixin {
         if (!player.level().isClientSide()) {
             ivy.refuseRenameAttempt();
         }
-        cir.setReturnValue(InteractionResult.sidedSuccess(player.level().isClientSide()));
+        cir.setReturnValue(InteractionResult.SUCCESS);
     }
 }

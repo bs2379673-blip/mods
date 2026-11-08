@@ -33,12 +33,12 @@ public class DraconianArmorItem extends ArmorItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, level, tooltip, flag);
-        tooltip.add(Component.empty());
-        tooltip.add(Component.translatable("item.saintsdragons.draconian_armor.tooltip.passive.title")
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext saintsdragons$ctx, net.minecraft.world.item.component.TooltipDisplay saintsdragons$display, java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, saintsdragons$ctx, saintsdragons$display, tooltip, flag);
+        tooltip.accept(Component.empty());
+        tooltip.accept(Component.translatable("item.saintsdragons.draconian_armor.tooltip.passive.title")
                 .withStyle(ChatFormatting.WHITE));
-        tooltip.add(Component.empty()
+        tooltip.accept(Component.empty()
                 .append(Component.translatable("item.saintsdragons.draconian_armor.tooltip.full_set")
                         .withStyle(ChatFormatting.DARK_GRAY))
                 .append(Component.literal(" "))

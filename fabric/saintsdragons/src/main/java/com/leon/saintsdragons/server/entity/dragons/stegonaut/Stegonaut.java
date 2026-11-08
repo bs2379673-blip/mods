@@ -193,9 +193,9 @@ public class Stegonaut extends RideableGroundDragon implements PackMember<Stegon
     }
 
     @Override
-    protected void customServerAiStep() {
+    protected void customServerAiStep(net.minecraft.server.level.ServerLevel saintsdragons$level) {
         DragonBrain.tick(DRAGON_BRAIN, this);
-        super.customServerAiStep();
+        super.customServerAiStep(saintsdragons$level);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -404,7 +404,7 @@ public class Stegonaut extends RideableGroundDragon implements PackMember<Stegon
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         if (isDying()) {
             return false;
         }
@@ -416,7 +416,7 @@ public class Stegonaut extends RideableGroundDragon implements PackMember<Stegon
             amount *= 0.3F;
         }
 
-        return super.hurt(source, amount);
+        return super.hurtServer(saintsdragons$level, source, amount);
     }
 
     private boolean isWildStegonautDamageAllowed(@NotNull DamageSource source) {
@@ -529,7 +529,7 @@ public class Stegonaut extends RideableGroundDragon implements PackMember<Stegon
         for (int slot = 0; slot < stegonautChestInventory.getContainerSize(); slot++) {
             ItemStack stack = stegonautChestInventory.getItem(slot);
             if (!stack.isEmpty()) {
-                this.spawnAtLocation(stack.copy());
+                this.spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), stack.copy());
                 stegonautChestInventory.setItem(slot, ItemStack.EMPTY);
             }
         }
@@ -860,15 +860,15 @@ public class Stegonaut extends RideableGroundDragon implements PackMember<Stegon
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void sdSave(CompoundTag tag) {
+        super.sdSave(tag);
         tag.putInt("StegonautCommand", this.getCommand());
         tag.putBoolean("StegonautOrderedSit", this.isOrderedToSit());
         tag.putInt("GrumbleCooldown", grumbleCooldown);
         tag.putInt("FeedingCooldownTicks", Math.max(0, this.entityData.get(DATA_FEEDING_COOLDOWN)));
         tag.putBoolean("BoundToBinder", boundToBinder);
         if (this.packLeaderUuid != null) {
-            tag.putUUID("PackLeaderUuid", this.packLeaderUuid);
+            com.leon.saintsdragons.util.compat.Compat.putUUID(tag, "PackLeaderUuid", this.packLeaderUuid);
         }
         tag.putBoolean("StegonautHasChest", hasStegonautChest());
         tag.putBoolean("StegonautSaddled", hasSaddle());
@@ -880,38 +880,38 @@ public class Stegonaut extends RideableGroundDragon implements PackMember<Stegon
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void sdLoad(CompoundTag tag) {
+        super.sdLoad(tag);
         loadRideableData(tag);
 
         int restoredCommand = this.getCommand();
         if (tag.contains("StegonautCommand")) {
-            restoredCommand = tag.getInt("StegonautCommand");
+            restoredCommand = tag.getIntOr("StegonautCommand", 0);
             this.setCommand(restoredCommand);
         }
         boolean restoredOrderedSit = tag.contains("StegonautOrderedSit")
-                ? tag.getBoolean("StegonautOrderedSit")
+                ? tag.getBooleanOr("StegonautOrderedSit", false)
                 : restoredCommand == 1;
-        grumbleCooldown = tag.getInt("GrumbleCooldown");
+        grumbleCooldown = tag.getIntOr("GrumbleCooldown", 0);
         if (tag.contains("FeedingCooldownTicks")) {
-            this.entityData.set(DATA_FEEDING_COOLDOWN, Math.max(0, tag.getInt("FeedingCooldownTicks")));
+            this.entityData.set(DATA_FEEDING_COOLDOWN, Math.max(0, tag.getIntOr("FeedingCooldownTicks", 0)));
         }
-        boundToBinder = tag.getBoolean("BoundToBinder");
-        this.packLeaderUuid = tag.hasUUID("PackLeaderUuid") ? tag.getUUID("PackLeaderUuid") : null;
+        boundToBinder = tag.getBooleanOr("BoundToBinder", false);
+        this.packLeaderUuid = com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, "PackLeaderUuid") ? com.leon.saintsdragons.util.compat.Compat.getUUID(tag, "PackLeaderUuid") : null;
         if (this.isTame()) {
             this.packLeaderUuid = null;
         }
 
-        boolean restoredChest = tag.getBoolean("StegonautHasChest");
+        boolean restoredChest = tag.getBooleanOr("StegonautHasChest", false);
         boolean restoredSaddle = restoredChest
-                || tag.contains("StegonautSaddled") && tag.getBoolean("StegonautSaddled");
+                || tag.contains("StegonautSaddled") && tag.getBooleanOr("StegonautSaddled", false);
         setSaddle(restoredSaddle);
         setStegonautChest(restoredChest);
-        if (hasStegonautChest() && tag.contains("StegonautChestItems", Tag.TAG_LIST)) {
-            stegonautChestInventory.fromTag(tag.getList("StegonautChestItems", Tag.TAG_COMPOUND));
+        if (hasStegonautChest() && tag.contains("StegonautChestItems")) {
+            stegonautChestInventory.fromTag(tag.getListOrEmpty("StegonautChestItems"));
         }
         if (tag.contains("SitProgress")) {
-            setSitProgress(tag.getFloat("SitProgress"));
+            setSitProgress(tag.getFloatOr("SitProgress", 0.0F));
         }
         refreshCommandState();
         this.setOrderedToSit(restoredOrderedSit);
@@ -926,11 +926,11 @@ public class Stegonaut extends RideableGroundDragon implements PackMember<Stegon
     private void dropEquipmentOnDeath() {
         if (hasStegonautChest()) {
             dropStegonautChestContents();
-            spawnAtLocation(Items.CHEST);
+            spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), Items.CHEST);
             setStegonautChest(false);
         }
         if (hasSaddle()) {
-            spawnAtLocation(Items.SADDLE);
+            spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), Items.SADDLE);
             setSaddle(false);
         }
     }

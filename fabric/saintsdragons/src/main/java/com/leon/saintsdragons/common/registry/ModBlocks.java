@@ -110,39 +110,39 @@ public class ModBlocks {
                             .noOcclusion()));
     public static final Supplier<Block> DRAGONHEART_ALLOY_BLOCK =
             REGISTER.register("dragonheart_alloy_block",
-                    () -> new Block(BlockBehaviour.Properties.copy(Blocks.NETHERITE_BLOCK)
+                    () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.NETHERITE_BLOCK)
                             .mapColor(MapColor.COLOR_RED)
                             .strength(12.0F, 1200.0F)
                             .requiresCorrectToolForDrops()));
     public static final Supplier<Block> DRAGONHEART_BLOCK =
             REGISTER.register("dragonheart_block",
-                    () -> new Block(BlockBehaviour.Properties.copy(Blocks.NETHERITE_BLOCK)
+                    () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.NETHERITE_BLOCK)
                             .mapColor(MapColor.COLOR_RED)
                             .strength(12.0F, 1200.0F)
                             .requiresCorrectToolForDrops()));
     public static final Supplier<Block> DEEPSLATE_WORLDROOT_ORE =
             REGISTER.register("deepslate_worldroot_ore",
-                    () -> new Block(BlockBehaviour.Properties.copy(Blocks.DEEPSLATE_DIAMOND_ORE)
+                    () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE_DIAMOND_ORE)
                             .mapColor(MapColor.COLOR_LIGHT_BLUE)
                             .requiresCorrectToolForDrops()));
     public static final Supplier<Block> DRAGONHEART_ORE =
             REGISTER.register("dragonheart_ore",
-                    () -> new Block(BlockBehaviour.Properties.copy(Blocks.END_STONE)
+                    () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.END_STONE)
                             .mapColor(MapColor.COLOR_YELLOW)
                             .requiresCorrectToolForDrops()));
     public static final Supplier<Block> WORLDROOT_BLOCK =
             REGISTER.register("worldroot_block",
-                    () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+                    () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)
                             .mapColor(MapColor.COLOR_BROWN)
                             .requiresCorrectToolForDrops()));
     public static final Supplier<Block> RAW_WORLDROOT_BLOCK =
             REGISTER.register("raw_worldroot_block",
-                    () -> new Block(BlockBehaviour.Properties.copy(Blocks.RAW_IRON_BLOCK)
+                    () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK)
                             .mapColor(MapColor.COLOR_BROWN)
                             .requiresCorrectToolForDrops()));
     public static final Supplier<Block> IGNIVORUS_INCUBATOR_BLOCK =
             REGISTER.register("ignivorus_incubator_block",
-                    () -> new Block(BlockBehaviour.Properties.copy(Blocks.RAW_IRON_BLOCK)
+                    () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK)
                             .mapColor(MapColor.COLOR_RED)
                             .requiresCorrectToolForDrops()));
 

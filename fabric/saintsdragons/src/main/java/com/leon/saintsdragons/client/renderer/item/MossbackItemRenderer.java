@@ -22,7 +22,7 @@ import software.bernie.geckolib.model.GeoModel;
 public class MossbackItemRenderer extends GeoItemRenderer<MossbackItem> {
     private static final Identifier GUI_TEXTURE =
             Identifier.fromNamespaceAndPath("saintsdragons", "item/mossback/mossback");
-    private static final RenderType GUI_RENDER_TYPE = RenderType.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS);
+    private static final RenderType GUI_RENDER_TYPE = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS);
     private final MossbackItemModel babyModel = new MossbackItemModel(true);
 
     public MossbackItemRenderer() {
@@ -57,7 +57,7 @@ public class MossbackItemRenderer extends GeoItemRenderer<MossbackItem> {
                 .apply(GUI_TEXTURE);
         VertexConsumer consumer = bufferSource.getBuffer(GUI_RENDER_TYPE);
         Matrix4f pose = poseStack.last().pose();
-        Matrix3f normal = poseStack.last().setNormal();
+        Matrix3f normal = poseStack.last().normal();
         float u0 = sprite.getU0();
         float u1 = sprite.getU1();
         float v0 = sprite.getV0();

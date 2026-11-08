@@ -257,7 +257,7 @@ public class DragonAIMovementController {
                 Math.max(velocity.y, upward), velocity.z * drag + direction.z * boost);
         dragon.getMoveControl().setWantedPosition(target.x, target.y - (enteringWater ? 0.35D : 0.0D),
                 target.z, enteringWater ? 1.1D : 1.15D);
-        dragon.hasImpulse = true;
+        dragon.needsSync = true;
     }
 
     private static QueuedWaypoint groundWaypoint(DragonGroundRequest request) {

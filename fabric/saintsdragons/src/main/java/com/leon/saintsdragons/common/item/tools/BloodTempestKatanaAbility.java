@@ -83,14 +83,14 @@ public final class BloodTempestKatanaAbility {
         player.resetAttackStrengthTicker();
         player.teleportTo(destination.x, destination.y, destination.z);
         player.setDeltaMovement(Vec3.ZERO);
-        player.hasImpulse = true;
+        player.needsSync = true;
         player.hurtMarked = true;
 
         strikeTargets(player, targets, direction, damage);
-        spawnLightningResidue(player.serverLevel(), origin, destination);
-        spawnConvergingDust(player.serverLevel(), origin, destination);
-        spawnConvergingStormTrails(player.serverLevel(), origin, destination);
-        spawnSlashLine(player.serverLevel(), origin, destination);
+        spawnLightningResidue(player.level(), origin, destination);
+        spawnConvergingDust(player.level(), origin, destination);
+        spawnConvergingStormTrails(player.level(), origin, destination);
+        spawnSlashLine(player.level(), origin, destination);
         player.level().playSound(
                 null,
                 player.blockPosition(),
@@ -301,8 +301,8 @@ public final class BloodTempestKatanaAbility {
                                       Vec3 direction, float damage) {
         boolean chained = false;
         for (LivingEntity target : targets) {
-            spawnTargetHitEffects(player.serverLevel(), target);
-            if (target.hurt(player.damageSources().playerAttack(player), damage)) {
+            spawnTargetHitEffects(player.level(), target);
+            if (target.hurtOrSimulate(player.damageSources().playerAttack(player), damage)) {
                 if (!chained) {
                     onSuccessfulKatanaHit(player, target);
                     chained = true;
@@ -371,7 +371,7 @@ public final class BloodTempestKatanaAbility {
         double maxDistanceSqr = HIT_EFFECT_VIEW_DISTANCE * HIT_EFFECT_VIEW_DISTANCE;
         for (ServerPlayer viewer : level.players()) {
             if (viewer.distanceToSqr(position) <= maxDistanceSqr) {
-                level.sendParticles(viewer, particle, true,
+                level.sendParticles(viewer, particle, true, false,
                         position.x, position.y, position.z,
                         count, xSpread, ySpread, zSpread, speed);
             }

@@ -29,7 +29,7 @@ public record MessageDragonPartAttack(int dragonId, UUID dragonUuid, int partInd
 
     public static void handle(MessageDragonPartAttack message, ServerPlayer player) {
         if (!player.isAlive() || player.isSpectator()) return;
-        Entity parent = player.serverLevel().getEntity(message.dragonId);
+        Entity parent = player.level().getEntity(message.dragonId);
         if (!(parent instanceof Ignivorus dragon) || !parent.getUUID().equals(message.dragonUuid)
                 || !dragon.isAlive() || dragon.isRemoved() || dragon.isBaby()
                 || !(parent instanceof DragonPartProvider provider)) return;

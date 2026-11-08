@@ -135,14 +135,14 @@ public final class DragonGroomingComponent {
 
         ItemStack scaleStack = new ItemStack(scaleItem, PLUCK_SCALE_COUNT);
         if (!player.addItem(scaleStack)) {
-            dragon.spawnAtLocation(scaleStack);
+            dragon.spawnAtLocation((net.minecraft.server.level.ServerLevel) this.level(), scaleStack);
         }
 
         pluckedThisCycle = true;
         scaleRegrowthTicks = SCALE_REGROWTH_TICKS;
         damagePlucker(player, pluckerStack);
-        if (dragon.level() instanceof ServerLevel serverLevel && dragon.getOwnerUUID() != null) {
-            DragonCodexSavedData.get(serverLevel).updateDragonStats(dragon.getOwnerUUID(), dragon);
+        if (dragon.level() instanceof ServerLevel serverLevel && com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon) != null) {
+            DragonCodexSavedData.get(serverLevel).updateDragonStats(com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon), dragon);
         }
         sendStatus(player, "item.saintsdragons.scale_plucker.success");
         return true;
@@ -194,8 +194,8 @@ public final class DragonGroomingComponent {
     }
 
     public void loadFromNBT(CompoundTag tag) {
-        scaleRegrowthTicks = Math.max(0, tag.getInt("ScaleRegrowthTicks"));
-        pluckedThisCycle = scaleRegrowthTicks > 0 && tag.getBoolean("PluckedThisCycle");
+        scaleRegrowthTicks = Math.max(0, tag.getIntOr("ScaleRegrowthTicks", 0));
+        pluckedThisCycle = scaleRegrowthTicks > 0 && tag.getBooleanOr("PluckedThisCycle", false);
     }
 
     private static Identifier getGroomingLoot(DragonEntity dragon) {

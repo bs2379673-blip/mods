@@ -74,25 +74,33 @@ public class ImpactRingEntity extends Entity {
         }
     }
 
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        age = tag.getInt("Age");
-        setVisualScale(tag.contains("VisualScale") ? tag.getFloat("VisualScale") : 1.0F);
+    
+    protected void sdLoad(CompoundTag tag) {
+        age = tag.getIntOr("Age", 0);
+        setVisualScale(tag.contains("VisualScale") ? tag.getFloatOr("VisualScale", 0.0F) : 1.0F);
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
         tag.putInt("Age", age);
         tag.putFloat("VisualScale", entityData.get(DATA_VISUAL_SCALE));
     }
 
     @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
+    public boolean shouldRenderAtSqrDistance(double distance) {
+        return distance < 16384.0D;
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
     }
 
     @Override
-    public boolean shouldRenderAtSqrDistance(double distance) {
-        return distance < 16384.0D;
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

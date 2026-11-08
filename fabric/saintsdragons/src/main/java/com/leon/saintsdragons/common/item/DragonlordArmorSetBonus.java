@@ -58,11 +58,9 @@ public final class DragonlordArmorSetBonus {
     private static final float FALL_DAMAGE_BLOCK_THRESHOLD = 16.0F;
     private static final float VANILLA_PLAYER_MAX_HEALTH = 20.0F;
     private static final UUID DOUBLE_JUMP_MODIFIER_UUID = UUID.fromString("8e8d7d4f-14b7-4df2-aeaf-4b47e6c4f617");
-    private static final AttributeModifier DOUBLE_JUMP_MODIFIER = new AttributeModifier(
-            DOUBLE_JUMP_MODIFIER_UUID,
-            "Dragonlord double jump",
+    private static final AttributeModifier DOUBLE_JUMP_MODIFIER = new AttributeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(DOUBLE_JUMP_MODIFIER_UUID),
             1.0D,
-            AttributeModifier.Operation.ADDITION
+            AttributeModifier.Operation.ADD_VALUE
     );
     private static final Set<UUID> USED_MIDAIR_JUMP = new HashSet<>();
     private static final Set<UUID> ACTIVE_FLIGHT = new HashSet<>();
@@ -83,11 +81,11 @@ public final class DragonlordArmorSetBonus {
         AttributeInstance doubleJump = player.getAttribute(ModAttributes.DOUBLE_JUMP.get());
         if (doubleJump != null) {
             if (fullSet) {
-                if (doubleJump.getModifier(DOUBLE_JUMP_MODIFIER_UUID) == null) {
+                if (doubleJump.getModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(DOUBLE_JUMP_MODIFIER_UUID)) == null) {
                     doubleJump.addTransientModifier(DOUBLE_JUMP_MODIFIER);
                 }
             } else {
-                doubleJump.removeModifier(DOUBLE_JUMP_MODIFIER_UUID);
+                doubleJump.removeModifier(com.leon.saintsdragons.util.compat.Compat.modifierId(DOUBLE_JUMP_MODIFIER_UUID));
             }
         }
 
@@ -209,7 +207,7 @@ public final class DragonlordArmorSetBonus {
         if (player == null) {
             return;
         }
-        DragonlordPlayerSavedData data = DragonlordPlayerSavedData.get(player.serverLevel());
+        DragonlordPlayerSavedData data = DragonlordPlayerSavedData.get(player.level());
         if (isWearingFullSet(player)) {
             data.saveHealth(player.getUUID(), player.getHealth());
         } else {
@@ -296,7 +294,7 @@ public final class DragonlordArmorSetBonus {
         }) {
             ItemStack stack = player.getItemBySlot(slot);
             if (stack.getItem() instanceof DragonlordArmorItem armor) {
-                long instanceId = GeoItem.getOrAssignId(stack, player.serverLevel());
+                long instanceId = GeoItem.getOrAssignId(stack, player.level());
                 armor.triggerArmorAnim(player, instanceId,
                         DragonlordArmorItem.FLIGHT_CONTROLLER, DragonlordArmorItem.FLAP_TRIGGER);
             }
@@ -343,7 +341,7 @@ public final class DragonlordArmorSetBonus {
             if (horizontalDistanceSqr > radius * radius) {
                 continue;
             }
-            target.hurt(player.damageSources().playerAttack(player),
+            target.hurtOrSimulate(player.damageSources().playerAttack(player),
                     (float) ToolsArmorConfig.DRAGONLORD_LANDING_IMPACT_DAMAGE.get());
             target.push(0.0D, ToolsArmorConfig.DRAGONLORD_LANDING_KNOCK_UP_STRENGTH.get(), 0.0D);
             target.hurtMarked = true;
@@ -434,7 +432,7 @@ public final class DragonlordArmorSetBonus {
                     0.45D + random.nextDouble() * 0.5D,
                     Math.sin(angle) * outwardSpeed
             );
-            debris.hasImpulse = true;
+            debris.needsSync = true;
             server.addFreshEntity(debris);
         }
     }
@@ -524,7 +522,7 @@ public final class DragonlordArmorSetBonus {
             return;
         }
 
-        DragonlordPlayerSavedData data = DragonlordPlayerSavedData.get(player.serverLevel());
+        DragonlordPlayerSavedData data = DragonlordPlayerSavedData.get(player.level());
         var savedHealth = data.getHealth(playerId);
         if (savedHealth.isEmpty()) {
             PENDING_HEALTH_RESTORE.remove(playerId);

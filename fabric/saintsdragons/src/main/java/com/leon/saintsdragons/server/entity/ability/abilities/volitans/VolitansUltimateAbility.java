@@ -105,14 +105,14 @@ public class VolitansUltimateAbility extends DragonAbility<Volitans> {
             }
             Vec3 current = dragon.getDeltaMovement();
             dragon.setDeltaMovement(current.x * HORIZONTAL_DAMPING, 0.0D, current.z * HORIZONTAL_DAMPING);
-            dragon.hasImpulse = true;
+            dragon.needsSync = true;
         } else if (section.sectionType == ACTIVE) {
             dragon.setGoingUp(false);
             dragon.setGoingDown(true);
             forcedSlamSpeed = SLAM_INITIAL_SPEED;
             Vec3 current = dragon.getDeltaMovement();
             dragon.setDeltaMovement(current.x * HORIZONTAL_DAMPING, forcedSlamSpeed, current.z * HORIZONTAL_DAMPING);
-            dragon.hasImpulse = true;
+            dragon.needsSync = true;
         }
     }
 
@@ -129,7 +129,7 @@ public class VolitansUltimateAbility extends DragonAbility<Volitans> {
             dragon.setGoingDown(false);
             Vec3 current = dragon.getDeltaMovement();
             dragon.setDeltaMovement(current.x * HORIZONTAL_DAMPING, 0.0D, current.z * HORIZONTAL_DAMPING);
-            dragon.hasImpulse = true;
+            dragon.needsSync = true;
             return;
         }
 
@@ -146,7 +146,7 @@ public class VolitansUltimateAbility extends DragonAbility<Volitans> {
         forcedSlamSpeed -= SLAM_EXTRA_PULL_PER_TICK;
         Vec3 current = dragon.getDeltaMovement();
         dragon.setDeltaMovement(current.x, forcedSlamSpeed, current.z);
-        dragon.hasImpulse = true;
+        dragon.needsSync = true;
 
         if (dragon.level().isClientSide()) {
             return;
@@ -226,7 +226,7 @@ public class VolitansUltimateAbility extends DragonAbility<Volitans> {
                         && entity.distanceToSqr(dragon) <= (IMPACT_RADIUS * IMPACT_RADIUS));
 
         for (LivingEntity target : targets) {
-            target.hurt(source, damage);
+            target.hurtOrSimulate(source, damage);
             if (poisonActive) {
                 target.addEffect(new MobEffectInstance(MobEffects.POISON, POISON_DURATION_TICKS, POISON_AMPLIFIER));
             }
@@ -237,7 +237,7 @@ public class VolitansUltimateAbility extends DragonAbility<Volitans> {
             }
             push = push.normalize().scale(1.0D);
             target.push(push.x, 0.45D, push.z);
-            target.hasImpulse = true;
+            target.needsSync = true;
         }
     }
 

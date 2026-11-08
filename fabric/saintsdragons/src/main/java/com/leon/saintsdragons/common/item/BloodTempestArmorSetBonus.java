@@ -79,7 +79,7 @@ public final class BloodTempestArmorSetBonus {
 
         Vec3 current = player.getDeltaMovement();
         player.setDeltaMovement(dodge.x, current.y, dodge.z);
-        player.hasImpulse = true;
+        player.needsSync = true;
         player.hurtMarked = true;
         player.connection.send(new ClientboundSetEntityMotionPacket(player));
 

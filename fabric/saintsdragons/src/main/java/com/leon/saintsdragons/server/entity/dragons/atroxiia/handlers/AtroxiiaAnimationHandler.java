@@ -54,17 +54,17 @@ public record AtroxiiaAnimationHandler(Atroxiia dragon) {
             return PlayState.CONTINUE;
         }
         if (dragon.isTamingStunned()) {
-            state.getController().transitionLength(GROUND_TRANSITIONS.stunned());
+            state.controller().transitionLength(GROUND_TRANSITIONS.stunned());
             state.setAndContinue(STUNNED);
             return PlayState.CONTINUE;
         }
         if (dragon.isScentAssessing()) {
-            state.getController().transitionLength(GROUND_TRANSITIONS.idle());
+            state.controller().transitionLength(GROUND_TRANSITIONS.idle());
             state.setAndContinue(INVESTIGATING);
             return PlayState.CONTINUE;
         }
         if (dragon.isInWater()) {
-            state.getController().transitionLength(GROUND_TRANSITIONS.water());
+            state.controller().transitionLength(GROUND_TRANSITIONS.water());
             boolean moving = dragon.getDeltaMovement().lengthSqr() > 0.0025D
                     || Math.abs(dragon.getLastRiderForward()) > 0.02F
                     || Math.abs(dragon.getLastRiderStrafe()) > 0.02F;
@@ -109,7 +109,7 @@ public record AtroxiiaAnimationHandler(Atroxiia dragon) {
     }
 
     public PlayState fastActionPredicate(AnimationTest<Atroxiia> state) {
-        state.getController().transitionLength(1);
+        state.controller().transitionLength(1);
         return PlayState.STOP;
     }
 

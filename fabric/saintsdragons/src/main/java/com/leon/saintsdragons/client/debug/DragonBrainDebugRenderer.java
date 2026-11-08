@@ -43,7 +43,7 @@ public final class DragonBrainDebugRenderer {
 
         Entity dragon = minecraft.level.getEntity(snapshot.entityId());
         MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
-        VertexConsumer consumer = buffers.getBuffer(RenderType.lines());
+        VertexConsumer consumer = buffers.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lines());
 
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
@@ -75,7 +75,7 @@ public final class DragonBrainDebugRenderer {
         }
 
         poseStack.popPose();
-        buffers.endBatch(RenderType.lines());
+        buffers.endBatch(net.minecraft.client.renderer.rendertype.RenderTypes.lines());
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
     }
@@ -109,7 +109,7 @@ public final class DragonBrainDebugRenderer {
         direction = direction.normalize();
         PoseStack.Pose pose = poseStack.last();
         Matrix4f positions = pose.pose();
-        Matrix3f normals = pose.setNormal();
+        Matrix3f normals = pose.normal();
         consumer.addVertex(positions, (float)from.x, (float)from.y, (float)from.z).setColor(color.red(), color.green(), color.blue(), 1.0F)
                 .setNormal(normals, (float)direction.x, (float)direction.y, (float)direction.z);
         consumer.addVertex(positions, (float)to.x, (float)to.y, (float)to.z).setColor(color.red(), color.green(), color.blue(), 1.0F)

@@ -166,7 +166,7 @@ public final class DialogueSessionRegistry {
             return;
         }
         if (target.node().usesPlayerName()) {
-            String chosenName = player.getGameProfile().getName();
+            String chosenName = player.getGameProfile().name();
             ivy.rememberDialogueName(player, chosenName);
             continueWithChosenName(player, entityId, target.dialogue(), target.node(), chosenName, nextFlags);
             return;
@@ -198,7 +198,7 @@ public final class DialogueSessionRegistry {
         }
         String name = sanitizeName(rawName);
         if (name.isBlank()) {
-            name = player.getGameProfile().getName();
+            name = player.getGameProfile().name();
         }
         ivy.rememberDialogueName(player, name);
         continueWithChosenName(player, entityId, dialogue, currentNode, name, session.flags());
@@ -465,7 +465,7 @@ public final class DialogueSessionRegistry {
 
     private static Set<String> collectFlags(ServerPlayer player, IvyTheDragonMerchant ivy, Set<String> baseFlags) {
         Set<String> flags = new HashSet<>(baseFlags);
-        flags.add("dimension:" + player.serverLevel().dimension().location());
+        flags.add("dimension:" + player.level().dimension().location());
         if (flags.containsAll(IVY_WORK_TOPIC_FLAGS)) {
             flags.add("known_work_done");
         }
@@ -482,7 +482,7 @@ public final class DialogueSessionRegistry {
             flags.add(HAS_DRAGON_BINDER_FLAG);
             flags.add(HAS_DRAGON_BINDER_FLAG_PREFIX + dragonType);
         }
-        List<DragonCodexSavedData.DragonCodexEntry> entries = DragonCodexSavedData.get(player.serverLevel()).getEntriesFor(player);
+        List<DragonCodexSavedData.DragonCodexEntry> entries = DragonCodexSavedData.get(player.level()).getEntriesFor(player);
         boolean hasCindervane = false;
         boolean hasAdvanced = false;
         boolean hasBasicExtra = false;

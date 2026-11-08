@@ -83,11 +83,11 @@ public final class BillboardFlashRenderer {
             poseStack.translate(-(anchorU * 2.0F - 1.0F) * halfSize,
                     -(1.0F - anchorV * 2.0F) * halfSize, 0.0F);
             PoseStack.Pose pose = poseStack.last();
-            VertexConsumer consumer = buffers.getBuffer(RenderType.entityTranslucent(texture));
-            vertex(consumer, pose.pose(), pose.setNormal(), -halfSize, -halfSize, 0, 1, red, green, blue, alpha);
-            vertex(consumer, pose.pose(), pose.setNormal(), -halfSize, halfSize, 0, 0, red, green, blue, alpha);
-            vertex(consumer, pose.pose(), pose.setNormal(), halfSize, halfSize, 1, 0, red, green, blue, alpha);
-            vertex(consumer, pose.pose(), pose.setNormal(), halfSize, -halfSize, 1, 1, red, green, blue, alpha);
+            VertexConsumer consumer = buffers.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture));
+            vertex(consumer, pose.pose(), pose.normal(), -halfSize, -halfSize, 0, 1, red, green, blue, alpha);
+            vertex(consumer, pose.pose(), pose.normal(), -halfSize, halfSize, 0, 0, red, green, blue, alpha);
+            vertex(consumer, pose.pose(), pose.normal(), halfSize, halfSize, 1, 0, red, green, blue, alpha);
+            vertex(consumer, pose.pose(), pose.normal(), halfSize, -halfSize, 1, 1, red, green, blue, alpha);
         } finally {
             poseStack.popPose();
         }

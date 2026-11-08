@@ -97,7 +97,7 @@ public class VolitansBurrowMoundEntity extends Entity implements GeoEntity {
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel saintsdragons$level, DamageSource source, float amount) {
         return false;
     }
 
@@ -116,27 +116,22 @@ public class VolitansBurrowMoundEntity extends Entity implements GeoEntity {
         return false;
     }
 
-    @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        age = tag.getInt("Age");
-        if (tag.contains("BlockState", CompoundTag.TAG_COMPOUND)) {
-            setBlockState(NbtUtils.readBlockState(level().holderLookup(Registries.BLOCK), tag.getCompound("BlockState")));
+    
+    protected void sdLoad(CompoundTag tag) {
+        age = tag.getIntOr("Age", 0);
+        if (tag.contains("BlockState")) {
+            setBlockState(NbtUtils.readBlockState(level().holderLookup(Registries.BLOCK), tag.getCompoundOrEmpty("BlockState")));
         }
         if (tag.contains("VisualYaw")) {
-            initializeRotation(tag.getFloat("VisualYaw"));
+            initializeRotation(tag.getFloatOr("VisualYaw", 0.0F));
         }
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    
+    protected void sdSave(CompoundTag tag) {
         tag.putInt("Age", age);
         tag.put("BlockState", NbtUtils.writeBlockState(getBlockState()));
         tag.putFloat("VisualYaw", getVisualYaw());
-    }
-
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
     }
 
     @Override
@@ -161,7 +156,7 @@ public class VolitansBurrowMoundEntity extends Entity implements GeoEntity {
     }
 
     private <E extends GeoEntity> PlayState animationPredicate(AnimationTest<E> state) {
-        state.getController().setAnimation(SPAWN);
+        state.controller().setAnimation(SPAWN);
         return PlayState.CONTINUE;
     }
 
@@ -181,5 +176,18 @@ public class VolitansBurrowMoundEntity extends Entity implements GeoEntity {
 
     public static Vec3 surfacePosition(BlockPos groundPos) {
         return Vec3.atBottomCenterOf(groundPos.above());
+    }
+
+    // port 1.21.11: el juego guarda con ValueOutput/ValueInput; los datos del mod siguen en un CompoundTag
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput saintsdragonsOut) {
+        CompoundTag saintsdragonsTag = new CompoundTag();
+        sdSave(saintsdragonsTag);
+        saintsdragonsOut.store("saintsdragons", CompoundTag.CODEC, saintsdragonsTag);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput saintsdragonsIn) {
+        sdLoad(saintsdragonsIn.read("saintsdragons", CompoundTag.CODEC).orElseGet(CompoundTag::new));
     }
 }

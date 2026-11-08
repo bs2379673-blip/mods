@@ -36,7 +36,7 @@ public class VarasuchusInteractionHandler extends AbstractDragonInteractionHandl
 
         if (dragon.isSleeping() || dragon.isSleepingEntering() || dragon.isSleepingExiting()) {
             sendStatusMessage(player, "entity.saintsdragons.varasuchus.sleeping");
-            return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+            return InteractionResult.SUCCESS;
         }
 
         if (dragon.isBaby()) {
@@ -53,7 +53,7 @@ public class VarasuchusInteractionHandler extends AbstractDragonInteractionHandl
 
         if (!legacyTaming && hand == InteractionHand.MAIN_HAND && heldItem.isEmpty() && !player.isCrouching()) {
             boolean started = dragon.beginUntamedRide(player);
-            return started ? InteractionResult.sidedSuccess(dragon.level().isClientSide()) : InteractionResult.PASS;
+            return started ? InteractionResult.SUCCESS : InteractionResult.PASS;
         }
 
         return InteractionResult.PASS;
@@ -105,7 +105,7 @@ public class VarasuchusInteractionHandler extends AbstractDragonInteractionHandl
             }
         }
 
-        return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -229,7 +229,7 @@ public class VarasuchusInteractionHandler extends AbstractDragonInteractionHandl
             }
         }
 
-        return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     private InteractionResult handleBabyTaming(Player player, ItemStack food, DragonAttributeConfig config) {
@@ -237,7 +237,7 @@ public class VarasuchusInteractionHandler extends AbstractDragonInteractionHandl
         boolean heartyMeal = food.is(ModItems.HEARTY_DRAGON_MEAL.get());
         boolean validFood = isVarasuchusFood(food);
         if (baby == null) {
-            return validFood ? InteractionResult.sidedSuccess(dragon.level().isClientSide()) : InteractionResult.PASS;
+            return validFood ? InteractionResult.SUCCESS : InteractionResult.PASS;
         }
 
         double tameChance = getTamingChance(food, config);

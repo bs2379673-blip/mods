@@ -123,7 +123,7 @@ public class RaevyxHornGoreAbility extends DragonAbility<Raevyx> {
         float toughness = (float) target.getAttributeValue(Attributes.ARMOR_TOUGHNESS);
         float desiredPostArmor = damageAfterArmor(resolveGoreDamage() * mult, Math.max(0f, armor - armorPenetration), toughness);
         float rawToDeal = solveRawDamageForPostArmor(desiredPostArmor, armor, toughness);
-        target.hurt(src, rawToDeal);
+        target.hurtOrSimulate(src, rawToDeal);
         wyvern.noteAggroFrom(target);
         Vec3 look = wyvern.getLookAngle().normalize();
         double strength = isSupercharged ? 2.8 : 1.4;

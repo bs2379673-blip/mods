@@ -100,7 +100,7 @@ public final class DragonTameCommand {
 
     /** Shared by the command and the creative meal; never transfer an existing owner's dragon. */
     public static void tameDragon(DragonEntity dragon, Player owner) throws CommandSyntaxException {
-        if (dragon.isTame() && dragon.getOwnerUUID() != null) {
+        if (dragon.isTame() && com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon) != null) {
             if (dragon.isOwnedBy(owner)) {
                 // Already owned by target player
                 throw ERROR_ALREADY_TAMED.create(dragon.getDisplayName().getString());
@@ -109,7 +109,7 @@ public final class DragonTameCommand {
                 LivingEntity currentOwner = dragon.getOwner();
                 throw ERROR_OWNERSHIP_CONFLICT.create(new Object[]{
                     dragon.getDisplayName().getString(),
-                    currentOwner != null ? currentOwner.getDisplayName().getString() : dragon.getOwnerUUID().toString()
+                    currentOwner != null ? currentOwner.getDisplayName().getString() : com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon).toString()
                 });
             }
         }
@@ -138,7 +138,7 @@ public final class DragonTameCommand {
 
         // Try gender-specific advancement first (currently only Raevyx has this)
         if (dragon.isFemale()) {
-            var femaleAdvancement = player.server.getAdvancements()
+            var femaleAdvancement = player.level().getServer().getAdvancements()
                 .getAdvancement(SaintsDragonsCommon.rl("tame_" + dragonType + "_female"));
             if (femaleAdvancement != null) {
                 player.getAdvancements().award(femaleAdvancement, "tame_" + dragonType + "_female");
@@ -147,7 +147,7 @@ public final class DragonTameCommand {
         }
 
         // Fall back to standard advancement
-        var advancement = player.server.getAdvancements()
+        var advancement = player.level().getServer().getAdvancements()
             .getAdvancement(SaintsDragonsCommon.rl("tame_" + dragonType));
         if (advancement != null) {
             player.getAdvancements().award(advancement, "tame_" + dragonType);

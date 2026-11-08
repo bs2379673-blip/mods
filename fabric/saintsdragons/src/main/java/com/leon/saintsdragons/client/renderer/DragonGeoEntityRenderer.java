@@ -144,7 +144,7 @@ public abstract class DragonGeoEntityRenderer<T extends RideableDragonBase> exte
     @Override
     public RenderType getRenderType(T animatable, Identifier texture,
                                     @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityCutoutNoCull(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutNoCull(texture);
     }
 
     @Override

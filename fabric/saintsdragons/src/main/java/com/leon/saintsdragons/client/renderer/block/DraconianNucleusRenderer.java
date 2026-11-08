@@ -35,7 +35,7 @@ public class DraconianNucleusRenderer implements BlockEntityRenderer<DraconianNu
         poseStack.pushPose();
         poseStack.translate(0.5D, 1.5D, 0.5D);
         poseStack.scale(1.0F, -1.0F, -1.0F);
-        VertexConsumer consumer = buffer.getBuffer(RenderType.entityTranslucent(TEXTURE));
+        VertexConsumer consumer = buffer.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(TEXTURE));
         this.model.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY,
                 1.0F, 1.0F, 1.0F, 1.0F);
         poseStack.popPose();

@@ -119,7 +119,7 @@ public class VarasuchusHornGoreAbility extends DragonAbility<Varasuchus> {
         float toughness = (float) target.getAttributeValue(Attributes.ARMOR_TOUGHNESS);
         float desiredPostArmor = damageAfterArmor(configuredDamage, Math.max(0f, armor - armorPenetration), toughness);
         float rawToDeal = solveRawDamageForPostArmor(desiredPostArmor, armor, toughness);
-        target.hurt(src, rawToDeal);
+        target.hurtOrSimulate(src, rawToDeal);
         Vec3 look = dragon.getLookAngle().normalize();
         double strength = phaseTwo ? 3.5 : 2.0;
         target.knockback((float) strength, -look.x, -look.z);

@@ -87,7 +87,7 @@ public class RaevyxGroundRendTrailRenderer extends EntityRenderer<LightningVisua
             return;
         }
 
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.lightning());
+        VertexConsumer consumer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lightning());
         Matrix4f matrix = poseStack.last().pose();
         long seed = Integer.toUnsignedLong(entity.getRenderSeed())
                 + (bloodTempest ? 0L : (long)entity.tickCount * 31L);
@@ -152,10 +152,10 @@ public class RaevyxGroundRendTrailRenderer extends EntityRenderer<LightningVisua
 
         Vec3 normal = direction.cross(widthAxis).normalize();
         Matrix4f matrix = poseStack.last().pose();
-        Matrix3f normalMatrix = poseStack.last().setNormal();
+        Matrix3f normalMatrix = poseStack.last().normal();
         Vector3f transformedNormal = new Vector3f((float)normal.x, (float)normal.y, (float)normal.z);
         normalMatrix.transform(transformedNormal);
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.eyes(textures[frame]));
+        VertexConsumer consumer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.eyes(textures[frame]));
 
         emitSlashQuad(consumer, matrix, transformedNormal, start, end, widthAxis, alpha, false);
         emitSlashQuad(consumer, matrix, transformedNormal, start, end, widthAxis, alpha, true);
@@ -187,10 +187,10 @@ public class RaevyxGroundRendTrailRenderer extends EntityRenderer<LightningVisua
         Vec3 widthAxis = new Vec3(-direction.z, 0.0D, direction.x)
                 .scale(halfWidth * entity.getVisualScale());
         Matrix4f matrix = poseStack.last().pose();
-        Matrix3f normalMatrix = poseStack.last().setNormal();
+        Matrix3f normalMatrix = poseStack.last().normal();
         Vector3f transformedNormal = new Vector3f(0.0F, 1.0F, 0.0F);
         normalMatrix.transform(transformedNormal);
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityTranslucent(textures[frame]));
+        VertexConsumer consumer = bufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(textures[frame]));
 
         emitSlashQuad(consumer, matrix, transformedNormal, flatStart, flatEnd, widthAxis, alpha, false);
         emitSlashQuad(consumer, matrix, transformedNormal, flatStart, flatEnd, widthAxis, alpha, true);

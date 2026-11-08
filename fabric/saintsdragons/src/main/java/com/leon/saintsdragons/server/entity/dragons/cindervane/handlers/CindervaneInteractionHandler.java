@@ -140,7 +140,7 @@ public class CindervaneInteractionHandler extends AbstractDragonInteractionHandl
                         return InteractionResult.FAIL;
                     }
                 }
-                return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+                return InteractionResult.SUCCESS;
             } else if (!passengers.isEmpty() && passengers.get(0) != player) {
                 Entity firstPassenger = passengers.get(0);
                 boolean seat0IsOwner = firstPassenger instanceof Player firstPlayer && dragon.isOwnedBy(firstPlayer);
@@ -152,7 +152,7 @@ public class CindervaneInteractionHandler extends AbstractDragonInteractionHandl
                             return InteractionResult.FAIL;
                         }
                     }
-                    return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+                    return InteractionResult.SUCCESS;
                 }
 
                 if (!dragon.level().isClientSide()) {
@@ -190,7 +190,7 @@ public class CindervaneInteractionHandler extends AbstractDragonInteractionHandl
                         return InteractionResult.FAIL;
                     }
                 }
-                return InteractionResult.sidedSuccess(dragon.level().isClientSide());
+                return InteractionResult.SUCCESS;
             } else {
                 if (!dragon.level().isClientSide()) {
                     player.displayClientMessage(
@@ -280,7 +280,7 @@ public class CindervaneInteractionHandler extends AbstractDragonInteractionHandl
         boolean hearty = itemstack.is(ModItems.HEARTY_DRAGON_MEAL.get());
         boolean validFood = dragon.isFood(itemstack);
         if (baby == null) {
-            return validFood ? InteractionResult.sidedSuccess(dragon.level().isClientSide()) : InteractionResult.PASS;
+            return validFood ? InteractionResult.SUCCESS : InteractionResult.PASS;
         }
 
         double tameChance = resolveTamingChance(itemstack, config);
@@ -331,7 +331,7 @@ public class CindervaneInteractionHandler extends AbstractDragonInteractionHandl
     }
     private void triggerTamingAdvancement(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
-            var advancement = serverPlayer.server.getAdvancements()
+            var advancement = serverPlayer.level().getServer().getAdvancements()
                     .getAdvancement(SaintsDragonsCommon.rl("tame_cindervane"));
             if (advancement != null) {
                 serverPlayer.getAdvancements().award(advancement, "tame_cindervane");

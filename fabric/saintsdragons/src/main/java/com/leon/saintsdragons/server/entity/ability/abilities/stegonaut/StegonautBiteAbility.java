@@ -68,7 +68,7 @@ public class StegonautBiteAbility extends DragonAbility<Stegonaut> {
         Stegonaut dragon = getUser();
         float damage = resolveDamage() * dragon.getHungerMeleeDamageMultiplier();
         DamageSource source = dragon.level().damageSources().mobAttack(dragon);
-        target.hurt(source, damage);
+        target.hurtOrSimulate(source, damage);
 
         Vec3 push = dragon.getLookAngle().scale(0.25);
         target.push(push.x, 0.06, push.z);

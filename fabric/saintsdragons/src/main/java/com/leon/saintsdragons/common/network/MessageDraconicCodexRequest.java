@@ -126,7 +126,7 @@ public class MessageDraconicCodexRequest {
 
         for (ServerLevel level : originLevel.getServer().getAllLevels()) {
             for (var entity : level.getAllEntities()) {
-                if (entity instanceof DragonEntity dragon && dragon.isTame() && ownerId.equals(dragon.getOwnerUUID())) {
+                if (entity instanceof DragonEntity dragon && dragon.isTame() && ownerId.equals(com.leon.saintsdragons.util.compat.Compat.ownerUUID(dragon))) {
                     dragons.put(dragon.getUUID(), dragon);
                 }
             }

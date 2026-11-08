@@ -84,7 +84,7 @@ public record MessageDragonBonePositions(
             return;
         }
 
-        Entity entity = player.serverLevel().getEntity(msg.entityId());
+        Entity entity = player.level().getEntity(msg.entityId());
         if (entity instanceof Cindervane cindervane) {
             if (player.getVehicle() != cindervane || !cindervane.canBeControlledBy(player)) {
                 return;

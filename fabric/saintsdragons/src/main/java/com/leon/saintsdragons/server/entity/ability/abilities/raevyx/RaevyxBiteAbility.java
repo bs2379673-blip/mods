@@ -106,7 +106,7 @@ public class RaevyxBiteAbility extends DragonAbility<Raevyx> {
         Raevyx wyvern = getUser();
         DamageSource src = wyvern.level().damageSources().mobAttack(wyvern);
         float mult = wyvern.getDamageMultiplier() * wyvern.getHungerMeleeDamageMultiplier();
-        primary.hurt(src, resolveBiteDamage() * mult);
+        primary.hurtOrSimulate(src, resolveBiteDamage() * mult);
         wyvern.noteAggroFrom(primary);
     }
 

@@ -25,10 +25,10 @@ public final class BinderComponentUtil {
             return null;
         }
         var tag = stack.getTag();
-        if (tag == null || !tag.hasUUID(BOUND_DRAGON_UUID)) {
+        if (tag == null || !com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, BOUND_DRAGON_UUID)) {
             return null;
         }
-        return tag.getUUID(BOUND_DRAGON_UUID);
+        return com.leon.saintsdragons.util.compat.Compat.getUUID(tag, BOUND_DRAGON_UUID);
     }
 
     public static String getBoundDragonName(ItemStack stack) {
@@ -98,10 +98,10 @@ public final class BinderComponentUtil {
             return null;
         }
         var tag = stack.getTag();
-        if (tag == null || !tag.hasUUID(BOUND_OWNER_UUID)) {
+        if (tag == null || !com.leon.saintsdragons.util.compat.Compat.hasUUID(tag, BOUND_OWNER_UUID)) {
             return null;
         }
-        return tag.getUUID(BOUND_OWNER_UUID);
+        return com.leon.saintsdragons.util.compat.Compat.getUUID(tag, BOUND_OWNER_UUID);
     }
 
     /**

@@ -303,7 +303,7 @@ public class IgnivorusUltimateAbility extends DragonAbility<Ignivorus> {
         Vec3 base = getUser().position().add(0.0D, EXPLOSION_VISUAL_HEIGHT, 0.0D);
         for (var viewer : server.players()) {
             if (viewer.distanceToSqr(base) <= FIRE_PUFF_VIEW_DISTANCE_SQR) {
-                server.sendParticles(viewer, ModParticles.IGNIVORUS_SKYFALL_ABSORB.get(), true,
+                server.sendParticles(viewer, ModParticles.IGNIVORUS_SKYFALL_ABSORB.get(), true, false,
                         base.x, base.y, base.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
             }
         }
@@ -314,9 +314,9 @@ public class IgnivorusUltimateAbility extends DragonAbility<Ignivorus> {
         Vec3 base = getUser().position().add(0.0D, EXPLOSION_VISUAL_HEIGHT, 0.0D);
         for (var viewer : server.players()) {
             if (viewer.distanceToSqr(base) <= FIRE_PUFF_VIEW_DISTANCE_SQR) {
-                server.sendParticles(viewer, ModParticles.IGNIVORUS_SKYFALL_CIRCLE.get(), true,
+                server.sendParticles(viewer, ModParticles.IGNIVORUS_SKYFALL_CIRCLE.get(), true, false,
                         base.x, base.y, base.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
-                server.sendParticles(viewer, ModParticles.IGNIVORUS_TOON_EXPLOSION.get(), true,
+                server.sendParticles(viewer, ModParticles.IGNIVORUS_TOON_EXPLOSION.get(), true, false,
                         base.x, base.y, base.z, 0, 5.0D, 5.0D, 5.0D, 0.0D);
             }
         }
@@ -327,7 +327,7 @@ public class IgnivorusUltimateAbility extends DragonAbility<Ignivorus> {
         Vec3 base = getUser().position().add(0.0D, EXPLOSION_VISUAL_HEIGHT, 0.0D);
         for (var viewer : server.players()) {
             if (viewer.distanceToSqr(base) <= FIRE_PUFF_VIEW_DISTANCE_SQR) {
-                server.sendParticles(viewer, ModParticles.IGNIVORUS_SKYFALL_SWIRL.get(), true,
+                server.sendParticles(viewer, ModParticles.IGNIVORUS_SKYFALL_SWIRL.get(), true, false,
                         base.x, base.y, base.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
             }
         }
@@ -338,7 +338,7 @@ public class IgnivorusUltimateAbility extends DragonAbility<Ignivorus> {
         Vec3 base = getUser().position().add(0.0D, EXPLOSION_VISUAL_HEIGHT, 0.0D);
         for (var viewer : server.players()) {
             if (viewer.distanceToSqr(base) <= FIRE_PUFF_VIEW_DISTANCE_SQR) {
-                server.sendParticles(viewer, ModParticles.IGNIVORUS_SKYFALL_SHARP.get(), true,
+                server.sendParticles(viewer, ModParticles.IGNIVORUS_SKYFALL_SHARP.get(), true, false,
                         base.x, base.y, base.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
             }
         }
@@ -349,7 +349,7 @@ public class IgnivorusUltimateAbility extends DragonAbility<Ignivorus> {
         Vec3 base = getUser().position().add(0.0D, EXPLOSION_VISUAL_HEIGHT, 0.0D);
         for (var viewer : server.players()) {
             if (viewer.distanceToSqr(base) <= FIRE_PUFF_VIEW_DISTANCE_SQR) {
-                server.sendParticles(viewer, ModParticles.IGNIVORUS_SKYFALL_AURA.get(), true,
+                server.sendParticles(viewer, ModParticles.IGNIVORUS_SKYFALL_AURA.get(), true, false,
                         base.x, base.y, base.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
             }
         }
@@ -362,7 +362,7 @@ public class IgnivorusUltimateAbility extends DragonAbility<Ignivorus> {
         Vec3 base = getUser().position().add(0.0D, EXPLOSION_VISUAL_HEIGHT, 0.0D);
         for (var viewer : server.players()) {
             if (viewer.distanceToSqr(base) <= FIRE_PUFF_VIEW_DISTANCE_SQR) {
-                server.sendParticles(viewer, ModParticles.IGNIVORUS_SKYFALL_CHARGE.get(), true,
+                server.sendParticles(viewer, ModParticles.IGNIVORUS_SKYFALL_CHARGE.get(), true, false,
                         base.x, base.y, base.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
             }
         }
@@ -375,7 +375,7 @@ public class IgnivorusUltimateAbility extends DragonAbility<Ignivorus> {
         Vec3 base = getUser().position().add(0.0D, EXPLOSION_VISUAL_HEIGHT, 0.0D);
         for (var viewer : server.players()) {
             if (viewer.distanceToSqr(base) <= FIRE_PUFF_VIEW_DISTANCE_SQR) {
-                server.sendParticles(viewer, ModParticles.IGNIVORUS_EXPLOSION_STAR.get(), true,
+                server.sendParticles(viewer, ModParticles.IGNIVORUS_EXPLOSION_STAR.get(), true, false,
                         base.x, base.y, base.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
             }
         }
@@ -394,20 +394,20 @@ public class IgnivorusUltimateAbility extends DragonAbility<Ignivorus> {
             Vec3 outlet = crossOrigin.add(direction.scale(2.0D));
             Vec3 velocity = direction.scale(ExpandingBreathSection.DEFAULT_SPEED);
             for (var viewer : viewers) {
-                server.sendParticles(viewer, crossFire, true,
+                server.sendParticles(viewer, crossFire, true, false,
                         outlet.x, outlet.y, outlet.z, 0, velocity.x, velocity.y, velocity.z, 1.0D);
             }
         }
         for (var viewer : viewers) {
-            server.sendParticles(viewer, ModParticles.IGNIVORUS_EXPLOSION_LAYER.get(), true,
+            server.sendParticles(viewer, ModParticles.IGNIVORUS_EXPLOSION_LAYER.get(), true, false,
                     base.x, base.y, base.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
-            server.sendParticles(viewer, ModParticles.IGNIVORUS_FIRE_SPEC.get(), true,
+            server.sendParticles(viewer, ModParticles.IGNIVORUS_FIRE_SPEC.get(), true, false,
                     base.x, base.y, base.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
             if (!airSkyfallMode) {
-            server.sendParticles(viewer, ModParticles.IGNIVORUS_GROUND_IMPACT.get(), true,
+            server.sendParticles(viewer, ModParticles.IGNIVORUS_GROUND_IMPACT.get(), true, false,
                     center.x, center.y + 0.24D, center.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
             }
-            server.sendParticles(viewer, airSkyfallMode ? ModParticles.IGNIVORUS_AIR_AFTERMATH.get() : ModParticles.IGNIVORUS_AFTERMATH.get(), true,
+            server.sendParticles(viewer, airSkyfallMode ? ModParticles.IGNIVORUS_AIR_AFTERMATH.get() : ModParticles.IGNIVORUS_AFTERMATH.get(), true, false,
                     center.x, center.y, center.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
         }
         for (int i = 0; i < FIRE_PUFF_COUNT + SPEC_PUFF_COUNT; i++) {

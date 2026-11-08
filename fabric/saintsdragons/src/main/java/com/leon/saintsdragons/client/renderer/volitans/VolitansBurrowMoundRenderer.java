@@ -169,6 +169,6 @@ public class VolitansBurrowMoundRenderer extends GeoEntityRenderer<VolitansBurro
     @Override
     public RenderType getRenderType(VolitansBurrowMoundEntity animatable, Identifier texture,
                                     @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityTranslucent(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(texture);
     }
 }

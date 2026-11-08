@@ -27,7 +27,7 @@ public class WhettledRenderer extends GeoEntityRenderer<Whettled> {
     @Override
     public RenderType getRenderType(Whettled animatable, Identifier texture,
                                     @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityCutout(texture);
+        return net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture);
     }
 
     @Override

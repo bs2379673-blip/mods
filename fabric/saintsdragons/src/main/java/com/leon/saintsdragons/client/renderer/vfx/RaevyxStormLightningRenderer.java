@@ -171,7 +171,7 @@ public final class RaevyxStormLightningRenderer {
             poses.translate(from.x, from.y, from.z);
             poses.mulPose(new Quaternionf().rotationTo(0, 0, 1,
                     (float) (delta.x / length), (float) (delta.y / length), (float) (delta.z / length)));
-            ProceduralBeamLightningRenderer.emitBolt(buffers.getBuffer(RenderType.lightning()), poses.last().pose(),
+            ProceduralBeamLightningRenderer.emitBolt(buffers.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lightning()), poses.last().pose(),
                     renderedLength, arc.seed, arc.outward ? 0.75F : arc.ground == null ? 0.35F : 1.2F, alpha,
                     1, gold ? 0.72F : 0.06F, gold ? 0.12F : 0.08F);
             poses.popPose();

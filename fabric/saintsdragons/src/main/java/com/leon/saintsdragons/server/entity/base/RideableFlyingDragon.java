@@ -336,7 +336,7 @@ public abstract class RideableFlyingDragon extends RideableDragonBase implements
     protected void afterSwitchToGroundNavigation() {
         if (onGround()) {
             setDeltaMovement(Vec3.ZERO);
-            hasImpulse = false;
+            needsSync = false;
         } else {
             Vec3 motion = getDeltaMovement();
             setDeltaMovement(motion.x * 0.25D, motion.y, motion.z * 0.25D);
@@ -381,7 +381,7 @@ public abstract class RideableFlyingDragon extends RideableDragonBase implements
             public void setDeltaMovement(Vec3 movement) { RideableFlyingDragon.this.setDeltaMovement(movement); }
 
             @Override
-            public void markImpulse() { RideableFlyingDragon.this.hasImpulse = true; }
+            public void markImpulse() { RideableFlyingDragon.this.needsSync = true; }
 
             @Override
             public void onTakeoffStarted() { RideableFlyingDragon.this.onTakeoffStarted(); }
@@ -473,7 +473,7 @@ public abstract class RideableFlyingDragon extends RideableDragonBase implements
             public void setDeltaMovement(Vec3 movement) { RideableFlyingDragon.this.setDeltaMovement(movement); }
 
             @Override
-            public void markImpulse() { RideableFlyingDragon.this.hasImpulse = true; }
+            public void markImpulse() { RideableFlyingDragon.this.needsSync = true; }
 
             @Override
             public long getGameTime() { return RideableFlyingDragon.this.level().getGameTime(); }
@@ -1191,7 +1191,7 @@ public abstract class RideableFlyingDragon extends RideableDragonBase implements
         double maxDistanceSqr = DUST_PARTICLE_VIEW_DISTANCE * DUST_PARTICLE_VIEW_DISTANCE;
         for (ServerPlayer player : serverLevel.players()) {
             if (player.distanceToSqr(x, y, z) <= maxDistanceSqr || player.distanceToSqr(this) <= maxDistanceSqr) {
-                serverLevel.sendParticles(player, ModParticles.DRAGON_DUST.get(), true,
+                serverLevel.sendParticles(player, ModParticles.DRAGON_DUST.get(), true, false,
                         x, y, z, 0, xSpeed, ySpeed, zSpeed, 1.0D);
             }
         }
@@ -1899,15 +1899,15 @@ public abstract class RideableFlyingDragon extends RideableDragonBase implements
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void sdSave(CompoundTag tag) {
+        super.sdSave(tag);
         tag.putInt("RiderTakeoffTicks", riderTakeoffTicks);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        this.riderTakeoffTicks = tag.contains("RiderTakeoffTicks") ? tag.getInt("RiderTakeoffTicks") : 0;
+    public void sdLoad(CompoundTag tag) {
+        super.sdLoad(tag);
+        this.riderTakeoffTicks = tag.contains("RiderTakeoffTicks") ? tag.getIntOr("RiderTakeoffTicks", 0) : 0;
     }
 
     @Override
@@ -2488,7 +2488,7 @@ public abstract class RideableFlyingDragon extends RideableDragonBase implements
     }
 
     @Override
-    public boolean causeFallDamage(float fallDistance, float damageMultiplier, DamageSource source) {
+    public boolean causeFallDamage(double fallDistance, float damageMultiplier, DamageSource source) {
         this.fallDistance = 0.0F;
         for (Entity passenger : this.getPassengers()) {
             if (passenger instanceof LivingEntity living) {

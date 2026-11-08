@@ -71,9 +71,9 @@ public class VolitansSpineEntity extends AbstractArrow implements GeoEntity {
                 }
                 if (validTarget) {
                     if (owner != null) {
-                        target.hurt(this.damageSources().mobAttack(owner), impactDamage);
+                        target.hurtOrSimulate(this.damageSources().mobAttack(owner), impactDamage);
                     } else {
-                        target.hurt(this.damageSources().magic(), impactDamage);
+                        target.hurtOrSimulate(this.damageSources().magic(), impactDamage);
                     }
                     if (poisonActive) {
                         target.addEffect(new MobEffectInstance(MobEffects.POISON, poisonDurationTicks, poisonAmplifier));
@@ -134,7 +134,7 @@ public class VolitansSpineEntity extends AbstractArrow implements GeoEntity {
     }
 
     private <E extends GeoEntity> PlayState animationPredicate(AnimationTest<E> state) {
-        state.getController().setAnimation(IDLE);
+        state.controller().setAnimation(IDLE);
         return PlayState.CONTINUE;
     }
 
