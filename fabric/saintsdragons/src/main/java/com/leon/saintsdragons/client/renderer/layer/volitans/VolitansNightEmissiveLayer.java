@@ -12,7 +12,7 @@ public class VolitansNightEmissiveLayer extends NightEmissiveLayer<Volitans> {
     private static final Identifier BLOODSHOT_EMISSIVE_TEXTURE =
             SaintsDragonsCommon.rl("textures/entity/volitans/volitans_bloodshot_emissive.png");
 
-    public VolitansNightEmissiveLayer(GeoRenderer<Volitans> renderer) {
+    public VolitansNightEmissiveLayer(com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<Volitans> renderer) {
         super(renderer);
     }
 

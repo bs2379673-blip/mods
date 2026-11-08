@@ -36,7 +36,7 @@ public final class AtroxiiaQuakeTailRenderer {
                 var emitter = Minecraft.getInstance().particleEngine.createParticle(ModParticles.CINDERVANE_MOUTH_EMITTER.get(),
                         tip.x, tip.y, tip.z, Math.cos(angle) * horizontal * speed,
                         vertical * speed, Math.sin(angle) * horizontal * speed);
-                if (emitter != null) emitter.setColor(0.8F, 0.93F, 1);
+                if (emitter != null) ((net.minecraft.client.particle.SingleQuadParticle) emitter).setColor(0.8F, 0.93F, 1);
             }
         }
         Vec3 origin = new Vec3(Mth.lerp(partialTick, dragon.xOld, dragon.getX()),

@@ -93,7 +93,7 @@ public final class AttachedPlaneFlipbookRenderer {
                                float red, float green, float blue, float alpha) {
         consumer.addVertex(matrix, x * cos - y * sin, x * sin + y * cos, z).setColor(red, green, blue, alpha).setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightTexture.FULL_BRIGHT)
-                .setNormal(normal, 0.0F, 0.0F, 1.0F);
+                .setNormal(com.leon.saintsdragons.util.compat.NormalUtil.x(normal, 0.0F, 0.0F, 1.0F), com.leon.saintsdragons.util.compat.NormalUtil.y(normal, 0.0F, 0.0F, 1.0F), com.leon.saintsdragons.util.compat.NormalUtil.z(normal, 0.0F, 0.0F, 1.0F));
     }
 
     public record Style(float halfSize, float alpha, float frameTicks,

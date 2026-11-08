@@ -180,7 +180,7 @@ public final class FireBreathParticle extends TextureSheetParticle {
                 random.nextGaussian() * 0.16,
                 random.nextGaussian() * 0.16);
         if (glow != null) {
-            glow.setColor(1.0F, 0.55F, 0.12F);
+            ((net.minecraft.client.particle.SingleQuadParticle) glow).setColor(1.0F, 0.55F, 0.12F);
         }
     }
 
@@ -298,7 +298,7 @@ public final class FireBreathParticle extends TextureSheetParticle {
                         ModParticles.GLOWING_EMITTER.get(), origin.x, origin.y, origin.z,
                         launch.x, launch.y, launch.z);
                 if (glow != null) {
-                    glow.setColor(1.0F, 0.55F, 0.12F);
+                    ((net.minecraft.client.particle.SingleQuadParticle) glow).setColor(1.0F, 0.55F, 0.12F);
                     if (glow instanceof GlowingEmitterParticle spark) spark.enableTerrainCollision();
                 }
             }

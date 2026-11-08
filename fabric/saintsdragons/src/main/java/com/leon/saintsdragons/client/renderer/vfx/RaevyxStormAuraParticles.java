@@ -63,8 +63,8 @@ public final class RaevyxStormAuraParticles {
                 var particle = Minecraft.getInstance().particleEngine.createParticle(type,
                         point.x, point.y, point.z, drift.x, drift.y, drift.z);
                 if (particle != null) {
-                    if (layer == 4) particle.setColor(0.0F, 0.0F, 0.0F);
-                    else particle.setColor(1.0F, gold ? 0.72F : 0.06F, gold ? 0.12F : 0.08F);
+                    if (layer == 4) ((net.minecraft.client.particle.SingleQuadParticle) particle).setColor(0.0F, 0.0F, 0.0F);
+                    else ((net.minecraft.client.particle.SingleQuadParticle) particle).setColor(1.0F, gold ? 0.72F : 0.06F, gold ? 0.12F : 0.08F);
                 }
             }
         }

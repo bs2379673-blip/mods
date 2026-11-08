@@ -116,7 +116,7 @@ public final class DragonWingTrailRenderer {
                 .setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(light)
-                .setNormal(normal, 1.0F, 0.0F, 0.0F);
+                .setNormal(com.leon.saintsdragons.util.compat.NormalUtil.x(normal, 1.0F, 0.0F, 0.0F), com.leon.saintsdragons.util.compat.NormalUtil.y(normal, 1.0F, 0.0F, 0.0F), com.leon.saintsdragons.util.compat.NormalUtil.z(normal, 1.0F, 0.0F, 0.0F));
     }
 
     private static void addNormalized(Vector3f target, Vector3f from, Vector3f to) {

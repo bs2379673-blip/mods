@@ -234,8 +234,8 @@ public record RaevyxAnimationHandler(Raevyx wyvern) {
         return AnimationHelper.handleFlightLocomotion(state, FLIGHT_ANIMATIONS, FLIGHT_TRANSITIONS,
                 wyvern.isTamingStunned(), wyvern.getControllingPassenger() != null,
                 current -> {
-                    boolean inverted = wyvern.isInvertedFlightGlide(current.getPartialTick());
-                    var visualState = wyvern.getVisualFlightState(current.getPartialTick());
+                    boolean inverted = wyvern.isInvertedFlightGlide(com.leon.saintsdragons.util.compat.GeoCompat.partialTick(current));
+                    var visualState = wyvern.getVisualFlightState(com.leon.saintsdragons.util.compat.GeoCompat.partialTick(current));
                     return inverted ? DragonFlightStateEvaluator.VisualState.GLIDE : visualState;
                 });
     }

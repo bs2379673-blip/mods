@@ -126,7 +126,7 @@ public final class IgnivorusExplosionLayerParticle extends TextureSheetParticle 
             Vec3 glowVelocity = direction.scale(1.4D + random.nextDouble() * 1.8D);
             Particle glow = engine.createParticle(ModParticles.GLOWING_EMITTER.get(), origin.x, origin.y, origin.z,
                     glowVelocity.x, glowVelocity.y, glowVelocity.z);
-            if (glow != null) glow.setColor(1.0F, 0.55F, 0.12F);
+            if (glow != null) ((net.minecraft.client.particle.SingleQuadParticle) glow).setColor(1.0F, 0.55F, 0.12F);
         }
     }
 

@@ -119,7 +119,7 @@ public final class RaevyxSummonStormRenderer {
                             ? ModParticles.RAEVYX_STORM_EMITTER.get() : ModParticles.RAEVYX_STORM_STAR.get(),
                     position.x, position.y, position.z, velocity.x, velocity.y, velocity.z);
             if (particle != null) {
-                particle.setColor(red, green, blue);
+                ((net.minecraft.client.particle.SingleQuadParticle) particle).setColor(red, green, blue);
                 particle.setLifetime(30);
             }
         }

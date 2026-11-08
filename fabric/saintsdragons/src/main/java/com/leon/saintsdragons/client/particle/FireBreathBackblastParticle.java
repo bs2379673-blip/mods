@@ -146,7 +146,7 @@ public final class FireBreathBackblastParticle extends TextureSheetParticle {
         Particle glow = engine.createParticle(ModParticles.GLOWING_EMITTER.get(),
                 position.x, position.y, position.z, random.nextGaussian() * 0.16,
                 random.nextGaussian() * 0.16, random.nextGaussian() * 0.16);
-        if (glow != null) glow.setColor(1.0F, 0.55F, 0.12F);
+        if (glow != null) ((net.minecraft.client.particle.SingleQuadParticle) glow).setColor(1.0F, 0.55F, 0.12F);
     }
 
     @Override

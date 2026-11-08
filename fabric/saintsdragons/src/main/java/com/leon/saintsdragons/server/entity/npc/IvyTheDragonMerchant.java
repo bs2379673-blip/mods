@@ -23,7 +23,6 @@ import com.leon.saintsdragons.server.ai.navigation.PathNavigateGround;
 import com.leon.saintsdragons.server.menu.IvyInventoryMenu;
 import com.leon.saintsdragons.util.animation.AnimationHelper;
 import com.leon.saintsdragons.util.animation.EntityAnimationController;
-import com.leon.saintsdragons.util.animation.IvyLocomotionAnimationController;
 import com.leon.saintsdragons.util.animation.TickingGeoEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -1409,7 +1408,7 @@ public class IvyTheDragonMerchant extends AbstractVillager implements TickingGeo
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         AnimationController<IvyTheDragonMerchant> movementController =
-                new IvyLocomotionAnimationController(this, this::animationPredicate)
+                new AnimationController<IvyTheDragonMerchant>("movement", 4, this::animationPredicate)
                         .receiveTriggeredAnimations();
         movementController.setSoundKeyframeHandler(this::handleSoundKeyframe);
         movementController.setParticleKeyframeHandler(this::handleParticleKeyframe);

@@ -84,7 +84,7 @@ public final class BeamStarFlashRenderer {
         if (billboardTransform == null) {
             Matrix3f worldToLocal = new Matrix3f(normalMatrix).invert();
             var camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-            ribbonRight.set(camera.getLeftVector()).negate();
+            ribbonRight.set(new org.joml.Vector3f(camera.leftVector())).negate();
             worldToLocal.transform(ribbonRight);
             ribbonRight.z = 0.0F;
             if (ribbonRight.lengthSquared() <= 1.0E-6F) {

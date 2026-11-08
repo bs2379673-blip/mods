@@ -14,7 +14,7 @@ final class SkyfallFireColors {
         int index = Math.min((int) position, COLORS.length - 2);
         float blend = position - index;
         int from = COLORS[index], to = COLORS[index + 1];
-        particle.setColor(Mth.lerp(blend, (from >> 16) & 255, (to >> 16) & 255) / 255.0F,
+        ((net.minecraft.client.particle.SingleQuadParticle) particle).setColor(Mth.lerp(blend, (from >> 16) & 255, (to >> 16) & 255) / 255.0F,
                 Mth.lerp(blend, (from >> 8) & 255, (to >> 8) & 255) / 255.0F,
                 Mth.lerp(blend, from & 255, to & 255) / 255.0F);
     }

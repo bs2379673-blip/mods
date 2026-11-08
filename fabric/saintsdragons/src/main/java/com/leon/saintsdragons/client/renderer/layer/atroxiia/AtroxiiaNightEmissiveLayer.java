@@ -10,7 +10,7 @@ public class AtroxiiaNightEmissiveLayer extends NightEmissiveLayer<Atroxiia> {
     private static final Identifier EMISSIVE_TEXTURE =
             SaintsDragonsCommon.rl("textures/entity/atroxiia/atroxiia_emissive.png");
 
-    public AtroxiiaNightEmissiveLayer(GeoRenderer<Atroxiia> renderer) {
+    public AtroxiiaNightEmissiveLayer(com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<Atroxiia> renderer) {
         super(renderer);
     }
 

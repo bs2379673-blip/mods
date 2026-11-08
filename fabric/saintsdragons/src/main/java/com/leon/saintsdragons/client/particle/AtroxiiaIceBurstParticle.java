@@ -61,7 +61,7 @@ public final class AtroxiiaIceBurstParticle extends TextureSheetParticle {
                         dx * speed, 0.05 + random.nextDouble() * 0.3, dz * speed);
                 if (emitter != null) {
                     float tint = random.nextFloat();
-                    emitter.setColor(0.65F + tint * 0.35F, 0.85F + tint * 0.15F, 1);
+                    ((net.minecraft.client.particle.SingleQuadParticle) emitter).setColor(0.65F + tint * 0.35F, 0.85F + tint * 0.15F, 1);
                 }
                 engine.createParticle(ParticleTypes.SNOWFLAKE,
                         x + dx * radius, y + 0.3, z + dz * radius,

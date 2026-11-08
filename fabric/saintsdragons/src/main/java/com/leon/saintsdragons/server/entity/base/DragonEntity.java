@@ -361,7 +361,7 @@ public abstract class DragonEntity extends TamableAnimal implements TickingGeoEn
         }
 
         if (soundId != null) {
-            SoundEvent sound = soundId != null ? BuiltInRegistries.SOUND_EVENT.get(soundId) : null;
+            SoundEvent sound = soundId != null ? BuiltInRegistries.SOUND_EVENT.getValue(soundId) : null;
             if (sound != null) {
                 getSoundHandler().playClientSound(this, position(), sound, 1.0f, 1.0f);
                 return;

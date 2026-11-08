@@ -188,7 +188,7 @@ public class CindervaneAnimationHandler {
 
     public PlayState flightPredicate(AnimationTest<Cindervane> state) {
         return AnimationHelper.handleFlightLocomotion(state, FLIGHT_ANIMATIONS, FLIGHT_TRANSITIONS,
-                false, false, current -> amphithere.getVisualFlightState(current.getPartialTick()));
+                false, false, current -> amphithere.getVisualFlightState(com.leon.saintsdragons.util.compat.GeoCompat.partialTick(current)));
     }
     public PlayState actionPredicate(AnimationTest<Cindervane> state) {
         state.controller().setTransitionTicks(ACTION_TRANSITION_TICKS);

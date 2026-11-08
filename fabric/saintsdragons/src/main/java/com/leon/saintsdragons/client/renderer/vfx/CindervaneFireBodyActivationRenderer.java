@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 
-public abstract class CindervaneFireBodyActivationRenderer extends RenderType {
+public abstract class CindervaneFireBodyActivationRenderer {
     private static final Identifier[] CIRCLE = new Identifier[12];
     static {
         for (int i = 0; i < CIRCLE.length; i++) {
@@ -20,21 +20,7 @@ public abstract class CindervaneFireBodyActivationRenderer extends RenderType {
         }
     }
 
-    private static final RenderType SHELL = create("saintsdragons_cindervane_fire_body_sphere",
-            DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 16384, false, true,
-            CompositeState.builder()
-                    .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
-                    .setTextureState(new TextureStateShard(SaintsDragonsCommon.rl("textures/particle/shared/misc/blank.png"), false, false))
-                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                    .setCullState(NO_CULL)
-                    .setDepthTestState(LEQUAL_DEPTH_TEST)
-                    .setWriteMaskState(COLOR_WRITE)
-                    .createCompositeState(false));
-
-    private CindervaneFireBodyActivationRenderer(String name, VertexFormat format, VertexFormat.Mode mode,
-                                           int size, boolean crumbling, boolean sorting, Runnable setup, Runnable clear) {
-        super(name, format, mode, size, crumbling, sorting, setup, clear);
-    }
+    private static final RenderType SHELL = net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucentEmissive(SaintsDragonsCommon.rl("textures/particle/shared/misc/blank.png"), false);
 
     public static void render(Cindervane dragon, PoseStack poses, MultiBufferSource buffers, float partialTick) {
         if (!dragon.isAlive() || dragon.isInvisible()) return;

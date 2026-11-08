@@ -114,7 +114,7 @@ public final class IgnivorusChargedFireballTrailParticle extends TextureSheetPar
         float blend = position - index;
         int from = FIRE_COLORS[index];
         int to = FIRE_COLORS[index + 1];
-        particle.setColor(channel(from, to, 16, blend), channel(from, to, 8, blend), channel(from, to, 0, blend));
+        ((net.minecraft.client.particle.SingleQuadParticle) particle).setColor(channel(from, to, 16, blend), channel(from, to, 8, blend), channel(from, to, 0, blend));
     }
 
     private static float channel(int from, int to, int shift, float blend) {

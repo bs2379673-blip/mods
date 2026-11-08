@@ -57,7 +57,7 @@ public final class AnimationHelper {
             FlightAnimations animations, FlightTransitions transitions) {
         return handleFlightLocomotion(state, animations, transitions, false, false,
                 current -> current.animatable().evaluateMotionFlightState(
-                        current.animatable().getFlightPitchRadians(current.getPartialTick())));
+                        current.animatable().getFlightPitchRadians(com.leon.saintsdragons.util.compat.GeoCompat.partialTick(current))));
     }
 
     public static <T extends RideableFlyingDragon> PlayState handleFlightLocomotion(AnimationTest<T> state,
@@ -102,7 +102,7 @@ public final class AnimationHelper {
                         : soundKey != null && soundKey.endsWith("_step")
                                 ? Identifier.fromNamespaceAndPath(entityTypeId.getNamespace(), soundKey)
                                 : null;
-                SoundEvent sound = soundId != null ? BuiltInRegistries.SOUND_EVENT.get(soundId) : null;
+                SoundEvent sound = soundId != null ? BuiltInRegistries.SOUND_EVENT.getValue(soundId) : null;
                 if (sound != null) {
                     entity.level().playLocalSound(entity.getX(), entity.getY(), entity.getZ(), sound,
                             SoundSource.NEUTRAL, 1.0f, 1.0f, false);
@@ -231,7 +231,7 @@ public final class AnimationHelper {
     public static boolean holdTriggeredAnimation(AnimationTest<?> state,
                                                  int transitionTicks,
                                                  RawAnimation... acceleratedAnimations) {
-        RawAnimation triggeredAnimation = state.controller().getTriggeredAnimation();
+        RawAnimation triggeredAnimation = com.leon.saintsdragons.util.compat.GeoCompat.triggered(state.controller());
         if (triggeredAnimation == null) {
             return false;
         }
@@ -348,9 +348,9 @@ public final class AnimationHelper {
     public static void setAndContinue(AnimationTest<?> state, RawAnimation animation) {
         state.setAnimation(animation);
         if (animation != null
-                && state.controller().getCurrentAnimation() == null
+                && state.controller().getCurrentRawAnimation() == null
                 && state.isCurrentAnimation(animation)) {
-            state.resetCurrentAnimation();
+            state.controller().reset();
             state.setAnimation(animation);
         }
     }

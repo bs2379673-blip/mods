@@ -92,7 +92,7 @@ public final class CindervaneFireBodyParticles {
             var particle = Minecraft.getInstance().particleEngine.createParticle(type,
                     point.x, point.y, point.z, drift.x, drift.y, drift.z);
             if (blueFire && particle != null) {
-                particle.setColor(i < 4 ? 0.055F : i < 8 ? 0.16F : 0.30F,
+                ((net.minecraft.client.particle.SingleQuadParticle) particle).setColor(i < 4 ? 0.055F : i < 8 ? 0.16F : 0.30F,
                         i < 4 ? 0.48F : i < 8 ? 0.72F : 0.78F, 1.0F);
             }
         }

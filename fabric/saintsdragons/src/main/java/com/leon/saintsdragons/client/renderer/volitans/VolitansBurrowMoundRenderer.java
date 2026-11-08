@@ -119,7 +119,7 @@ public class VolitansBurrowMoundRenderer extends com.leon.saintsdragons.client.c
     }
 
     private static boolean usesBlockMaterial(GeoBone bone) {
-        String name = bone.getName();
+        String name = bone.name();
         return "pillars".equals(name) || "formations".equals(name);
     }
 

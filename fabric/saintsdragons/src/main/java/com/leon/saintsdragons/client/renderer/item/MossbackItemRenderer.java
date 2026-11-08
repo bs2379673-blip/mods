@@ -22,7 +22,7 @@ import software.bernie.geckolib.model.GeoModel;
 public class MossbackItemRenderer extends GeoItemRenderer<MossbackItem> {
     private static final Identifier GUI_TEXTURE =
             Identifier.fromNamespaceAndPath("saintsdragons", "item/mossback/mossback");
-    private static final RenderType GUI_RENDER_TYPE = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS);
+    private static final RenderType GUI_RENDER_TYPE = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutoutNoCull(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS);
     private final MossbackItemModel babyModel = new MossbackItemModel(true);
 
     public MossbackItemRenderer() {
@@ -53,7 +53,7 @@ public class MossbackItemRenderer extends GeoItemRenderer<MossbackItem> {
     private static void renderGuiSprite(PoseStack poseStack, MultiBufferSource bufferSource,
                                         int packedLight, int packedOverlay) {
         TextureAtlasSprite sprite = Minecraft.getInstance()
-                .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+                .getTextureAtlas(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS)
                 .apply(GUI_TEXTURE);
         VertexConsumer consumer = bufferSource.getBuffer(GUI_RENDER_TYPE);
         Matrix4f pose = poseStack.last().pose();
@@ -75,6 +75,6 @@ public class MossbackItemRenderer extends GeoItemRenderer<MossbackItem> {
                 .setUv(u, v)
                 .setOverlay(packedOverlay)
                 .setLight(packedLight)
-                .setNormal(normal, 0.0F, 0.0F, 1.0F);
+                .setNormal(com.leon.saintsdragons.util.compat.NormalUtil.x(normal, 0.0F, 0.0F, 1.0F), com.leon.saintsdragons.util.compat.NormalUtil.y(normal, 0.0F, 0.0F, 1.0F), com.leon.saintsdragons.util.compat.NormalUtil.z(normal, 0.0F, 0.0F, 1.0F));
     }
 }

@@ -13,7 +13,7 @@ public class RaevyxNightEmissiveLayer extends NightEmissiveLayer<Raevyx> {
     private static final Identifier NIGHT_GOLD_EMISSIVE_TEXTURE =
             SaintsDragonsCommon.rl("textures/entity/raevyx/raevyx_night_gold_emissive.png");
 
-    public RaevyxNightEmissiveLayer(GeoRenderer<Raevyx> renderer) {
+    public RaevyxNightEmissiveLayer(com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<Raevyx> renderer) {
         super(renderer);
     }
 

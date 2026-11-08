@@ -196,7 +196,7 @@ public class IvyInventoryMenu extends AbstractContainerMenu {
 
         @Override
         public @NotNull Pair<Identifier, Identifier> getNoItemIcon() {
-            return Pair.of(InventoryMenu.BLOCK_ATLAS, this.emptyIcon);
+            return Pair.of(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, this.emptyIcon);
         }
     }
 
@@ -217,7 +217,7 @@ public class IvyInventoryMenu extends AbstractContainerMenu {
 
         @Override
         public @NotNull Pair<Identifier, Identifier> getNoItemIcon() {
-            return Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_SWORD_SLOT);
+            return Pair.of(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, EMPTY_SWORD_SLOT);
         }
     }
 }

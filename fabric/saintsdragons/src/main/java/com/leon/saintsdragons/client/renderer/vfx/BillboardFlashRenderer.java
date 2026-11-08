@@ -78,7 +78,7 @@ public final class BillboardFlashRenderer {
         try {
             poseStack.translate(centerX, centerY, centerZ);
             // Position first, face the viewer, then rotate only within the billboard plane.
-            poseStack.mulPose(Minecraft.getInstance().getEntityRenderDispatcher().cameraOrientation());
+            poseStack.mulPose(Minecraft.getInstance().getEntityRenderDispatcher().camera.rotation());
             poseStack.mulPose(Axis.ZP.rotation(angle));
             poseStack.translate(-(anchorU * 2.0F - 1.0F) * halfSize,
                     -(1.0F - anchorV * 2.0F) * halfSize, 0.0F);
@@ -98,7 +98,7 @@ public final class BillboardFlashRenderer {
                                float red, float green, float blue, float alpha) {
         consumer.addVertex(matrix, x, y, 0.0F).setColor(red, green, blue, alpha).setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightTexture.FULL_BRIGHT)
-                .setNormal(normal, 0.0F, 0.0F, -1.0F);
+                .setNormal(com.leon.saintsdragons.util.compat.NormalUtil.x(normal, 0.0F, 0.0F, -1.0F), com.leon.saintsdragons.util.compat.NormalUtil.y(normal, 0.0F, 0.0F, -1.0F), com.leon.saintsdragons.util.compat.NormalUtil.z(normal, 0.0F, 0.0F, -1.0F));
     }
 
     private static float smoothStep(float value) {

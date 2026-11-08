@@ -10,7 +10,7 @@ public class CindervaneNightEmissiveLayer extends NightEmissiveLayer<Cindervane>
     private static final Identifier EMISSIVE_TEXTURE =
             SaintsDragonsCommon.rl("textures/entity/cindervane/cindervane_emissive.png");
 
-    public CindervaneNightEmissiveLayer(GeoRenderer<Cindervane> renderer) {
+    public CindervaneNightEmissiveLayer(com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<Cindervane> renderer) {
         super(renderer);
     }
 

@@ -74,7 +74,7 @@ public class IgnivorusFlameRenderer extends com.leon.saintsdragons.client.compat
                 .setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(240)
-                .setNormal(matrix3f, 0.0F, 0.0F, 1.0F);
+                .setNormal(com.leon.saintsdragons.util.compat.NormalUtil.x(matrix3f, 0.0F, 0.0F, 1.0F), com.leon.saintsdragons.util.compat.NormalUtil.y(matrix3f, 0.0F, 0.0F, 1.0F), com.leon.saintsdragons.util.compat.NormalUtil.z(matrix3f, 0.0F, 0.0F, 1.0F));
     }
 
     @Override

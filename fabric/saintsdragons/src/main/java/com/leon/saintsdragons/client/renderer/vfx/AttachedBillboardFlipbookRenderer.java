@@ -71,7 +71,7 @@ public final class AttachedBillboardFlipbookRenderer {
         float frameTicks = Math.max(0.05F, style.frameTicks());
         float lifetime = textures.length * frameTicks;
         Quaternionf worldToBillboard = style.aimAtSource()
-                ? new Quaternionf(Minecraft.getInstance().getEntityRenderDispatcher().cameraOrientation()).conjugate()
+                ? new Quaternionf(Minecraft.getInstance().getEntityRenderDispatcher().camera.rotation()).conjugate()
                 : null;
         for (Pulse pulse : state.pulses) {
             float age = time - pulse.birthTime();

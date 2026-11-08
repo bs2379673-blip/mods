@@ -51,7 +51,7 @@ public final class DragonBoneSurfaceSampler {
                 if (bone != null) break;
             }
             if (bone == null || !isVisible(bone)) continue;
-            Matrix4f transform = transforms.get(bone.getName());
+            Matrix4f transform = transforms.get(bone.name());
             if (transform == null) continue;
             for (Face local : SURFACES.computeIfAbsent(bone, DragonBoneSurfaceSampler::cacheSurfaces)) {
                 Vec3 origin = transformPosition(transform, local.origin());
@@ -72,30 +72,31 @@ public final class DragonBoneSurfaceSampler {
     }
 
     private static boolean isVisible(GeoBone bone) {
-        if (bone.isHidden()) return false;
-        for (GeoBone parent = bone.getParent(); parent != null; parent = parent.getParent()) {
-            if (parent.isHidingChildren()) return false;
+        if (bone.frameSnapshot != null && bone.frameSnapshot.isHidden()) return false;
+        for (GeoBone parent = bone.parent(); parent != null; parent = parent.parent()) {
+            if (parent.frameSnapshot != null && parent.frameSnapshot.areChildrenHidden()) return false;
         }
         return true;
     }
 
     private static List<Face> cacheSurfaces(GeoBone bone) {
         List<Face> faces = new ArrayList<>();
-        for (GeoCube cube : bone.getCubes()) {
+        if (!(bone instanceof software.bernie.geckolib.cache.model.cuboid.CuboidGeoBone cuboid)) return List.of();
+        for (GeoCube cube : cuboid.cubes) {
             Vec3 size = cube.size();
             if (size.x <= 1.0E-6 || size.y <= 1.0E-6 || size.z <= 1.0E-6 || cube.quads() == null) continue;
             PoseStack poses = new PoseStack();
-            RenderUtil.translateToPivotPoint(poses, cube);
-            RenderUtil.rotateMatrixAroundCube(poses, cube);
-            RenderUtil.translateAwayFromPivotPoint(poses, cube);
+            cube.translateToPivotPoint(poses);
+            cube.rotate(poses);
+            cube.translateAwayFromPivotPoint(poses);
             Matrix4f transform = poses.last().pose();
             for (GeoQuad quad : cube.quads()) {
                 if (quad == null || quad.vertices().length != 4) continue;
-                Vec3 origin = transformPosition(transform, vector(quad.vertices()[0].position()));
-                Vec3 edgeU = transformPosition(transform, vector(quad.vertices()[1].position())).subtract(origin);
-                Vec3 edgeV = transformPosition(transform, vector(quad.vertices()[3].position())).subtract(origin);
+                Vec3 origin = transformPosition(transform, vertex(quad.vertices()[0]));
+                Vec3 edgeU = transformPosition(transform, vertex(quad.vertices()[1])).subtract(origin);
+                Vec3 edgeV = transformPosition(transform, vertex(quad.vertices()[3])).subtract(origin);
                 if (edgeU.cross(edgeV).lengthSqr() < 1.0E-12) continue;
-                Vec3 normal = transformDirection(transform, vector(quad.normal())).normalize();
+                Vec3 normal = transformDirection(transform, vector(quad.normalVec())).normalize();
                 faces.add(new Face(origin, edgeU, edgeV, normal));
             }
         }
@@ -120,6 +121,10 @@ public final class DragonBoneSurfaceSampler {
 
     private static Vec3 transformDirection(Matrix4fc matrix, Vec3 direction) {
         return vector(matrix.transformDirection(direction.toVector3f()));
+    }
+
+    private static Vec3 vertex(software.bernie.geckolib.cache.model.GeoVertex v) {
+        return new Vec3(v.posX(), v.posY(), v.posZ());
     }
 
     private static Vec3 vector(Vector3f vector) {

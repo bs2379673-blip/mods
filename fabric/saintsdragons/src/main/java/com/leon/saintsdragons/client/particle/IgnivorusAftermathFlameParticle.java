@@ -93,7 +93,7 @@ public final class IgnivorusAftermathFlameParticle extends TextureSheetParticle 
             Particle spark = engine.createParticle(ember ? ModParticles.FIRE_BREATH_EMBER.get()
                             : ModParticles.GLOWING_EMITTER.get(), px, py, pz,
                     Math.cos(angle) * speed + xd * 0.25D, rise, Math.sin(angle) * speed + zd * 0.25D);
-            if (spark != null && !ember) spark.setColor(1.0F, 0.55F, 0.12F);
+            if (spark != null && !ember) ((net.minecraft.client.particle.SingleQuadParticle) spark).setColor(1.0F, 0.55F, 0.12F);
         }
     }
 

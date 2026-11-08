@@ -14,7 +14,7 @@ public class IgnivorusNightEmissiveLayer extends NightEmissiveLayer<Ignivorus> {
     private static final Identifier CRIMSON_FEMALE_EMISSIVE_TEXTURE =
             SaintsDragonsCommon.rl("textures/entity/ignivorus/crimson_ignivorus_female_emissive.png");
 
-    public IgnivorusNightEmissiveLayer(GeoRenderer<Ignivorus> renderer) {
+    public IgnivorusNightEmissiveLayer(com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<Ignivorus> renderer) {
         super(renderer);
     }
 

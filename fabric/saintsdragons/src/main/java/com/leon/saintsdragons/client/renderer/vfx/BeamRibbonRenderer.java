@@ -43,7 +43,7 @@ public final class BeamRibbonRenderer {
                 (float) viewDirection.y,
                 (float) viewDirection.z);
         worldToLocal.transform(localView);
-        Vector3f fallbackRight = new Vector3f(camera.getLeftVector()).negate();
+        Vector3f fallbackRight = new Vector3f(new org.joml.Vector3f(camera.leftVector())).negate();
         worldToLocal.transform(fallbackRight);
         fallbackRight.set(fallbackRight.x(), fallbackRight.y(), 0.0F);
         if (fallbackRight.lengthSquared() <= 1.0E-6F) {

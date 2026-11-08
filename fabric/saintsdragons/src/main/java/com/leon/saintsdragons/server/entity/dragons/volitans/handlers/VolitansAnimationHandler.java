@@ -219,7 +219,7 @@ public final class VolitansAnimationHandler {
         return AnimationHelper.handleFlightLocomotion(state, FLIGHT_ANIMATIONS, FLIGHT_TRANSITIONS,
                 dragon.isTamingStunned(), false,
                 current -> dragon.isLanding() ? DragonFlightStateEvaluator.VisualState.GLIDE_DOWN
-                        : dragon.evaluateMotionFlightState(-dragon.getFlightPitchRadians(current.getPartialTick())));
+                        : dragon.evaluateMotionFlightState(-dragon.getFlightPitchRadians(com.leon.saintsdragons.util.compat.GeoCompat.partialTick(current))));
     }
     public PlayState actionPredicate(AnimationTest<Volitans> state) {
         state.controller().setTransitionTicks(ACTION_TRANSITION_TICKS);

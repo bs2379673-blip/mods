@@ -14,14 +14,14 @@ import software.bernie.geckolib.renderer.layer.builtin.BlockAndItemGeoLayer;
 public class IvyHeldItemLayer extends BlockAndItemGeoLayer<IvyTheDragonMerchant> {
     private static final String RIGHT_HAND_LOCATOR = "rightArmItemLocator";
 
-    public IvyHeldItemLayer(GeoRenderer<IvyTheDragonMerchant> renderer) {
+    public IvyHeldItemLayer(com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<IvyTheDragonMerchant> renderer) {
         super(renderer);
     }
 
     @Nullable
     @Override
     protected ItemStack getStackForBone(GeoBone bone, IvyTheDragonMerchant animatable) {
-        if (!RIGHT_HAND_LOCATOR.equals(bone.getName())) {
+        if (!RIGHT_HAND_LOCATOR.equals(bone.name())) {
             return null;
         }
         ItemStack stack = animatable.getRecoveryItemForRender();

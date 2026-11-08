@@ -12,7 +12,7 @@ public class VarasuchusNightEmissiveLayer extends NightEmissiveLayer<Varasuchus>
     private static final Identifier VOID_KISSED_EMISSIVE_TEXTURE =
             SaintsDragonsCommon.rl("textures/entity/varasuchus/varasuchus_void_kissed_emissive.png");
 
-    public VarasuchusNightEmissiveLayer(GeoRenderer<Varasuchus> renderer) {
+    public VarasuchusNightEmissiveLayer(com.leon.saintsdragons.client.compat.geo.LegacyGeoEntityRenderer<Varasuchus> renderer) {
         super(renderer);
     }
 

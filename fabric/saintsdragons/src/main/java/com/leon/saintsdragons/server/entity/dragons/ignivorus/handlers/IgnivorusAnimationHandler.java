@@ -206,7 +206,7 @@ public record IgnivorusAnimationHandler(Ignivorus dragon) {
     }
 
     public PlayState movementPredicate(AnimationTest<Ignivorus> state) {
-        var previousAnimation = state.controller().getCurrentAnimation();
+        var previousAnimation = state.controller().getCurrentRawAnimation();
         boolean leavingSkyfall = previousAnimation != null
                 && ("animation.ignivorus.skyfall".equals(previousAnimation.animation().name())
                     || "animation.ignivorus.skyfall_phase2".equals(previousAnimation.animation().name()));
@@ -368,7 +368,7 @@ public record IgnivorusAnimationHandler(Ignivorus dragon) {
                 RawAnimation.begin().thenPlay("animation.ignivorus.skyfall_air"))) {
             return PlayState.CONTINUE;
         }
-        var previous = state.controller().getCurrentAnimation();
+        var previous = state.controller().getCurrentRawAnimation();
         boolean leavingSkyfall = previous != null
                 && "animation.ignivorus.skyfall_air".equals(previous.animation().name());
         PlayState result = selectFlightAnimation(state);
@@ -380,7 +380,7 @@ public record IgnivorusAnimationHandler(Ignivorus dragon) {
         return AnimationHelper.handleFlightLocomotion(state,
                 dragon.isTakeoff() && dragon.isPhase2Active() ? PHASE2_FLIGHT_ANIMATIONS : FLIGHT_ANIMATIONS,
                 FLIGHT_TRANSITIONS, dragon.isTamingStunned(), false,
-                current -> dragon.getVisualFlightState(current.getPartialTick()));
+                current -> dragon.getVisualFlightState(com.leon.saintsdragons.util.compat.GeoCompat.partialTick(current)));
     }
 
     public PlayState actionPredicate(AnimationTest<Ignivorus> state) {

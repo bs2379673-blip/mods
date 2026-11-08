@@ -44,8 +44,8 @@ public final class RaevyxStormLightningRenderer {
     private static String endBone(String[] entry, BakedGeoModel model) {
         if (entry.length > 1) return entry[1];
         var bone = model.getBone(entry[0]).orElse(null);
-        if (bone != null && bone.getParent() != null && samplesBone(bone.getParent().getName())) {
-            return bone.getParent().getName();
+        if (bone != null && bone.parent() != null && samplesBone(bone.parent().name())) {
+            return bone.parent().name();
         }
         return entry[0];
     }
@@ -206,7 +206,7 @@ public final class RaevyxStormLightningRenderer {
                     (0.05 + random.nextDouble() * 0.12) * (largeImpact ? 2.5D : 1.0D),
                     (random.nextDouble() - 0.5) * spread);
             if (particle != null) {
-                particle.setColor(1, gold ? 0.72F : 0.06F, gold ? 0.12F : 0.08F);
+                ((net.minecraft.client.particle.SingleQuadParticle) particle).setColor(1, gold ? 0.72F : 0.06F, gold ? 0.12F : 0.08F);
                 if (largeImpact) {
                     particle.setLifetime(emitter ? 30 : 20);
                 }
